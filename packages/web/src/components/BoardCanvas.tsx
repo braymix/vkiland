@@ -23,9 +23,9 @@ export interface BoardTargets {
 interface Props {
   view: PlayerView;
   targets: BoardTargets;
-  onPickVertex?: (v: VertexId) => void;
-  onPickEdge?: (e: EdgeId) => void;
-  onPickHex?: (h: HexId) => void;
+  onPickVertex?: ((v: VertexId) => void) | undefined;
+  onPickEdge?: ((e: EdgeId) => void) | undefined;
+  onPickHex?: ((h: HexId) => void) | undefined;
 }
 
 export function BoardCanvas({ view, targets, onPickVertex, onPickEdge, onPickHex }: Props) {

@@ -35,7 +35,7 @@ function phaseMessage(view: PlayerView): string {
   }
 }
 
-export function HudTop({ view, onOpenCosts }: { view: PlayerView; onOpenCosts: () => void }) {
+export function HudTop({ view, onOpenCosts, onOpenMap }: { view: PlayerView; onOpenCosts: () => void; onOpenMap: () => void }) {
   return (
     <div className="area-hud pixel-frame">
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'space-between' }}>
@@ -46,6 +46,14 @@ export function HudTop({ view, onOpenCosts }: { view: PlayerView; onOpenCosts: (
         <div className="phase-banner" style={{ flex: 1 }}>
           {phaseMessage(view)}
         </div>
+        <button
+          className="pxbtn pxbtn--ghost pxbtn--small"
+          onClick={onOpenMap}
+          title="Mappa a schermo intero"
+          aria-label="Mappa"
+        >
+          🗺
+        </button>
         <button
           className="pxbtn pxbtn--ghost pxbtn--small"
           onClick={onOpenCosts}

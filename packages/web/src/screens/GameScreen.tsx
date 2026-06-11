@@ -20,6 +20,7 @@ import {
   RespondTradeDialog,
 } from '../components/dialogs/TradeDialogs';
 import { PassDeviceScreen } from './PassDeviceScreen';
+import { FullscreenMap } from '../components/FullscreenMap';
 import { VictoryScreen } from './VictoryScreen';
 
 interface Props {
@@ -44,6 +45,7 @@ export function GameScreen({ setup, onExit, onRematch }: Props) {
   const [proposeOpen, setProposeOpen] = useState(false);
   const [cardsOpen, setCardsOpen] = useState(false);
   const [costsOpen, setCostsOpen] = useState(false);
+  const [mapFullscreen, setMapFullscreen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isMyTurn = view.currentPlayer === viewpoint;
@@ -149,7 +151,7 @@ export function GameScreen({ setup, onExit, onRematch }: Props) {
   return (
     <div className="screen">
       <div className="game-layout">
-        <HudTop view={view} onOpenCosts={() => setCostsOpen(true)} />
+        <HudTop view={view} onOpenCosts={() => setCostsOpen(true)} onOpenMap={() => setMapFullscreen(true)} />
         <BoardCanvas
           view={view}
           targets={targets}
@@ -210,6 +212,16 @@ export function GameScreen({ setup, onExit, onRematch }: Props) {
       )}
       {handoff !== null && (
         <PassDeviceScreen view={view} to={handoff} onConfirm={controller.confirmHandoff} />
+      )}
+      {mapFullscreen && (
+        <FullscreenMap
+          view={view}
+          targets={targets}
+          onPickVertex={pickVertex}
+          onPickEdge={pickEdge}
+          onPickHex={pickHex}
+          onClose={() => setMapFullscreen(false)}
+        />
       )}
     </div>
   );
