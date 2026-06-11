@@ -9,8 +9,9 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     },
   },
-  // Guardia di purezza: l'engine non può importare nulla di esterno.
-  // Questo garantisce che resti riusabile identico per bot, hot-seat e server.
+  // Guardia di purezza: l'engine non può importare nulla di esterno
+  // (solo import relativi). Questo garantisce che resti riusabile identico
+  // per bot, hot-seat e server.
   {
     files: ['packages/engine/src/**'],
     rules: {
@@ -19,7 +20,7 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ['*', '!./*', '!../*'],
+              regex: '^[^.]',
               message: 'Engine puro: sono ammessi solo import relativi.',
             },
           ],
@@ -27,7 +28,7 @@ export default tseslint.config(
       ],
     },
   },
-  // I bot possono dipendere solo dall'engine.
+  // I bot possono dipendere solo dall'engine (oltre ai propri moduli).
   {
     files: ['packages/bots/src/**'],
     rules: {
@@ -36,7 +37,7 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ['*', '!./*', '!../*', '!@vikiland/engine'],
+              regex: '^(?!\\.)(?!@vikiland/engine$)',
               message: 'I bot dipendono solo da @vikiland/engine.',
             },
           ],

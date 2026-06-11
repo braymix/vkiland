@@ -1,2 +1,81 @@
-// @vikiland/engine — motore di gioco puro (placeholder, in costruzione)
-export const ENGINE_VERSION = '0.1.0';
+/**
+ * @vikiland/engine — motore di gioco puro di Vikiland.
+ *
+ * API principale:
+ *   createGame(options)            → GameState iniziale (deterministico dal seed)
+ *   applyAction(state, action)     → nuovo stato + eventi, oppure errore di validazione
+ *   isLegal(state, action)         → errore | null
+ *   getLegalActions(state, player) → mosse legali (concrete o descrittori)
+ *   getPlayerView(state, viewer)   → vista filtrata (informazione nascosta rimossa)
+ */
+export * from './types';
+export * from './actions';
+export { createGame, cloneState, type NewGameOptions } from './game';
+export { applyAction } from './apply';
+export { isLegal } from './validate';
+export { getLegalActions } from './legal';
+export { getPlayerView, filterEventsForPlayer, type Viewer } from './view';
+
+// Costanti e utilità riusate da bot e UI.
+export {
+  RESOURCES,
+  BUILD_COSTS,
+  PIECE_LIMITS,
+  SAGA_DECK_COMPOSITION,
+  HAND_LIMIT,
+  GRANDE_VIA_MIN,
+  FURIA_MIN,
+  BONUS_GLORY,
+  DEFAULT_TARGET_GLORY,
+  MIN_PLAYERS,
+  MAX_PLAYERS,
+  BANK_PER_RESOURCE,
+  pipWeight,
+  type Buildable,
+} from './constants';
+export {
+  zeroResources,
+  cloneResources,
+  totalResources,
+  addResources,
+  subtractResources,
+  hasAtLeast,
+  isValidResourceCount,
+  resourceEntries,
+  flattenResources,
+} from './resources';
+export {
+  buildingOwnerAt,
+  roadOwnerAt,
+  vertexFreeWithDistance,
+  roadConnects,
+  canPlaceRoad,
+  legalRoadEdges,
+  legalVillageVertices,
+  bankTradeRatio,
+  canPlaySagaCard,
+} from './rules';
+export { longestRoadLength } from './longestRoad';
+export { scoreBreakdown, gloryPoints, countHiddenHeroes } from './scoring';
+export { seedRng, nextU32, nextInt, rollDie, shuffle, type RngState } from './rng';
+
+// Geometria della tavola (riusata dal renderer e dai bot).
+export {
+  type AxialCoord,
+  HEX_DIRECTIONS,
+  BOARD_RADIUS,
+  hexKey,
+  parseHexKey,
+  hexNeighbors,
+  hexDistance,
+  isOnBoard,
+  allBoardHexes,
+  vertexId,
+  edgeId,
+  parseVertexId,
+  parseEdgeId,
+  hexVertexIds,
+  hexEdgeIds,
+} from './board/coords';
+export { getTopology, type BoardTopology } from './board/topology';
+export { generateBoard } from './board/generate';
