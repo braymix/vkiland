@@ -10,9 +10,9 @@ import { getTopology } from './board/topology';
 import { GRANDE_VIA_MIN } from './constants';
 import type { GameEvent } from './actions';
 import { buildingOwnerAt } from './rules';
-import type { GameState, PlayerId, VertexId } from './types';
+import type { GameState, PiecesView, PlayerId, VertexId } from './types';
 
-export function longestRoadLength(state: GameState, player: PlayerId): number {
+export function longestRoadLength(state: PiecesView, player: PlayerId): number {
   const topo = getTopology();
   const roads = new Set(state.players[player]!.roads);
   if (roads.size === 0) return 0;

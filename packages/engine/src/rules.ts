@@ -4,17 +4,17 @@
  */
 import { getTopology } from './board/topology';
 import { PIECE_LIMITS } from './constants';
-import type { EdgeId, GameState, PlayerId, Resource, VertexId } from './types';
+import type { EdgeId, GameState, PiecesView, PlayerId, Resource, TradeRatioView, VertexId } from './types';
 
 /** Chi ha un edificio (villaggio o roccaforte) su questo vertice? null = nessuno. */
-export function buildingOwnerAt(state: GameState, vertex: VertexId): PlayerId | null {
+export function buildingOwnerAt(state: PiecesView, vertex: VertexId): PlayerId | null {
   for (const p of state.players) {
     if (p.villages.includes(vertex) || p.strongholds.includes(vertex)) return p.id;
   }
   return null;
 }
 
-export function roadOwnerAt(state: GameState, edge: EdgeId): PlayerId | null {
+export function roadOwnerAt(state: PiecesView, edge: EdgeId): PlayerId | null {
   for (const p of state.players) {
     if (p.roads.includes(edge)) return p.id;
   }
@@ -22,7 +22,7 @@ export function roadOwnerAt(state: GameState, edge: EdgeId): PlayerId | null {
 }
 
 /** Regola della distanza: il vertice e tutti i suoi vicini devono essere liberi. */
-export function vertexFreeWithDistance(state: GameState, vertex: VertexId): boolean {
+export function vertexFreeWithDistance(state: PiecesView, vertex: VertexId): boolean {
   const topo = getTopology();
   if (buildingOwnerAt(state, vertex) !== null) return false;
   return topo.vertexNeighbors[vertex]!.every((v) => buildingOwnerAt(state, v) === null);
@@ -33,7 +33,7 @@ export function vertexFreeWithDistance(state: GameState, vertex: VertexId): bool
  * oppure un proprio sentiero — ma la connessione via sentiero NON vale se su
  * quel vertice c'è un edificio AVVERSARIO (non si costruisce "attraverso").
  */
-export function roadConnects(state: GameState, player: PlayerId, edge: EdgeId): boolean {
+export function roadConnects(state: PiecesView, player: PlayerId, edge: EdgeId): boolean {
   const topo = getTopology();
   const me = state.players[player]!;
   for (const v of topo.edgeVertices[edge]!) {
@@ -47,7 +47,7 @@ export function roadConnects(state: GameState, player: PlayerId, edge: EdgeId): 
 }
 
 /** Lo spigolo è piazzabile (libero, valido, connesso, pezzi disponibili)? Costo escluso. */
-export function canPlaceRoad(state: GameState, player: PlayerId, edge: EdgeId): boolean {
+export function canPlaceRoad(state: PiecesView, player: PlayerId, edge: EdgeId): boolean {
   const topo = getTopology();
   if (!(edge in topo.edgeVertices)) return false;
   if (roadOwnerAt(state, edge) !== null) return false;
@@ -56,7 +56,7 @@ export function canPlaceRoad(state: GameState, player: PlayerId, edge: EdgeId): 
 }
 
 /** Tutti gli spigoli su cui `player` potrebbe piazzare un sentiero ora. */
-export function legalRoadEdges(state: GameState, player: PlayerId): EdgeId[] {
+export function legalRoadEdges(state: PiecesView, player: PlayerId): EdgeId[] {
   const topo = getTopology();
   const me = state.players[player]!;
   // Candidati: spigoli adiacenti alla propria rete (estremi di sentieri e edifici).
@@ -77,7 +77,7 @@ export function legalRoadEdges(state: GameState, player: PlayerId): EdgeId[] {
 }
 
 /** Tutti i vertici su cui `player` potrebbe costruire un villaggio ora (connettività inclusa). */
-export function legalVillageVertices(state: GameState, player: PlayerId): VertexId[] {
+export function legalVillageVertices(state: PiecesView, player: PlayerId): VertexId[] {
   const topo = getTopology();
   const me = state.players[player]!;
   const candidates = new Set<VertexId>();
@@ -90,7 +90,7 @@ export function legalVillageVertices(state: GameState, player: PlayerId): Vertex
 }
 
 /** Rapporto di scambio con la banca per una data risorsa (4, 3 o 2). */
-export function bankTradeRatio(state: GameState, player: PlayerId, give: Resource): number {
+export function bankTradeRatio(state: TradeRatioView, player: PlayerId, give: Resource): number {
   const topo = getTopology();
   const me = state.players[player]!;
   const buildings = new Set([...me.villages, ...me.strongholds]);

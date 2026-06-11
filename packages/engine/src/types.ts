@@ -144,6 +144,30 @@ export interface GameState {
 }
 
 // ---------------------------------------------------------------------------
+// Viste strutturali minime per le regole geometriche
+// ---------------------------------------------------------------------------
+
+/**
+ * Sottoinsieme strutturale dello stato sufficiente per le regole su pezzi e
+ * percorsi: lo soddisfano sia `GameState` sia `PlayerView` (i pezzi sono
+ * informazione pubblica). Permette ai bot di ragionare sulla vista filtrata
+ * con le stesse funzioni del motore.
+ */
+export interface PiecesView {
+  players: ReadonlyArray<{
+    id: PlayerId;
+    villages: VertexId[];
+    strongholds: VertexId[];
+    roads: EdgeId[];
+  }>;
+}
+
+/** Come PiecesView, con in più gli approdi (per i rapporti di scambio). */
+export interface TradeRatioView extends PiecesView {
+  board: { ports: Port[] };
+}
+
+// ---------------------------------------------------------------------------
 // Viste filtrate (informazione nascosta)
 // ---------------------------------------------------------------------------
 
