@@ -6,7 +6,8 @@ import { PLAYER_COLORS } from '../render/sprites/palettes';
 interface Props {
   state: GameState;
   onExit: () => void;
-  onRematch: () => void;
+  /** null = rivincita non disponibile (partite online). */
+  onRematch: (() => void) | null;
 }
 
 export function VictoryScreen({ state, onExit, onRematch }: Props) {
@@ -70,9 +71,11 @@ export function VictoryScreen({ state, onExit, onRematch }: Props) {
           <button className="pxbtn pxbtn--ghost" onClick={onExit}>
             {it.tornaAlMenu}
           </button>
-          <button className="pxbtn" onClick={onRematch}>
-            {it.rivincita}
-          </button>
+          {onRematch && (
+            <button className="pxbtn" onClick={onRematch}>
+              {it.rivincita}
+            </button>
+          )}
         </div>
       </div>
     </div>

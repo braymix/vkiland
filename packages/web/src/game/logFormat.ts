@@ -1,9 +1,14 @@
 /** Traduzione degli eventi del motore in righe del diario di bordo. */
-import type { GameEvent, GameState, ResourceCount } from '@vikiland/engine';
+import type { GameEvent, ResourceCount } from '@vikiland/engine';
 import { RESOURCES, totalResources } from '@vikiland/engine';
 import { it, t } from '../i18n/it';
 
-function nameOf(state: GameState, pid: number): string {
+/** Basta il nome dei giocatori: lo soddisfano sia GameState sia PlayerView. */
+export interface NamedPlayers {
+  players: readonly { name: string }[];
+}
+
+function nameOf(state: NamedPlayers, pid: number): string {
   return state.players[pid]?.name ?? `Giocatore ${pid}`;
 }
 
@@ -15,7 +20,7 @@ function listResources(rc: ResourceCount): string {
   return parts.join(', ');
 }
 
-export function describeEvent(e: GameEvent, state: GameState): string | null {
+export function describeEvent(e: GameEvent, state: NamedPlayers): string | null {
   switch (e.type) {
     case 'turnoIniziato':
       return t(it.log.turnoIniziato, { n: e.turnNumber, nome: nameOf(state, e.player) });

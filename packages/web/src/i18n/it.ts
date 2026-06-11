@@ -10,8 +10,36 @@ export const it = {
 
   // Menu
   nuovaPartita: 'Nuova partita',
-  multigiocatore: 'Online (in arrivo)',
+  multigiocatore: 'Online',
   negozio: 'Negozio (in arrivo)',
+
+  // Online: account
+  accedi: 'Accedi',
+  registrati: 'Registrati',
+  email: 'Email',
+  password: 'Password',
+  nomeInGioco: 'Nome in gioco',
+  serverUrl: 'Indirizzo del server',
+  connessioneInCorso: 'Connessione…',
+  esciAccount: 'Cambia account',
+  ciao: 'Ciao, {nome}!',
+
+  // Online: lobby
+  creaPartita: 'Crea partita',
+  unisciti: 'Unisciti',
+  codiceInvito: 'Codice invito',
+  lobbyTitolo: 'Lobby {code}',
+  condividiCodice: 'Condividi il codice con gli altri vichinghi',
+  inAttesaHost: "In attesa che l'host salpi…",
+  avviaPartita: 'Salpa!',
+  aggiungiBot: '+ Bot',
+  esciLobby: 'Esci dalla lobby',
+  timerTurno: 'Timer di turno',
+  nessunTimer: 'Nessuno',
+  hostTag: 'host',
+  disconnessoTag: 'assente',
+  attesaPartita: 'In attesa della partita…',
+  lobbyChiusa: 'Lobby chiusa: {motivo}',
 
   // Setup
   configuraPartita: 'Prepara la spedizione',

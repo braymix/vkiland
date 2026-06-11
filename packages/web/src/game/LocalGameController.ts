@@ -21,16 +21,17 @@ import {
   type Action,
   type GameEvent,
   type GameState,
-  type LegalMove,
   type PlayerConfig,
   type PlayerId,
-  type PlayerView,
   type ValidationError,
   type Viewer,
 } from '@vikiland/engine';
 import { createBot, type Bot } from '@vikiland/bots';
 import { describeEvent } from './logFormat';
 import { nextHumanActor } from './hotseat';
+import type { GameController, GameSnapshot, LogEntry } from './controller';
+
+export type { GameSnapshot, LogEntry } from './controller';
 
 export interface GameSetup {
   seed: string;
@@ -39,31 +40,11 @@ export interface GameSetup {
   targetGloryPoints: number;
 }
 
-export interface LogEntry {
-  id: number;
-  text: string;
-}
-
-/** Fotografia immutabile per React. */
-export interface GameSnapshot {
-  state: GameState;
-  /** Vista dell'umano che sta guardando lo schermo. */
-  view: PlayerView;
-  /** L'umano "al tavolo" in questo momento. */
-  viewpoint: PlayerId;
-  humans: PlayerId[];
-  /** Se non null: il dispositivo va passato a questo giocatore (vista congelata). */
-  handoff: PlayerId | null;
-  legalActions: LegalMove[];
-  log: LogEntry[];
-  generation: number;
-}
-
 const BOT_DELAY_MIN = 450;
 const BOT_DELAY_MAX = 850;
 const MAX_LOG = 120;
 
-export class LocalGameController {
+export class LocalGameController implements GameController {
   private state: GameState;
   private readonly bots = new Map<PlayerId, Bot>();
   private readonly listeners = new Set<() => void>();
@@ -143,7 +124,6 @@ export class LocalGameController {
 
   private buildSnapshot(): GameSnapshot {
     return {
-      state: this.state,
       view: getPlayerView(this.state, this.viewpoint),
       viewpoint: this.viewpoint,
       humans: [...this.humans],
@@ -152,6 +132,9 @@ export class LocalGameController {
       legalActions: this.handoff === null ? getLegalActions(this.state, this.viewpoint) : [],
       log: [...this.log],
       generation: this.generation,
+      finalState: this.state.phase.type === 'gameOver' ? this.state : null,
+      remoteError: null,
+      turnDeadline: null,
     };
   }
 

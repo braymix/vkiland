@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Action, EdgeId, HexId, VertexId } from '@vikiland/engine';
 import { it, t } from '../i18n/it';
-import { LocalGameController, type GameSetup } from '../game/LocalGameController';
+import type { GameController } from '../game/controller';
 import { useGame } from '../game/useGame';
 import { ActionBar, type BuildMode } from '../components/ActionBar';
 import { BoardCanvas, type BoardTargets } from '../components/BoardCanvas';
@@ -24,15 +24,17 @@ import { FullscreenMap } from '../components/FullscreenMap';
 import { VictoryScreen } from './VictoryScreen';
 
 interface Props {
-  setup: GameSetup;
+  /** Factory del controller (locale od online): chiamata una sola volta. */
+  makeController: () => GameController;
   onExit: () => void;
-  onRematch: () => void;
+  /** null = rivincita non disponibile (partite online). */
+  onRematch: (() => void) | null;
 }
 
-export function GameScreen({ setup, onExit, onRematch }: Props) {
-  const controllerRef = useRef<LocalGameController | null>(null);
+export function GameScreen({ makeController, onExit, onRematch }: Props) {
+  const controllerRef = useRef<GameController | null>(null);
   if (controllerRef.current === null) {
-    controllerRef.current = new LocalGameController(setup);
+    controllerRef.current = makeController();
   }
   const controller = controllerRef.current;
   useEffect(() => () => controller.dispose(), [controller]);
@@ -61,6 +63,15 @@ export function GameScreen({ setup, onExit, onRematch }: Props) {
       setCostsOpen(false);
     }
   }, [handoff]);
+
+  // Errori asincroni dal server (online): mostrati come quelli sincroni.
+  const remoteError = snap.remoteError;
+  useEffect(() => {
+    if (!remoteError) return;
+    setError(t(it.erroreMossa, { motivo: remoteError.message }));
+    const timer = setTimeout(() => setError(null), 2500);
+    return () => clearTimeout(timer);
+  }, [remoteError]);
 
   const dispatch = (action: Action) => {
     const err = controller.dispatch(action);
@@ -146,12 +157,15 @@ export function GameScreen({ setup, onExit, onRematch }: Props) {
   const offerMine = offer !== null && offer.from === viewpoint && offer.to === null;
   const canAcceptOffer = legalActions.some((m) => m.type === 'rispondiScambio' && m.accept);
 
-  const gameOver = snap.state.phase.type === 'gameOver';
+  const gameOver = snap.finalState !== null;
 
   return (
     <div className="screen">
       <div className="game-layout">
         <HudTop view={view} onOpenCosts={() => setCostsOpen(true)} onOpenMap={() => setMapFullscreen(true)} />
+        {snap.turnDeadline !== null && !gameOver && (
+          <TurnTimerBadge deadline={snap.turnDeadline} />
+        )}
         <BoardCanvas
           view={view}
           targets={targets}
@@ -207,11 +221,11 @@ export function GameScreen({ setup, onExit, onRematch }: Props) {
           onClose={() => setCostsOpen(false)}
         />
       )}
-      {gameOver && (
-        <VictoryScreen state={snap.state} onExit={onExit} onRematch={onRematch} />
+      {snap.finalState !== null && (
+        <VictoryScreen state={snap.finalState} onExit={onExit} onRematch={onRematch} />
       )}
       {handoff !== null && (
-        <PassDeviceScreen view={view} to={handoff} onConfirm={controller.confirmHandoff} />
+        <PassDeviceScreen view={view} to={handoff} onConfirm={() => controller.confirmHandoff()} />
       )}
       {mapFullscreen && (
         <FullscreenMap
@@ -223,6 +237,21 @@ export function GameScreen({ setup, onExit, onRematch }: Props) {
           onClose={() => setMapFullscreen(false)}
         />
       )}
+    </div>
+  );
+}
+
+/** Conto alla rovescia del timer di turno (partite online). */
+function TurnTimerBadge({ deadline }: { deadline: number }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setTick((x) => x + 1), 500);
+    return () => clearInterval(timer);
+  }, []);
+  const sec = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+  return (
+    <div className="turn-timer" style={{ color: sec <= 10 ? 'var(--danger)' : 'var(--ink-dim)' }}>
+      ⏳ {sec}s
     </div>
   );
 }

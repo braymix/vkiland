@@ -1,7 +1,13 @@
 /** Schermata iniziale. */
 import { it } from '../i18n/it';
 
-export function MenuScreen({ onNewGame }: { onNewGame: () => void }) {
+export function MenuScreen({
+  onNewGame,
+  onOnline,
+}: {
+  onNewGame: () => void;
+  onOnline: () => void;
+}) {
   return (
     <div className="screen" style={{ justifyContent: 'center' }}>
       <h1 className="menu-title">{it.titolo}</h1>
@@ -10,8 +16,7 @@ export function MenuScreen({ onNewGame }: { onNewGame: () => void }) {
         <button className="pxbtn" onClick={onNewGame}>
           {it.nuovaPartita}
         </button>
-        {/* PUNTO DI ESTENSIONE (Fase 3): qui si abiliterà il multigiocatore online. */}
-        <button className="pxbtn pxbtn--ghost" disabled>
+        <button className="pxbtn pxbtn--ghost" onClick={onOnline}>
           {it.multigiocatore}
         </button>
         {/* PUNTO DI ESTENSIONE (Fase 4 — monetizzazione): negozio di skin/temi

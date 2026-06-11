@@ -12,27 +12,27 @@ interface Props {
   onClose: () => void;
 }
 
-export function FullscreenMap(props: Props) {
+export function FullscreenMap({ view, targets, onPickVertex, onPickEdge, onPickHex, onClose }: Props) {
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') props.onClose();
+      if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
-  }, [props.onClose]);
+  }, [onClose]);
 
   return (
     <div className="fullscreen-map-backdrop">
       <div className="fullscreen-map">
-        <button className="fullscreen-map-close" onClick={props.onClose} aria-label="Chiudi mappa">
+        <button className="fullscreen-map-close" onClick={onClose} aria-label="Chiudi mappa">
           ✕
         </button>
         <BoardCanvas
-          view={props.view}
-          targets={props.targets}
-          onPickVertex={props.onPickVertex}
-          onPickEdge={props.onPickEdge}
-          onPickHex={props.onPickHex}
+          view={view}
+          targets={targets}
+          onPickVertex={onPickVertex}
+          onPickEdge={onPickEdge}
+          onPickHex={onPickHex}
         />
       </div>
     </div>

@@ -1,21 +1,28 @@
-/** Router a stati dell'app: menu → setup → partita (→ vittoria). */
+/** Router a stati dell'app: menu → setup → partita locale, oppure online. */
 import { useState } from 'react';
-import type { GameSetup } from './game/LocalGameController';
+import { LocalGameController, type GameSetup } from './game/LocalGameController';
 import { GameScreen } from './screens/GameScreen';
 import { MenuScreen } from './screens/MenuScreen';
+import { OnlineScreen } from './screens/OnlineScreen';
 import { SetupScreen } from './screens/SetupScreen';
 
 type Route =
   | { screen: 'menu' }
   | { screen: 'setup' }
-  | { screen: 'game'; setup: GameSetup; gameKey: number };
+  | { screen: 'game'; setup: GameSetup; gameKey: number }
+  | { screen: 'online' };
 
 export function App() {
   const [route, setRoute] = useState<Route>({ screen: 'menu' });
 
   switch (route.screen) {
     case 'menu':
-      return <MenuScreen onNewGame={() => setRoute({ screen: 'setup' })} />;
+      return (
+        <MenuScreen
+          onNewGame={() => setRoute({ screen: 'setup' })}
+          onOnline={() => setRoute({ screen: 'online' })}
+        />
+      );
     case 'setup':
       return (
         <SetupScreen
@@ -27,7 +34,7 @@ export function App() {
       return (
         <GameScreen
           key={route.gameKey}
-          setup={route.setup}
+          makeController={() => new LocalGameController(route.setup)}
           onExit={() => setRoute({ screen: 'menu' })}
           onRematch={() =>
             setRoute({
@@ -42,5 +49,7 @@ export function App() {
           }
         />
       );
+    case 'online':
+      return <OnlineScreen onBack={() => setRoute({ screen: 'menu' })} />;
   }
 }

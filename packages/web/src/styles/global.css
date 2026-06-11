@@ -283,6 +283,13 @@ button {
   flex-wrap: wrap;
 }
 
+/* Timer di turno (partite online) */
+.turn-timer {
+  text-align: center;
+  font-size: 10px;
+  padding: 2px 0;
+}
+
 /* Mappa a schermo intero: interattiva, chiudibile con ESC o X */
 .fullscreen-map-backdrop {
   position: fixed;

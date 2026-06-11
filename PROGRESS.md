@@ -4,13 +4,38 @@
 
 ## Stato attuale
 
-**FASE 2 COMPLETATA** ✅ — hot-seat: 2–4 giocatori sullo stesso dispositivo,
-ognuno umano o bot, con schermo di passaggio del dispositivo tra un umano e
-l'altro (nessuna fuga di informazione). Aggiunto il bugiardino dei costi
-(bottone «?» in partita). In attesa di collaudo prima della Fase 3 (online).
-Fase 1 collaudata e approvata dall'utente.
+**FASE 3 COMPLETATA** ✅ — multiplayer ONLINE: server autoritativo
+(Fastify + Socket.io, stesso engine = anti-cheat), account email+password,
+lobby con codici invito a 6 caratteri, bot lato server, riconnessione,
+timer di turno opzionale con mossa automatica. In attesa di collaudo.
+Fasi 1 e 2 collaudate e approvate dall'utente (hot-seat, bugiardino,
+mappa a schermo intero, mirini viola sugli approdi).
 
-## Checklist Fase 2
+## Checklist Fase 3 (online)
+
+- ✅ `packages/server`: Fastify (REST `/api/register|login|logout|me`) +
+     Socket.io con handshake autenticato dal token di sessione
+- ✅ Account: hash scrypt (`node:crypto`, zero dipendenze native), sessioni
+     token, storage JSON dietro interfaccia `Storage` (swap previsto a
+     Drizzle SQLite/PostgreSQL + argon2id, formati versionati)
+- ✅ Lobby: codici invito a 6 caratteri non ambigui, posti umani/bot gestiti
+     dall'host, espulsione, chiusura, riconnessione (il posto resta legato
+     all'utente a partita iniziata)
+- ✅ `GameRoom` autoritativa: i client mandano `Action` come intenzioni, il
+     server valida con lo stesso engine e rimanda a ciascun posto la SUA
+     vista filtrata + eventi filtrati; bot sul server; partite finite
+     salvate come seed+action_log (replay deterministico)
+- ✅ Timer di turno opzionale (60/120s): allo scadere il server gioca la
+     mossa di default (`defaultAction.ts`) — la partita non si blocca mai
+- ✅ Client: interfaccia `GameController` comune; `RemoteGameController`
+     (stessa GameScreen del locale, countdown ⏳, errori dal server non
+     bloccanti); schermate Online (accesso/registrazione, crea/unisciti,
+     stanza lobby); sessione ricordata in localStorage
+- ✅ QA: 141 test verdi (engine 100, bot 9, server 21, web 11) + typecheck +
+     lint; collaudo E2E con 2 browser reali: registrazione, lobby col codice,
+     piazzamenti incrociati visti in tempo reale, zero errori console
+
+## Checklist Fase 2 (hot-seat) — collaudata ✅
 
 - ✅ Bugiardino: dialogo costi/PG/bonus/limiti pezzi, valori presi dalle costanti
      dell'engine, apribile col bottone «?» nella testata in qualunque fase
@@ -45,26 +70,33 @@ Fase 1 collaudata e approvata dall'utente.
 - ✅ 13. QA finale: `pnpm test` (115 test) + `typecheck` + `lint` + `build` verdi;
        collaudo in browser headless (setup, dadi, turni bot) senza errori console
 
-## Come testare la Fase 2
+## Come testare la Fase 3 (online)
 
 ```bash
 pnpm install
-pnpm test        # 120 test: motore (100), bot (9), web (11)
-pnpm dev         # http://localhost:5173  (per il telefono: pnpm dev --host)
+pnpm test        # 141 test: motore (100), bot (9), server (21), web (11)
+pnpm server      # terminale 1: server di gioco su http://localhost:8787
+pnpm dev         # terminale 2: client su http://localhost:5173
 ```
-Hot-seat: Nuova partita → metti 2+ righe su «Umano» col toggle → Salpa! →
-tra il turno di un umano e l'altro appare «Passa il dispositivo»; la mano del
-prossimo si rivela solo dopo «Sono {nome}!». Col 7 gli scarti di più umani
-avvengono uno alla volta; nelle offerte rispondono prima gli altri, il
-proponente conferma per ultimo. Il bugiardino è sotto il bottone «?» in alto.
-Partita solo vs bot = identica alla Fase 1 (mai passaggi di mano).
+Apri DUE browser (o uno normale + uno in incognito): in entrambi
+menu → **Online** → **Registrati** (email qualsiasi, password ≥8 caratteri,
+nome in gioco). Nel primo: **Crea partita** (timer opzionale) → appare il
+**codice invito**; nel secondo: inserisci il codice → **Unisciti**. L'host può
+aggiungere bot e poi **Salpa!**: ognuno vede solo la PROPRIA mano, le mosse
+arrivano in tempo reale, i bot girano sul server. Chiudere e riaprire la
+pagina riaggancia automaticamente la partita (riconnessione). Per giocare
+da telefono in LAN: `pnpm dev --host` e, nel form di accesso, l'indirizzo
+del server è già precompilato con l'host giusto.
+
+Hot-seat (Fase 2): Nuova partita → metti 2+ righe su «Umano» col toggle →
+tra un umano e l'altro appare «Passa il dispositivo». Partita solo vs bot =
+identica alla Fase 1.
 
 ## Roadmap fasi successive
 
-- **Fase 3 — Online**: `packages/server` (Fastify + Socket.io), stato autoritativo sul server
-  (stesso engine = anti-cheat), account email+password (argon2id), lobby con codici invito,
-  riconnessione, statistiche, timer di turno. DB: SQLite dev / PostgreSQL prod (Drizzle).
-  Client: `RemoteGameController` con la stessa interfaccia del locale.
+- **Fase 3.5 — Rifiniture online** (quando serviranno): Drizzle ORM
+  (SQLite dev/PostgreSQL prod) e argon2id al posto di JSON+scrypt (interfacce
+  già pronte), statistiche giocatore, rivincita nella stessa lobby, chat.
 - **Fase 4 — Predisposizione monetizzazione**: registro palette/temi = skin, tabella
   `entitlements`, hook acquisti/ads nei punti marcati `PUNTO DI ESTENSIONE`.
 
@@ -81,21 +113,28 @@ Partita solo vs bot = identica alla Fase 1 (mai passaggi di mano).
 - **Rendering**: Canvas 2D a 160×140 pixel logici scalato con `image-rendering: pixelated`;
   sprite = matrici di testo + palette semantiche (`render/sprites/`); hit-testing matematico
   sul bersaglio legale più vicino (mobile-friendly).
-- **UI sostituibile**: `LocalGameController` (Fase 1-2) e futuro `RemoteGameController` (Fase 3)
-  condividono interfaccia `subscribe/getSnapshot/dispatch`.
+- **UI sostituibile**: `LocalGameController` (Fasi 1-2) e `RemoteGameController` (Fase 3)
+  implementano la STESSA interfaccia `GameController` (`game/controller.ts`): la
+  GameScreen non sa se gioca in locale o online.
+- **Server autoritativo senza dipendenze native** (Fase 3): Fastify + Socket.io;
+  i client inviano intenzioni, il server applica con lo stesso engine e rimanda
+  viste/eventi filtrati per posto. Password scrypt (`node:crypto`) e storage JSON
+  dietro interfaccia: lo swap a Drizzle/PostgreSQL + argon2id è un punto di
+  sostituzione dichiarato, non una riscrittura.
 
 ## Comandi
 
-`pnpm install` · `pnpm dev` · `pnpm test` · `pnpm typecheck` · `pnpm lint` · `pnpm build`
+`pnpm install` · `pnpm dev` · `pnpm server` · `pnpm test` · `pnpm typecheck` · `pnpm lint` · `pnpm build`
 
 ## Punti di estensione Fase 4 (marcatori `PUNTO DI ESTENSIONE` nel codice)
 
 - `packages/web/src/render/sprites/palettes.ts` — registro palette/temi = sistema skin.
-- `packages/web/src/screens/MenuScreen.tsx` — bottoni "Multigiocatore" e "Negozio" (disabilitati).
+- `packages/web/src/screens/MenuScreen.tsx` — bottone "Negozio" (disabilitato).
 - `packages/engine/src/types.ts` (`PlayerState`) — campo `cosmetics` passthrough previsto.
-- `packages/server/README.md` — tabella `entitlements` e hook acquisti/ads (sketch Fase 3/4).
+- `packages/server/storage.ts` e README — tabella `entitlements` e hook acquisti/ads.
 
 ## Problemi noti / TODO
 
 - I bot rispondono agli scambi ma non li propongono (scelta di design Fase 1, flag previsto).
-- Le animazioni (dadi, produzione) sono minimali; possibile polish in Fase 2.
+- Le animazioni (dadi, produzione) sono minimali; possibile polish futuro.
+- Online: rivincita nella stessa lobby non ancora prevista (si crea una nuova lobby).
