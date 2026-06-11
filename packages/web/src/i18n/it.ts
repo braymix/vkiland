@@ -80,6 +80,18 @@ export const it = {
   scartaCarte: 'Scarta {n} carte',
   scegliVittima: 'Scegli chi derubare',
 
+  // Bugiardino (riepilogo costi e punti)
+  bugiardino: 'Bugiardino',
+  bugiardinoTitolo: 'Costi e Punti Gloria',
+  pezziMax: 'max {n}',
+  puntiGloriaAbbr: 'PG',
+  bonusRequisitoVia: 'almeno {n} sentieri collegati',
+  bonusRequisitoFuria: 'almeno {n} Berserker giocati',
+  eroeSegretoRiga: '1 PG segreto (conta da subito)',
+  scambiRiga: 'Scambi: banca 4:1 · approdo 3:1 · approdo dedicato 2:1',
+  obiettivoRiga: 'Vittoria: {n} Punti Gloria nel proprio turno',
+  setteRiga: 'Col 7: chi ha più di {n} carte ne scarta la metà',
+
   // Vittoria
   vittoriaTitolo: '{nome} conquista Vikiland!',
   rivincita: 'Rivincita',

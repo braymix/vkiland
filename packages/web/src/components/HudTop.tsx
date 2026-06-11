@@ -35,7 +35,7 @@ function phaseMessage(view: PlayerView): string {
   }
 }
 
-export function HudTop({ view }: { view: PlayerView }) {
+export function HudTop({ view, onOpenCosts }: { view: PlayerView; onOpenCosts: () => void }) {
   return (
     <div className="area-hud pixel-frame">
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'space-between' }}>
@@ -46,6 +46,14 @@ export function HudTop({ view }: { view: PlayerView }) {
         <div className="phase-banner" style={{ flex: 1 }}>
           {phaseMessage(view)}
         </div>
+        <button
+          className="pxbtn pxbtn--ghost pxbtn--small"
+          onClick={onOpenCosts}
+          title={it.bugiardino}
+          aria-label={it.bugiardino}
+        >
+          ?
+        </button>
       </div>
       <div>
         {view.players.map((p) => {

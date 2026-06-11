@@ -10,6 +10,7 @@ import { GameLog } from '../components/GameLog';
 import { HandPanel } from '../components/HandPanel';
 import { HudTop } from '../components/HudTop';
 import { BankTradeDialog } from '../components/dialogs/BankTradeDialog';
+import { CostsDialog } from '../components/dialogs/CostsDialog';
 import { DiscardDialog } from '../components/dialogs/DiscardDialog';
 import { SagaCardsDialog } from '../components/dialogs/SagaCardsDialog';
 import { StealDialog } from '../components/dialogs/StealDialog';
@@ -41,6 +42,7 @@ export function GameScreen({ setup, onExit, onRematch }: Props) {
   const [bankOpen, setBankOpen] = useState(false);
   const [proposeOpen, setProposeOpen] = useState(false);
   const [cardsOpen, setCardsOpen] = useState(false);
+  const [costsOpen, setCostsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isMyTurn = view.currentPlayer === humanPlayer;
@@ -134,7 +136,7 @@ export function GameScreen({ setup, onExit, onRematch }: Props) {
   return (
     <div className="screen">
       <div className="game-layout">
-        <HudTop view={view} />
+        <HudTop view={view} onOpenCosts={() => setCostsOpen(true)} />
         <BoardCanvas
           view={view}
           targets={targets}
@@ -182,6 +184,12 @@ export function GameScreen({ setup, onExit, onRematch }: Props) {
           legalActions={legalActions}
           onSubmit={dispatch}
           onClose={() => setCardsOpen(false)}
+        />
+      )}
+      {costsOpen && (
+        <CostsDialog
+          targetGloryPoints={view.targetGloryPoints}
+          onClose={() => setCostsOpen(false)}
         />
       )}
       {gameOver && (
