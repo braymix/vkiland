@@ -75,6 +75,12 @@ const MIRINO: SpriteDef = {
   rows: ['.nnnnn.', 'nbbbbbn', 'nb...bn', 'nb...bn', 'nb...bn', 'nbbbbbn', '.nnnnn.'],
 };
 
+/** Variante VIOLA del marcatore: vertici che danno diritto a un approdo. */
+const MIRINO_PORTO: SpriteDef = {
+  map: { n: 'nero', b: 'mirinoPorto' },
+  rows: MIRINO.rows,
+};
+
 let staticCanvas: HTMLCanvasElement | null = null;
 let staticKey = '';
 
@@ -175,30 +181,19 @@ function renderStatic(view: PlayerView): HTMLCanvasElement {
     if (hex.token !== null) drawToken(ctx, x, y, hex.token);
   }
 
-  // Approdi: drakkar al largo + cerchio di sfondo + etichetta del rapporto (+ icona risorsa).
+  // Approdi: drakkar al largo + etichetta del rapporto (+ icona risorsa).
   for (const port of view.board.ports) {
     const anchor = portAnchor(port.edge);
-    // Cerchio di sfondo che evidenzia il porto (grigio scuro per generici, colorato per specifici).
-    ctx.fillStyle = port.kind === 'generico' ? 'rgba(75, 90, 110, 0.6)' : 'rgba(180, 140, 60, 0.5)';
-    ctx.beginPath();
-    ctx.arc(anchor.x, anchor.y, 11, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = color('accento-scuro');
-    ctx.lineWidth = 0.5;
-    ctx.stroke();
-    // Drakkar sopra il cerchio.
     drawSpriteCentered(ctx, bakeSprite('drakkar', DRAKKAR), anchor.x, anchor.y);
-    // Etichetta del rapporto sotto il drakkar.
     const label = `${port.ratio}:1`;
     const tw = digitsWidth(label);
-    const ty = anchor.y + 7;
+    const ty = anchor.y + 6;
     ctx.fillStyle = color('nero');
     ctx.fillRect(anchor.x - Math.floor(tw / 2) - 1, ty - 1, tw + 2, 7);
     drawDigits(ctx, label, anchor.x - Math.floor(tw / 2), ty, color('bianco'));
-    // Icona della risorsa specifica sopra il drakkar (se non generico).
     if (port.kind !== 'generico') {
       const icon = bakeSprite(`icona-${port.kind}`, ICONA_RISORSA[port.kind]!);
-      drawSpriteCentered(ctx, icon, anchor.x, anchor.y - 9);
+      drawSpriteCentered(ctx, icon, anchor.x, anchor.y - 8);
     }
   }
 
@@ -243,7 +238,6 @@ export function renderBoard(
   ui: BoardUiState = {}
 ): void {
   const topo = getTopology();
-  void topo;
   canvas.width = CANVAS_W;
   canvas.height = CANVAS_H;
   const ctx = canvas.getContext('2d')!;
@@ -277,11 +271,17 @@ export function renderBoard(
   const dragonCenter = hexCenterById(view.board.dragonHex);
   drawSpriteCentered(ctx, bakeSprite('drago', DRAGO), dragonCenter.x, dragonCenter.y + 1);
 
-  // Evidenziazioni delle mosse legali.
+  // Evidenziazioni delle mosse legali. I vertici degli approdi usano il
+  // mirino VIOLA al posto del bianco: si vede subito quale piazzamento
+  // dà diritto allo scambio 3:1/2:1.
   const marker = bakeSprite('mirino', MIRINO);
+  const markerPorto = bakeSprite('mirino-porto', MIRINO_PORTO);
+  const portVertices = new Set<string>(
+    view.board.ports.flatMap((p) => topo.edgeVertices[p.edge] ?? [])
+  );
   for (const v of ui.highlightVertices ?? []) {
     const pt = vertexPoint(v);
-    drawSpriteCentered(ctx, marker, pt.x, pt.y);
+    drawSpriteCentered(ctx, portVertices.has(v) ? markerPorto : marker, pt.x, pt.y);
   }
   for (const e of ui.highlightEdges ?? []) {
     const [p1, p2] = edgeEndpoints(e);

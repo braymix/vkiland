@@ -65,6 +65,7 @@ export const CLASSIC_THEME: ThemePalette = {
     scafo: '#6d4a2a',
     scafoScuro: '#4a3018',
     vela: '#e8e0c8',
+    mirinoPorto: '#c473e8', // bersaglio sui vertici degli approdi (viola)
     // generiche
     nero: '#1a1612',
     bianco: '#f5f1e6',
