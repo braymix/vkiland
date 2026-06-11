@@ -175,19 +175,30 @@ function renderStatic(view: PlayerView): HTMLCanvasElement {
     if (hex.token !== null) drawToken(ctx, x, y, hex.token);
   }
 
-  // Approdi: drakkar al largo + etichetta del rapporto (+ icona risorsa).
+  // Approdi: drakkar al largo + cerchio di sfondo + etichetta del rapporto (+ icona risorsa).
   for (const port of view.board.ports) {
     const anchor = portAnchor(port.edge);
+    // Cerchio di sfondo che evidenzia il porto (grigio scuro per generici, colorato per specifici).
+    ctx.fillStyle = port.kind === 'generico' ? 'rgba(75, 90, 110, 0.6)' : 'rgba(180, 140, 60, 0.5)';
+    ctx.beginPath();
+    ctx.arc(anchor.x, anchor.y, 11, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = color('accento-scuro');
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+    // Drakkar sopra il cerchio.
     drawSpriteCentered(ctx, bakeSprite('drakkar', DRAKKAR), anchor.x, anchor.y);
+    // Etichetta del rapporto sotto il drakkar.
     const label = `${port.ratio}:1`;
     const tw = digitsWidth(label);
-    const ty = anchor.y + 6;
+    const ty = anchor.y + 7;
     ctx.fillStyle = color('nero');
     ctx.fillRect(anchor.x - Math.floor(tw / 2) - 1, ty - 1, tw + 2, 7);
     drawDigits(ctx, label, anchor.x - Math.floor(tw / 2), ty, color('bianco'));
+    // Icona della risorsa specifica sopra il drakkar (se non generico).
     if (port.kind !== 'generico') {
       const icon = bakeSprite(`icona-${port.kind}`, ICONA_RISORSA[port.kind]!);
-      drawSpriteCentered(ctx, icon, anchor.x, anchor.y - 8);
+      drawSpriteCentered(ctx, icon, anchor.x, anchor.y - 9);
     }
   }
 
