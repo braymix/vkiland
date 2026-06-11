@@ -1,0 +1,377 @@
+/* Stile globale pixel-art di Vikiland. */
+:root {
+  --bg: #1d2733;
+  --bg-panel: #2b3a4d;
+  --bg-deep: #16202b;
+  --ink: #f0e9d6;
+  --ink-dim: #aab6c2;
+  --accent: #e7b94c;
+  --accent-dark: #9a7820;
+  --danger: #d9534f;
+  --ok: #5cb85c;
+  --px: 3px;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-deep);
+  color: var(--ink);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  image-rendering: pixelated;
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: normal;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Cornice pixel: doppio bordo a gradini. */
+.pixel-frame {
+  background: var(--bg-panel);
+  border: var(--px) solid var(--bg-deep);
+  box-shadow:
+    0 0 0 var(--px) #5d738c,
+    inset 0 0 0 var(--px) #1c2836;
+  padding: 10px;
+}
+
+.pxbtn {
+  display: inline-block;
+  cursor: pointer;
+  background: var(--accent);
+  color: #2b2008;
+  border: 0;
+  padding: 9px 12px 8px;
+  font-size: 10px;
+  text-transform: uppercase;
+  box-shadow:
+    0 0 0 var(--px) #2b2008,
+    inset 0 calc(-1 * var(--px)) 0 0 var(--accent-dark);
+  user-select: none;
+}
+.pxbtn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow:
+    0 0 0 var(--px) #2b2008,
+    inset 0 var(--px) 0 0 var(--accent-dark);
+}
+.pxbtn:disabled {
+  background: #5a6573;
+  color: #38404a;
+  box-shadow:
+    0 0 0 var(--px) #232a32,
+    inset 0 calc(-1 * var(--px)) 0 0 #454f5b;
+  cursor: default;
+}
+.pxbtn--ghost {
+  background: var(--bg-panel);
+  color: var(--ink);
+  box-shadow:
+    0 0 0 var(--px) var(--bg-deep),
+    inset 0 calc(-1 * var(--px)) 0 0 #1c2836;
+}
+.pxbtn--danger {
+  background: var(--danger);
+  color: #fff;
+  box-shadow:
+    0 0 0 var(--px) #4a1210,
+    inset 0 calc(-1 * var(--px)) 0 0 #8f2622;
+}
+.pxbtn--small {
+  padding: 6px 8px 5px;
+  font-size: 9px;
+}
+.pxbtn--active {
+  outline: var(--px) solid var(--ink);
+}
+
+/* Layout dell'app */
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px;
+  gap: 12px;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.game-layout {
+  display: grid;
+  width: 100%;
+  gap: 8px;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    'hud'
+    'board'
+    'actions'
+    'hand'
+    'log';
+}
+@media (min-width: 900px) {
+  .game-layout {
+    grid-template-columns: 320px 1fr;
+    grid-template-areas:
+      'hud board'
+      'hand board'
+      'log board'
+      'actions actions';
+    align-items: start;
+  }
+}
+
+.area-hud { grid-area: hud; }
+.area-board { grid-area: board; }
+.area-actions { grid-area: actions; }
+.area-hand { grid-area: hand; }
+.area-log { grid-area: log; }
+
+/* Tavola */
+.board-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.board-canvas {
+  image-rendering: pixelated;
+  touch-action: manipulation;
+  max-width: 100%;
+}
+
+/* Strip giocatori */
+.player-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  font-size: 9px;
+}
+.player-row--current {
+  background: #3a4f68;
+  outline: 2px solid var(--accent);
+}
+.player-chip {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 12px;
+  border: 2px solid var(--bg-deep);
+}
+.player-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.player-stat {
+  white-space: nowrap;
+  color: var(--ink-dim);
+}
+.player-stat b { color: var(--ink); }
+.badge {
+  background: var(--accent);
+  color: #2b2008;
+  padding: 1px 3px;
+  font-size: 8px;
+}
+
+/* Mano */
+.hand-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.res-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-deep);
+  padding: 4px 6px;
+  font-size: 10px;
+}
+.res-pill img { display: block; }
+.res-pill--zero { opacity: 0.45; }
+
+/* Barra azioni */
+.action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+.phase-banner {
+  text-align: center;
+  font-size: 10px;
+  color: var(--accent);
+  padding: 4px;
+}
+
+/* Diario */
+.game-log {
+  font-size: 9px;
+  color: var(--ink-dim);
+  max-height: 130px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 3px;
+}
+.game-log div { word-break: break-word; }
+
+/* Dialoghi */
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 14, 19, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 12px;
+}
+.dialog {
+  max-width: 480px;
+  width: 100%;
+  max-height: 88dvh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dialog h2 {
+  font-size: 11px;
+  color: var(--accent);
+}
+.stepper-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dialog-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* Menu */
+.menu-title {
+  font-size: 30px;
+  color: var(--accent);
+  text-shadow: 3px 3px 0 #5a3c10, 6px 6px 0 #16202b;
+  letter-spacing: 2px;
+  text-align: center;
+}
+.menu-sub {
+  color: var(--ink-dim);
+  font-size: 10px;
+  text-align: center;
+  margin-bottom: 18px;
+}
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 260px;
+}
+
+/* Setup */
+.setup-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 560px;
+}
+.setup-player {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.setup-player input[type='text'] {
+  font-family: inherit;
+  font-size: 10px;
+  background: var(--bg-deep);
+  border: 2px solid #5d738c;
+  color: var(--ink);
+  padding: 6px;
+  width: 110px;
+}
+select {
+  font-family: inherit;
+  font-size: 9px;
+  background: var(--bg-deep);
+  color: var(--ink);
+  border: 2px solid #5d738c;
+  padding: 5px;
+}
+label.check {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 9px;
+  color: var(--ink-dim);
+}
+
+/* Vittoria */
+.victory-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9px;
+}
+.victory-table th,
+.victory-table td {
+  border: 2px solid var(--bg-deep);
+  padding: 5px 6px;
+  text-align: center;
+}
+.victory-table th {
+  background: var(--bg-deep);
+  color: var(--ink-dim);
+}
+
+.dice {
+  display: inline-flex;
+  gap: 6px;
+}
+.die {
+  width: 26px;
+  height: 26px;
+  background: var(--ink);
+  color: #222;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  box-shadow: 0 0 0 3px #222, inset -3px -3px 0 0 #c9c2af;
+}

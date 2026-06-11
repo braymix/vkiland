@@ -1,5 +1,6 @@
 import { createRoot } from 'react-dom/client';
+import '@fontsource/press-start-2p';
+import './styles/global.css';
+import { App } from './App';
 
-// Placeholder: l'app vera arriva con gli step 10-12 della Fase 1.
-const root = createRoot(document.getElementById('root')!);
-root.render(<h1>Vikiland — in costruzione</h1>);
+createRoot(document.getElementById('root')!).render(<App />);
