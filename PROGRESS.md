@@ -4,9 +4,27 @@
 
 ## Stato attuale
 
-**FASE 1 COMPLETATA** ✅ — motore di gioco testato, bot euristici, partita completa
-giocabile contro 1–3 bot con grafica pixel-art, responsive desktop/mobile.
-In attesa di collaudo da parte dell'utente prima di iniziare la Fase 2 (hot-seat).
+**FASE 2 COMPLETATA** ✅ — hot-seat: 2–4 giocatori sullo stesso dispositivo,
+ognuno umano o bot, con schermo di passaggio del dispositivo tra un umano e
+l'altro (nessuna fuga di informazione). Aggiunto il bugiardino dei costi
+(bottone «?» in partita). In attesa di collaudo prima della Fase 3 (online).
+Fase 1 collaudata e approvata dall'utente.
+
+## Checklist Fase 2
+
+- ✅ Bugiardino: dialogo costi/PG/bonus/limiti pezzi, valori presi dalle costanti
+     dell'engine, apribile col bottone «?» nella testata in qualunque fase
+- ✅ Setup: toggle Umano/Bot su ogni riga (2–4 giocatori, almeno 1 umano,
+     righe tutte rimovibili), menu «Online (in arrivo)» al posto di «Multigiocatore»
+- ✅ Controller: `viewpoint` (l'umano al tavolo) + `handoff`; con 2+ umani il
+     diario è filtrato da 'spettatore' (niente segreti condivisi sullo schermo)
+- ✅ `hotseat.ts`: serializzazione pura di scarti simultanei e risposte alle
+     offerte (prima i risponditori, il proponente conferma per ultimo; chi è
+     già al tavolo ha precedenza) + 5 test dedicati
+- ✅ `PassDeviceScreen` opaca a tutto schermo; chiusura automatica dei dialoghi
+     locali al passaggio di mano; mosse della UI azzerate durante l'attesa
+- ✅ QA: 120 test verdi + typecheck + lint; collaudo headless del flusso
+     bot→umano→umano (overlay, conferma, rivelazione vista) senza errori console
 
 ## Checklist Fase 1
 
@@ -27,21 +45,22 @@ In attesa di collaudo da parte dell'utente prima di iniziare la Fase 2 (hot-seat
 - ✅ 13. QA finale: `pnpm test` (115 test) + `typecheck` + `lint` + `build` verdi;
        collaudo in browser headless (setup, dadi, turni bot) senza errori console
 
-## Come testare la Fase 1
+## Come testare la Fase 2
 
 ```bash
 pnpm install
-pnpm test        # 115 test: motore (100), bot (9), web (6)
+pnpm test        # 120 test: motore (100), bot (9), web (11)
 pnpm dev         # http://localhost:5173  (per il telefono: pnpm dev --host)
 ```
-Partita tipo: Nuova partita → configura 1–3 bot (nome/livello, seed opzionale) →
-Salpa! → piazzamenti iniziali toccando la tavola → tira i dadi, costruisci,
-scambia (banca/approdi/giocatori), gioca Carte Saga → vittoria a 10 Punti Gloria.
+Hot-seat: Nuova partita → metti 2+ righe su «Umano» col toggle → Salpa! →
+tra il turno di un umano e l'altro appare «Passa il dispositivo»; la mano del
+prossimo si rivela solo dopo «Sono {nome}!». Col 7 gli scarti di più umani
+avvengono uno alla volta; nelle offerte rispondono prima gli altri, il
+proponente conferma per ultimo. Il bugiardino è sotto il bottone «?» in alto.
+Partita solo vs bot = identica alla Fase 1 (mai passaggi di mano).
 
 ## Roadmap fasi successive
 
-- **Fase 2 — Hot-seat**: vista filtrata per l'umano attivo, `PassDeviceScreen` tra i turni,
-  più umani nel setup (bot misti già supportati dall'engine e dal controller).
 - **Fase 3 — Online**: `packages/server` (Fastify + Socket.io), stato autoritativo sul server
   (stesso engine = anti-cheat), account email+password (argon2id), lobby con codici invito,
   riconnessione, statistiche, timer di turno. DB: SQLite dev / PostgreSQL prod (Drizzle).

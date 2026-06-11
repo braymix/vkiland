@@ -10,7 +10,7 @@ export const it = {
 
   // Menu
   nuovaPartita: 'Nuova partita',
-  multigiocatore: 'Multigiocatore (in arrivo)',
+  multigiocatore: 'Online (in arrivo)',
   negozio: 'Negozio (in arrivo)',
 
   // Setup
@@ -28,6 +28,12 @@ export const it = {
   evita68: 'Evita 6 e 8 adiacenti',
   via: 'Salpa!',
   indietro: 'Indietro',
+  serveUnUmano: 'Serve almeno un vichingo umano',
+
+  // Hot-seat (passaggio del dispositivo)
+  passaDispositivo: 'Passa il dispositivo',
+  toccaA: 'Tocca a {nome}',
+  sonoPronto: 'Sono {nome}!',
 
   // Fasi e azioni
   faseSetupVillaggio: '{nome}: piazza un villaggio',

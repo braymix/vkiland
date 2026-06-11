@@ -19,6 +19,7 @@ import {
   ProposeTradeDialog,
   RespondTradeDialog,
 } from '../components/dialogs/TradeDialogs';
+import { PassDeviceScreen } from './PassDeviceScreen';
 import { VictoryScreen } from './VictoryScreen';
 
 interface Props {
@@ -36,7 +37,7 @@ export function GameScreen({ setup, onExit, onRematch }: Props) {
   useEffect(() => () => controller.dispose(), [controller]);
 
   const snap = useGame(controller);
-  const { view, legalActions, humanPlayer } = snap;
+  const { view, legalActions, viewpoint, handoff } = snap;
 
   const [mode, setMode] = useState<BuildMode>(null);
   const [bankOpen, setBankOpen] = useState(false);
@@ -45,7 +46,19 @@ export function GameScreen({ setup, onExit, onRematch }: Props) {
   const [costsOpen, setCostsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isMyTurn = view.currentPlayer === humanPlayer;
+  const isMyTurn = view.currentPlayer === viewpoint;
+
+  // Al passaggio di mano si chiude ogni dialogo locale: il prossimo giocatore
+  // riparte da uno schermo pulito.
+  useEffect(() => {
+    if (handoff !== null) {
+      setMode(null);
+      setBankOpen(false);
+      setProposeOpen(false);
+      setCardsOpen(false);
+      setCostsOpen(false);
+    }
+  }, [handoff]);
 
   const dispatch = (action: Action) => {
     const err = controller.dispatch(action);
@@ -120,15 +133,15 @@ export function GameScreen({ setup, onExit, onRematch }: Props) {
 
   // Dialoghi guidati dalla fase.
   const mustDiscard =
-    view.phase.type === 'discard' ? view.phase.mustDiscard[humanPlayer] : undefined;
+    view.phase.type === 'discard' ? view.phase.mustDiscard[viewpoint] : undefined;
   const stealing = view.phase.type === 'steal' && isMyTurn;
   const offer = view.pendingTrade;
   const offerToMe =
     offer !== null &&
-    offer.from !== humanPlayer &&
-    (offer.to === null || offer.to === humanPlayer) &&
-    offer.responses[humanPlayer] === undefined;
-  const offerMine = offer !== null && offer.from === humanPlayer && offer.to === null;
+    offer.from !== viewpoint &&
+    (offer.to === null || offer.to === viewpoint) &&
+    offer.responses[viewpoint] === undefined;
+  const offerMine = offer !== null && offer.from === viewpoint && offer.to === null;
   const canAcceptOffer = legalActions.some((m) => m.type === 'rispondiScambio' && m.accept);
 
   const gameOver = snap.state.phase.type === 'gameOver';
@@ -150,9 +163,9 @@ export function GameScreen({ setup, onExit, onRematch }: Props) {
           isMyTurn={isMyTurn}
           mode={mode}
           setMode={setMode}
-          onRoll={() => dispatch({ type: 'tiraDadi', player: humanPlayer })}
-          onEndTurn={() => dispatch({ type: 'fineTurno', player: humanPlayer })}
-          onBuyCard={() => dispatch({ type: 'compraCartaSaga', player: humanPlayer })}
+          onRoll={() => dispatch({ type: 'tiraDadi', player: viewpoint })}
+          onEndTurn={() => dispatch({ type: 'fineTurno', player: viewpoint })}
+          onBuyCard={() => dispatch({ type: 'compraCartaSaga', player: viewpoint })}
           onOpenBank={() => setBankOpen(true)}
           onOpenPropose={() => setProposeOpen(true)}
           onOpenCards={() => setCardsOpen(true)}
@@ -194,6 +207,9 @@ export function GameScreen({ setup, onExit, onRematch }: Props) {
       )}
       {gameOver && (
         <VictoryScreen state={snap.state} onExit={onExit} onRematch={onRematch} />
+      )}
+      {handoff !== null && (
+        <PassDeviceScreen view={view} to={handoff} onConfirm={controller.confirmHandoff} />
       )}
     </div>
   );

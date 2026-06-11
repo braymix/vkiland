@@ -2,6 +2,12 @@
  * Controller della partita LOCALE: possiede lo stato autorevole, applica le
  * azioni tramite il motore e fa giocare i bot con un piccolo ritardo umano.
  *
+ * Hot-seat (Fase 2): più umani sullo stesso dispositivo. Il controller traccia
+ * il "viewpoint" (l'umano che sta guardando lo schermo) e, quando deve agire
+ * un ALTRO umano, sospende la rivelazione con `handoff`: la UI copre tutto con
+ * la PassDeviceScreen finché il nuovo giocatore non conferma di avere in mano
+ * il dispositivo. Con un solo umano non avviene mai (esperienza Fase 1).
+ *
  * La UI vi si abbona via useSyncExternalStore. In Fase 3 un
  * `RemoteGameController` con la STESSA interfaccia parlerà col server:
  * la UI non cambierà.
@@ -20,9 +26,11 @@ import {
   type PlayerId,
   type PlayerView,
   type ValidationError,
+  type Viewer,
 } from '@vikiland/engine';
 import { createBot, type Bot } from '@vikiland/bots';
 import { describeEvent } from './logFormat';
+import { nextHumanActor } from './hotseat';
 
 export interface GameSetup {
   seed: string;
@@ -39,9 +47,13 @@ export interface LogEntry {
 /** Fotografia immutabile per React. */
 export interface GameSnapshot {
   state: GameState;
-  /** Vista del giocatore umano "al tavolo" (Fase 1: sempre il giocatore 0). */
+  /** Vista dell'umano che sta guardando lo schermo. */
   view: PlayerView;
-  humanPlayer: PlayerId;
+  /** L'umano "al tavolo" in questo momento. */
+  viewpoint: PlayerId;
+  humans: PlayerId[];
+  /** Se non null: il dispositivo va passato a questo giocatore (vista congelata). */
+  handoff: PlayerId | null;
   legalActions: LegalMove[];
   log: LogEntry[];
   generation: number;
@@ -61,15 +73,21 @@ export class LocalGameController {
   private generation = 0;
   private botTimer: ReturnType<typeof setTimeout> | null = null;
   private disposed = false;
-  readonly humanPlayer: PlayerId;
+  readonly humans: PlayerId[];
+  /** Con 2+ umani il diario è condiviso: si filtra come 'spettatore' (nessun segreto). */
+  private readonly logViewer: Viewer;
+  private viewpoint: PlayerId;
+  private handoff: PlayerId | null = null;
 
   constructor(setup: GameSetup) {
     this.state = createGame(setup);
     setup.players.forEach((p, id) => {
       if (p.isBot) this.bots.set(id, createBot(p.botLevel ?? 'normale'));
     });
-    // Fase 1: il primo umano della lista è chi guarda lo schermo.
-    this.humanPlayer = setup.players.findIndex((p) => !p.isBot);
+    this.humans = setup.players.flatMap((p, id) => (p.isBot ? [] : [id]));
+    this.logViewer = this.humans.length === 1 ? this.humans[0]! : 'spettatore';
+    // Il dispositivo parte in mano al primo umano che deve agire.
+    this.viewpoint = nextHumanActor(this.state, this.humans, this.humans[0] ?? 0) ?? this.humans[0] ?? 0;
     this.snapshot = this.buildSnapshot();
     this.scheduleBots();
   }
@@ -89,6 +107,16 @@ export class LocalGameController {
     return null;
   };
 
+  /** Il nuovo giocatore conferma di avere il dispositivo: la sua vista si rivela. */
+  confirmHandoff = (): void => {
+    if (this.handoff === null) return;
+    this.viewpoint = this.handoff;
+    this.handoff = null;
+    this.generation += 1;
+    this.snapshot = this.buildSnapshot();
+    for (const cb of this.listeners) cb();
+  };
+
   dispose = (): void => {
     this.disposed = true;
     if (this.botTimer !== null) clearTimeout(this.botTimer);
@@ -97,13 +125,16 @@ export class LocalGameController {
 
   private commit(next: GameState, events: GameEvent[]): void {
     this.state = next;
-    // Il diario mostra gli eventi come li vede l'umano (segreti filtrati).
-    const visible = filterEventsForPlayer(events, this.humanPlayer);
+    // Il diario mostra gli eventi senza i segreti che il tavolo non deve vedere.
+    const visible = filterEventsForPlayer(events, this.logViewer);
     for (const e of visible) {
       const text = describeEvent(e, next);
       if (text) this.log.push({ id: this.logCounter++, text });
     }
     if (this.log.length > MAX_LOG) this.log = this.log.slice(-MAX_LOG);
+    // Tocca a un altro umano? Si congela la vista e si chiede il passaggio di mano.
+    const nextHuman = nextHumanActor(this.state, this.humans, this.viewpoint);
+    this.handoff = nextHuman !== null && nextHuman !== this.viewpoint ? nextHuman : null;
     this.generation += 1;
     this.snapshot = this.buildSnapshot();
     for (const cb of this.listeners) cb();
@@ -113,10 +144,12 @@ export class LocalGameController {
   private buildSnapshot(): GameSnapshot {
     return {
       state: this.state,
-      view: getPlayerView(this.state, this.humanPlayer),
-      humanPlayer: this.humanPlayer,
-      legalActions:
-        this.humanPlayer >= 0 ? getLegalActions(this.state, this.humanPlayer) : [],
+      view: getPlayerView(this.state, this.viewpoint),
+      viewpoint: this.viewpoint,
+      humans: [...this.humans],
+      handoff: this.handoff,
+      // Durante il passaggio di mano la UI sottostante non deve offrire mosse.
+      legalActions: this.handoff === null ? getLegalActions(this.state, this.viewpoint) : [],
       log: [...this.log],
       generation: this.generation,
     };

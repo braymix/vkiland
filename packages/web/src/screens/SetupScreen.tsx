@@ -1,4 +1,4 @@
-/** Configurazione della partita: 1 umano + 1–3 bot (Fase 1). */
+/** Configurazione della partita: 2–4 giocatori, ognuno umano o bot (hot-seat). */
 import { useState } from 'react';
 import type { BotLevel, PlayerColor } from '@vikiland/engine';
 import { it } from '../i18n/it';
@@ -39,9 +39,11 @@ export function SetupScreen({ onStart, onBack }: Props) {
   };
 
   const removeAt = (i: number) => {
-    if (players.length <= 2 || i === 0) return;
+    if (players.length <= 2) return;
     setPlayers(players.filter((_, idx) => idx !== i));
   };
+
+  const humanCount = players.filter((p) => !p.isBot).length;
 
   const start = () => {
     onStart({
@@ -73,9 +75,12 @@ export function SetupScreen({ onStart, onBack }: Props) {
               maxLength={12}
               onChange={(e) => update(i, { name: e.target.value })}
             />
-            <span style={{ fontSize: 9, color: 'var(--ink-dim)' }}>
-              {i === 0 ? it.umano : it.bot}
-            </span>
+            <button
+              className="pxbtn pxbtn--ghost pxbtn--small"
+              onClick={() => update(i, { isBot: !p.isBot })}
+            >
+              {p.isBot ? it.bot : it.umano}
+            </button>
             {p.isBot && (
               <select
                 value={p.botLevel}
@@ -85,7 +90,7 @@ export function SetupScreen({ onStart, onBack }: Props) {
                 <option value="normale">{it.normale}</option>
               </select>
             )}
-            {i > 0 && (
+            {players.length > 2 && (
               <button className="pxbtn pxbtn--danger pxbtn--small" onClick={() => removeAt(i)}>
                 X
               </button>
@@ -115,13 +120,16 @@ export function SetupScreen({ onStart, onBack }: Props) {
           {it.evita68}
         </label>
       </div>
-      <div style={{ display: 'flex', gap: 10 }}>
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
         <button className="pxbtn pxbtn--ghost" onClick={onBack}>
           {it.indietro}
         </button>
-        <button className="pxbtn" onClick={start}>
+        <button className="pxbtn" onClick={start} disabled={humanCount === 0}>
           {it.via}
         </button>
+        {humanCount === 0 && (
+          <span style={{ fontSize: 9, color: 'var(--danger)' }}>{it.serveUnUmano}</span>
+        )}
       </div>
     </div>
   );

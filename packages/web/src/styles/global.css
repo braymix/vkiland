@@ -283,6 +283,20 @@ button {
   flex-wrap: wrap;
 }
 
+/* Hot-seat: copre TUTTO (sfondo opaco) finché il prossimo umano non conferma */
+.handoff-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  z-index: 90;
+  padding: 16px;
+}
+
 /* Menu */
 .menu-title {
   font-size: 30px;
