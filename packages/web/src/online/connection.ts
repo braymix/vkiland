@@ -21,7 +21,10 @@ export interface OnlineSession {
 const STORAGE_KEY = 'vikiland-online-session';
 
 export function defaultServerUrl(): string {
-  // Stesso host della pagina, porta del server: comodo anche da telefono in LAN.
+  // In produzione (es. Netlify) l'indirizzo del server arriva dalla build.
+  const fromEnv = import.meta.env.VITE_SERVER_URL;
+  if (typeof fromEnv === 'string' && fromEnv.length > 0) return fromEnv.replace(/\/+$/, '');
+  // In sviluppo: stesso host della pagina, porta del server (comodo in LAN).
   return `${location.protocol}//${location.hostname}:8787`;
 }
 
