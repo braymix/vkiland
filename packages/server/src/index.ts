@@ -83,6 +83,47 @@ app.get('/api/me', async (req, reply) => {
   return { userId: user.id, displayName: user.displayName };
 });
 
+// --- Gestione account (richiede Bearer token) -------------------------------
+
+app.get('/api/account', async (req, reply) => {
+  const user = authedUser(req.headers.authorization);
+  if (!user) return reply.code(401).send({ error: 'Sessione non valida' });
+  return auth.getProfile(user.id);
+});
+
+app.post('/api/account/name', async (req, reply) => {
+  const user = authedUser(req.headers.authorization);
+  if (!user) return reply.code(401).send({ error: 'Sessione non valida' });
+  const body = (req.body ?? {}) as { displayName?: string };
+  const err = auth.changeDisplayName(user.id, body.displayName ?? '');
+  if (err) return reply.code(400).send({ error: err.error });
+  return auth.getProfile(user.id);
+});
+
+app.post('/api/account/email', async (req, reply) => {
+  const user = authedUser(req.headers.authorization);
+  if (!user) return reply.code(401).send({ error: 'Sessione non valida' });
+  const body = (req.body ?? {}) as { email?: string; password?: string };
+  const err = auth.changeEmail(user.id, body.email ?? '', body.password ?? '');
+  if (err) return reply.code(400).send({ error: err.error });
+  return auth.getProfile(user.id);
+});
+
+app.post('/api/account/password', async (req, reply) => {
+  const user = authedUser(req.headers.authorization);
+  if (!user) return reply.code(401).send({ error: 'Sessione non valida' });
+  const body = (req.body ?? {}) as { currentPassword?: string; newPassword?: string };
+  const res = auth.changePassword(user.id, body.currentPassword ?? '', body.newPassword ?? '');
+  if (!res.ok) return reply.code(400).send({ error: res.error });
+  // Tutte le vecchie sessioni sono revocate: ecco il nuovo token.
+  return { token: res.token, userId: res.userId, displayName: res.displayName };
+});
+
+function authedUser(header: string | undefined) {
+  const token = bearerOf(header);
+  return token ? auth.authenticate(token) : null;
+}
+
 app.get('/api/health', async () => ({ ok: true }));
 
 function bearerOf(header: string | undefined): string | null {

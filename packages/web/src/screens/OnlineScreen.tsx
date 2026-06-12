@@ -24,10 +24,11 @@ import { RemoteGameController } from '../online/RemoteGameController';
 import { PLAYER_COLORS } from '../render/sprites/palettes';
 import { TUTORIAL_ONLINE_CHAPTER } from '../i18n/tutorial';
 import { Dialog } from '../components/dialogs/Dialog';
+import { AccountScreen } from './AccountScreen';
 import { GameScreen } from './GameScreen';
 import { TutorialScreen } from './TutorialScreen';
 
-type Stage = 'login' | 'home' | 'room' | 'game';
+type Stage = 'login' | 'home' | 'room' | 'game' | 'account';
 
 export function OnlineScreen({ onBack }: { onBack: () => void }) {
   const [stage, setStage] = useState<Stage>('login');
@@ -37,6 +38,8 @@ export function OnlineScreen({ onBack }: { onBack: () => void }) {
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [terminateOpen, setTerminateOpen] = useState(false);
   const sessionRef = useRef<OnlineSession | null>(null);
+  /** Bump per ri-renderizzare quando la sessione nella ref cambia (token/nome). */
+  const [, setSessionVersion] = useState(0);
   const socketRef = useRef<ServerSocket | null>(null);
   const controllerRef = useRef<RemoteGameController | null>(null);
   const [gameKey, setGameKey] = useState(0);
@@ -182,6 +185,7 @@ export function OnlineScreen({ onBack }: { onBack: () => void }) {
             onBack();
           }}
           onOpenTutorial={() => setTutorialOpen(true)}
+          onAccount={() => setStage('account')}
           onLogout={logout}
           onCreate={(timerSec) => {
             socketRef.current?.emit(
@@ -206,6 +210,23 @@ export function OnlineScreen({ onBack }: { onBack: () => void }) {
         />
         {tutorialOverlay}
         </>
+      );
+    case 'account':
+      if (!sessionRef.current) return null;
+      return (
+        <AccountScreen
+          session={sessionRef.current}
+          onBack={() => setStage('home')}
+          onSessionUpdate={(fresh) => {
+            // Nome o token cambiati: si salva e si riconnette il socket
+            // (il server tiene il nome dal handshake; il vecchio token
+            // dopo un cambio password è revocato).
+            saveSession(fresh);
+            socketRef.current?.disconnect();
+            attachSocket(fresh);
+            setSessionVersion((v) => v + 1);
+          }}
+        />
       );
     case 'room':
       if (!lobby) return null;
@@ -402,6 +423,7 @@ function OnlineHome({
   onLogout,
   onBack,
   onOpenTutorial,
+  onAccount,
 }: {
   name: string;
   error: string | null;
@@ -410,6 +432,7 @@ function OnlineHome({
   onLogout: () => void;
   onBack: () => void;
   onOpenTutorial: () => void;
+  onAccount: () => void;
 }) {
   const [code, setCode] = useState('');
   /** Secondi per turno scelti dall'utente ('' o 0 = nessun timer; max 600). */
@@ -457,9 +480,12 @@ function OnlineHome({
         </div>
         {error && <div style={{ fontSize: 9, color: 'var(--danger)' }}>{error}</div>}
       </div>
-      <div style={{ display: 'flex', gap: 10 }}>
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
         <button className="pxbtn pxbtn--ghost" onClick={onBack}>
           {it.indietro}
+        </button>
+        <button className="pxbtn pxbtn--ghost" onClick={onAccount}>
+          {it.account}
         </button>
         <button className="pxbtn pxbtn--ghost" onClick={onLogout}>
           {it.esciAccount}

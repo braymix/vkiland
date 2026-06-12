@@ -92,6 +92,63 @@ export class AuthService {
     this.storage.deleteSession(token);
   }
 
+  /** I pochi dati che salviamo, SENZA l'hash della password. */
+  getProfile(userId: string): { userId: string; email: string; displayName: string; createdAt: number } | null {
+    const user = this.storage.getUserById(userId);
+    if (!user) return null;
+    return {
+      userId: user.id,
+      email: user.email,
+      displayName: user.displayName,
+      createdAt: user.createdAt,
+    };
+  }
+
+  changeDisplayName(userId: string, displayName: string): AuthFailure | null {
+    const user = this.storage.getUserById(userId);
+    if (!user) return { ok: false, error: 'Utente non trovato' };
+    const name = displayName.trim();
+    if (name.length < 1 || name.length > 12)
+      return { ok: false, error: 'Il nome deve avere 1–12 caratteri' };
+    this.storage.updateUser({ ...user, displayName: name });
+    return null;
+  }
+
+  /** Il cambio email richiede la password attuale (conferma di identità). */
+  changeEmail(userId: string, newEmail: string, password: string): AuthFailure | null {
+    const user = this.storage.getUserById(userId);
+    if (!user) return { ok: false, error: 'Utente non trovato' };
+    if (!verifyPassword(password, user.passwordHash))
+      return { ok: false, error: 'Password attuale errata' };
+    const normEmail = newEmail.trim().toLowerCase();
+    if (!EMAIL_RE.test(normEmail)) return { ok: false, error: 'Email non valida' };
+    const existing = this.storage.getUserByEmail(normEmail);
+    if (existing && existing.id !== userId)
+      return { ok: false, error: 'Email già registrata' };
+    this.storage.updateUser({ ...user, email: normEmail });
+    return null;
+  }
+
+  /**
+   * Cambio password: verifica l'attuale, REVOCA tutte le sessioni (anche su
+   * altri dispositivi) e ne apre una nuova per chi ha fatto il cambio.
+   */
+  changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string
+  ): AuthResult | AuthFailure {
+    const user = this.storage.getUserById(userId);
+    if (!user) return { ok: false, error: 'Utente non trovato' };
+    if (!verifyPassword(currentPassword, user.passwordHash))
+      return { ok: false, error: 'Password attuale errata' };
+    if (newPassword.length < 8)
+      return { ok: false, error: 'Password troppo corta (minimo 8 caratteri)' };
+    this.storage.updateUser({ ...user, passwordHash: hashPassword(newPassword) });
+    this.storage.deleteSessionsByUser(userId);
+    return this.newSession({ ...user });
+  }
+
   private newSession(user: UserRecord): AuthResult {
     const token = randomBytes(32).toString('hex');
     this.storage.createSession({ token, userId: user.id, createdAt: Date.now() });

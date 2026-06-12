@@ -292,6 +292,16 @@ button {
   flex-wrap: wrap;
 }
 
+/* Righe dati della gestione account */
+.account-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 9px;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(170, 182, 194, 0.15);
+}
+
 /* Sezione «Configurazione» espandibile del setup */
 .config-section {
   display: flex;

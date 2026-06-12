@@ -93,6 +93,62 @@ export async function apiMe(session: OnlineSession): Promise<boolean> {
   }
 }
 
+export interface AccountProfile {
+  userId: string;
+  email: string;
+  displayName: string;
+  createdAt: number;
+}
+
+async function authedGet(session: OnlineSession, path: string): Promise<unknown> {
+  const res = await fetch(`${session.serverUrl}${path}`, {
+    headers: { authorization: `Bearer ${session.token}` },
+  });
+  const data: unknown = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const message =
+      typeof data === 'object' && data !== null && 'error' in data
+        ? String((data as { error: unknown }).error)
+        : `Errore ${res.status}`;
+    throw new Error(message);
+  }
+  return data;
+}
+
+export async function apiGetAccount(session: OnlineSession): Promise<AccountProfile> {
+  return (await authedGet(session, '/api/account')) as AccountProfile;
+}
+
+export async function apiChangeName(
+  session: OnlineSession,
+  displayName: string
+): Promise<AccountProfile> {
+  return (await post(session.serverUrl, '/api/account/name', { displayName }, session.token)) as AccountProfile;
+}
+
+export async function apiChangeEmail(
+  session: OnlineSession,
+  email: string,
+  password: string
+): Promise<AccountProfile> {
+  return (await post(session.serverUrl, '/api/account/email', { email, password }, session.token)) as AccountProfile;
+}
+
+/** Ritorna la NUOVA sessione: il cambio password revoca tutte le precedenti. */
+export async function apiChangePassword(
+  session: OnlineSession,
+  currentPassword: string,
+  newPassword: string
+): Promise<OnlineSession> {
+  const data = (await post(
+    session.serverUrl,
+    '/api/account/password',
+    { currentPassword, newPassword },
+    session.token
+  )) as AuthResponse;
+  return { ...session, token: data.token, displayName: data.displayName };
+}
+
 /**
  * Ping veloce del server di gioco: dice se l'online è disponibile QUI.
  * Senza backend il client resta perfettamente utilizzabile in locale.

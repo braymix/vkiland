@@ -40,9 +40,13 @@ export interface Storage {
   getUserByEmail(email: string): UserRecord | null;
   getUserById(id: string): UserRecord | null;
   createUser(user: UserRecord): void;
+  /** Sovrascrive il record dell'utente (stesso id). */
+  updateUser(user: UserRecord): void;
   getSession(token: string): SessionRecord | null;
   createSession(session: SessionRecord): void;
   deleteSession(token: string): void;
+  /** Revoca TUTTE le sessioni di un utente (es. dopo cambio password). */
+  deleteSessionsByUser(userId: string): void;
   appendFinishedGame(game: FinishedGameRecord): void;
 }
 
@@ -83,6 +87,11 @@ export class JsonFileStorage implements Storage {
     this.flush();
   }
 
+  updateUser(user: UserRecord): void {
+    this.db.users = this.db.users.map((u) => (u.id === user.id ? user : u));
+    this.flush();
+  }
+
   getSession(token: string): SessionRecord | null {
     return this.db.sessions.find((s) => s.token === token) ?? null;
   }
@@ -94,6 +103,11 @@ export class JsonFileStorage implements Storage {
 
   deleteSession(token: string): void {
     this.db.sessions = this.db.sessions.filter((s) => s.token !== token);
+    this.flush();
+  }
+
+  deleteSessionsByUser(userId: string): void {
+    this.db.sessions = this.db.sessions.filter((s) => s.userId !== userId);
     this.flush();
   }
 
@@ -118,6 +132,9 @@ export class MemoryStorage implements Storage {
   createUser(user: UserRecord): void {
     this.users.push(user);
   }
+  updateUser(user: UserRecord): void {
+    this.users = this.users.map((u) => (u.id === user.id ? user : u));
+  }
   getSession(token: string): SessionRecord | null {
     return this.sessions.find((s) => s.token === token) ?? null;
   }
@@ -126,6 +143,9 @@ export class MemoryStorage implements Storage {
   }
   deleteSession(token: string): void {
     this.sessions = this.sessions.filter((s) => s.token !== token);
+  }
+  deleteSessionsByUser(userId: string): void {
+    this.sessions = this.sessions.filter((s) => s.userId !== userId);
   }
   appendFinishedGame(game: FinishedGameRecord): void {
     this.finishedGames.push(game);

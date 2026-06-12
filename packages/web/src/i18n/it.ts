@@ -71,6 +71,28 @@ export const it = {
     'La partita verrà chiusa per TUTTI i giocatori e non si potrà riprendere.',
   terminaConferma: 'Sì, termina per tutti',
 
+  // Gestione account
+  account: 'Account',
+  ilTuoAccount: 'Il tuo account',
+  datiSalvati: 'Questi sono i dati che salviamo su di te:',
+  registratoIl: 'Registrato il',
+  idAccount: 'ID account',
+  passwordImpostata: '•••••••• (mai salvata in chiaro)',
+  cambiaNome: 'Cambia nome',
+  nuovoNome: 'Nuovo nome in gioco',
+  nomeAggiornato: 'Nome aggiornato! Varrà dalle prossime partite.',
+  cambiaEmail: 'Cambia email',
+  nuovaEmail: 'Nuova email',
+  passwordAttuale: 'Password attuale',
+  emailAggiornata: 'Email aggiornata!',
+  cambiaPassword: 'Cambia password',
+  nuovaPassword: 'Nuova password (min 8)',
+  ripetiPassword: 'Ripeti la nuova password',
+  passwordNonCoincidono: 'Le due password non coincidono',
+  passwordAggiornata:
+    'Password aggiornata! Le sessioni sugli altri dispositivi sono state disconnesse.',
+  salva: 'Salva',
+
   // Setup
   configuraPartita: 'Prepara la spedizione',
   giocatore: 'Giocatore',
