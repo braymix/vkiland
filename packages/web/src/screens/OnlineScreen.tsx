@@ -444,6 +444,7 @@ function LobbyRoom({
   onStart: () => void;
 }) {
   const isHost = lobby.hostUserId === myUserId;
+  const [botLevel, setBotLevel] = useState<BotLevel>('normale');
   const colors = (['rosso', 'blu', 'verde', 'giallo'] as const).map((c) => PLAYER_COLORS[c].main);
   return (
     <div className="screen" style={{ justifyContent: 'center' }}>
@@ -475,12 +476,15 @@ function LobbyRoom({
           </div>
         ))}
         {isHost && lobby.slots.length < 4 && (
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button className="pxbtn pxbtn--ghost pxbtn--small" onClick={() => onAddBot('normale')}>
-              {it.aggiungiBot} ({it.normale})
-            </button>
-            <button className="pxbtn pxbtn--ghost pxbtn--small" onClick={() => onAddBot('facile')}>
-              {it.aggiungiBot} ({it.facile})
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <select value={botLevel} onChange={(e) => setBotLevel(e.target.value as BotLevel)}>
+              <option value="facile">{it.facile}</option>
+              <option value="normale">{it.normale}</option>
+              <option value="difficile">{it.difficile}</option>
+              <option value="esperto">{it.esperto}</option>
+            </select>
+            <button className="pxbtn pxbtn--ghost pxbtn--small" onClick={() => onAddBot(botLevel)}>
+              {it.aggiungiBot}
             </button>
           </div>
         )}

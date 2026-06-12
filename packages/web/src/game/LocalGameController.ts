@@ -145,8 +145,21 @@ export class LocalGameController implements GameController {
   /** Trova il prossimo bot che ha mosse da fare (scarti simultanei inclusi). */
   private nextBotActor(): PlayerId | null {
     if (this.state.phase.type === 'gameOver') return null;
+    const offer = this.state.pendingTrade;
     for (const [pid] of this.bots) {
-      if (getLegalActions(this.state, pid).length > 0) return pid;
+      if (getLegalActions(this.state, pid).length === 0) continue;
+      // Il bot PROPONENTE aspetta che gli altri rispondano: agisce solo se
+      // qualcuno ha accettato oppure se tutti hanno risposto (poi ritira).
+      if (offer && offer.from === pid) {
+        const responders =
+          offer.to === null
+            ? this.state.players.filter((p) => p.id !== pid).map((p) => p.id)
+            : [offer.to];
+        const someoneAccepted = Object.values(offer.responses).includes('accettata');
+        const allResponded = responders.every((r) => offer.responses[r] !== undefined);
+        if (!someoneAccepted && !allResponded) continue;
+      }
+      return pid;
     }
     return null;
   }

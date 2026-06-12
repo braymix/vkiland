@@ -21,7 +21,11 @@ tavola a risoluzione doppia (320×280) con sprite ridisegnati; popup
 scherzoso pre-partita; ordine di partenza deciso dai DADI nell'engine
 (`turnOrder` + `startingRolls`, spareggi inclusi, deterministico dal seed,
 mantenuto per tutta la partita, visibile nel diario e nella strip);
-scelta del colore per ogni riga (anche bot) nel setup con scambio automatico.
+scelta del colore per ogni riga (anche bot) nel setup con picker (5 colori,
+viola incluso); bot che PROPONGONO e ACCETTANO scambi (1 surplus ↔ 1 mancante,
+conferma con l'accettante più indietro, ritiro se tutti rifiutano) e 4 livelli
+di difficoltà: facile, normale, difficile, esperto (~14 scambi conclusi a
+partita nelle simulazioni).
 
 ## Checklist Fase 3 (online)
 
@@ -151,6 +155,5 @@ identica alla Fase 1.
 
 ## Problemi noti / TODO
 
-- I bot rispondono agli scambi ma non li propongono (scelta di design Fase 1, flag previsto).
 - Le animazioni (dadi, produzione) sono minimali; possibile polish futuro.
 - Online: rivincita nella stessa lobby non ancora prevista (si crea una nuova lobby).

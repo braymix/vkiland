@@ -46,7 +46,7 @@ export interface Board {
   dragonHex: HexId;
 }
 
-export type BotLevel = 'facile' | 'normale';
+export type BotLevel = 'facile' | 'normale' | 'difficile' | 'esperto';
 
 export interface PlayerConfig {
   name: string;

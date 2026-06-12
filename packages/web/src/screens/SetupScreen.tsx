@@ -113,6 +113,8 @@ export function SetupScreen({ onStart, onBack }: Props) {
               >
                 <option value="facile">{it.facile}</option>
                 <option value="normale">{it.normale}</option>
+                <option value="difficile">{it.difficile}</option>
+                <option value="esperto">{it.esperto}</option>
               </select>
             )}
             {players.length > 2 && (

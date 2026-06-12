@@ -71,6 +71,8 @@ export const it = {
   livelloBot: 'Livello',
   facile: 'Facile',
   normale: 'Normale',
+  difficile: 'Difficile',
+  esperto: 'Esperto',
   nome: 'Nome',
   aggiungiGiocatore: '+ Aggiungi vichingo',
   cambiaColore: 'Cambia colore',

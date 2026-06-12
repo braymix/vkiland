@@ -168,3 +168,125 @@ describe('politiche di turno', () => {
     expect(action).toEqual({ type: 'rispondiScambio', player: 0, offerId: 0, accept: false });
   });
 });
+
+describe('scambi del bot euristico', () => {
+  /** Stato in fase main del giocatore `pid`, con un villaggio (goal: roccaforte). */
+  function mainState(pid: number): GameState {
+    const g = createGame({ seed: 'scambi-bot', players: PLAYERS });
+    return mut(g, (s) => {
+      s.phase = { type: 'main' };
+      s.currentPlayer = pid;
+      s.rolledThisTurn = true;
+      s.players[pid]!.villages = [getTopology().vertices[20]!];
+    });
+  }
+
+  it('accetta un\'offerta che dà ciò che manca in cambio del surplus', () => {
+    // Goal roccaforte del RISPONDITORE (2 orzo + 3 ferro): il legname è surplus.
+    const s = mut(mainState(0), (d) => {
+      d.players[1]!.villages = [getTopology().vertices[40]!];
+      d.players[1]!.resources = { legname: 5, pietra: 0, lana: 0, orzo: 0, ferro: 0 };
+      d.players[0]!.resources = { legname: 0, pietra: 0, lana: 0, orzo: 0, ferro: 2 };
+      d.pendingTrade = {
+        id: 1,
+        from: 0,
+        give: { legname: 0, pietra: 0, lana: 0, orzo: 0, ferro: 1 },
+        receive: { legname: 1, pietra: 0, lana: 0, orzo: 0, ferro: 0 },
+        to: null,
+        responses: {},
+      };
+    });
+    const action = decideFor(s, 1);
+    expect(action.type).toBe('rispondiScambio');
+    if (action.type === 'rispondiScambio') expect(action.accept).toBe(true);
+  });
+
+  it('rifiuta un\'offerta che chiede una risorsa necessaria per dare scarti', () => {
+    const s = mut(mainState(0), (d) => {
+      d.players[1]!.villages = [getTopology().vertices[40]!];
+      d.players[1]!.resources = { legname: 0, pietra: 0, lana: 0, orzo: 0, ferro: 1 };
+      d.players[0]!.resources = { legname: 0, pietra: 0, lana: 2, orzo: 0, ferro: 0 };
+      d.pendingTrade = {
+        id: 1,
+        from: 0,
+        give: { legname: 0, pietra: 0, lana: 1, orzo: 0, ferro: 0 },
+        receive: { legname: 0, pietra: 0, lana: 0, orzo: 0, ferro: 1 },
+        to: null,
+        responses: {},
+      };
+    });
+    const action = decideFor(s, 1);
+    expect(action.type).toBe('rispondiScambio');
+    if (action.type === 'rispondiScambio') expect(action.accept).toBe(false);
+  });
+
+  it('propone uno scambio (surplus ↔ mancante) quando è bloccato, una volta sola', () => {
+    const s = mut(mainState(1), (d) => {
+      d.players[1]!.resources = { legname: 4, pietra: 0, lana: 0, orzo: 0, ferro: 0 };
+      d.players[0]!.resources = { legname: 0, pietra: 0, lana: 2, orzo: 0, ferro: 0 };
+      // Banca a secco di ciò che serve: il 4:1 non è percorribile,
+      // resta solo chiedere agli altri giocatori.
+      d.bank.ferro = 0;
+      d.bank.orzo = 0;
+    });
+    const bot = createHeuristicBot('normale');
+    const first = decideFor(s, 1, bot);
+    expect(first.type).toBe('proponiScambio');
+    if (first.type === 'proponiScambio') {
+      expect(first.to).toBeNull();
+      expect(first.give.legname).toBe(1);
+      expect(first.receive.orzo + first.receive.ferro).toBe(1);
+    }
+    // Stessa situazione (es. dopo un'offerta rifiutata e ritirata): non insiste.
+    const second = decideFor(s, 1, bot);
+    expect(second.type).not.toBe('proponiScambio');
+  });
+
+  it('conferma con chi ha accettato e ritira se tutti rifiutano', () => {
+    const base = mut(mainState(1), (d) => {
+      d.players[1]!.resources = { legname: 4, pietra: 0, lana: 0, orzo: 0, ferro: 0 };
+      d.pendingTrade = {
+        id: 7,
+        from: 1,
+        give: { legname: 1, pietra: 0, lana: 0, orzo: 0, ferro: 0 },
+        receive: { legname: 0, pietra: 0, lana: 0, orzo: 1, ferro: 0 },
+        to: null,
+        responses: { 2: 'accettata' },
+      };
+      d.players[2]!.resources = { legname: 0, pietra: 0, lana: 0, orzo: 2, ferro: 0 };
+    });
+    const confirm = decideFor(base, 1);
+    expect(confirm.type).toBe('confermaScambio');
+    if (confirm.type === 'confermaScambio') expect(confirm.with).toBe(2);
+
+    const refused = mut(base, (d) => {
+      d.pendingTrade!.responses = { 0: 'rifiutata', 2: 'rifiutata', 3: 'rifiutata' };
+    });
+    expect(decideFor(refused, 1).type).toBe('annullaScambio');
+  });
+
+  it('difficile/esperto non aiutano chi sta per vincere', () => {
+    const s = mut(mainState(0), (d) => {
+      // Il proponente (0) è a 8 PG pubblici su 10: troppo vicino alla vittoria.
+      d.players[0]!.villages = getTopology().vertices.slice(0, 4);
+      d.players[0]!.strongholds = [getTopology().vertices[30]!, getTopology().vertices[44]!];
+      d.players[1]!.villages = [getTopology().vertices[50]!];
+      d.players[1]!.resources = { legname: 5, pietra: 0, lana: 0, orzo: 0, ferro: 0 };
+      d.players[0]!.resources = { legname: 0, pietra: 0, lana: 0, orzo: 0, ferro: 2 };
+      d.pendingTrade = {
+        id: 1,
+        from: 0,
+        give: { legname: 0, pietra: 0, lana: 0, orzo: 0, ferro: 1 },
+        receive: { legname: 1, pietra: 0, lana: 0, orzo: 0, ferro: 0 },
+        to: null,
+        responses: {},
+      };
+    });
+    const esperto = decideFor(s, 1, createHeuristicBot('esperto'));
+    expect(esperto.type).toBe('rispondiScambio');
+    if (esperto.type === 'rispondiScambio') expect(esperto.accept).toBe(false);
+    // Lo stesso scambio, da un proponente lontano dalla vittoria, va bene.
+    const normale = decideFor(s, 1, createHeuristicBot('normale'));
+    if (normale.type === 'rispondiScambio') expect(normale.accept).toBe(true);
+  });
+});
