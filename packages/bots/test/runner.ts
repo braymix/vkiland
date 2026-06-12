@@ -48,9 +48,10 @@ export function runBotGame(
           offer.to === null
             ? state.players.filter((p) => p.id !== pid).map((p) => p.id)
             : [offer.to];
-        const someoneAccepted = Object.values(offer.responses).includes('accettata');
+        // Niente «vince il primo che accetta»: il proponente conclude solo
+        // quando TUTTI gli interpellati hanno risposto (gli umani compresi).
         const allResponded = responders.every((r) => offer.responses[r] !== undefined);
-        if (!someoneAccepted && !allResponded) continue;
+        if (!allResponded) continue;
       }
       const action = bots[pid]!.decide({
         view: getPlayerView(state, pid),

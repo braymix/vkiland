@@ -189,16 +189,17 @@ export class GameRoom {
     const offer = this.state.pendingTrade;
     for (const [pid] of this.bots) {
       if (getLegalActions(this.state, pid).length === 0) continue;
-      // Il bot PROPONENTE aspetta che gli altri rispondano: agisce solo se
-      // qualcuno ha accettato oppure se tutti hanno risposto (poi ritira).
+      // Il bot PROPONENTE aspetta le risposte di TUTTI prima di concludere
+      // o ritirare: nessuno scambio si chiude mentre un umano ci pensa.
       if (offer && offer.from === pid) {
         const responders =
           offer.to === null
             ? this.state.players.filter((p) => p.id !== pid).map((p) => p.id)
             : [offer.to];
-        const someoneAccepted = Object.values(offer.responses).includes('accettata');
+        // Niente «vince il primo che accetta»: il proponente conclude solo
+        // quando TUTTI gli interpellati hanno risposto (gli umani compresi).
         const allResponded = responders.every((r) => offer.responses[r] !== undefined);
-        if (!someoneAccepted && !allResponded) continue;
+        if (!allResponded) continue;
       }
       return pid;
     }
