@@ -23,12 +23,12 @@ export interface TutorialChapter {
 export const TUTORIAL: TutorialChapter[] = [
   {
     chip: 'Obiettivo',
-    title: 'Benvenuto a Vikiland!',
+    title: 'Benvenuto a Viking-Island!',
     blocks: [
       {
         t: 'p',
         text:
-          'Sei a capo di un clan vichingo sbarcato su un’isola del nord. Costruisci ' +
+          'Benvenuto a Viking-Island, l’isola dei clan del nord! Costruisci ' +
           'sentieri, villaggi e roccaforti, commercia e difenditi dal Drago: vince ' +
           'chi per primo raggiunge 10 Punti Gloria (PG) nel proprio turno.',
       },

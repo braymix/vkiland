@@ -1,4 +1,4 @@
-# PROGRESS — Vikiland
+# PROGRESS — Viking-Island (ex Vikiland)
 
 > Aggiornato a ogni step. Legenda: ✅ fatto · 🔄 in corso · ⬜ da fare
 
@@ -25,7 +25,10 @@ scelta del colore per ogni riga (anche bot) nel setup con picker (5 colori,
 viola incluso); bot che PROPONGONO e ACCETTANO scambi (1 surplus ↔ 1 mancante,
 conferma con l'accettante più indietro, ritiro se tutti rifiutano) e 4 livelli
 di difficoltà: facile, normale, difficile, esperto (~14 scambi conclusi a
-partita nelle simulazioni).
+partita nelle simulazioni); rebranding in VIKING-ISLAND con logo pixel-art
+originale (elmo cornuto e barba rossa, generato da scripts/gen-icons.mjs) e
+PWA completa: manifest, service worker con precache (vite-plugin-pwa),
+installabile a schermata home, gioco locale/hot-seat funzionante OFFLINE.
 
 ## Checklist Fase 3 (online)
 

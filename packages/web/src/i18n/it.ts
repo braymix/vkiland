@@ -5,7 +5,7 @@
 import type { PlayerColor, Resource, SagaCard, TerrainType } from '@vikiland/engine';
 
 export const it = {
-  titolo: 'VIKILAND',
+  titolo: 'VIKING-ISLAND',
   sottotitolo: "Saga dell'isola del Nord",
 
   // Menu
@@ -18,7 +18,7 @@ export const it = {
   memeTitolo: 'Un attimo, vichingo!',
   memeTesto:
     'Per salpare puoi guardare una pubblicità di 47 minuti oppure passare a ' +
-    'VIKILAND PRO™ a soli 999 $ al mese + IVA (fattura al tuo jarl).',
+    'VIKING-ISLAND PRO™ a soli 999 $ al mese + IVA (fattura al tuo jarl).',
   memePubblicita: '▶ Continua con pubblicità',
   memePro: 'Passa a PRO — 999 $/mese + IVA',
   memeAvanti: 'No scherzo, vai avanti →',
@@ -160,7 +160,7 @@ export const it = {
   setteRiga: 'Col 7: chi ha più di {n} carte ne scarta la metà',
 
   // Vittoria
-  vittoriaTitolo: '{nome} conquista Vikiland!',
+  vittoriaTitolo: '{nome} conquista Viking-Island!',
   rivincita: 'Rivincita',
   tornaAlMenu: 'Torna al menu',
   dettaglioPunti: 'Dettaglio dei Punti Gloria',

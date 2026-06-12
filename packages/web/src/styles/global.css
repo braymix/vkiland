@@ -485,7 +485,7 @@ button {
 
 /* Menu */
 .menu-title {
-  font-size: 30px;
+  font-size: 24px;
   color: var(--accent);
   text-shadow: 3px 3px 0 #5a3c10, 6px 6px 0 #16202b;
   letter-spacing: 2px;

@@ -1,4 +1,4 @@
-# VIKILAND
+# VIKING-ISLAND
 
 Gioco da tavolo digitale per browser: colonizza un'isola del nord alla guida di un clan
 vichingo. Costruisci sentieri, villaggi e roccaforti, commercia con gli approdi, difenditi
