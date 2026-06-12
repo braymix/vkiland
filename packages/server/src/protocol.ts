@@ -20,21 +20,20 @@ import type {
 // ---------------------------------------------------------------------------
 
 export interface RegisterRequest {
-  email: string;
+  /** Il nome utente è anche il nome in gioco (1–12 caratteri, unico). */
+  username: string;
   password: string;
-  /** Nome mostrato in partita (1–12 caratteri). */
-  displayName: string;
 }
 
 export interface LoginRequest {
-  email: string;
+  username: string;
   password: string;
 }
 
 export interface AuthResponse {
   token: string;
   userId: string;
-  displayName: string;
+  username: string;
 }
 
 export interface ApiError {

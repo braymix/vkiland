@@ -41,32 +41,34 @@ export interface AuthResult {
   ok: true;
   token: string;
   userId: string;
-  displayName: string;
+  username: string;
 }
 export interface AuthFailure {
   ok: false;
   error: string;
 }
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+/** Il nome utente È il nome in gioco: 1–12 caratteri, unico (case-insensitive). */
+function validateUsername(raw: string): string | AuthFailure {
+  const name = raw.trim();
+  if (name.length < 1 || name.length > 12)
+    return { ok: false, error: 'Il nome utente deve avere 1–12 caratteri' };
+  return name;
+}
 
 export class AuthService {
   constructor(private readonly storage: Storage) {}
 
-  register(email: string, password: string, displayName: string): AuthResult | AuthFailure {
-    const normEmail = email.trim().toLowerCase();
-    const name = displayName.trim();
-    if (!EMAIL_RE.test(normEmail)) return { ok: false, error: 'Email non valida' };
+  register(username: string, password: string): AuthResult | AuthFailure {
+    const name = validateUsername(username);
+    if (typeof name !== 'string') return name;
     if (password.length < 8) return { ok: false, error: 'Password troppo corta (minimo 8 caratteri)' };
-    if (name.length < 1 || name.length > 12)
-      return { ok: false, error: 'Il nome deve avere 1–12 caratteri' };
-    if (this.storage.getUserByEmail(normEmail))
-      return { ok: false, error: 'Email già registrata' };
+    if (this.storage.getUserByUsername(name))
+      return { ok: false, error: 'Nome utente già in uso' };
 
     const user: UserRecord = {
       id: randomUUID(),
-      email: normEmail,
-      displayName: name,
+      username: name,
       passwordHash: hashPassword(password),
       createdAt: Date.now(),
     };
@@ -74,10 +76,10 @@ export class AuthService {
     return this.newSession(user);
   }
 
-  login(email: string, password: string): AuthResult | AuthFailure {
-    const user = this.storage.getUserByEmail(email);
+  login(username: string, password: string): AuthResult | AuthFailure {
+    const user = this.storage.getUserByUsername(username);
     if (!user || !verifyPassword(password, user.passwordHash))
-      return { ok: false, error: 'Email o password errati' };
+      return { ok: false, error: 'Nome utente o password errati' };
     return this.newSession(user);
   }
 
@@ -93,39 +95,25 @@ export class AuthService {
   }
 
   /** I pochi dati che salviamo, SENZA l'hash della password. */
-  getProfile(userId: string): { userId: string; email: string; displayName: string; createdAt: number } | null {
+  getProfile(userId: string): { userId: string; username: string; createdAt: number } | null {
     const user = this.storage.getUserById(userId);
     if (!user) return null;
     return {
       userId: user.id,
-      email: user.email,
-      displayName: user.displayName,
+      username: user.username,
       createdAt: user.createdAt,
     };
   }
 
-  changeDisplayName(userId: string, displayName: string): AuthFailure | null {
+  changeUsername(userId: string, username: string): AuthFailure | null {
     const user = this.storage.getUserById(userId);
     if (!user) return { ok: false, error: 'Utente non trovato' };
-    const name = displayName.trim();
-    if (name.length < 1 || name.length > 12)
-      return { ok: false, error: 'Il nome deve avere 1–12 caratteri' };
-    this.storage.updateUser({ ...user, displayName: name });
-    return null;
-  }
-
-  /** Il cambio email richiede la password attuale (conferma di identità). */
-  changeEmail(userId: string, newEmail: string, password: string): AuthFailure | null {
-    const user = this.storage.getUserById(userId);
-    if (!user) return { ok: false, error: 'Utente non trovato' };
-    if (!verifyPassword(password, user.passwordHash))
-      return { ok: false, error: 'Password attuale errata' };
-    const normEmail = newEmail.trim().toLowerCase();
-    if (!EMAIL_RE.test(normEmail)) return { ok: false, error: 'Email non valida' };
-    const existing = this.storage.getUserByEmail(normEmail);
+    const name = validateUsername(username);
+    if (typeof name !== 'string') return name;
+    const existing = this.storage.getUserByUsername(name);
     if (existing && existing.id !== userId)
-      return { ok: false, error: 'Email già registrata' };
-    this.storage.updateUser({ ...user, email: normEmail });
+      return { ok: false, error: 'Nome utente già in uso' };
+    this.storage.updateUser({ ...user, username: name });
     return null;
   }
 
@@ -152,6 +140,6 @@ export class AuthService {
   private newSession(user: UserRecord): AuthResult {
     const token = randomBytes(32).toString('hex');
     this.storage.createSession({ token, userId: user.id, createdAt: Date.now() });
-    return { ok: true, token, userId: user.id, displayName: user.displayName };
+    return { ok: true, token, userId: user.id, username: user.username };
   }
 }

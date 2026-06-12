@@ -58,16 +58,16 @@ const lobbies = new LobbyManager({
 
 app.post('/api/register', async (req, reply) => {
   const body = (req.body ?? {}) as Partial<RegisterRequest>;
-  const res = auth.register(body.email ?? '', body.password ?? '', body.displayName ?? '');
+  const res = auth.register(body.username ?? '', body.password ?? '');
   if (!res.ok) return reply.code(400).send({ error: res.error });
-  return { token: res.token, userId: res.userId, displayName: res.displayName };
+  return { token: res.token, userId: res.userId, username: res.username };
 });
 
 app.post('/api/login', async (req, reply) => {
   const body = (req.body ?? {}) as Partial<LoginRequest>;
-  const res = auth.login(body.email ?? '', body.password ?? '');
+  const res = auth.login(body.username ?? '', body.password ?? '');
   if (!res.ok) return reply.code(401).send({ error: res.error });
-  return { token: res.token, userId: res.userId, displayName: res.displayName };
+  return { token: res.token, userId: res.userId, username: res.username };
 });
 
 app.post('/api/logout', async (req) => {
@@ -80,7 +80,7 @@ app.get('/api/me', async (req, reply) => {
   const token = bearerOf(req.headers.authorization);
   const user = token ? auth.authenticate(token) : null;
   if (!user) return reply.code(401).send({ error: 'Sessione non valida' });
-  return { userId: user.id, displayName: user.displayName };
+  return { userId: user.id, username: user.username };
 });
 
 // --- Gestione account (richiede Bearer token) -------------------------------
@@ -94,17 +94,8 @@ app.get('/api/account', async (req, reply) => {
 app.post('/api/account/name', async (req, reply) => {
   const user = authedUser(req.headers.authorization);
   if (!user) return reply.code(401).send({ error: 'Sessione non valida' });
-  const body = (req.body ?? {}) as { displayName?: string };
-  const err = auth.changeDisplayName(user.id, body.displayName ?? '');
-  if (err) return reply.code(400).send({ error: err.error });
-  return auth.getProfile(user.id);
-});
-
-app.post('/api/account/email', async (req, reply) => {
-  const user = authedUser(req.headers.authorization);
-  if (!user) return reply.code(401).send({ error: 'Sessione non valida' });
-  const body = (req.body ?? {}) as { email?: string; password?: string };
-  const err = auth.changeEmail(user.id, body.email ?? '', body.password ?? '');
+  const body = (req.body ?? {}) as { username?: string };
+  const err = auth.changeUsername(user.id, body.username ?? '');
   if (err) return reply.code(400).send({ error: err.error });
   return auth.getProfile(user.id);
 });
@@ -116,7 +107,7 @@ app.post('/api/account/password', async (req, reply) => {
   const res = auth.changePassword(user.id, body.currentPassword ?? '', body.newPassword ?? '');
   if (!res.ok) return reply.code(400).send({ error: res.error });
   // Tutte le vecchie sessioni sono revocate: ecco il nuovo token.
-  return { token: res.token, userId: res.userId, displayName: res.displayName };
+  return { token: res.token, userId: res.userId, username: res.username };
 });
 
 function authedUser(header: string | undefined) {
@@ -139,7 +130,7 @@ io.use((socket, next) => {
   const token = (socket.handshake.auth as { token?: string }).token;
   const user = token ? auth.authenticate(token) : null;
   if (!user) return next(new Error('Sessione non valida'));
-  socket.data = { userId: user.id, name: user.displayName };
+  socket.data = { userId: user.id, name: user.username };
   next();
 });
 

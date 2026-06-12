@@ -1,12 +1,15 @@
 /**
  * Gestione dell'account: mostra i (pochi) dati salvati e permette di
- * cambiare nome in gioco, email e password. La password non esiste in
- * chiaro da nessuna parte: sul server c'è solo l'hash.
+ * cambiare nome utente e password. La password non esiste in chiaro da
+ * nessuna parte: sul server c'è solo l'hash.
+ *
+ * EASTER EGG: c'è anche un campo «email»… che non salva niente, perché
+ * l'email non esiste proprio nel database (e va bene così).
  */
 import { useEffect, useState } from 'react';
 import { it } from '../i18n/it';
+import { Dialog } from '../components/dialogs/Dialog';
 import {
-  apiChangeEmail,
   apiChangeName,
   apiChangePassword,
   apiGetAccount,
@@ -21,7 +24,7 @@ interface Props {
   onBack: () => void;
 }
 
-type Panel = 'nome' | 'email' | 'password' | null;
+type Panel = 'nome' | 'password' | 'email' | null;
 
 export function AccountScreen({ session, onSessionUpdate, onBack }: Props) {
   const [profile, setProfile] = useState<AccountProfile | null>(null);
@@ -29,11 +32,11 @@ export function AccountScreen({ session, onSessionUpdate, onBack }: Props) {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [eggOpen, setEggOpen] = useState(false);
 
   // Campi dei form.
   const [newName, setNewName] = useState('');
-  const [newEmail, setNewEmail] = useState('');
-  const [emailPw, setEmailPw] = useState('');
+  const [eggEmail, setEggEmail] = useState('');
   const [curPw, setCurPw] = useState('');
   const [newPw, setNewPw] = useState('');
   const [newPw2, setNewPw2] = useState('');
@@ -68,20 +71,10 @@ export function AccountScreen({ session, onSessionUpdate, onBack }: Props) {
     run(async () => {
       const updated = await apiChangeName(session, newName);
       setProfile(updated);
-      onSessionUpdate({ ...session, displayName: updated.displayName });
+      onSessionUpdate({ ...session, username: updated.username });
       setPanel(null);
       setNewName('');
       feedback(it.nomeAggiornato, null);
-    });
-
-  const saveEmail = () =>
-    run(async () => {
-      const updated = await apiChangeEmail(session, newEmail, emailPw);
-      setProfile(updated);
-      setPanel(null);
-      setNewEmail('');
-      setEmailPw('');
-      feedback(it.emailAggiornata, null);
     });
 
   const savePassword = () =>
@@ -122,8 +115,7 @@ export function AccountScreen({ session, onSessionUpdate, onBack }: Props) {
         <div style={{ fontSize: 8, color: 'var(--ink-dim)' }}>{it.datiSalvati}</div>
         {profile ? (
           <>
-            {row(it.nomeInGioco, profile.displayName)}
-            {row(it.email, profile.email)}
+            {row(it.nomeUtente, profile.username)}
             {row(it.password, it.passwordImpostata)}
             {row(
               it.registratoIl,
@@ -141,8 +133,8 @@ export function AccountScreen({ session, onSessionUpdate, onBack }: Props) {
 
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {panelButton('nome', it.cambiaNome)}
-          {panelButton('email', it.cambiaEmail)}
           {panelButton('password', it.cambiaPassword)}
+          {panelButton('email', it.aggiungiEmail)}
         </div>
 
         {panel === 'nome' && (
@@ -155,29 +147,6 @@ export function AccountScreen({ session, onSessionUpdate, onBack }: Props) {
               onChange={(e) => setNewName(e.target.value)}
             />
             <button className="pxbtn" onClick={() => void saveName()} disabled={busy || !newName.trim()}>
-              {it.salva}
-            </button>
-          </div>
-        )}
-        {panel === 'email' && (
-          <div className="config-section">
-            <input
-              type="email"
-              placeholder={it.nuovaEmail}
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-            />
-            <input
-              type="password"
-              placeholder={it.passwordAttuale}
-              value={emailPw}
-              onChange={(e) => setEmailPw(e.target.value)}
-            />
-            <button
-              className="pxbtn"
-              onClick={() => void saveEmail()}
-              disabled={busy || !newEmail.trim() || !emailPw}
-            >
               {it.salva}
             </button>
           </div>
@@ -211,6 +180,20 @@ export function AccountScreen({ session, onSessionUpdate, onBack }: Props) {
             </button>
           </div>
         )}
+        {panel === 'email' && (
+          <div className="config-section">
+            <input
+              type="email"
+              placeholder={it.email}
+              value={eggEmail}
+              onChange={(e) => setEggEmail(e.target.value)}
+            />
+            {/* Easter egg: il «Salva» non salva niente (l'email non esiste a DB). */}
+            <button className="pxbtn" onClick={() => setEggOpen(true)} disabled={!eggEmail.trim()}>
+              {it.salva}
+            </button>
+          </div>
+        )}
 
         {message && <div style={{ fontSize: 9, color: 'var(--ok)' }}>{message}</div>}
         {error && <div style={{ fontSize: 9, color: 'var(--danger)' }}>{error}</div>}
@@ -218,6 +201,24 @@ export function AccountScreen({ session, onSessionUpdate, onBack }: Props) {
       <button className="pxbtn pxbtn--ghost" onClick={onBack}>
         {it.indietro}
       </button>
+
+      {eggOpen && (
+        <Dialog title={it.emailEggTitolo}>
+          <p style={{ fontSize: 9, lineHeight: 1.9 }}>{it.emailEggTesto}</p>
+          <div className="dialog-buttons">
+            <button
+              className="pxbtn"
+              onClick={() => {
+                setEggOpen(false);
+                setEggEmail('');
+                setPanel(null);
+              }}
+            >
+              {it.emailEggOk}
+            </button>
+          </div>
+        </Dialog>
+      )}
     </div>
   );
 }

@@ -12,8 +12,8 @@ import type { Action } from '@vikiland/engine';
 
 export interface UserRecord {
   id: string;
-  email: string;
-  displayName: string;
+  /** Nome utente = nome in gioco (unico, confronto case-insensitive). */
+  username: string;
   /** `scrypt$N$r$p$saltHex$hashHex` */
   passwordHash: string;
   createdAt: number;
@@ -37,7 +37,7 @@ export interface FinishedGameRecord {
 }
 
 export interface Storage {
-  getUserByEmail(email: string): UserRecord | null;
+  getUserByUsername(username: string): UserRecord | null;
   getUserById(id: string): UserRecord | null;
   createUser(user: UserRecord): void;
   /** Sovrascrive il record dell'utente (stesso id). */
@@ -67,15 +67,41 @@ export class JsonFileStorage implements Storage {
     this.db = existsSync(this.dbPath)
       ? (JSON.parse(readFileSync(this.dbPath, 'utf8')) as JsonDb)
       : { users: [], sessions: [] };
+    this.migrate();
+  }
+
+  /** Vecchi record (era email+displayName): il nome in gioco diventa username. */
+  private migrate(): void {
+    const seen = new Set<string>();
+    let touched = false;
+    this.db.users = this.db.users.map((raw) => {
+      const legacy = raw as UserRecord & { displayName?: string; email?: string };
+      const username = legacy.username ?? legacy.displayName ?? 'vichingo';
+      let candidate = username;
+      let n = 2;
+      while (seen.has(candidate.toLowerCase())) candidate = `${username}${n++}`.slice(0, 12);
+      seen.add(candidate.toLowerCase());
+      if (legacy.username !== candidate || 'email' in legacy || 'displayName' in legacy) {
+        touched = true;
+        return {
+          id: legacy.id,
+          username: candidate,
+          passwordHash: legacy.passwordHash,
+          createdAt: legacy.createdAt,
+        };
+      }
+      return raw;
+    });
+    if (touched) this.flush();
   }
 
   private flush(): void {
     writeFileSync(this.dbPath, JSON.stringify(this.db, null, 2));
   }
 
-  getUserByEmail(email: string): UserRecord | null {
-    const norm = email.trim().toLowerCase();
-    return this.db.users.find((u) => u.email === norm) ?? null;
+  getUserByUsername(username: string): UserRecord | null {
+    const norm = username.trim().toLowerCase();
+    return this.db.users.find((u) => u.username.toLowerCase() === norm) ?? null;
   }
 
   getUserById(id: string): UserRecord | null {
@@ -122,9 +148,9 @@ export class MemoryStorage implements Storage {
   private sessions: SessionRecord[] = [];
   readonly finishedGames: FinishedGameRecord[] = [];
 
-  getUserByEmail(email: string): UserRecord | null {
-    const norm = email.trim().toLowerCase();
-    return this.users.find((u) => u.email === norm) ?? null;
+  getUserByUsername(username: string): UserRecord | null {
+    const norm = username.trim().toLowerCase();
+    return this.users.find((u) => u.username.toLowerCase() === norm) ?? null;
   }
   getUserById(id: string): UserRecord | null {
     return this.users.find((u) => u.id === id) ?? null;

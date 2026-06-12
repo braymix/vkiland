@@ -345,10 +345,10 @@ export const TUTORIAL: TutorialChapter[] = [
       {
         t: 'p',
         text:
-          'Dal menu premi «Online» e registrati: email, password (almeno 8 ' +
-          'caratteri) e il nome che vedranno gli altri. L’«indirizzo del server» è ' +
-          'già precompilato: cambialo solo se usi un server tuo. Una spunta verde ' +
-          'ti dice se il server è raggiungibile.',
+          'Dal menu premi «Online» e registrati: bastano un nome utente (sarà ' +
+          'anche il tuo nome in gioco) e una password di almeno 8 caratteri. ' +
+          'Niente email: non serve. Una spunta verde ti dice se il server è ' +
+          'raggiungibile.',
       },
       { t: 'h', text: '2. Crea la partita o unisciti' },
       {

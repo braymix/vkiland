@@ -178,7 +178,7 @@ export function OnlineScreen({ onBack }: { onBack: () => void }) {
       return (
         <>
         <OnlineHome
-          name={sessionRef.current?.displayName ?? ''}
+          name={sessionRef.current?.username ?? ''}
           error={error}
           onBack={() => {
             socketRef.current?.disconnect();
@@ -304,9 +304,8 @@ function LoginForm({
 }) {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [serverUrl, setServerUrl] = useState(defaultServerUrl());
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
   const [sending, setSending] = useState(false);
   const [health, setHealth] = useState<'checking' | 'ok' | 'down'>('checking');
   /** L'URL del server confonde i piu': resta dietro un expander (default chiuso). */
@@ -334,8 +333,8 @@ function LoginForm({
       const url = serverUrl.trim().replace(/\/+$/, '');
       const session =
         mode === 'login'
-          ? await apiLogin(url, email, password)
-          : await apiRegister(url, email, password, name);
+          ? await apiLogin(url, username, password)
+          : await apiRegister(url, username, password);
       onLoggedIn(session);
     } catch (e) {
       onError(e instanceof Error ? e.message : 'Errore di rete');
@@ -363,10 +362,12 @@ function LoginForm({
           </button>
         </div>
         <input
-          type="email"
-          placeholder={it.email}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="text"
+          placeholder={it.nomeUtente}
+          maxLength={12}
+          autoComplete="username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
         />
         <input
           type="password"
@@ -375,13 +376,7 @@ function LoginForm({
           onChange={(e) => setPassword(e.target.value)}
         />
         {mode === 'register' && (
-          <input
-            type="text"
-            placeholder={it.nomeInGioco}
-            maxLength={12}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
+          <div style={{ fontSize: 8, color: 'var(--ink-dim)' }}>{it.nomeUtenteHint}</div>
         )}
         <button
           className="pxbtn pxbtn--ghost pxbtn--small"

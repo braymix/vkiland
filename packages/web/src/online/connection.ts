@@ -15,10 +15,11 @@ export interface OnlineSession {
   serverUrl: string;
   token: string;
   userId: string;
-  displayName: string;
+  username: string;
 }
 
-const STORAGE_KEY = 'vikiland-online-session';
+// v2: account solo username+password (le sessioni vecchie ripartono dal login).
+const STORAGE_KEY = 'vikiland-online-session-v2';
 
 export function defaultServerUrl(): string {
   // In produzione (es. Netlify) l'indirizzo del server arriva dalla build.
@@ -64,21 +65,20 @@ async function post(serverUrl: string, path: string, body: unknown, token?: stri
 
 export async function apiRegister(
   serverUrl: string,
-  email: string,
-  password: string,
-  displayName: string
+  username: string,
+  password: string
 ): Promise<OnlineSession> {
-  const data = (await post(serverUrl, '/api/register', { email, password, displayName })) as AuthResponse;
-  return { serverUrl, token: data.token, userId: data.userId, displayName: data.displayName };
+  const data = (await post(serverUrl, '/api/register', { username, password })) as AuthResponse;
+  return { serverUrl, token: data.token, userId: data.userId, username: data.username };
 }
 
 export async function apiLogin(
   serverUrl: string,
-  email: string,
+  username: string,
   password: string
 ): Promise<OnlineSession> {
-  const data = (await post(serverUrl, '/api/login', { email, password })) as AuthResponse;
-  return { serverUrl, token: data.token, userId: data.userId, displayName: data.displayName };
+  const data = (await post(serverUrl, '/api/login', { username, password })) as AuthResponse;
+  return { serverUrl, token: data.token, userId: data.userId, username: data.username };
 }
 
 /** Verifica che una sessione salvata sia ancora valida. */
@@ -95,8 +95,7 @@ export async function apiMe(session: OnlineSession): Promise<boolean> {
 
 export interface AccountProfile {
   userId: string;
-  email: string;
-  displayName: string;
+  username: string;
   createdAt: number;
 }
 
@@ -121,17 +120,9 @@ export async function apiGetAccount(session: OnlineSession): Promise<AccountProf
 
 export async function apiChangeName(
   session: OnlineSession,
-  displayName: string
+  username: string
 ): Promise<AccountProfile> {
-  return (await post(session.serverUrl, '/api/account/name', { displayName }, session.token)) as AccountProfile;
-}
-
-export async function apiChangeEmail(
-  session: OnlineSession,
-  email: string,
-  password: string
-): Promise<AccountProfile> {
-  return (await post(session.serverUrl, '/api/account/email', { email, password }, session.token)) as AccountProfile;
+  return (await post(session.serverUrl, '/api/account/name', { username }, session.token)) as AccountProfile;
 }
 
 /** Ritorna la NUOVA sessione: il cambio password revoca tutte le precedenti. */
@@ -146,7 +137,7 @@ export async function apiChangePassword(
     { currentPassword, newPassword },
     session.token
   )) as AuthResponse;
-  return { ...session, token: data.token, displayName: data.displayName };
+  return { ...session, token: data.token, username: data.username };
 }
 
 /**
