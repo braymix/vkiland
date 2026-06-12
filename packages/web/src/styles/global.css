@@ -292,6 +292,16 @@ button {
   flex-wrap: wrap;
 }
 
+/* Sezione «Configurazione» espandibile del setup */
+.config-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px;
+  border: 2px solid var(--bg-deep);
+  background: rgba(22, 32, 43, 0.45);
+}
+
 /* Picker dei colori del clan (setup) */
 .color-picker {
   display: flex;

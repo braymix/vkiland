@@ -1,6 +1,6 @@
 /** Configurazione della partita: 2–4 giocatori, ognuno umano o bot (hot-seat). */
 import { useState } from 'react';
-import type { BotLevel, PlayerColor } from '@vikiland/engine';
+import { DEFAULT_TARGET_GLORY, type BotLevel, type PlayerColor } from '@vikiland/engine';
 import { it, t } from '../i18n/it';
 import type { GameSetup } from '../game/LocalGameController';
 import { PLAYER_COLORS } from '../render/sprites/palettes';
@@ -28,6 +28,11 @@ export function SetupScreen({ onStart, onBack }: Props) {
   ]);
   const [seed, setSeed] = useState('');
   const [avoid68, setAvoid68] = useState(true);
+  /** Sezione «Configurazione» espandibile (per ora: obiettivo di vittoria). */
+  const [configOpen, setConfigOpen] = useState(false);
+  const [targetPG, setTargetPG] = useState(DEFAULT_TARGET_GLORY);
+  const bumpTarget = (delta: number) =>
+    setTargetPG((n) => Math.max(5, Math.min(20, n + delta)));
 
   const update = (i: number, patch: Partial<PlayerRow>) => {
     setPlayers(players.map((p, idx) => (idx === i ? { ...p, ...patch } : p)));
@@ -76,7 +81,7 @@ export function SetupScreen({ onStart, onBack }: Props) {
         botLevel: p.botLevel,
       })),
       avoidAdjacent68: avoid68,
-      targetGloryPoints: 10,
+      targetGloryPoints: targetPG,
     });
   };
 
@@ -152,23 +157,67 @@ export function SetupScreen({ onStart, onBack }: Props) {
             {it.aggiungiGiocatore}
           </button>
         )}
-        <div className="setup-player">
-          <input
-            type="text"
-            placeholder={it.seedOpzionale}
-            value={seed}
-            onChange={(e) => setSeed(e.target.value)}
-            style={{ width: 240 }}
-          />
-        </div>
-        <label className="check">
-          <input
-            type="checkbox"
-            checked={avoid68}
-            onChange={(e) => setAvoid68(e.target.checked)}
-          />
-          {it.evita68}
-        </label>
+        <button
+          className="pxbtn pxbtn--ghost pxbtn--small"
+          onClick={() => setConfigOpen(!configOpen)}
+          aria-expanded={configOpen}
+        >
+          {configOpen ? '▾' : '▸'} {it.configurazione}
+        </button>
+        {configOpen && (
+          <div className="config-section">
+            <div className="stepper-row">
+              <span style={{ fontSize: 9 }}>
+                {it.puntiVittoria}{' '}
+                <span style={{ color: 'var(--ink-dim)', fontSize: 8 }}>
+                  {t(it.standardN, { n: DEFAULT_TARGET_GLORY })}
+                </span>
+              </span>
+              <span className="stepper">
+                <button
+                  className="pxbtn pxbtn--ghost pxbtn--small"
+                  onClick={() => bumpTarget(-1)}
+                  disabled={targetPG <= 5}
+                >
+                  -
+                </button>
+                <span
+                  style={{
+                    minWidth: 26,
+                    textAlign: 'center',
+                    color: targetPG === DEFAULT_TARGET_GLORY ? 'inherit' : 'var(--accent)',
+                  }}
+                >
+                  {targetPG}
+                </span>
+                <button
+                  className="pxbtn pxbtn--ghost pxbtn--small"
+                  onClick={() => bumpTarget(+1)}
+                  disabled={targetPG >= 20}
+                >
+                  +
+                </button>
+              </span>
+            </div>
+            <div className="setup-player">
+              <input
+                type="text"
+                placeholder={it.seedOpzionale}
+                value={seed}
+                onChange={(e) => setSeed(e.target.value)}
+                style={{ width: 240 }}
+              />
+            </div>
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={avoid68}
+                onChange={(e) => setAvoid68(e.target.checked)}
+              />
+              {it.evita68}
+            </label>
+          </div>
+        )}
       </div>
       <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
         <button className="pxbtn pxbtn--ghost" onClick={onBack}>
