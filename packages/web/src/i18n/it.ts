@@ -77,7 +77,7 @@ export const it = {
   datiSalvati: 'Questi sono i dati che salviamo su di te:',
   registratoIl: 'Registrato il',
   idAccount: 'ID account',
-  passwordImpostata: '•••••••• (mai salvata in chiaro)',
+  passwordImpostata: '••••••••',
   cambiaNome: 'Cambia nome',
   nuovoNome: 'Nuovo nome in gioco',
   nomeAggiornato: 'Nome aggiornato! Varrà dalle prossime partite.',
