@@ -73,6 +73,13 @@ export const it = {
   terminaTesto:
     'La partita verrà chiusa per TUTTI i giocatori e non si potrà riprendere.',
   terminaConferma: 'Sì, termina per tutti',
+  partitaPubblicaToggle: 'Partita pubblica (aperta a tutti)',
+  partitePubbliche: 'Partite pubbliche',
+  nessunaPubblica: 'Nessuna partita pubblica al momento. Creane una tu!',
+  entra: 'Entra',
+  postiNsuM: '{n}/{m} vichinghi',
+  visibilitaPubblica: 'Pubblica',
+  visibilitaPrivata: 'Privata (su invito)',
 
   // Gestione account
   account: 'Account',

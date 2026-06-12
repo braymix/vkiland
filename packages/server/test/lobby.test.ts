@@ -4,7 +4,7 @@ import type { GameUpdate, LobbyState } from '../src/protocol';
 import { LobbyManager, type LobbyManagerCallbacks } from '../src/lobby';
 import { isApiError } from '../src/protocol';
 
-const CFG = { avoidAdjacent68: true, targetGloryPoints: 10, turnTimerSec: 0 };
+const CFG = { avoidAdjacent68: true, targetGloryPoints: 10, turnTimerSec: 0, isPublic: false };
 
 interface Recorded {
   lobbyStates: LobbyState[];
@@ -112,6 +112,34 @@ describe('LobbyManager', () => {
       manager.handleAction(bjorn.id, move as never);
       expect(rec.updates.get(bjorn.id)!.at(-1)!.generation).toBe(1);
     }
+  });
+
+  it('le partite PUBBLICHE appaiono in lista finché aperte; le private mai', () => {
+    const { manager } = makeManager();
+    const pub = manager.create(bjorn, { ...CFG, isPublic: true });
+    if (isApiError(pub)) throw new Error('create fallita');
+    manager.create(astrid, CFG); // privata
+
+    const list = manager.listPublic();
+    expect(list).toHaveLength(1);
+    expect(list[0]!.code).toBe(pub.code);
+    expect(list[0]!.hostName).toBe('Bjorn');
+    expect(list[0]!.players).toBe(1);
+
+    // Chiunque entra direttamente col codice della lista.
+    const leif = { id: 'u-leif', name: 'Leif' };
+    expect(isApiError(manager.join(list[0]!.code, leif))).toBe(false);
+    expect(manager.listPublic()[0]!.players).toBe(2);
+
+    // Piena (4) o avviata ⇒ sparisce dalla lista.
+    manager.addBot(bjorn.id, 'facile');
+    manager.addBot(bjorn.id, 'facile');
+    expect(manager.listPublic()).toHaveLength(0);
+    const reopened = manager.removeSlot(bjorn.id, 3);
+    if (isApiError(reopened)) throw new Error('removeSlot fallita');
+    expect(manager.listPublic()).toHaveLength(1);
+    manager.start(bjorn.id);
+    expect(manager.listPublic()).toHaveLength(0);
   });
 
   it('se l’host esce prima dell’avvio la lobby si chiude per tutti', () => {

@@ -156,6 +156,8 @@ io.on('connection', (socket: AnySocket) => {
     cb(res);
   });
 
+  socket.on('lobby:list', (cb) => cb(lobbies.listPublic()));
+
   socket.on('lobby:join', (code, cb) => {
     const res = lobbies.join(code, { id: userId, name });
     if (!isApiError(res)) {

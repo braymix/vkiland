@@ -49,6 +49,17 @@ export interface LobbyConfig {
   targetGloryPoints: number;
   /** Secondi per turno (0 = nessun timer). Allo scadere il server gioca una mossa di default. */
   turnTimerSec: number;
+  /** true = elencata tra le partite pubbliche: chiunque può entrare senza codice. */
+  isPublic: boolean;
+}
+
+/** Riga della lista delle partite pubbliche aperte. */
+export interface PublicLobbySummary {
+  code: string;
+  hostName: string;
+  players: number;
+  maxPlayers: number;
+  turnTimerSec: number;
 }
 
 export interface LobbySlot {
@@ -68,6 +79,7 @@ export interface LobbyState {
   slots: LobbySlot[];
   /** true quando la partita è partita (la lobby diventa stanza di gioco). */
   started: boolean;
+  isPublic: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -110,6 +122,8 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
   'lobby:create': (config: LobbyConfig, cb: (res: LobbyState | ApiError) => void) => void;
+  /** Lista delle partite pubbliche aperte (non iniziate, con posti liberi). */
+  'lobby:list': (cb: (rooms: PublicLobbySummary[]) => void) => void;
   'lobby:join': (code: string, cb: (res: LobbyState | ApiError) => void) => void;
   'lobby:leave': () => void;
   'lobby:addBot': (level: BotLevel) => void;

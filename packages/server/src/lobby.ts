@@ -5,7 +5,7 @@
  */
 import { randomInt } from 'node:crypto';
 import type { Action, BotLevel } from '@vikiland/engine';
-import type { ApiError, GameUpdate, LobbyConfig, LobbyState } from './protocol';
+import type { ApiError, GameUpdate, LobbyConfig, LobbyState, PublicLobbySummary } from './protocol';
 import type { FinishedGameRecord } from './storage';
 import { GameRoom, type RoomOptions, type Seat } from './room';
 
@@ -245,7 +245,24 @@ export class LobbyManager {
       config: { ...lobby.config },
       slots: lobby.slots.map((s) => ({ ...s })),
       started: lobby.started,
+      isPublic: lobby.config.isPublic,
     };
+  }
+
+  /** Le partite pubbliche a cui si può ancora entrare. */
+  listPublic(): PublicLobbySummary[] {
+    const out: PublicLobbySummary[] = [];
+    for (const lobby of this.lobbies.values()) {
+      if (!lobby.config.isPublic || lobby.started || lobby.slots.length >= MAX_SLOTS) continue;
+      out.push({
+        code: lobby.code,
+        hostName: lobby.slots.find((s) => s.userId === lobby.hostUserId)?.name ?? '?',
+        players: lobby.slots.length,
+        maxPlayers: MAX_SLOTS,
+        turnTimerSec: lobby.config.turnTimerSec,
+      });
+    }
+    return out;
   }
 
   // -- interni -----------------------------------------------------------------
@@ -287,6 +304,7 @@ function sanitizeConfig(c: LobbyConfig): LobbyConfig {
     avoidAdjacent68: Boolean(c.avoidAdjacent68),
     targetGloryPoints: clampInt(c.targetGloryPoints, 5, 20, 10),
     turnTimerSec: clampInt(c.turnTimerSec, 0, 600, 0),
+    isPublic: Boolean(c.isPublic),
   };
 }
 

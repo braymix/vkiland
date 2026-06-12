@@ -5,7 +5,7 @@
  */
 import { useEffect, useRef, useState } from 'react';
 import type { BotLevel } from '@vikiland/engine';
-import type { LobbyState } from '@vikiland/server/protocol';
+import type { LobbyState, PublicLobbySummary } from '@vikiland/server/protocol';
 import { isApiError } from '@vikiland/server/protocol';
 import { it, t } from '../i18n/it';
 import {
@@ -187,16 +187,20 @@ export function OnlineScreen({ onBack }: { onBack: () => void }) {
           onOpenTutorial={() => setTutorialOpen(true)}
           onAccount={() => setStage('account')}
           onLogout={logout}
-          onCreate={(timerSec) => {
+          onCreate={(timerSec, isPublic) => {
             socketRef.current?.emit(
               'lobby:create',
-              { avoidAdjacent68: true, targetGloryPoints: 10, turnTimerSec: timerSec },
+              { avoidAdjacent68: true, targetGloryPoints: 10, turnTimerSec: timerSec, isPublic },
               (res) => {
                 if (isApiError(res)) return showError(res.error);
                 setLobby(res);
                 setStage('room');
               }
             );
+          }}
+          fetchPublic={(cb) => {
+            if (socketRef.current?.connected) socketRef.current.emit('lobby:list', cb);
+            else cb([]);
           }}
           onJoin={(code) => {
             socketRef.current?.emit('lobby:join', code, (res) => {
@@ -432,20 +436,36 @@ function OnlineHome({
   onBack,
   onOpenTutorial,
   onAccount,
+  fetchPublic,
 }: {
   name: string;
   error: string | null;
-  onCreate: (timerSec: number) => void;
+  onCreate: (timerSec: number, isPublic: boolean) => void;
   onJoin: (code: string) => void;
   onLogout: () => void;
   onBack: () => void;
   onOpenTutorial: () => void;
   onAccount: () => void;
+  fetchPublic: (cb: (rooms: PublicLobbySummary[]) => void) => void;
 }) {
   const [code, setCode] = useState('');
   /** Secondi per turno scelti dall'utente ('' o 0 = nessun timer; max 600). */
   const [timerRaw, setTimerRaw] = useState('');
   const timerSec = Math.max(0, Math.min(600, Math.floor(Number(timerRaw) || 0)));
+  const [isPublic, setIsPublic] = useState(false);
+  /** Partite pubbliche aperte, aggiornate ogni 5 secondi. */
+  const [publicRooms, setPublicRooms] = useState<PublicLobbySummary[]>([]);
+  useEffect(() => {
+    let alive = true;
+    const refresh = () => fetchPublic((rooms) => alive && setPublicRooms(rooms));
+    refresh();
+    const timer = setInterval(refresh, 5000);
+    return () => {
+      alive = false;
+      clearInterval(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="screen" style={{ justifyContent: 'center' }}>
@@ -468,10 +488,18 @@ function OnlineHome({
             <span style={{ fontSize: 8, color: 'var(--ink-dim)' }}>
               {timerSec === 0 ? it.nessunTimer : t(it.secondiAbbr, { n: timerSec })}
             </span>
-            <button className="pxbtn" onClick={() => onCreate(timerSec)}>
+            <button className="pxbtn" onClick={() => onCreate(timerSec, isPublic)}>
               {it.creaPartita}
             </button>
           </div>
+          <label className="check" style={{ fontSize: 9 }}>
+            <input
+              type="checkbox"
+              checked={isPublic}
+              onChange={(e) => setIsPublic(e.target.checked)}
+            />
+            {it.partitaPubblicaToggle}
+          </label>
         </div>
         <div className="setup-player">
           <input
@@ -487,6 +515,31 @@ function OnlineHome({
           </button>
         </div>
         {error && <div style={{ fontSize: 9, color: 'var(--danger)' }}>{error}</div>}
+
+        <div style={{ fontSize: 10, color: 'var(--accent)', marginTop: 4 }}>
+          {it.partitePubbliche}
+        </div>
+        {publicRooms.length === 0 ? (
+          <div style={{ fontSize: 8, color: 'var(--ink-dim)' }}>{it.nessunaPubblica}</div>
+        ) : (
+          publicRooms.map((room) => (
+            <div key={room.code} className="setup-player">
+              <span style={{ flex: 1, fontSize: 9 }}>
+                {room.hostName}
+                <span style={{ color: 'var(--ink-dim)', fontSize: 8 }}>
+                  {' · '}
+                  {t(it.postiNsuM, { n: room.players, m: room.maxPlayers })}
+                  {room.turnTimerSec > 0
+                    ? ` · ⏳${t(it.secondiAbbr, { n: room.turnTimerSec })}`
+                    : ''}
+                </span>
+              </span>
+              <button className="pxbtn pxbtn--small" onClick={() => onJoin(room.code)}>
+                {it.entra}
+              </button>
+            </div>
+          ))
+        )}
       </div>
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
         <button className="pxbtn pxbtn--ghost" onClick={onBack}>
@@ -535,6 +588,8 @@ function LobbyRoom({
         {it.condividiCodice}
       </div>
       <div style={{ fontSize: 9, color: 'var(--ink-dim)' }}>
+        {lobby.isPublic ? it.visibilitaPubblica : it.visibilitaPrivata}
+        {' · '}
         {t(it.timerLobby, {
           s:
             lobby.config.turnTimerSec > 0
