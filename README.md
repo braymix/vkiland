@@ -33,13 +33,27 @@ pnpm build        # build di produzione del frontend
 **Client su Netlify** (gioco locale e hot-seat funzionano subito, senza server):
 il repo contiene già [`netlify.toml`](./netlify.toml) — basta collegare il repo a
 Netlify (build `pnpm build`, publish `packages/web/dist`, rilevati in automatico).
-Per abilitare l'Online imposta su Netlify la variabile d'ambiente
-`VITE_SERVER_URL` con l'indirizzo pubblico del server di gioco: diventerà il
-valore precompilato nel form di accesso.
 
-**Server di gioco** (necessario solo per l'Online): è un processo persistente con
-WebSocket, quindi NON può girare su Netlify Functions. Va su un host tipo
-Render/Railway/Fly/VPS col [`Dockerfile`](./packages/server/Dockerfile) incluso:
+**Online al 100% (client Netlify + server Render)** — il server di gioco è un
+processo persistente con WebSocket: NON può girare su Netlify Functions. Il repo
+contiene [`render.yaml`](./render.yaml) per il deploy a 3 click su Render
+(piano free, senza carta di credito):
+
+1. Vai su [render.com](https://render.com) → registrati → **New + → Blueprint**
+   → collega questo repository → **Apply**. Render costruisce il
+   [`Dockerfile`](./packages/server/Dockerfile) del server e lo pubblica in
+   HTTPS, es. `https://vikiland-server.onrender.com`.
+2. Verifica che risponda: apri `https://<servizio>.onrender.com/api/health`
+   (deve mostrare `{"ok":true}` — al primo colpo può metterci ~1 minuto:
+   il piano free si addormenta dopo 15 minuti di inattività).
+3. Su Netlify: **Site settings → Environment variables** → aggiungi
+   `VITE_SERVER_URL = https://<servizio>.onrender.com` → **Deploys →
+   Trigger deploy**. Da quel momento il form Online del sito arriva
+   precompilato con il tuo server (spunta verde) e si gioca online.
+
+Limiti del free di Render: risveglio lento dopo l'inattività e dischi
+effimeri (account e partite si azzerano a ogni deploy del server). Per un
+servizio stabile: piano a pagamento o VPS, stesso Dockerfile:
 
 ```bash
 docker build -f packages/server/Dockerfile -t vikiland-server .
