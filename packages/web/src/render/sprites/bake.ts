@@ -25,18 +25,19 @@ function resolveColor(
 export function bakeSprite(
   id: string,
   def: SpriteDef,
-  playerColor: PlayerColor | null = null
+  playerColor: PlayerColor | null = null,
+  pixelScale = 1
 ): HTMLCanvasElement {
   const theme = getActiveTheme();
-  const key = `${theme.id}|${id}|${playerColor ?? '-'}`;
+  const key = `${theme.id}|${id}|${playerColor ?? '-'}|${pixelScale}`;
   const hit = cache.get(key);
   if (hit) return hit;
 
   const h = def.rows.length;
   const w = def.rows[0]!.length;
   const canvas = document.createElement('canvas');
-  canvas.width = w;
-  canvas.height = h;
+  canvas.width = w * pixelScale;
+  canvas.height = h * pixelScale;
   const ctx = canvas.getContext('2d')!;
   for (let y = 0; y < h; y++) {
     const row = def.rows[y]!;
@@ -46,7 +47,7 @@ export function bakeSprite(
       const colorKey = def.map[ch];
       if (!colorKey) continue;
       ctx.fillStyle = resolveColor(colorKey, theme, playerColor);
-      ctx.fillRect(x, y, 1, 1);
+      ctx.fillRect(x * pixelScale, y * pixelScale, pixelScale, pixelScale);
     }
   }
   cache.set(key, canvas);
@@ -86,32 +87,35 @@ export function spriteDataURL(
 }
 const urlCache = new Map<string, string>();
 
-/** Scrive una stringa di cifre (e ':') col font 3×5. Ritorna la larghezza. */
+/** Scrive una stringa di cifre (e ':') col font 3×5, opzionalmente ingrandito. */
 export function drawDigits(
   ctx: CanvasRenderingContext2D,
   text: string,
   x: number,
   y: number,
-  color: string
+  color: string,
+  scale = 1
 ): number {
   let cx = x;
   ctx.fillStyle = color;
   for (const ch of text) {
     const glyph = DIGIT_FONT[ch];
     if (!glyph) {
-      cx += 2;
+      cx += 2 * scale;
       continue;
     }
     for (let gy = 0; gy < 5; gy++) {
       for (let gx = 0; gx < 3; gx++) {
-        if (glyph[gy]![gx] === '1') ctx.fillRect(cx + gx, y + gy, 1, 1);
+        if (glyph[gy]![gx] === '1') {
+          ctx.fillRect(cx + gx * scale, y + gy * scale, scale, scale);
+        }
       }
     }
-    cx += 4;
+    cx += 4 * scale;
   }
-  return cx - x - 1;
+  return cx - x - scale;
 }
 
-export function digitsWidth(text: string): number {
-  return text.length * 4 - 1;
+export function digitsWidth(text: string, scale = 1): number {
+  return text.length * 4 * scale - scale;
 }

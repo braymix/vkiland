@@ -61,18 +61,32 @@ const TERRAIN_FILL: Record<TerrainType, [string, string]> = {
 };
 
 const TERRAIN_DECO: Record<TerrainType, { def: SpriteDef; id: string; at: [number, number][] }> = {
-  legname: { def: PINO, id: 'pino', at: [[-5, -8], [5, -7], [0, 8]] },
-  pietra: { def: ROCCIA_DECO, id: 'roccia', at: [[-4, -8], [4, 8]] },
-  lana: { def: PECORA, id: 'pecora', at: [[-3, -8], [3, 8]] },
-  orzo: { def: SPIGA, id: 'spiga', at: [[-5, -8], [5, -8], [0, 8]] },
-  ferro: { def: MINERALE, id: 'minerale', at: [[-4, -8], [4, 8]] },
-  tundra: { def: CRISTALLO_GHIACCIO, id: 'ghiaccio', at: [[-5, -8], [5, -7], [0, 8]] },
+  legname: { def: PINO, id: 'pino', at: [[-10, -14], [10, -13], [0, 15]] },
+  pietra: { def: ROCCIA_DECO, id: 'roccia', at: [[-9, -14], [9, 14]] },
+  lana: { def: PECORA, id: 'pecora', at: [[-9, -14], [9, 14]] },
+  orzo: { def: SPIGA, id: 'spiga', at: [[-11, -14], [11, -14], [0, 15]] },
+  ferro: { def: MINERALE, id: 'minerale', at: [[-9, -14], [9, 14]] },
+  tundra: { def: CRISTALLO_GHIACCIO, id: 'ghiaccio', at: [[-10, -14], [10, -13], [0, 15]] },
 };
 
 /** Marcatore di evidenziazione (anello bianco con bordo scuro). */
 const MIRINO: SpriteDef = {
   map: { n: 'nero', b: 'bianco' },
-  rows: ['.nnnnn.', 'nbbbbbn', 'nb...bn', 'nb...bn', 'nb...bn', 'nbbbbbn', '.nnnnn.'],
+  rows: [
+    '..nnnnnnnnn..',
+    '.nbbbbbbbbbn.',
+    'nbb.......bbn',
+    'nb.........bn',
+    'nb.........bn',
+    'nb.........bn',
+    'nb.........bn',
+    'nb.........bn',
+    'nb.........bn',
+    'nb.........bn',
+    'nbb.......bbn',
+    '.nbbbbbbbbbn.',
+    '..nnnnnnnnn..',
+  ],
 };
 
 /** Variante VIOLA del marcatore: vertici che danno diritto a un approdo. */
@@ -123,33 +137,45 @@ function fillHex(ctx: CanvasRenderingContext2D, cx: number, cy: number, fill: st
   }
 }
 
-/** Disco del segnalino numerico con cifre e tacche di probabilità. */
+/** Disco del segnalino numerico con cifre grandi e tacche di probabilità. */
+const TOKEN_R = 10;
+function tokenHalfWidthAt(dy: number): number {
+  const r2 = (TOKEN_R + 0.4) ** 2 - dy * dy;
+  return r2 <= 0 ? 0 : Math.round(Math.sqrt(r2));
+}
+
 function drawToken(ctx: CanvasRenderingContext2D, cx: number, cy: number, token: number): void {
-  const widths = [2, 4, 5, 5, 5, 5, 5, 5, 5, 4, 2]; // semi-larghezze del disco 11px
   ctx.fillStyle = color('segnalino');
-  for (let dy = -5; dy <= 5; dy++) {
-    const hw = widths[dy + 5]!;
+  for (let dy = -TOKEN_R; dy <= TOKEN_R; dy++) {
+    const hw = tokenHalfWidthAt(dy);
+    if (hw <= 0) continue;
     ctx.fillRect(cx - hw, cy + dy, hw * 2, 1);
   }
+  // Bordo: i pixel del disco con un vicino (sopra/sotto/lato) fuori dal disco.
   ctx.fillStyle = color('segnalinoBordo');
-  for (let dy = -5; dy <= 5; dy++) {
-    const hw = widths[dy + 5]!;
+  for (let dy = -TOKEN_R; dy <= TOKEN_R; dy++) {
+    const hw = tokenHalfWidthAt(dy);
+    if (hw <= 0) continue;
+    const hwUp = tokenHalfWidthAt(dy - 1);
+    const hwDown = tokenHalfWidthAt(dy + 1);
     ctx.fillRect(cx - hw, cy + dy, 1, 1);
     ctx.fillRect(cx + hw - 1, cy + dy, 1, 1);
+    for (let dx = -hw; dx < hw; dx++) {
+      const adx = Math.abs(dx + 0.5);
+      if (adx >= hwUp || adx >= hwDown) ctx.fillRect(cx + dx, cy + dy, 1, 1);
+    }
   }
-  ctx.fillRect(cx - widths[0]!, cy - 5, widths[0]! * 2, 1);
-  ctx.fillRect(cx - widths[10]!, cy + 5, widths[10]! * 2, 1);
 
   const text = String(token);
   const isHot = token === 6 || token === 8;
-  const tw = digitsWidth(text);
-  drawDigits(ctx, text, cx - Math.floor(tw / 2), cy - 4, color(isHot ? 'cifraCalda' : 'cifra'));
-  // Tacche di probabilità sotto il numero.
+  const tw = digitsWidth(text, 2);
+  drawDigits(ctx, text, cx - Math.floor(tw / 2), cy - 8, color(isHot ? 'cifraCalda' : 'cifra'), 2);
+  // Tacche di probabilità sotto il numero (quadratini 2×2).
   const pips = pipWeight(token);
-  const px = cx - (pips * 2 - 1) / 2;
+  const px = cx - (pips * 3 - 1) / 2;
   ctx.fillStyle = color(isHot ? 'cifraCalda' : 'cifra');
   for (let i = 0; i < pips; i++) {
-    ctx.fillRect(Math.round(px) + i * 2, cy + 2, 1, 1);
+    ctx.fillRect(Math.round(px) + i * 3, cy + 4, 2, 2);
   }
 }
 
@@ -163,9 +189,9 @@ function renderStatic(view: PlayerView): HTMLCanvasElement {
   ctx.fillStyle = color('mare');
   ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
   ctx.fillStyle = color('mareChiaro');
-  for (let y = 0; y < CANVAS_H; y += 2) {
+  for (let y = 0; y < CANVAS_H; y += 3) {
     for (let x = 0; x < CANVAS_W; x++) {
-      if ((x * 7 + y * 13) % 53 === 0) ctx.fillRect(x, y, 2, 1);
+      if ((x * 7 + y * 13) % 53 === 0) ctx.fillRect(x, y, 3, 1);
     }
   }
 
@@ -186,14 +212,14 @@ function renderStatic(view: PlayerView): HTMLCanvasElement {
     const anchor = portAnchor(port.edge);
     drawSpriteCentered(ctx, bakeSprite('drakkar', DRAKKAR), anchor.x, anchor.y);
     const label = `${port.ratio}:1`;
-    const tw = digitsWidth(label);
-    const ty = anchor.y + 6;
+    const tw = digitsWidth(label, 2);
+    const ty = anchor.y + 9;
     ctx.fillStyle = color('nero');
-    ctx.fillRect(anchor.x - Math.floor(tw / 2) - 1, ty - 1, tw + 2, 7);
-    drawDigits(ctx, label, anchor.x - Math.floor(tw / 2), ty, color('bianco'));
+    ctx.fillRect(anchor.x - Math.floor(tw / 2) - 2, ty - 2, tw + 4, 14);
+    drawDigits(ctx, label, anchor.x - Math.floor(tw / 2), ty, color('bianco'), 2);
     if (port.kind !== 'generico') {
-      const icon = bakeSprite(`icona-${port.kind}`, ICONA_RISORSA[port.kind]!);
-      drawSpriteCentered(ctx, icon, anchor.x, anchor.y - 8);
+      const icon = bakeSprite(`icona-${port.kind}`, ICONA_RISORSA[port.kind]!, null, 2);
+      drawSpriteCentered(ctx, icon, anchor.x, anchor.y - 15);
     }
   }
 
@@ -212,7 +238,7 @@ function drawRoad(
   const dx = p2.x - p1.x;
   const dy = p2.y - p1.y;
   const len = Math.hypot(dx, dy);
-  const t0 = 3.5 / len;
+  const t0 = 7 / len;
   const steps = Math.ceil(len);
   ctx.fillStyle = colors.dark;
   for (let i = 0; i <= steps; i++) {
@@ -220,7 +246,7 @@ function drawRoad(
     if (t > 1 - t0) break;
     const x = Math.round(p1.x + dx * t);
     const y = Math.round(p1.y + dy * t);
-    ctx.fillRect(x - 1, y - 1, 3, 3);
+    ctx.fillRect(x - 2, y - 2, 5, 5);
   }
   ctx.fillStyle = colors.main;
   for (let i = 0; i <= steps; i++) {
@@ -228,7 +254,7 @@ function drawRoad(
     if (t > 1 - t0) break;
     const x = Math.round(p1.x + dx * t);
     const y = Math.round(p1.y + dy * t);
-    ctx.fillRect(x, y, 1, 1);
+    ctx.fillRect(x - 1, y - 1, 3, 3);
   }
 }
 
@@ -259,17 +285,17 @@ export function renderBoard(
   for (const p of view.players) {
     for (const v of p.villages) {
       const pt = vertexPoint(v);
-      drawSpriteCentered(ctx, bakeSprite('villaggio', VILLAGGIO, p.color), pt.x, pt.y - 1);
+      drawSpriteCentered(ctx, bakeSprite('villaggio', VILLAGGIO, p.color), pt.x, pt.y - 2);
     }
     for (const v of p.strongholds) {
       const pt = vertexPoint(v);
-      drawSpriteCentered(ctx, bakeSprite('roccaforte', ROCCAFORTE, p.color), pt.x, pt.y - 1);
+      drawSpriteCentered(ctx, bakeSprite('roccaforte', ROCCAFORTE, p.color), pt.x, pt.y - 2);
     }
   }
 
   // Il Drago sull'esagono bloccato.
   const dragonCenter = hexCenterById(view.board.dragonHex);
-  drawSpriteCentered(ctx, bakeSprite('drago', DRAGO), dragonCenter.x, dragonCenter.y + 1);
+  drawSpriteCentered(ctx, bakeSprite('drago', DRAGO), dragonCenter.x, dragonCenter.y + 2);
 
   // Evidenziazioni delle mosse legali. I vertici degli approdi usano il
   // mirino VIOLA al posto del bianco: si vede subito quale piazzamento
@@ -289,6 +315,6 @@ export function renderBoard(
   }
   for (const h of ui.highlightHexes ?? []) {
     const c = hexCenterById(h);
-    drawSpriteCentered(ctx, marker, c.x, c.y - 8);
+    drawSpriteCentered(ctx, marker, c.x, c.y - 16);
   }
 }

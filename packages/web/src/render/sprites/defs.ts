@@ -11,40 +11,48 @@ export interface SpriteDef {
   map: Record<string, string>;
 }
 
-/** Villaggio: casetta col tetto nel colore del clan. */
+/** Villaggio: casa lunga vichinga col tetto nel colore del clan. */
 export const VILLAGGIO: SpriteDef = {
-  map: { R: 'giocatoreMain', r: 'giocatoreDark', W: 'bianco', D: 'giocatoreDark', o: 'nero' },
+  map: { R: 'giocatoreMain', r: 'giocatoreDark', W: 'bianco', d: 'giocatoreDark', q: 'nero' },
   rows: [
-    '...R...',
-    '..RRR..',
-    '.RRRRR.',
-    'rRRRRRr',
-    '.WWWWW.',
-    '.WWDWW.',
-    '.WWDWW.',
-    '.ooooo.',
+    '.....RRR.....',
+    '....RRRRR....',
+    '...RRRRRRR...',
+    '..RRRRRRRRR..',
+    '.RRRRRRRRRRR.',
+    'rRRRRRRRRRRRr',
+    '.WWWWWWWWWWW.',
+    '.WWddWWWqqWW.',
+    '.WWddWWWqqWW.',
+    '.WWWWWWWqqWW.',
+    '.WWWWWWWqqWW.',
+    '.qqqqqqqqqqq.',
   ],
 };
 
-/** Roccaforte: fortezza in pietra con lo stendardo del clan. */
+/** Roccaforte: fortezza in pietra con due torri e lo stendardo del clan. */
 export const ROCCAFORTE: SpriteDef = {
   map: {
     S: 'roccia',
     s: 'rocciaScura',
     P: 'giocatoreMain',
     q: 'nero',
-    d: 'giocatoreDark',
+    t: 'tronco',
   },
   rows: [
-    's...P...s',
-    'ss..P..ss',
-    'sSs.PP.Ss',
-    '.SsssssS.',
-    '.SSSSSSS.',
-    'SSqSSSqSS',
-    'SSSSSSSSS',
-    'SSSSdSSSS',
-    'sssssssss',
+    '.S.S....t....S.S.',
+    '.SSS....tPP..SSS.',
+    '.SsS....tPPP.SsS.',
+    '.SSS....tPP..SSS.',
+    '.SSS....t....SSS.',
+    '.SSSS.S.S.S.SSSS.',
+    '.SSSSSSSSSSSSSSS.',
+    '.SSqSSSSSSSSSqSS.',
+    '.SSSSSSSSSSSSSSS.',
+    '.SSSSSSqqqSSSSSS.',
+    '.SsSSSSqqqSSSSsS.',
+    '.SSSSSSqqqSSSSSS.',
+    '.sssssssssssssss.',
   ],
 };
 
@@ -54,69 +62,142 @@ export const DRAGO: SpriteDef = {
     C: 'dragoCorpo',
     c: 'dragoScuro',
     A: 'dragoAla',
+    a: 'dragoScuro',
     O: 'dragoOcchio',
     F: 'dragoFuoco',
     n: 'nero',
   },
   rows: [
-    '......AA.....',
-    '.....AAAA....',
-    '.cc..AAAA....',
-    'cCCc.cAAc.c..',
-    'cCOCcCCCCcc..',
-    'cCCCCCCCCCc..',
-    'F.cCCCCCCCCc.',
-    'FF.cCCCCCCc..',
-    '....cC..Cc...',
-    '....cc..cc...',
-    '...nn...nn...',
+    '..........aAAA..........',
+    '.........aAAAAA.........',
+    '........aAAAAAAA..aAA...',
+    '........aAAAAAAA.aAAAA..',
+    '.ccc....aAAAAAAAaAAAAA..',
+    'cCCCc....aAAAAAaAAAAA...',
+    'cCOCCc...caAAAcaAAAc....',
+    'cCCCCCc.ccCCCCcCCCcc....',
+    'cnCCCCCcCCCCCCCCCCCc....',
+    '.cCCCCCCCCCCCCCCCCCCc...',
+    'F.cCCCCCCCCCCCCCCCCCCc..',
+    'FF.cCCCCCCCCCCCCCCCCCc..',
+    'FFF.ccCCCCCCCCCCCCcc.c..',
+    '.F....cCCc....cCCc......',
+    '......cCCc....cCCc......',
+    '.....nnnn....nnnn.......',
   ],
 };
 
-/** Drakkar degli approdi. */
+/** Drakkar degli approdi: vela a strisce e scudi sullo scafo. */
 export const DRAKKAR: SpriteDef = {
-  map: { m: 'scafoScuro', v: 'vela', h: 'scafo', H: 'scafoScuro' },
+  map: {
+    m: 'scafoScuro',
+    v: 'vela',
+    r: 'cifraCalda',
+    h: 'scafo',
+    H: 'scafoScuro',
+    S: 'ferroLuce',
+  },
   rows: [
-    '....m....',
-    '..vvvv...',
-    '.vvvvv...',
-    '..vvv....',
-    '....m....',
-    'h...m...h',
-    'hhhhhhhhh',
-    '.HHHHHHH.',
+    '........m........',
+    '..vrrvvrrvvrrv...',
+    '.vvrrvvrrvvrrvv..',
+    '.vvrrvvrrvvrrvv..',
+    '..vrrvvrrvvrrv...',
+    '...vrrvvrrvvr....',
+    '........m........',
+    'h.......m.......h',
+    'hh......m......hh',
+    '.hhhhhhhhhhhhhhh.',
+    '..ShShShShShShS..',
+    '...HHHHHHHHHHH...',
   ],
 };
 
 /** Decorazioni dei terreni. */
 export const PINO: SpriteDef = {
   map: { P: 'pinoChiaro', p: 'pino', t: 'tronco' },
-  rows: ['..P..', '.PPp.', '.pPP.', 'PPPpP', '.ppp.', '..t..'],
+  rows: [
+    '....pP....',
+    '...pPPp...',
+    '..pPPPPp..',
+    '...pPPp...',
+    '..pPPPPp..',
+    '.pPPpPPPp.',
+    '..pPPPPp..',
+    '.pPpPPPPp.',
+    'ppPPPpPPpp',
+    '....tt....',
+    '....tt....',
+  ],
 };
 
 export const ROCCIA_DECO: SpriteDef = {
   map: { R: 'roccia', r: 'rocciaScura' },
-  rows: ['.RR..', 'RRRr.', 'Rrrr.', '.rr..'],
+  rows: [
+    '...RR....',
+    '..RRRR...',
+    '.RRRRRr..',
+    '.RRrRrr..',
+    'RRRrrrrr.',
+    '.rrrrrr..',
+  ],
 };
 
 export const PECORA: SpriteDef = {
   map: { W: 'pecora', H: 'pecoraTesta', l: 'pecoraTesta' },
-  rows: ['.WWWW.', 'WWWWWH', 'WWWWWH', '.l..l.'],
+  rows: [
+    '..WWWWWW...',
+    '.WWWWWWWW..',
+    'WWWWWWWWWH.',
+    'WWWWWWWWHH.',
+    'WWWWWWWWWH.',
+    '.WWWWWWWW..',
+    '..l...l....',
+    '..l...l....',
+  ],
 };
 
 export const SPIGA: SpriteDef = {
   map: { G: 'spigaChiara', g: 'spiga' },
-  rows: ['.G.', 'GgG', '.G.', 'GgG', '.g.', '.g.'],
+  rows: [
+    '..G..',
+    '.GgG.',
+    '..G..',
+    '.GgG.',
+    '..G..',
+    '.GgG.',
+    '..g..',
+    '..g..',
+    '..g..',
+    '..g..',
+  ],
 };
 
 export const MINERALE: SpriteDef = {
   map: { F: 'ferroScuro', f: 'ferroLuce' },
-  rows: ['.FF..', 'FFfF.', 'FfFFF', '.FFF.'],
+  rows: [
+    '...FF....',
+    '..FFfF...',
+    '.FFfFFF..',
+    'FFfFFFfF.',
+    '.FFFfFFF.',
+    '..FFFFF..',
+  ],
 };
 
 export const CRISTALLO_GHIACCIO: SpriteDef = {
   map: { n: 'neve', i: 'ghiaccio' },
-  rows: ['..n..', '.ini.', '..n..'],
+  rows: [
+    '....n....',
+    '.n..n..n.',
+    '..n.n.n..',
+    '...nin...',
+    'nnnniinnn',
+    '...nin...',
+    '..n.n.n..',
+    '.n..n..n.',
+    '....n....',
+  ],
 };
 
 /** Icone risorsa 7×7 (usate anche nella UI DOM via dataURL). */

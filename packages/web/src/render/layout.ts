@@ -15,19 +15,23 @@ import {
   type VertexId,
 } from '@vikiland/engine';
 
-/** Risoluzione logica del canvas della tavola. */
-export const CANVAS_W = 160;
-export const CANVAS_H = 140;
+/**
+ * Risoluzione logica del canvas della tavola. RADDOPPIATA rispetto alla
+ * prima versione (160×140): più pixel per esagono = sprite più leggibili,
+ * stessa estetica pixel-art (lo scaling CSS resta nearest-neighbor).
+ */
+export const CANVAS_W = 320;
+export const CANVAS_H = 280;
 
-const ORIGIN_X = 80;
-const ORIGIN_Y = 70;
+const ORIGIN_X = 160;
+const ORIGIN_Y = 140;
 
-/** Larghezza esagono 24px, passo verticale 21px (pointy-top). */
-export const HEX_W = 24;
-export const HEX_HALF_W = 12;
-export const HEX_CORNER_Y = 14; // punta nord/sud
-export const HEX_SIDE_Y = 7; // spigoli laterali
-const ROW_STEP = 21;
+/** Larghezza esagono 48px, passo verticale 42px (pointy-top). */
+export const HEX_W = 48;
+export const HEX_HALF_W = 24;
+export const HEX_CORNER_Y = 28; // punta nord/sud
+export const HEX_SIDE_Y = 14; // spigoli laterali
+const ROW_STEP = 42;
 
 export interface Point {
   x: number;
@@ -112,7 +116,7 @@ export function nearestVertex(
   x: number,
   y: number,
   candidates: Iterable<VertexId>,
-  maxDist = 10
+  maxDist = 20
 ): VertexId | null {
   return nearest(x, y, candidates, vertexPoint, maxDist);
 }
@@ -121,7 +125,7 @@ export function nearestEdge(
   x: number,
   y: number,
   candidates: Iterable<EdgeId>,
-  maxDist = 10
+  maxDist = 20
 ): EdgeId | null {
   return nearest(x, y, candidates, edgeMidpoint, maxDist);
 }
@@ -130,7 +134,7 @@ export function nearestHex(
   x: number,
   y: number,
   candidates: Iterable<HexId>,
-  maxDist = 14
+  maxDist = 28
 ): HexId | null {
   return nearest(x, y, candidates, hexCenterById, maxDist);
 }

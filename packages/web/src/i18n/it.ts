@@ -14,6 +14,15 @@ export const it = {
   negozio: 'Negozio (in arrivo)',
   comeSiGioca: 'Come si gioca',
 
+  // Popup "monetizzazione" scherzoso (Nuova partita)
+  memeTitolo: 'Un attimo, vichingo!',
+  memeTesto:
+    'Per salpare puoi guardare una pubblicità di 47 minuti oppure passare a ' +
+    'VIKILAND PRO™ a soli 999 $ al mese + IVA (fattura al tuo jarl).',
+  memePubblicita: '▶ Continua con pubblicità',
+  memePro: 'Passa a PRO — 999 $/mese + IVA',
+  memeAvanti: 'No scherzo, vai avanti →',
+
   // Tutorial («Libro delle Saghe»)
   libroSaghe: 'Libro delle Saghe',
   capitoloDi: 'Capitolo {n} di {tot}',
