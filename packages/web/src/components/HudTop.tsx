@@ -1,4 +1,5 @@
 /** Testata di gioco: dadi, messaggio di fase e strip dei giocatori. */
+import { useEffect, useState } from 'react';
 import type { PlayerView } from '@vikiland/engine';
 import { PLAYER_COLORS } from '../render/sprites/palettes';
 import { it, t } from '../i18n/it';
@@ -35,7 +36,35 @@ function phaseMessage(view: PlayerView): string {
   }
 }
 
-export function HudTop({ view, onOpenCosts, onOpenMap }: { view: PlayerView; onOpenCosts: () => void; onOpenMap: () => void }) {
+/** Conto alla rovescia del timer di turno (partite online). */
+function TurnTimerBadge({ deadline }: { deadline: number }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setTick((x) => x + 1), 500);
+    return () => clearInterval(timer);
+  }, []);
+  const sec = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+  return (
+    <span
+      className="turn-timer"
+      style={{ color: sec <= 10 ? 'var(--danger)' : 'var(--ink-dim)', whiteSpace: 'nowrap' }}
+    >
+      ⏳{sec}s
+    </span>
+  );
+}
+
+export function HudTop({
+  view,
+  onOpenCosts,
+  onOpenMap,
+  turnDeadline = null,
+}: {
+  view: PlayerView;
+  onOpenCosts: () => void;
+  onOpenMap: () => void;
+  turnDeadline?: number | null;
+}) {
   return (
     <div className="area-hud pixel-frame">
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'space-between' }}>
@@ -46,6 +75,7 @@ export function HudTop({ view, onOpenCosts, onOpenMap }: { view: PlayerView; onO
         <div className="phase-banner" style={{ flex: 1 }}>
           {phaseMessage(view)}
         </div>
+        {turnDeadline !== null && <TurnTimerBadge deadline={turnDeadline} />}
         <button
           className="pxbtn pxbtn--ghost pxbtn--small"
           onClick={onOpenMap}

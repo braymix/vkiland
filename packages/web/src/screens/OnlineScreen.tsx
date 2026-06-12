@@ -412,22 +412,35 @@ function OnlineHome({
   onOpenTutorial: () => void;
 }) {
   const [code, setCode] = useState('');
-  const [timerSec, setTimerSec] = useState(0);
+  /** Secondi per turno scelti dall'utente ('' o 0 = nessun timer; max 600). */
+  const [timerRaw, setTimerRaw] = useState('');
+  const timerSec = Math.max(0, Math.min(600, Math.floor(Number(timerRaw) || 0)));
 
   return (
     <div className="screen" style={{ justifyContent: 'center' }}>
       <h2 style={{ color: 'var(--accent)', fontSize: 14 }}>{t(it.ciao, { nome: name })}</h2>
       <div className="setup-grid pixel-frame" style={{ maxWidth: 360 }}>
-        <div className="setup-player">
-          <span style={{ fontSize: 9 }}>{it.timerTurno}</span>
-          <select value={timerSec} onChange={(e) => setTimerSec(Number(e.target.value))}>
-            <option value={0}>{it.nessunTimer}</option>
-            <option value={60}>60s</option>
-            <option value={120}>120s</option>
-          </select>
-          <button className="pxbtn" onClick={() => onCreate(timerSec)}>
-            {it.creaPartita}
-          </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <span style={{ fontSize: 9 }}>{it.timerSecondi}</span>
+          <div className="setup-player">
+            <input
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={600}
+              step={5}
+              placeholder="0"
+              value={timerRaw}
+              onChange={(e) => setTimerRaw(e.target.value)}
+              style={{ width: 90 }}
+            />
+            <span style={{ fontSize: 8, color: 'var(--ink-dim)' }}>
+              {timerSec === 0 ? it.nessunTimer : t(it.secondiAbbr, { n: timerSec })}
+            </span>
+            <button className="pxbtn" onClick={() => onCreate(timerSec)}>
+              {it.creaPartita}
+            </button>
+          </div>
         </div>
         <div className="setup-player">
           <input
@@ -486,6 +499,14 @@ function LobbyRoom({
       </h2>
       <div className="menu-sub" style={{ fontSize: 9 }}>
         {it.condividiCodice}
+      </div>
+      <div style={{ fontSize: 9, color: 'var(--ink-dim)' }}>
+        {t(it.timerLobby, {
+          s:
+            lobby.config.turnTimerSec > 0
+              ? t(it.secondiAbbr, { n: lobby.config.turnTimerSec })
+              : it.nessunTimer,
+        })}
       </div>
       <div className="setup-grid pixel-frame" style={{ maxWidth: 400 }}>
         {lobby.slots.map((slot, i) => (

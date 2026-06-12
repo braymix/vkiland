@@ -164,10 +164,12 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
   return (
     <div className="screen">
       <div className="game-layout">
-        <HudTop view={view} onOpenCosts={() => setCostsOpen(true)} onOpenMap={() => setMapFullscreen(true)} />
-        {snap.turnDeadline !== null && !gameOver && (
-          <TurnTimerBadge deadline={snap.turnDeadline} />
-        )}
+        <HudTop
+          view={view}
+          onOpenCosts={() => setCostsOpen(true)}
+          onOpenMap={() => setMapFullscreen(true)}
+          turnDeadline={gameOver ? null : snap.turnDeadline}
+        />
         <BoardCanvas
           view={view}
           targets={targets}
@@ -248,17 +250,3 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
   );
 }
 
-/** Conto alla rovescia del timer di turno (partite online). */
-function TurnTimerBadge({ deadline }: { deadline: number }) {
-  const [, setTick] = useState(0);
-  useEffect(() => {
-    const timer = setInterval(() => setTick((x) => x + 1), 500);
-    return () => clearInterval(timer);
-  }, []);
-  const sec = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
-  return (
-    <div className="turn-timer" style={{ color: sec <= 10 ? 'var(--danger)' : 'var(--ink-dim)' }}>
-      ⏳ {sec}s
-    </div>
-  );
-}
