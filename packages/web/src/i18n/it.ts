@@ -2,7 +2,7 @@
  * TUTTE le stringhe della UI, centralizzate per la futura i18n.
  * `t(chiave, parametri)` interpola i segnaposto {nome}.
  */
-import type { Resource, SagaCard, TerrainType } from '@vikiland/engine';
+import type { PlayerColor, Resource, SagaCard, TerrainType } from '@vikiland/engine';
 
 export const it = {
   titolo: 'VIKILAND',
@@ -74,6 +74,13 @@ export const it = {
   nome: 'Nome',
   aggiungiGiocatore: '+ Aggiungi vichingo',
   cambiaColore: 'Cambia colore',
+  scambiaColoreCon: 'Scambia il colore con {nome}',
+  nomeColore: {
+    rosso: 'Rosso',
+    blu: 'Blu',
+    verde: 'Verde',
+    giallo: 'Giallo',
+  } satisfies Record<PlayerColor, string>,
   rimuovi: 'Rimuovi',
   seedOpzionale: 'Seme mappa (vuoto = casuale)',
   evita68: 'Evita 6 e 8 adiacenti',

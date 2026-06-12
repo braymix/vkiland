@@ -1,7 +1,7 @@
 /** Configurazione della partita: 2–4 giocatori, ognuno umano o bot (hot-seat). */
 import { useState } from 'react';
 import type { BotLevel, PlayerColor } from '@vikiland/engine';
-import { it } from '../i18n/it';
+import { it, t } from '../i18n/it';
 import type { GameSetup } from '../game/LocalGameController';
 import { PLAYER_COLORS } from '../render/sprites/palettes';
 
@@ -40,20 +40,23 @@ export function SetupScreen({ onStart, onBack }: Props) {
     setPlayers([...players, { name, isBot: true, botLevel: 'normale', color }]);
   };
 
+  /** Riga col picker dei colori aperto (null = nessuno). */
+  const [pickerOpen, setPickerOpen] = useState<number | null>(null);
+
   /**
-   * Click sul chip: passa al colore successivo della ruota; se è già di
-   * un'altra riga, i due colori si SCAMBIANO (mai duplicati).
+   * Scelta dal picker: se il colore è di un'altra riga, i due colori si
+   * SCAMBIANO (mai duplicati; l'engine lo valida comunque).
    */
-  const cycleColor = (i: number) => {
+  const pickColor = (i: number, color: PlayerColor) => {
     const mine = players[i]!.color;
-    const next = COLORS[(COLORS.indexOf(mine) + 1) % COLORS.length]!;
     setPlayers(
       players.map((p, idx) => {
-        if (idx === i) return { ...p, color: next };
-        if (p.color === next) return { ...p, color: mine };
+        if (idx === i) return { ...p, color };
+        if (p.color === color) return { ...p, color: mine };
         return p;
       })
     );
+    setPickerOpen(null);
   };
 
   const removeAt = (i: number) => {
@@ -82,11 +85,12 @@ export function SetupScreen({ onStart, onBack }: Props) {
       <h2 style={{ color: 'var(--accent)', fontSize: 14 }}>{it.configuraPartita}</h2>
       <div className="setup-grid pixel-frame">
         {players.map((p, i) => (
-          <div key={i} className="setup-player">
+          <div key={i}>
+          <div className="setup-player">
             <button
               className="player-chip"
               style={{ background: PLAYER_COLORS[p.color].main, cursor: 'pointer' }}
-              onClick={() => cycleColor(i)}
+              onClick={() => setPickerOpen(pickerOpen === i ? null : i)}
               title={it.cambiaColore}
               aria-label={it.cambiaColore}
             />
@@ -116,6 +120,29 @@ export function SetupScreen({ onStart, onBack }: Props) {
                 X
               </button>
             )}
+          </div>
+          {pickerOpen === i && (
+            <div className="color-picker">
+              {COLORS.map((c) => {
+                const owner = players.findIndex((q, qi) => qi !== i && q.color === c);
+                return (
+                  <button
+                    key={c}
+                    className={`color-swatch ${p.color === c ? 'color-swatch--active' : ''}`}
+                    style={{ background: PLAYER_COLORS[c].main }}
+                    title={
+                      owner >= 0
+                        ? t(it.scambiaColoreCon, { nome: players[owner]!.name })
+                        : it.nomeColore[c]
+                    }
+                    onClick={() => pickColor(i, c)}
+                  >
+                    {owner >= 0 ? players[owner]!.name.charAt(0).toUpperCase() : ''}
+                  </button>
+                );
+              })}
+            </div>
+          )}
           </div>
         ))}
         {players.length < 4 && (
