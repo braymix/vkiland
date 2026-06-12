@@ -116,6 +116,8 @@ export interface ClientToServerEvents {
   'lobby:addBot': (level: BotLevel) => void;
   'lobby:removeSlot': (index: number) => void;
   'lobby:start': () => void;
+  /** Solo l'host: chiude la partita/lobby per TUTTI, anche a partita in corso. */
+  'lobby:terminate': () => void;
   'game:action': (action: Action) => void;
   /** Richiesta esplicita dell'ultimo stato (es. dopo riconnessione). */
   'game:refresh': () => void;

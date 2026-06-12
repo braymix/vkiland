@@ -195,6 +195,15 @@ export class LobbyManager {
     return this.toState(lobby);
   }
 
+  /** L'host chiude la partita per tutti (anche mentre si gioca). */
+  terminate(userId: string): ApiError | null {
+    const lobby = this.lobbyOfUser(userId);
+    if (!lobby) return { error: 'Non sei in una lobby' };
+    if (lobby.hostUserId !== userId) return { error: 'Solo l’host può farlo' };
+    this.close(lobby, "L'host ha terminato la partita");
+    return null;
+  }
+
   // -- partita ----------------------------------------------------------------
 
   handleAction(userId: string, action: Action): void {

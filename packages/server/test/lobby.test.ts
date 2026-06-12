@@ -124,6 +124,27 @@ describe('LobbyManager', () => {
     expect(manager.lobbyOfUser(astrid.id)).toBeNull();
   });
 
+  it('l’host può TERMINARE la partita in corso per tutti; gli altri no', () => {
+    const { manager, rec } = makeManager();
+    const created = manager.create(bjorn, CFG);
+    if (isApiError(created)) throw new Error('create fallita');
+    manager.join(created.code, astrid);
+    manager.start(bjorn.id);
+
+    // Un non-host non può.
+    expect(manager.terminate(astrid.id)).not.toBeNull();
+    expect(rec.closed).toHaveLength(0);
+
+    // L'host sì, anche a partita avviata: chiusa per tutti.
+    expect(manager.terminate(bjorn.id)).toBeNull();
+    expect(rec.closed).toHaveLength(1);
+    expect(rec.closed[0]!.reason).toContain('terminato');
+    expect(manager.lobbyOfUser(bjorn.id)).toBeNull();
+    expect(manager.lobbyOfUser(astrid.id)).toBeNull();
+    // Il codice non è più valido.
+    expect(isApiError(manager.join(created.code, { id: 'u3', name: 'Leif' }))).toBe(true);
+  });
+
   it('a partita iniziata chi esce resta seduto (disconnesso) e può rientrare col codice', () => {
     const { manager } = makeManager();
     const created = manager.create(bjorn, CFG);

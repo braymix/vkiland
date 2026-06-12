@@ -23,6 +23,7 @@ import {
 import { RemoteGameController } from '../online/RemoteGameController';
 import { PLAYER_COLORS } from '../render/sprites/palettes';
 import { TUTORIAL_ONLINE_CHAPTER } from '../i18n/tutorial';
+import { Dialog } from '../components/dialogs/Dialog';
 import { GameScreen } from './GameScreen';
 import { TutorialScreen } from './TutorialScreen';
 
@@ -34,6 +35,7 @@ export function OnlineScreen({ onBack }: { onBack: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const [lobby, setLobby] = useState<LobbyState | null>(null);
   const [tutorialOpen, setTutorialOpen] = useState(false);
+  const [terminateOpen, setTerminateOpen] = useState(false);
   const sessionRef = useRef<OnlineSession | null>(null);
   const socketRef = useRef<ServerSocket | null>(null);
   const controllerRef = useRef<RemoteGameController | null>(null);
@@ -221,13 +223,44 @@ export function OnlineScreen({ onBack }: { onBack: () => void }) {
     case 'game': {
       const controller = controllerRef.current;
       if (!controller?.ready) return null;
+      const isHost = lobby?.hostUserId === sessionRef.current?.userId;
       return (
-        <GameScreen
-          key={gameKey}
-          makeController={() => controller}
-          onExit={leaveLobby}
-          onRematch={null}
-        />
+        <>
+          <GameScreen
+            key={gameKey}
+            makeController={() => controller}
+            onExit={leaveLobby}
+            onRematch={null}
+          />
+          {/* Solo l'host: chiude la partita per TUTTI (con conferma). */}
+          {isHost && (
+            <button
+              className="pxbtn pxbtn--danger pxbtn--small terminate-btn"
+              onClick={() => setTerminateOpen(true)}
+            >
+              ✕ {it.terminaPartita}
+            </button>
+          )}
+          {terminateOpen && (
+            <Dialog title={it.terminaTitolo}>
+              <p style={{ fontSize: 9, lineHeight: 1.9 }}>{it.terminaTesto}</p>
+              <div className="dialog-buttons">
+                <button className="pxbtn pxbtn--ghost" onClick={() => setTerminateOpen(false)}>
+                  {it.annulla}
+                </button>
+                <button
+                  className="pxbtn pxbtn--danger"
+                  onClick={() => {
+                    setTerminateOpen(false);
+                    socketRef.current?.emit('lobby:terminate');
+                  }}
+                >
+                  {it.terminaConferma}
+                </button>
+              </div>
+            </Dialog>
+          )}
+        </>
       );
     }
   }

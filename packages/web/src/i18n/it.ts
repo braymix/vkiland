@@ -62,6 +62,11 @@ export const it = {
   disconnessoTag: 'assente',
   attesaPartita: 'In attesa della partita…',
   lobbyChiusa: 'Lobby chiusa: {motivo}',
+  terminaPartita: 'Termina partita',
+  terminaTitolo: 'Terminare la partita?',
+  terminaTesto:
+    'La partita verrà chiusa per TUTTI i giocatori e non si potrà riprendere.',
+  terminaConferma: 'Sì, termina per tutti',
 
   // Setup
   configuraPartita: 'Prepara la spedizione',

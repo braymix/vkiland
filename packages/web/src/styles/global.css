@@ -332,6 +332,15 @@ button {
   min-width: 470px;
 }
 
+/* Bottone dell'host per terminare la partita online (sotto i dialoghi) */
+.terminate-btn {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  z-index: 40;
+  opacity: 0.85;
+}
+
 /* Vittoria: coriandoli + vincitore in grande */
 .confetti-canvas {
   position: fixed;

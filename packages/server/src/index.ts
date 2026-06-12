@@ -154,6 +154,11 @@ io.on('connection', (socket: AnySocket) => {
     if (isApiError(res)) socket.emit('lobby:error', res);
   });
 
+  socket.on('lobby:terminate', () => {
+    const err = lobbies.terminate(userId);
+    if (err) socket.emit('lobby:error', err);
+  });
+
   socket.on('game:action', (action: Action) => lobbies.handleAction(userId, action));
   socket.on('game:refresh', () => lobbies.refreshGame(userId));
 
