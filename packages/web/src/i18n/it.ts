@@ -161,6 +161,7 @@ export const it = {
 
   // Vittoria
   vittoriaTitolo: '{nome} conquista Viking-Island!',
+  vittoriaSub: 'conquista Viking-Island!',
   rivincita: 'Rivincita',
   tornaAlMenu: 'Torna al menu',
   dettaglioPunti: 'Dettaglio dei Punti Gloria',
