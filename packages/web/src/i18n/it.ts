@@ -202,8 +202,30 @@ export const it = {
     tributo: 'Tutti gli avversari ti consegnano TUTTE le unità di una risorsa.',
   } satisfies Record<SagaCard, string>,
 
+  /**
+   * EASTER EGG: lamentele dei bot quando il Drago li blocca — come al tavolo
+   * vero, dove c'è sempre qualcuno che la prende sul personale.
+   */
+  lamentiDrago: [
+    'No ma sempre a me?!',
+    'Ma blocca l’altro, no?!?!',
+    'Me ne vendicherò. Parola di vichingo.',
+    'Odino, perché proprio io?',
+    'C’è mezza isola libera e lo metti QUI?!',
+    'Quel drago ce l’ha con me, è ufficiale.',
+    'Tranquilli, me lo segno. Me lo segno TUTTO.',
+    'Ah certo, come no, DI NUOVO da me.',
+    'E pensare che ti avevo pure offerto uno scambio…',
+    'Sto chiamando l’avvocato del clan.',
+    'Quando arriva la MIA Furia ne riparliamo.',
+    'Bel modo di fare amicizia, complimenti.',
+    'Il mio orzo… IL MIO ORZO!',
+    'Drago bello, torna nella tundra, ti prego.',
+  ],
+
   // Eventi del diario
   log: {
+    lamentoDrago: '{nome}: «{frase}»',
     ordineTiro: '{nome} tira {d1}+{d2} = {tot}',
     ordineSpareggio: 'Spareggio: {righe}',
     ordineTitolo: 'Tiro per l’ordine: {righe}',

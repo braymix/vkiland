@@ -1,6 +1,6 @@
 /** Traduzione degli eventi del motore in righe del diario di bordo. */
 import type { GameEvent, ResourceCount } from '@vikiland/engine';
-import { RESOURCES, totalResources } from '@vikiland/engine';
+import { RESOURCES, getTopology, nextInt, seedRng, totalResources } from '@vikiland/engine';
 import { it, t } from '../i18n/it';
 
 /** Basta il nome dei giocatori: lo soddisfano sia GameState sia PlayerView. */
@@ -10,6 +10,38 @@ export interface NamedPlayers {
 
 function nameOf(state: NamedPlayers, pid: number): string {
   return state.players[pid]?.name ?? `Giocatore ${pid}`;
+}
+
+/** Pezzi minimi per capire chi è rimasto bloccato dal Drago. */
+export interface PiecesForComplaints {
+  players: readonly { name: string; villages: string[]; strongholds: string[] }[];
+  turnNumber: number;
+}
+
+/**
+ * EASTER EGG: i bot si lamentano quando il Drago finisce sui loro edifici
+ * (come al tavolo vero). La frase è scelta in modo DETERMINISTICO da
+ * esagono+giocatore+turno: online tutti i client mostrano la stessa battuta.
+ * Chi ha mosso il Drago non si lamenta mai di sé stesso.
+ */
+export function dragonComplaints(
+  event: Extract<GameEvent, { type: 'dragoMosso' }>,
+  state: PiecesForComplaints,
+  botIds: ReadonlySet<number>
+): string[] {
+  const vertices = getTopology().hexVertices[event.hex] ?? [];
+  const lines: string[] = [];
+  state.players.forEach((p, pid) => {
+    if (!botIds.has(pid) || pid === event.player) return;
+    const blocked =
+      p.villages.some((v) => vertices.includes(v)) ||
+      p.strongholds.some((v) => vertices.includes(v));
+    if (!blocked) return;
+    const rng = seedRng(`lamento:${event.hex}:${pid}:${state.turnNumber}`);
+    const [idx] = nextInt(rng, it.lamentiDrago.length);
+    lines.push(t(it.log.lamentoDrago, { nome: p.name, frase: it.lamentiDrago[idx]! }));
+  });
+  return lines;
 }
 
 /** Righe di diario per il tiro dell'ordine di partenza (a inizio partita). */

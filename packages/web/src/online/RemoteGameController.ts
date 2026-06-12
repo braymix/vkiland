@@ -9,7 +9,7 @@
 import type { Action, ValidationError } from '@vikiland/engine';
 import type { GameUpdate } from '@vikiland/server/protocol';
 import type { GameController, GameSnapshot, LogEntry } from '../game/controller';
-import { describeEvent, describeStartingOrder } from '../game/logFormat';
+import { describeEvent, describeStartingOrder, dragonComplaints } from '../game/logFormat';
 import type { ServerSocket } from './connection';
 
 const MAX_LOG = 120;
@@ -77,9 +77,17 @@ export class RemoteGameController implements GameController {
         this.log.push({ id: this.logCounter++, text });
       }
     }
+    const botIds = new Set(u.view.players.filter((p) => p.isBot).map((p) => p.id));
     for (const e of u.events) {
       const text = describeEvent(e, u.view);
       if (text) this.log.push({ id: this.logCounter++, text });
+      // Easter egg: i bot bloccati dal Drago si lamentano (stessa frase
+      // su tutti i client: la scelta è deterministica).
+      if (e.type === 'dragoMosso') {
+        for (const line of dragonComplaints(e, u.view, botIds)) {
+          this.log.push({ id: this.logCounter++, text: line });
+        }
+      }
     }
     if (this.log.length > MAX_LOG) this.log = this.log.slice(-MAX_LOG);
     this.snapshot = {

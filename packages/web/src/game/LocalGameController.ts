@@ -27,7 +27,7 @@ import {
   type Viewer,
 } from '@vikiland/engine';
 import { createBot, type Bot } from '@vikiland/bots';
-import { describeEvent, describeStartingOrder } from './logFormat';
+import { describeEvent, describeStartingOrder, dragonComplaints } from './logFormat';
 import { nextHumanActor } from './hotseat';
 import type { GameController, GameSnapshot, LogEntry } from './controller';
 
@@ -115,6 +115,12 @@ export class LocalGameController implements GameController {
     for (const e of visible) {
       const text = describeEvent(e, next);
       if (text) this.log.push({ id: this.logCounter++, text });
+      // Easter egg: i bot bloccati dal Drago si lamentano nel diario.
+      if (e.type === 'dragoMosso') {
+        for (const line of dragonComplaints(e, next, new Set(this.bots.keys()))) {
+          this.log.push({ id: this.logCounter++, text: line });
+        }
+      }
     }
     if (this.log.length > MAX_LOG) this.log = this.log.slice(-MAX_LOG);
     // Tocca a un altro umano? Si congela la vista e si chiede il passaggio di mano.
