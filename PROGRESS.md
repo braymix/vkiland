@@ -4,10 +4,12 @@
 
 ## Stato attuale
 
-**FASE 3 COMPLETATA** ✅ — multiplayer ONLINE: server autoritativo
-(Fastify + Socket.io, stesso engine = anti-cheat), account email+password,
-lobby con codici invito a 6 caratteri, bot lato server, riconnessione,
-timer di turno opzionale con mossa automatica. In attesa di collaudo.
+**FASE 3 COMPLETATA E COLLAUDATA IN PRODUZIONE** ✅ — multiplayer ONLINE:
+server autoritativo (Fastify + Socket.io, stesso engine = anti-cheat),
+account email+password, lobby con codici invito a 6 caratteri, bot lato
+server, riconnessione, timer di turno opzionale con mossa automatica.
+Deploy verificato dall'utente: client su Netlify + server su Render
+(blueprint render.yaml), «funziona tutto correttamente».
 Fasi 1 e 2 collaudate e approvate dall'utente (hot-seat, bugiardino,
 mappa a schermo intero, mirini viola sugli approdi). Rifiniture extra:
 deploy pronto per Netlify (client) + Dockerfile (server); zoom della tavola
