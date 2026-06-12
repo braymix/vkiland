@@ -12,6 +12,7 @@ import {
   apiLogin,
   apiMe,
   apiRegister,
+  checkServerHealth,
   connectSocket,
   defaultServerUrl,
   loadSession,
@@ -232,6 +233,23 @@ function LoginForm({
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [sending, setSending] = useState(false);
+  const [health, setHealth] = useState<'checking' | 'ok' | 'down'>('checking');
+
+  // Ping del server (con debounce mentre si digita): senza backend l'MVP
+  // resta giocabile in locale e qui lo si dice chiaramente.
+  useEffect(() => {
+    setHealth('checking');
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      void checkServerHealth(serverUrl.trim()).then((ok) => {
+        if (!cancelled) setHealth(ok ? 'ok' : 'down');
+      });
+    }, 450);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [serverUrl]);
 
   const submit = async () => {
     setSending(true);
@@ -273,6 +291,17 @@ function LoginForm({
           value={serverUrl}
           onChange={(e) => setServerUrl(e.target.value)}
         />
+        {health === 'checking' && (
+          <div style={{ fontSize: 8, color: 'var(--ink-dim)' }}>{it.serverVerifica}</div>
+        )}
+        {health === 'ok' && (
+          <div style={{ fontSize: 8, color: 'var(--ok)' }}>✓ {it.serverOk}</div>
+        )}
+        {health === 'down' && (
+          <div style={{ fontSize: 8, color: 'var(--danger)', lineHeight: 1.6 }}>
+            {it.serverGiu}
+          </div>
+        )}
         <input
           type="email"
           placeholder={it.email}

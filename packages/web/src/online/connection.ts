@@ -93,6 +93,21 @@ export async function apiMe(session: OnlineSession): Promise<boolean> {
   }
 }
 
+/**
+ * Ping veloce del server di gioco: dice se l'online è disponibile QUI.
+ * Senza backend il client resta perfettamente utilizzabile in locale.
+ */
+export async function checkServerHealth(serverUrl: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${serverUrl.replace(/\/+$/, '')}/api/health`, {
+      signal: AbortSignal.timeout(3500),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 export function connectSocket(session: OnlineSession): ServerSocket {
   return io(session.serverUrl, {
     auth: { token: session.token },

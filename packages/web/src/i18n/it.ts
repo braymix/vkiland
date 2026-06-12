@@ -24,6 +24,11 @@ export const it = {
   esciAccount: 'Cambia account',
   ciao: 'Ciao, {nome}!',
 
+  serverVerifica: 'Verifica del server…',
+  serverOk: 'Server di gioco raggiungibile',
+  serverGiu:
+    "Server di gioco non raggiungibile: l'online qui è spento. Puoi comunque giocare in locale dal menu (bot e hot-seat) — oppure indica l'indirizzo di un altro server.",
+
   // Online: lobby
   creaPartita: 'Crea partita',
   unisciti: 'Unisciti',

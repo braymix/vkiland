@@ -36,6 +36,10 @@ con pinch a due dita (mobile), rotella (desktop), trascinamento e reset «1×».
 - ✅ QA: 141 test verdi (engine 100, bot 9, server 21, web 11) + typecheck +
      lint; collaudo E2E con 2 browser reali: registrazione, lobby col codice,
      piazzamenti incrociati visti in tempo reale, zero errori console
+- ✅ MVP senza backend: il client (es. su Netlify) è pienamente giocabile in
+     locale anche senza server; la schermata Online fa un health-check e, se
+     il server non c'è, lo dice chiaramente (l'URL resta modificabile per i
+     server self-hosted)
 
 ## Checklist Fase 2 (hot-seat) — collaudata ✅
 
