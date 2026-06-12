@@ -27,7 +27,7 @@ import {
   type Viewer,
 } from '@vikiland/engine';
 import { createBot, type Bot } from '@vikiland/bots';
-import { describeEvent } from './logFormat';
+import { describeEvent, describeStartingOrder } from './logFormat';
 import { nextHumanActor } from './hotseat';
 import type { GameController, GameSnapshot, LogEntry } from './controller';
 
@@ -67,6 +67,10 @@ export class LocalGameController implements GameController {
     });
     this.humans = setup.players.flatMap((p, id) => (p.isBot ? [] : [id]));
     this.logViewer = this.humans.length === 1 ? this.humans[0]! : 'spettatore';
+    // Il diario si apre con il tiro dei dadi per l'ordine di partenza.
+    for (const text of describeStartingOrder(this.state)) {
+      this.log.push({ id: this.logCounter++, text });
+    }
     // Il dispositivo parte in mano al primo umano che deve agire.
     this.viewpoint = nextHumanActor(this.state, this.humans, this.humans[0] ?? 0) ?? this.humans[0] ?? 0;
     this.snapshot = this.buildSnapshot();

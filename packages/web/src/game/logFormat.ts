@@ -12,6 +12,34 @@ function nameOf(state: NamedPlayers, pid: number): string {
   return state.players[pid]?.name ?? `Giocatore ${pid}`;
 }
 
+/** Righe di diario per il tiro dell'ordine di partenza (a inizio partita). */
+export function describeStartingOrder(view: {
+  players: readonly { name: string }[];
+  startingRolls: { player: number; dice: [number, number] }[][];
+  turnOrder: number[];
+}): string[] {
+  const lines: string[] = [];
+  view.startingRolls.forEach((round, i) => {
+    const righe = round
+      .map((r) =>
+        t(it.log.ordineTiro, {
+          nome: nameOf(view, r.player),
+          d1: r.dice[0],
+          d2: r.dice[1],
+          tot: r.dice[0] + r.dice[1],
+        })
+      )
+      .join(' · ');
+    lines.push(t(i === 0 ? it.log.ordineTitolo : it.log.ordineSpareggio, { righe }));
+  });
+  lines.push(
+    t(it.log.ordineFinale, {
+      ordine: view.turnOrder.map((pid) => nameOf(view, pid)).join(' → '),
+    })
+  );
+  return lines;
+}
+
 function listResources(rc: ResourceCount): string {
   const parts: string[] = [];
   for (const r of RESOURCES) {

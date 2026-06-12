@@ -73,6 +73,7 @@ export const it = {
   normale: 'Normale',
   nome: 'Nome',
   aggiungiGiocatore: '+ Aggiungi vichingo',
+  cambiaColore: 'Cambia colore',
   rimuovi: 'Rimuovi',
   seedOpzionale: 'Seme mappa (vuoto = casuale)',
   evita68: 'Evita 6 e 8 adiacenti',
@@ -193,6 +194,10 @@ export const it = {
 
   // Eventi del diario
   log: {
+    ordineTiro: '{nome} tira {d1}+{d2} = {tot}',
+    ordineSpareggio: 'Spareggio: {righe}',
+    ordineTitolo: 'Tiro per l’ordine: {righe}',
+    ordineFinale: 'Ordine di gioco: {ordine}',
     turnoIniziato: '— Turno {n}: tocca a {nome} —',
     dadiTirati: '{nome} tira {d1}+{d2} = {tot}',
     risorseProdotte: '{nome} riceve {risorse}',

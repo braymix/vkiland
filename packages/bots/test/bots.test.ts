@@ -37,16 +37,18 @@ function mut(state: GameState, fn: (s: GameState) => void): GameState {
 describe('piazzamento iniziale euristico', () => {
   it('sceglie il vertice con il punteggio massimo', () => {
     const g = createGame({ seed: 'piazzamento', players: PLAYERS });
-    const action = decideFor(g, 0);
+    // Il primo a piazzare è il vincitore del tiro per l'ordine.
+    const first = g.turnOrder[0]!;
+    const action = decideFor(g, first);
     expect(action.type).toBe('piazzaVillaggioIniziale');
     if (action.type !== 'piazzaVillaggioIniziale') return;
-    const view = getPlayerView(g, 0);
+    const view = getPlayerView(g, first);
     const bestScore = Math.max(
-      ...getLegalActions(g, 0).map((m) =>
-        m.type === 'piazzaVillaggioIniziale' ? placementScore(view, 0, m.vertex) : -1
+      ...getLegalActions(g, first).map((m) =>
+        m.type === 'piazzaVillaggioIniziale' ? placementScore(view, first, m.vertex) : -1
       )
     );
-    expect(placementScore(view, 0, action.vertex)).toBe(bestScore);
+    expect(placementScore(view, first, action.vertex)).toBe(bestScore);
   });
 });
 

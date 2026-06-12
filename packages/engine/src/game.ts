@@ -7,8 +7,8 @@ import {
   MIN_PLAYERS,
   SAGA_DECK_COMPOSITION,
 } from './constants';
-import { seedRng, shuffle } from './rng';
-import type { GameConfig, GameState, Phase, PlayerConfig, PlayerState } from './types';
+import { rollDie, seedRng, shuffle } from './rng';
+import type { GameConfig, GameState, Phase, PlayerConfig, PlayerId, PlayerState } from './types';
 
 export interface NewGameOptions {
   seed: string;
@@ -63,9 +63,35 @@ export function createGame(options: NewGameOptions): GameState {
     roads: [],
   }));
 
-  // Serpentina: 0,1,...,n-1, n-1,...,1,0 (ognuno piazza 2 villaggi + 2 sentieri)
-  const ascending = playerStates.map((p) => p.id);
-  const setupOrder = [...ascending, ...ascending.slice().reverse()];
+  // L'ORDINE DI PARTENZA si decide coi dadi (deterministico dal seed): tutti
+  // tirano, il totale più alto inizia; i pareggi si ritirano solo tra i pari.
+  const startingRolls: { player: PlayerId; dice: [number, number] }[][] = [];
+  const rollOff = (group: PlayerId[]): PlayerId[] => {
+    if (group.length === 1) return group;
+    const round: { player: PlayerId; dice: [number, number] }[] = [];
+    const totals = new Map<PlayerId, number>();
+    for (const pid of group) {
+      const [d1, r1] = rollDie(rng);
+      const [d2, r2] = rollDie(r1);
+      rng = r2;
+      round.push({ player: pid, dice: [d1, d2] });
+      totals.set(pid, d1 + d2);
+    }
+    startingRolls.push(round);
+    const distinct = [...new Set(totals.values())].sort((a, b) => b - a);
+    const ordered: PlayerId[] = [];
+    for (const total of distinct) {
+      ordered.push(...rollOff(group.filter((pid) => totals.get(pid) === total)));
+    }
+    return ordered;
+  };
+  const turnOrder = rollOff(playerStates.map((p) => p.id));
+  Object.freeze(turnOrder);
+  for (const round of startingRolls) Object.freeze(round);
+  Object.freeze(startingRolls);
+
+  // Serpentina sul turnOrder: ognuno piazza 2 villaggi + 2 sentieri.
+  const setupOrder = [...turnOrder, ...turnOrder.slice().reverse()];
   Object.freeze(setupOrder);
 
   const phase: Phase = { type: 'setup', expecting: 'villaggio', lastVillage: null };
@@ -90,6 +116,8 @@ export function createGame(options: NewGameOptions): GameState {
     dice: null,
     rolledThisTurn: false,
     devCardPlayedThisTurn: false,
+    turnOrder,
+    startingRolls,
     setupOrder,
     setupIndex: 0,
     pendingTrade: null,

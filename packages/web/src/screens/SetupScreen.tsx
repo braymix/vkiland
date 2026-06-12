@@ -12,6 +12,7 @@ interface PlayerRow {
   name: string;
   isBot: boolean;
   botLevel: BotLevel;
+  color: PlayerColor;
 }
 
 interface Props {
@@ -21,9 +22,9 @@ interface Props {
 
 export function SetupScreen({ onStart, onBack }: Props) {
   const [players, setPlayers] = useState<PlayerRow[]>([
-    { name: 'Bjorn', isBot: false, botLevel: 'normale' },
-    { name: 'Astrid', isBot: true, botLevel: 'normale' },
-    { name: 'Leif', isBot: true, botLevel: 'facile' },
+    { name: 'Bjorn', isBot: false, botLevel: 'normale', color: 'rosso' },
+    { name: 'Astrid', isBot: true, botLevel: 'normale', color: 'blu' },
+    { name: 'Leif', isBot: true, botLevel: 'facile', color: 'verde' },
   ]);
   const [seed, setSeed] = useState('');
   const [avoid68, setAvoid68] = useState(true);
@@ -35,7 +36,24 @@ export function SetupScreen({ onStart, onBack }: Props) {
   const addBot = () => {
     if (players.length >= 4) return;
     const name = BOT_NAMES.find((n) => !players.some((p) => p.name === n)) ?? 'Ragnhild';
-    setPlayers([...players, { name, isBot: true, botLevel: 'normale' }]);
+    const color = COLORS.find((c) => !players.some((p) => p.color === c)) ?? 'giallo';
+    setPlayers([...players, { name, isBot: true, botLevel: 'normale', color }]);
+  };
+
+  /**
+   * Click sul chip: passa al colore successivo della ruota; se è già di
+   * un'altra riga, i due colori si SCAMBIANO (mai duplicati).
+   */
+  const cycleColor = (i: number) => {
+    const mine = players[i]!.color;
+    const next = COLORS[(COLORS.indexOf(mine) + 1) % COLORS.length]!;
+    setPlayers(
+      players.map((p, idx) => {
+        if (idx === i) return { ...p, color: next };
+        if (p.color === next) return { ...p, color: mine };
+        return p;
+      })
+    );
   };
 
   const removeAt = (i: number) => {
@@ -50,7 +68,7 @@ export function SetupScreen({ onStart, onBack }: Props) {
       seed: seed.trim() || `vikiland-${Date.now()}-${Math.floor(Math.random() * 1e6)}`,
       players: players.map((p, i) => ({
         name: p.name.trim() || `Vichingo ${i + 1}`,
-        color: COLORS[i]!,
+        color: p.color,
         isBot: p.isBot,
         botLevel: p.botLevel,
       })),
@@ -65,9 +83,12 @@ export function SetupScreen({ onStart, onBack }: Props) {
       <div className="setup-grid pixel-frame">
         {players.map((p, i) => (
           <div key={i} className="setup-player">
-            <span
+            <button
               className="player-chip"
-              style={{ background: PLAYER_COLORS[COLORS[i]!].main }}
+              style={{ background: PLAYER_COLORS[p.color].main, cursor: 'pointer' }}
+              onClick={() => cycleColor(i)}
+              title={it.cambiaColore}
+              aria-label={it.cambiaColore}
             />
             <input
               type="text"

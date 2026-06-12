@@ -52,6 +52,10 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
     dice: state.dice ? [state.dice[0], state.dice[1]] : null,
     rolledThisTurn: state.rolledThisTurn,
     devCardPlayedThisTurn: state.devCardPlayedThisTurn,
+    turnOrder: [...state.turnOrder],
+    startingRolls: state.startingRolls.map((round) =>
+      round.map((r) => ({ player: r.player, dice: [r.dice[0], r.dice[1]] as [number, number] }))
+    ),
     setupOrder: [...state.setupOrder],
     setupIndex: state.setupIndex,
     pendingTrade: state.pendingTrade

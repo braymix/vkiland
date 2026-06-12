@@ -9,7 +9,7 @@
 import type { Action, ValidationError } from '@vikiland/engine';
 import type { GameUpdate } from '@vikiland/server/protocol';
 import type { GameController, GameSnapshot, LogEntry } from '../game/controller';
-import { describeEvent } from '../game/logFormat';
+import { describeEvent, describeStartingOrder } from '../game/logFormat';
 import type { ServerSocket } from './connection';
 
 const MAX_LOG = 120;
@@ -71,6 +71,12 @@ export class RemoteGameController implements GameController {
   private applyUpdate(u: GameUpdate): void {
     // Scarta update arretrati (possibili dopo una riconnessione).
     if (this.snapshot && u.generation < this.snapshot.generation) return;
+    // Primo update: il diario si apre col tiro per l'ordine di partenza.
+    if (this.snapshot === null && this.log.length === 0) {
+      for (const text of describeStartingOrder(u.view)) {
+        this.log.push({ id: this.logCounter++, text });
+      }
+    }
     for (const e of u.events) {
       const text = describeEvent(e, u.view);
       if (text) this.log.push({ id: this.logCounter++, text });

@@ -31,8 +31,19 @@ export function makePlayers(n: number): PlayerConfig[] {
   }));
 }
 
+/**
+ * Partita di test con ordine NORMALIZZATO a 0..n-1: i test delle regole non
+ * devono dipendere dal tiro per l'ordine (che ha un test dedicato,
+ * turnOrder.test.ts, su createGame puro).
+ */
 export function newGame(n = 4, seed = 'seme-di-test'): GameState {
-  return createGame({ seed, players: makePlayers(n) });
+  const raw = createGame({ seed, players: makePlayers(n) });
+  const ascending = raw.players.map((p) => p.id);
+  return mut(raw, (s) => {
+    s.turnOrder = ascending;
+    s.setupOrder = [...ascending, ...ascending.slice().reverse()];
+    s.currentPlayer = 0;
+  });
 }
 
 /** applyAction che lancia in caso di errore: per i percorsi felici dei test. */

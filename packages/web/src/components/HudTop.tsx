@@ -64,7 +64,8 @@ export function HudTop({ view, onOpenCosts, onOpenMap }: { view: PlayerView; onO
         </button>
       </div>
       <div>
-        {view.players.map((p) => {
+        {/* Strip nell'ORDINE DI GIOCO deciso dai dadi, non per posto. */}
+        {view.turnOrder.map((pid) => view.players[pid]!).map((p) => {
           const colors = PLAYER_COLORS[p.color];
           const isCurrent = p.id === view.currentPlayer;
           const pg =

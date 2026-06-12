@@ -134,7 +134,14 @@ export interface GameState {
   rolledThisTurn: boolean;
   /** Già giocata una carta Saga in questo turno? (massimo 1, esclusi gli Eroi). */
   devCardPlayedThisTurn: boolean;
-  /** Ordine a serpentina del setup, già espanso: es. [0,1,2,2,1,0]. */
+  /**
+   * Ordine di gioco deciso dai dadi alla creazione della partita (il più alto
+   * inizia, spareggi ritirati): viene mantenuto per TUTTA la partita.
+   */
+  turnOrder: PlayerId[];
+  /** Tiri per l'ordine di partenza: round successivi solo per gli spareggi. */
+  startingRolls: { player: PlayerId; dice: [number, number] }[][];
+  /** Ordine a serpentina del setup, già espanso da turnOrder: es. [2,0,1,1,0,2]. */
   setupOrder: PlayerId[];
   setupIndex: number;
   pendingTrade: TradeOffer | null;
@@ -216,6 +223,8 @@ export interface PlayerView {
   dice: [number, number] | null;
   rolledThisTurn: boolean;
   devCardPlayedThisTurn: boolean;
+  turnOrder: PlayerId[];
+  startingRolls: { player: PlayerId; dice: [number, number] }[][];
   setupOrder: PlayerId[];
   setupIndex: number;
   pendingTrade: TradeOffer | null;

@@ -14,7 +14,12 @@ deploy pronto per Netlify (client) + Dockerfile (server); zoom della tavola
 con pinch a due dita (mobile), rotella (desktop), trascinamento e reset «1×»;
 tutorial completo «Libro delle Saghe» (11 capitoli: regole, uso dell'app,
 hot-seat e online) raggiungibile dal menu, dal bugiardino in partita e
-dall'Online (che lo apre direttamente sul capitolo «Giocare online»).
+dall'Online (che lo apre direttamente sul capitolo «Giocare online»);
+tavola a risoluzione doppia (320×280) con sprite ridisegnati; popup
+scherzoso pre-partita; ordine di partenza deciso dai DADI nell'engine
+(`turnOrder` + `startingRolls`, spareggi inclusi, deterministico dal seed,
+mantenuto per tutta la partita, visibile nel diario e nella strip);
+scelta del colore per ogni riga (anche bot) nel setup con scambio automatico.
 
 ## Checklist Fase 3 (online)
 

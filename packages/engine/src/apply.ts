@@ -123,11 +123,11 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       });
       state.setupIndex += 1;
       if (state.setupIndex >= state.setupOrder.length) {
-        // Setup completato: comincia la partita vera.
-        state.currentPlayer = 0;
+        // Setup completato: comincia chi ha vinto il tiro per l'ordine.
+        state.currentPlayer = state.turnOrder[0]!;
         state.turnNumber = 1;
         state.phase = { type: 'preRoll' };
-        events.push({ type: 'turnoIniziato', player: 0, turnNumber: 1 });
+        events.push({ type: 'turnoIniziato', player: state.currentPlayer, turnNumber: 1 });
       } else {
         state.currentPlayer = state.setupOrder[state.setupIndex]!;
         state.phase = { type: 'setup', expecting: 'villaggio', lastVillage: null };
@@ -408,7 +408,9 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       me.sagaCardsBoughtThisTurn = [];
       state.devCardPlayedThisTurn = false;
       state.rolledThisTurn = false;
-      state.currentPlayer = (state.currentPlayer + 1) % state.players.length;
+      // Si avanza lungo l'ordine deciso dai dadi, non per id.
+      const orderIdx = state.turnOrder.indexOf(state.currentPlayer);
+      state.currentPlayer = state.turnOrder[(orderIdx + 1) % state.turnOrder.length]!;
       state.turnNumber += 1;
       state.phase = { type: 'preRoll' };
       events.push({
