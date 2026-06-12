@@ -309,6 +309,8 @@ function LoginForm({
   const [name, setName] = useState('');
   const [sending, setSending] = useState(false);
   const [health, setHealth] = useState<'checking' | 'ok' | 'down'>('checking');
+  /** L'URL del server confonde i piu': resta dietro un expander (default chiuso). */
+  const [serverOpen, setServerOpen] = useState(false);
 
   // Ping del server (con debounce mentre si digita): senza backend l'MVP
   // resta giocabile in locale e qui lo si dice chiaramente.
@@ -361,23 +363,6 @@ function LoginForm({
           </button>
         </div>
         <input
-          type="text"
-          placeholder={it.serverUrl}
-          value={serverUrl}
-          onChange={(e) => setServerUrl(e.target.value)}
-        />
-        {health === 'checking' && (
-          <div style={{ fontSize: 8, color: 'var(--ink-dim)' }}>{it.serverVerifica}</div>
-        )}
-        {health === 'ok' && (
-          <div style={{ fontSize: 8, color: 'var(--ok)' }}>✓ {it.serverOk}</div>
-        )}
-        {health === 'down' && (
-          <div style={{ fontSize: 8, color: 'var(--danger)', lineHeight: 1.6 }}>
-            {it.serverGiu}
-          </div>
-        )}
-        <input
           type="email"
           placeholder={it.email}
           value={email}
@@ -397,6 +382,34 @@ function LoginForm({
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
+        )}
+        <button
+          className="pxbtn pxbtn--ghost pxbtn--small"
+          onClick={() => setServerOpen(!serverOpen)}
+          aria-expanded={serverOpen}
+        >
+          {serverOpen ? '▾' : '▸'} {it.serverExpander}
+        </button>
+        {serverOpen && (
+          <div className="config-section">
+            <input
+              type="text"
+              placeholder={it.serverUrl}
+              value={serverUrl}
+              onChange={(e) => setServerUrl(e.target.value)}
+            />
+          </div>
+        )}
+        {health === 'checking' && (
+          <div style={{ fontSize: 8, color: 'var(--ink-dim)' }}>{it.serverVerifica}</div>
+        )}
+        {health === 'ok' && (
+          <div style={{ fontSize: 8, color: 'var(--ok)' }}>✓ {it.serverOk}</div>
+        )}
+        {health === 'down' && (
+          <div style={{ fontSize: 8, color: 'var(--danger)', lineHeight: 1.6 }}>
+            {it.serverGiu}
+          </div>
         )}
         {error && <div style={{ fontSize: 9, color: 'var(--danger)' }}>{error}</div>}
       </div>

@@ -37,6 +37,7 @@ export const it = {
   password: 'Password',
   nomeInGioco: 'Nome in gioco',
   serverUrl: 'Indirizzo del server',
+  serverExpander: 'Server',
   connessioneInCorso: 'Connessione…',
   esciAccount: 'Cambia account',
   ciao: 'Ciao, {nome}!',
