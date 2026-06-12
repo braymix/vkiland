@@ -1,4 +1,9 @@
-/** Diario di bordo: gli ultimi eventi, in ordine inverso. */
+/**
+ * Diario di bordo: cronologico dall'alto verso il basso, ultime attività IN
+ * FONDO. Trucco da chat: il DOM è invertito (più recente per primo) e il CSS
+ * usa column-reverse — così il browser tiene lo scroll agganciato in fondo
+ * da solo quando arrivano righe nuove.
+ */
 import type { LogEntry } from '../game/LocalGameController';
 import { it } from '../i18n/it';
 
@@ -9,6 +14,7 @@ export function GameLog({ entries }: { entries: LogEntry[] }) {
       <div className="game-log">
         {entries
           .slice(-40)
+          .reverse()
           .map((e) => (
             <div key={e.id}>{e.text}</div>
           ))}
