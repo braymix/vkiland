@@ -5,7 +5,7 @@ import { it, t } from '../i18n/it';
 import type { GameSetup } from '../game/LocalGameController';
 import { PLAYER_COLORS } from '../render/sprites/palettes';
 
-const COLORS: PlayerColor[] = ['rosso', 'blu', 'verde', 'giallo'];
+const COLORS: PlayerColor[] = ['rosso', 'blu', 'verde', 'giallo', 'viola'];
 const BOT_NAMES = ['Astrid', 'Leif', 'Sigrid'];
 
 interface PlayerRow {

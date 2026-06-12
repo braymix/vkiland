@@ -13,7 +13,7 @@ export type SagaCard =
   | 'costruttoriDiSentieri'
   | 'banchetto'
   | 'tributo';
-export type PlayerColor = 'rosso' | 'blu' | 'verde' | 'giallo';
+export type PlayerColor = 'rosso' | 'blu' | 'verde' | 'giallo' | 'viola';
 
 export type HexId = string;
 export type VertexId = string;

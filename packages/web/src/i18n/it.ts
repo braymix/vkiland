@@ -80,6 +80,7 @@ export const it = {
     blu: 'Blu',
     verde: 'Verde',
     giallo: 'Giallo',
+    viola: 'Viola',
   } satisfies Record<PlayerColor, string>,
   rimuovi: 'Rimuovi',
   seedOpzionale: 'Seme mappa (vuoto = casuale)',

@@ -78,6 +78,7 @@ export const PLAYER_COLORS: Record<PlayerColor, { main: string; dark: string; li
   blu: { main: '#2e6fb7', dark: '#1d4775', light: '#6aa3dd' },
   verde: { main: '#3e8f4e', dark: '#276031', light: '#74bd82' },
   giallo: { main: '#d9a525', dark: '#8f6c12', light: '#eccb6a' },
+  viola: { main: '#8e44ad', dark: '#5e2c7e', light: '#b07cc9' },
 };
 
 /** Palette attiva (Fase 1: fissa). PUNTO DI ESTENSIONE: selezione da profilo. */
