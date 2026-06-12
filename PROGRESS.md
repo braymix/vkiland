@@ -11,7 +11,10 @@ timer di turno opzionale con mossa automatica. In attesa di collaudo.
 Fasi 1 e 2 collaudate e approvate dall'utente (hot-seat, bugiardino,
 mappa a schermo intero, mirini viola sugli approdi). Rifiniture extra:
 deploy pronto per Netlify (client) + Dockerfile (server); zoom della tavola
-con pinch a due dita (mobile), rotella (desktop), trascinamento e reset «1×».
+con pinch a due dita (mobile), rotella (desktop), trascinamento e reset «1×»;
+tutorial completo «Libro delle Saghe» (11 capitoli: regole, uso dell'app,
+hot-seat e online) raggiungibile dal menu, dal bugiardino in partita e
+dall'Online (che lo apre direttamente sul capitolo «Giocare online»).
 
 ## Checklist Fase 3 (online)
 

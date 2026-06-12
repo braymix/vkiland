@@ -49,9 +49,11 @@ function GloryChip({ n }: { n: number }) {
 export function CostsDialog({
   targetGloryPoints,
   onClose,
+  onOpenTutorial,
 }: {
   targetGloryPoints: number;
   onClose: () => void;
+  onOpenTutorial: () => void;
 }) {
   const rowStyle: React.CSSProperties = {
     display: 'grid',
@@ -111,6 +113,9 @@ export function CostsDialog({
         <div style={dimStyle}>{t(it.obiettivoRiga, { n: targetGloryPoints })}</div>
       </div>
       <div className="dialog-buttons">
+        <button className="pxbtn pxbtn--ghost" onClick={onOpenTutorial}>
+          {it.apriTutorial}
+        </button>
         <button className="pxbtn" onClick={onClose}>
           {it.chiudi}
         </button>

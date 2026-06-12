@@ -21,6 +21,7 @@ import {
 } from '../components/dialogs/TradeDialogs';
 import { PassDeviceScreen } from './PassDeviceScreen';
 import { FullscreenMap } from '../components/FullscreenMap';
+import { TutorialScreen } from './TutorialScreen';
 import { VictoryScreen } from './VictoryScreen';
 
 interface Props {
@@ -47,6 +48,7 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
   const [proposeOpen, setProposeOpen] = useState(false);
   const [cardsOpen, setCardsOpen] = useState(false);
   const [costsOpen, setCostsOpen] = useState(false);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const [mapFullscreen, setMapFullscreen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -219,8 +221,13 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
         <CostsDialog
           targetGloryPoints={view.targetGloryPoints}
           onClose={() => setCostsOpen(false)}
+          onOpenTutorial={() => {
+            setCostsOpen(false);
+            setTutorialOpen(true);
+          }}
         />
       )}
+      {tutorialOpen && <TutorialScreen onClose={() => setTutorialOpen(false)} />}
       {snap.finalState !== null && (
         <VictoryScreen state={snap.finalState} onExit={onExit} onRematch={onRematch} />
       )}

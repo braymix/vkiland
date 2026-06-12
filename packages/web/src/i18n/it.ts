@@ -12,6 +12,14 @@ export const it = {
   nuovaPartita: 'Nuova partita',
   multigiocatore: 'Online',
   negozio: 'Negozio (in arrivo)',
+  comeSiGioca: 'Come si gioca',
+
+  // Tutorial («Libro delle Saghe»)
+  libroSaghe: 'Libro delle Saghe',
+  capitoloDi: 'Capitolo {n} di {tot}',
+  avanti: 'Avanti',
+  comeFunzionaOnline: "Come funziona l'online?",
+  apriTutorial: 'Apri il Libro delle Saghe',
 
   // Online: account
   accedi: 'Accedi',

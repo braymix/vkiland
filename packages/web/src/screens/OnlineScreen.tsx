@@ -22,7 +22,9 @@ import {
 } from '../online/connection';
 import { RemoteGameController } from '../online/RemoteGameController';
 import { PLAYER_COLORS } from '../render/sprites/palettes';
+import { TUTORIAL_ONLINE_CHAPTER } from '../i18n/tutorial';
 import { GameScreen } from './GameScreen';
+import { TutorialScreen } from './TutorialScreen';
 
 type Stage = 'login' | 'home' | 'room' | 'game';
 
@@ -31,6 +33,7 @@ export function OnlineScreen({ onBack }: { onBack: () => void }) {
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lobby, setLobby] = useState<LobbyState | null>(null);
+  const [tutorialOpen, setTutorialOpen] = useState(false);
   const sessionRef = useRef<OnlineSession | null>(null);
   const socketRef = useRef<ServerSocket | null>(null);
   const controllerRef = useRef<RemoteGameController | null>(null);
@@ -132,6 +135,14 @@ export function OnlineScreen({ onBack }: { onBack: () => void }) {
     setStage('login');
   };
 
+  // Tutorial aperto sul capitolo «Giocare online» da login e home.
+  const tutorialOverlay = tutorialOpen ? (
+    <TutorialScreen
+      initialChapter={TUTORIAL_ONLINE_CHAPTER}
+      onClose={() => setTutorialOpen(false)}
+    />
+  ) : null;
+
   if (busy) {
     return (
       <div className="screen" style={{ justifyContent: 'center' }}>
@@ -143,19 +154,24 @@ export function OnlineScreen({ onBack }: { onBack: () => void }) {
   switch (stage) {
     case 'login':
       return (
-        <LoginForm
-          onBack={onBack}
-          onError={showError}
-          error={error}
-          onLoggedIn={(session) => {
-            saveSession(session);
-            setBusy(true);
-            attachSocket(session);
-          }}
-        />
+        <>
+          <LoginForm
+            onBack={onBack}
+            onError={showError}
+            error={error}
+            onOpenTutorial={() => setTutorialOpen(true)}
+            onLoggedIn={(session) => {
+              saveSession(session);
+              setBusy(true);
+              attachSocket(session);
+            }}
+          />
+          {tutorialOverlay}
+        </>
       );
     case 'home':
       return (
+        <>
         <OnlineHome
           name={sessionRef.current?.displayName ?? ''}
           error={error}
@@ -163,6 +179,7 @@ export function OnlineScreen({ onBack }: { onBack: () => void }) {
             socketRef.current?.disconnect();
             onBack();
           }}
+          onOpenTutorial={() => setTutorialOpen(true)}
           onLogout={logout}
           onCreate={(timerSec) => {
             socketRef.current?.emit(
@@ -185,6 +202,8 @@ export function OnlineScreen({ onBack }: { onBack: () => void }) {
             });
           }}
         />
+        {tutorialOverlay}
+        </>
       );
     case 'room':
       if (!lobby) return null;
@@ -220,11 +239,13 @@ function LoginForm({
   onLoggedIn,
   onError,
   onBack,
+  onOpenTutorial,
   error,
 }: {
   onLoggedIn: (s: OnlineSession) => void;
   onError: (m: string) => void;
   onBack: () => void;
+  onOpenTutorial: () => void;
   error: string | null;
 }) {
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -333,6 +354,9 @@ function LoginForm({
           {mode === 'login' ? it.accedi : it.registrati}
         </button>
       </div>
+      <button className="pxbtn pxbtn--ghost pxbtn--small" onClick={onOpenTutorial}>
+        {it.comeFunzionaOnline}
+      </button>
     </div>
   );
 }
@@ -344,6 +368,7 @@ function OnlineHome({
   onJoin,
   onLogout,
   onBack,
+  onOpenTutorial,
 }: {
   name: string;
   error: string | null;
@@ -351,6 +376,7 @@ function OnlineHome({
   onJoin: (code: string) => void;
   onLogout: () => void;
   onBack: () => void;
+  onOpenTutorial: () => void;
 }) {
   const [code, setCode] = useState('');
   const [timerSec, setTimerSec] = useState(0);
@@ -393,6 +419,9 @@ function OnlineHome({
           {it.esciAccount}
         </button>
       </div>
+      <button className="pxbtn pxbtn--ghost pxbtn--small" onClick={onOpenTutorial}>
+        {it.comeFunzionaOnline}
+      </button>
     </div>
   );
 }

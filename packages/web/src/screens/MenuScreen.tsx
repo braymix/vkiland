@@ -4,9 +4,11 @@ import { it } from '../i18n/it';
 export function MenuScreen({
   onNewGame,
   onOnline,
+  onTutorial,
 }: {
   onNewGame: () => void;
   onOnline: () => void;
+  onTutorial: () => void;
 }) {
   return (
     <div className="screen" style={{ justifyContent: 'center' }}>
@@ -18,6 +20,9 @@ export function MenuScreen({
         </button>
         <button className="pxbtn pxbtn--ghost" onClick={onOnline}>
           {it.multigiocatore}
+        </button>
+        <button className="pxbtn pxbtn--ghost" onClick={onTutorial}>
+          {it.comeSiGioca}
         </button>
         {/* PUNTO DI ESTENSIONE (Fase 4 — monetizzazione): negozio di skin/temi
             (cosmetici, mai pay-to-win) collegato agli entitlements del profilo. */}

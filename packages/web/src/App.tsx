@@ -5,12 +5,14 @@ import { GameScreen } from './screens/GameScreen';
 import { MenuScreen } from './screens/MenuScreen';
 import { OnlineScreen } from './screens/OnlineScreen';
 import { SetupScreen } from './screens/SetupScreen';
+import { TutorialScreen } from './screens/TutorialScreen';
 
 type Route =
   | { screen: 'menu' }
   | { screen: 'setup' }
   | { screen: 'game'; setup: GameSetup; gameKey: number }
-  | { screen: 'online' };
+  | { screen: 'online' }
+  | { screen: 'tutorial' };
 
 export function App() {
   const [route, setRoute] = useState<Route>({ screen: 'menu' });
@@ -21,8 +23,11 @@ export function App() {
         <MenuScreen
           onNewGame={() => setRoute({ screen: 'setup' })}
           onOnline={() => setRoute({ screen: 'online' })}
+          onTutorial={() => setRoute({ screen: 'tutorial' })}
         />
       );
+    case 'tutorial':
+      return <TutorialScreen onClose={() => setRoute({ screen: 'menu' })} />;
     case 'setup':
       return (
         <SetupScreen
