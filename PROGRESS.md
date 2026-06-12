@@ -9,7 +9,9 @@
 lobby con codici invito a 6 caratteri, bot lato server, riconnessione,
 timer di turno opzionale con mossa automatica. In attesa di collaudo.
 Fasi 1 e 2 collaudate e approvate dall'utente (hot-seat, bugiardino,
-mappa a schermo intero, mirini viola sugli approdi).
+mappa a schermo intero, mirini viola sugli approdi). Rifiniture extra:
+deploy pronto per Netlify (client) + Dockerfile (server); zoom della tavola
+con pinch a due dita (mobile), rotella (desktop), trascinamento e reset «1×».
 
 ## Checklist Fase 3 (online)
 

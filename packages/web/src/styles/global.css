@@ -154,11 +154,20 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
+  /* Lo zoom trasforma il canvas: la cornice lo ritaglia e ospita il bottone 1× */
+  position: relative;
+  overflow: hidden;
 }
 .board-canvas {
   image-rendering: pixelated;
-  touch-action: manipulation;
+  touch-action: none; /* pinch/trascinamento gestiti dal gioco, non dal browser */
   max-width: 100%;
+}
+.board-zoom-reset {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
 }
 
 /* Strip giocatori */
