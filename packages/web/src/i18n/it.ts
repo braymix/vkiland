@@ -147,6 +147,7 @@ export const it = {
   faseSetupVillaggio: '{nome}: piazza un villaggio',
   faseSetupSentiero: '{nome}: piazza un sentiero accanto al villaggio',
   tiraIDadi: 'Tira i dadi',
+  setteGrave: 'Il Drago si sveglia!',
   faseTiroAtteso: 'Tocca a {nome}: tira i dadi',
   faseMain: 'Tocca a {nome}',
   faseScarto: 'Il 7! {nome} deve scartare {n} carte',

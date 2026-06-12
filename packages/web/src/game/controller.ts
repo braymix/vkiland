@@ -35,6 +35,8 @@ export interface GameSnapshot {
   remoteError: { id: number; message: string } | null;
   /** Scadenza del timer di turno (epoch ms) se attivo (online). */
   turnDeadline: number | null;
+  /** Ultimo tiro di dadi (id crescente per ri-animare anche numeri uguali). */
+  lastRoll: { id: number; dice: [number, number]; total: number } | null;
 }
 
 export interface GameController {

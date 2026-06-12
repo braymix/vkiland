@@ -28,7 +28,12 @@ di difficoltà: facile, normale, difficile, esperto (~14 scambi conclusi a
 partita nelle simulazioni); rebranding in VIKING-ISLAND con logo pixel-art
 originale (elmo cornuto e barba rossa, generato da scripts/gen-icons.mjs) e
 PWA completa: manifest, service worker con precache (vite-plugin-pwa),
-installabile a schermata home, gioco locale/hot-seat funzionante OFFLINE.
+installabile a schermata home, gioco locale/hot-seat funzionante OFFLINE;
+popup a tutto schermo del tiro di dadi (`DiceRollOverlay`, agganciato
+all'evento `dadiTirati` via `lastRoll` nello snapshot, locale e online):
+il totale compare grande e svanisce da solo, il 7 è «grave» (rosso,
+tremolante, vignetta scura e avviso «Il Drago si sveglia!»); l'overlay non
+cattura i click e rispetta `prefers-reduced-motion`.
 
 ## Checklist Fase 3 (online)
 

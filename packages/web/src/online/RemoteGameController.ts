@@ -20,6 +20,8 @@ export class RemoteGameController implements GameController {
   private log: LogEntry[] = [];
   private logCounter = 0;
   private errorCounter = 0;
+  private lastRoll: GameSnapshot['lastRoll'] = null;
+  private rollCounter = 0;
   private readonly socket: ServerSocket;
   private readonly onUpdate = (u: GameUpdate): void => this.applyUpdate(u);
   private readonly onRejected = (r: { message: string }): void => {
@@ -81,6 +83,9 @@ export class RemoteGameController implements GameController {
     for (const e of u.events) {
       const text = describeEvent(e, u.view);
       if (text) this.log.push({ id: this.logCounter++, text });
+      if (e.type === 'dadiTirati') {
+        this.lastRoll = { id: ++this.rollCounter, dice: [e.dice[0], e.dice[1]], total: e.total };
+      }
       // Easter egg: i bot bloccati dal Drago si lamentano (stessa frase
       // su tutti i client: la scelta è deterministica).
       if (e.type === 'dragoMosso') {
@@ -101,6 +106,7 @@ export class RemoteGameController implements GameController {
       finalState: u.finalState,
       remoteError: this.snapshot?.remoteError ?? null,
       turnDeadline: u.turnDeadline,
+      lastRoll: this.lastRoll,
     };
     this.emit();
   }

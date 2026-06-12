@@ -59,6 +59,8 @@ export class LocalGameController implements GameController {
   private readonly logViewer: Viewer;
   private viewpoint: PlayerId;
   private handoff: PlayerId | null = null;
+  private lastRoll: GameSnapshot['lastRoll'] = null;
+  private rollCounter = 0;
 
   constructor(setup: GameSetup) {
     this.state = createGame(setup);
@@ -115,6 +117,10 @@ export class LocalGameController implements GameController {
     for (const e of visible) {
       const text = describeEvent(e, next);
       if (text) this.log.push({ id: this.logCounter++, text });
+      // Il popup del tiro si aggancia all'evento (anche per i bot).
+      if (e.type === 'dadiTirati') {
+        this.lastRoll = { id: ++this.rollCounter, dice: [e.dice[0], e.dice[1]], total: e.total };
+      }
       // Easter egg: i bot bloccati dal Drago si lamentano nel diario.
       if (e.type === 'dragoMosso') {
         for (const line of dragonComplaints(e, next, new Set(this.bots.keys()))) {
@@ -145,6 +151,7 @@ export class LocalGameController implements GameController {
       finalState: this.state.phase.type === 'gameOver' ? this.state : null,
       remoteError: null,
       turnDeadline: null,
+      lastRoll: this.lastRoll,
     };
   }
 

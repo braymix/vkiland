@@ -20,6 +20,7 @@ import {
   RespondTradeDialog,
 } from '../components/dialogs/TradeDialogs';
 import { PassDeviceScreen } from './PassDeviceScreen';
+import { DiceRollOverlay } from '../components/DiceRollOverlay';
 import { FullscreenMap } from '../components/FullscreenMap';
 import { TutorialScreen } from './TutorialScreen';
 import { VictoryScreen } from './VictoryScreen';
@@ -246,6 +247,8 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
           onClose={() => setMapFullscreen(false)}
         />
       )}
+      {/* Sopra mappa e dialoghi, ma sotto tutorial e passaggio di mano. */}
+      <DiceRollOverlay roll={snap.lastRoll} />
     </div>
   );
 }
