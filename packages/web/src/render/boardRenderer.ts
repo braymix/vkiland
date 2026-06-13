@@ -26,6 +26,7 @@ import {
   HEX_CORNER_Y,
   portAnchor,
   vertexPoint,
+  type Point,
 } from './layout';
 import { bakeSprite, drawDigits, drawSpriteCentered, digitsWidth } from './sprites/bake';
 import {
@@ -179,6 +180,38 @@ function drawToken(ctx: CanvasRenderingContext2D, cx: number, cy: number, token:
   }
 }
 
+/**
+ * Pontile dell'approdo: un'assicella di legno dal vertice costiero verso il
+ * drakkar al largo. Si disegna SEMPRE (strato statico) — i due pontili di un
+ * approdo (uno per ciascun vertice dello spigolo) convergono sotto lo scafo —
+ * così si vede a colpo d'occhio DOVE costruire per usare il porto, anche
+ * quando il mirino viola non è acceso.
+ */
+function drawPortJetty(ctx: CanvasRenderingContext2D, from: Point, to: Point): void {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const len = Math.hypot(dx, dy);
+  if (len < 1) return;
+  const t0 = 7 / len; // respiro al vertice (lì ci va l'edificio)
+  const t1 = 0.84; // si infila sotto lo scafo
+  const steps = Math.ceil(len);
+  // Prima il bordo scuro (4px), poi il legno chiaro (2px): assicella con rilievo.
+  for (const [size, key] of [
+    [4, 'scafoScuro'],
+    [2, 'scafo'],
+  ] as const) {
+    ctx.fillStyle = color(key);
+    const half = size / 2;
+    for (let i = 0; i <= steps; i++) {
+      const t = t0 + (i / steps) * (t1 - t0);
+      if (t > t1) break;
+      const x = Math.round(from.x + dx * t);
+      const y = Math.round(from.y + dy * t);
+      ctx.fillRect(x - half, y - half, size, size);
+    }
+  }
+}
+
 function renderStatic(view: PlayerView): HTMLCanvasElement {
   const canvas = document.createElement('canvas');
   canvas.width = CANVAS_W;
@@ -207,9 +240,15 @@ function renderStatic(view: PlayerView): HTMLCanvasElement {
     if (hex.token !== null) drawToken(ctx, x, y, hex.token);
   }
 
-  // Approdi: drakkar al largo + etichetta del rapporto (+ icona risorsa).
+  // Approdi: pontili verso i vertici costieri + drakkar al largo + etichetta
+  // del rapporto (+ icona risorsa).
+  const topo = getTopology();
   for (const port of view.board.ports) {
     const anchor = portAnchor(port.edge);
+    // Pontili PRIMA dello scafo: convergono e si infilano sotto la chiglia.
+    for (const v of topo.edgeVertices[port.edge] ?? []) {
+      drawPortJetty(ctx, vertexPoint(v), anchor);
+    }
     drawSpriteCentered(ctx, bakeSprite('drakkar', DRAKKAR), anchor.x, anchor.y);
     const label = `${port.ratio}:1`;
     const tw = digitsWidth(label, 2);

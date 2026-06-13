@@ -11,7 +11,10 @@ server, riconnessione, timer di turno opzionale con mossa automatica.
 Deploy verificato dall'utente: client su Netlify + server su Render
 (blueprint render.yaml), «funziona tutto correttamente».
 Fasi 1 e 2 collaudate e approvate dall'utente (hot-seat, bugiardino,
-mappa a schermo intero, mirini viola sugli approdi). Rifiniture extra:
+mappa a schermo intero, mirini viola sugli approdi). Ogni approdo mostra
+ora due pontili di legno SEMPRE visibili (strato statico) dai due vertici
+costieri al drakkar: si vede a colpo d'occhio dove costruire per usarlo,
+anche senza il mirino acceso. Rifiniture extra:
 deploy pronto per Netlify (client) + Dockerfile (server); zoom della tavola
 con pinch a due dita (mobile), rotella (desktop), trascinamento e reset «1×»;
 tutorial completo «Libro delle Saghe» (11 capitoli: regole, uso dell'app,
