@@ -34,11 +34,11 @@ import {
   DRAGO,
   DRAKKAR,
   ICONA_RISORSA,
+  MATTONE_DECO,
   MINERALE,
   PECORA,
   PINO,
   ROCCAFORTE,
-  ROCCIA_DECO,
   SPIGA,
   VILLAGGIO,
   type SpriteDef,
@@ -63,7 +63,7 @@ const TERRAIN_FILL: Record<TerrainType, [string, string]> = {
 
 const TERRAIN_DECO: Record<TerrainType, { def: SpriteDef; id: string; at: [number, number][] }> = {
   legname: { def: PINO, id: 'pino', at: [[-10, -14], [10, -13], [0, 15]] },
-  pietra: { def: ROCCIA_DECO, id: 'roccia', at: [[-9, -14], [9, 14]] },
+  pietra: { def: MATTONE_DECO, id: 'mattone', at: [[-9, -14], [9, 14]] },
   lana: { def: PECORA, id: 'pecora', at: [[-9, -14], [9, 14]] },
   orzo: { def: SPIGA, id: 'spiga', at: [[-11, -14], [11, -14], [0, 15]] },
   ferro: { def: MINERALE, id: 'minerale', at: [[-9, -14], [9, 14]] },

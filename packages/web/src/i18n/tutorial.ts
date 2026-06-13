@@ -66,7 +66,7 @@ export const TUTORIAL: TutorialChapter[] = [
         t: 'list',
         items: [
           'Foresta di pini → Legname',
-          'Cava di granito → Pietra',
+          'Cava di pietra rossa → Pietra',
           'Pascolo → Lana',
           'Campi d’orzo → Orzo',
           'Miniera di ferro → Ferro',

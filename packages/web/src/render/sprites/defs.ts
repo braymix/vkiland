@@ -131,15 +131,16 @@ export const PINO: SpriteDef = {
   ],
 };
 
-export const ROCCIA_DECO: SpriteDef = {
-  map: { R: 'roccia', r: 'rocciaScura' },
+/** Decorazione della cava di Pietra: una catasta di mattoni a corsi sfalsati. */
+export const MATTONE_DECO: SpriteDef = {
+  map: { B: 'mattone', m: 'mattoneScuro' },
   rows: [
-    '...RR....',
-    '..RRRR...',
-    '.RRRRRr..',
-    '.RRrRrr..',
-    'RRRrrrrr.',
-    '.rrrrrr..',
+    'mmmmmmmm.',
+    'mBBmBBBm.',
+    'mBBmBBBm.',
+    'mmmmmmmm.',
+    'BBmBBBmm.',
+    'BBmBBBmm.',
   ],
 };
 
@@ -207,8 +208,8 @@ export const ICONA_RISORSA: Record<string, SpriteDef> = {
     rows: ['...P...', '..PPp..', '.pPPPp.', 'pPPPPPp', '.ppppp.', '...t...', '...t...'],
   },
   pietra: {
-    map: { R: 'roccia', r: 'rocciaScura' },
-    rows: ['.......', '..RRR..', '.RRRRr.', 'RRRrrr.', 'Rrrrrr.', '.rrrr..', '.......'],
+    map: { B: 'mattone', m: 'mattoneScuro' },
+    rows: ['.......', 'mmmmmm.', 'mBBmBB.', 'mmmmmm.', 'BBmBBm.', 'mmmmmm.', '.......'],
   },
   lana: {
     map: { W: 'pecora', H: 'pecoraTesta' },

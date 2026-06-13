@@ -26,8 +26,8 @@ export const CLASSIC_THEME: ThemePalette = {
     // terreni: base + bordo
     foresta: '#3f7a3a',
     forestaBordo: '#2c5429',
-    cava: '#9a8f7d',
-    cavaBordo: '#6e6557',
+    cava: '#b8542e',
+    cavaBordo: '#7a3318',
     pascolo: '#8fbf5a',
     pascoloBordo: '#65893c',
     campo: '#d9b84a',
@@ -42,6 +42,8 @@ export const CLASSIC_THEME: ThemePalette = {
     tronco: '#5d4327',
     roccia: '#b8ad99',
     rocciaScura: '#7c7363',
+    mattone: '#d9794a', // faccia del mattone (cava di Pietra, ora arancione/rossa)
+    mattoneScuro: '#6b2a12', // malta/ombra tra i mattoni
     pecora: '#f3f1e7',
     pecoraTesta: '#4a4138',
     spiga: '#a4751f',

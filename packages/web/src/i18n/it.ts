@@ -230,7 +230,7 @@ export const it = {
   } satisfies Record<Resource, string>,
   terreno: {
     legname: 'Foresta di pini',
-    pietra: 'Cava di granito',
+    pietra: 'Cava di pietra rossa',
     lana: 'Pascolo',
     orzo: "Campi d'orzo",
     ferro: 'Miniera di ferro',
