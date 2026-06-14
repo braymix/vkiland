@@ -10,6 +10,7 @@ import type { Action, ValidationError } from '@vikiland/engine';
 import type { GameUpdate } from '@vikiland/server/protocol';
 import type { GameController, GameSnapshot, LogEntry } from '../game/controller';
 import { describeEvent, describeStartingOrder, dragonComplaints } from '../game/logFormat';
+import { accumulateStats, emptyStats, type GameStats } from '../game/stats';
 import type { ServerSocket } from './connection';
 
 const MAX_LOG = 120;
@@ -22,6 +23,7 @@ export class RemoteGameController implements GameController {
   private errorCounter = 0;
   private lastRoll: GameSnapshot['lastRoll'] = null;
   private rollCounter = 0;
+  private stats: GameStats | null = null;
   private readonly socket: ServerSocket;
   private readonly onUpdate = (u: GameUpdate): void => this.applyUpdate(u);
   private readonly onRejected = (r: { message: string }): void => {
@@ -79,8 +81,10 @@ export class RemoteGameController implements GameController {
         this.log.push({ id: this.logCounter++, text });
       }
     }
+    if (this.stats === null) this.stats = emptyStats(u.view.players.length);
     const botIds = new Set(u.view.players.filter((p) => p.isBot).map((p) => p.id));
     for (const e of u.events) {
+      accumulateStats(this.stats, e);
       const text = describeEvent(e, u.view);
       if (text) this.log.push({ id: this.logCounter++, text });
       if (e.type === 'dadiTirati') {
@@ -107,6 +111,7 @@ export class RemoteGameController implements GameController {
       remoteError: this.snapshot?.remoteError ?? null,
       turnDeadline: u.turnDeadline,
       lastRoll: this.lastRoll,
+      stats: this.stats,
     };
     this.emit();
   }

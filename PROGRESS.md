@@ -36,7 +36,16 @@ popup a tutto schermo del tiro di dadi (`DiceRollOverlay`, agganciato
 all'evento `dadiTirati` via `lastRoll` nello snapshot, locale e online):
 il totale compare grande e svanisce da solo, il 7 è «grave» (rosso,
 tremolante, vignetta scura e avviso «Il Drago si sveglia!»); l'overlay non
-cattura i click e rispetta `prefers-reduced-motion`.
+cattura i click e rispetta `prefers-reduced-motion`. Schermata di fine
+partita arricchita con due pulsanti: «Mappa finale» (riusa la mappa a
+schermo intero con la vista da spettatore: tutti villaggi, roccaforti,
+strade e Drago) e «Statistiche» — un cruscotto pixel con istogramma dei
+numeri usciti (atteso vs reale, 6/8 in rosso, numero fortunato
+evidenziato), confronto tra clan su scambi/costruzioni/risorse/Carte
+Saga/saccheggi e un «Albo dei primati» (Mani d'oro, Mercante, Mastro
+costruttore, Predone, Sfortunato, Stratega). Le statistiche si accumulano
+lato client dal flusso di eventi (`game/stats.ts`, condiviso dai due
+controller, solo eventi pubblici ⇒ coerenti anche online).
 
 ## Checklist Fase 3 (online)
 

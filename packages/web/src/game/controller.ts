@@ -11,6 +11,7 @@ import type {
   PlayerView,
   ValidationError,
 } from '@vikiland/engine';
+import type { GameStats } from './stats';
 
 export interface LogEntry {
   id: number;
@@ -37,6 +38,8 @@ export interface GameSnapshot {
   turnDeadline: number | null;
   /** Ultimo tiro di dadi (id crescente per ri-animare anche numeri uguali). */
   lastRoll: { id: number; dice: [number, number]; total: number } | null;
+  /** Statistiche cumulate della partita (per la schermata di fine partita). */
+  stats: GameStats;
 }
 
 export interface GameController {

@@ -1,18 +1,26 @@
 /** Schermata di vittoria: coriandoli, vincitore in GRANDE e classifica. */
-import { scoreBreakdown, type GameState } from '@vikiland/engine';
+import { useMemo, useState } from 'react';
+import { getPlayerView, scoreBreakdown, type GameState } from '@vikiland/engine';
 import { it } from '../i18n/it';
 import { PLAYER_COLORS } from '../render/sprites/palettes';
 import { ConfettiCanvas } from '../components/ConfettiCanvas';
 import { UiIcon } from '../components/icons';
+import { FullscreenMap } from '../components/FullscreenMap';
+import { StatsScreen } from './StatsScreen';
+import type { GameStats } from '../game/stats';
 
 interface Props {
   state: GameState;
+  stats: GameStats;
   onExit: () => void;
   /** null = rivincita non disponibile (partite online). */
   onRematch: (() => void) | null;
 }
 
-export function VictoryScreen({ state, onExit, onRematch }: Props) {
+export function VictoryScreen({ state, stats, onExit, onRematch }: Props) {
+  const [panel, setPanel] = useState<'map' | 'stats' | null>(null);
+  // Vista da spettatore: a partita finita mostra TUTTO (villaggi, strade, Drago).
+  const spectatorView = useMemo(() => getPlayerView(state, 'spettatore'), [state]);
   if (state.phase.type !== 'gameOver') return null;
   const winner = state.players[state.phase.winner]!;
   const winnerColors = PLAYER_COLORS[winner.color];
@@ -28,6 +36,7 @@ export function VictoryScreen({ state, onExit, onRematch }: Props) {
   ];
 
   return (
+    <>
     <div className="dialog-backdrop victory-backdrop">
       <ConfettiCanvas colors={confettiColors} />
       <div className="victory-stage">
@@ -90,6 +99,14 @@ export function VictoryScreen({ state, onExit, onRematch }: Props) {
             </tbody>
           </table>
           </div>
+          <div className="dialog-buttons victory-extra-buttons">
+            <button className="pxbtn pxbtn--ghost pxbtn--small" onClick={() => setPanel('map')}>
+              {it.vediMappaFinale}
+            </button>
+            <button className="pxbtn pxbtn--ghost pxbtn--small" onClick={() => setPanel('stats')}>
+              {it.vediStatistiche}
+            </button>
+          </div>
           <div className="dialog-buttons" style={{ justifyContent: 'center' }}>
             <button className="pxbtn pxbtn--ghost" onClick={onExit}>
               {it.tornaAlMenu}
@@ -103,5 +120,12 @@ export function VictoryScreen({ state, onExit, onRematch }: Props) {
         </div>
       </div>
     </div>
+    {panel === 'map' && (
+      <FullscreenMap view={spectatorView} targets={{}} onClose={() => setPanel(null)} />
+    )}
+    {panel === 'stats' && (
+      <StatsScreen state={state} stats={stats} onClose={() => setPanel(null)} />
+    )}
+    </>
   );
 }

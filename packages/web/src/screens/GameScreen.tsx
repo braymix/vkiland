@@ -232,7 +232,12 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
       )}
       {tutorialOpen && <TutorialScreen onClose={() => setTutorialOpen(false)} />}
       {snap.finalState !== null && (
-        <VictoryScreen state={snap.finalState} onExit={onExit} onRematch={onRematch} />
+        <VictoryScreen
+          state={snap.finalState}
+          stats={snap.stats}
+          onExit={onExit}
+          onRematch={onRematch}
+        />
       )}
       {handoff !== null && (
         <PassDeviceScreen view={view} to={handoff} onConfirm={() => controller.confirmHandoff()} />

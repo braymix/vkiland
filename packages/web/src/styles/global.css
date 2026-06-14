@@ -798,3 +798,236 @@ label.check {
     animation: none;
   }
 }
+
+/* ===== Fine partita: bottoni extra, mappa finale e statistiche ===== */
+.victory-extra-buttons {
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* Cruscotto statistiche: overlay a tutto schermo, scrollabile. */
+.stats-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 86; /* sopra mappa finale (80) e schermata di vittoria */
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+.stats-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border-bottom: var(--px) solid var(--bg-panel);
+  flex: 0 0 auto;
+}
+.stats-head h2 {
+  margin: 0;
+  font-size: 12px;
+  color: var(--accent);
+}
+.stats-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 14px;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Cartoline riassuntive */
+.stats-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.stat-card {
+  flex: 1 1 70px;
+  min-width: 70px;
+  background: var(--bg-panel);
+  border: var(--px) solid var(--bg-deep);
+  padding: 8px 6px;
+  text-align: center;
+}
+.stat-card-big {
+  font-size: 20px;
+  color: var(--accent);
+  line-height: 1.2;
+}
+.stat-card-big--danger {
+  color: var(--danger);
+}
+.stat-card-label {
+  font-size: 7px;
+  color: var(--ink-dim);
+  margin-top: 4px;
+}
+
+/* Sezioni */
+.stats-section {
+  margin-top: 20px;
+}
+.stats-section-title {
+  font-size: 10px;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+.stats-section-sub,
+.stats-empty {
+  font-size: 8px;
+  color: var(--ink-dim);
+  margin-bottom: 10px;
+}
+
+/* Istogramma dei dadi */
+.dice-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 150px;
+}
+.dice-col {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  gap: 3px;
+}
+.dice-count {
+  font-size: 7px;
+  color: var(--ink-dim);
+}
+.dice-track {
+  position: relative;
+  width: 78%;
+  height: 110px;
+  background: var(--bg-deep);
+}
+.dice-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background: var(--accent);
+  transition: height 600ms ease-out;
+}
+.dice-bar--hot {
+  background: #b03a2e;
+}
+.dice-bar--seven {
+  background: var(--danger);
+}
+.dice-bar--lucky {
+  box-shadow: 0 0 0 2px var(--ink), 0 0 10px rgba(231, 185, 76, 0.7);
+}
+/* Ticca del valore ATTESO (linea chiara orizzontale). */
+.dice-exp {
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  height: 2px;
+  background: var(--ink);
+  opacity: 0.8;
+}
+.dice-num {
+  font-size: 8px;
+  color: var(--ink);
+}
+.dice-legend {
+  font-size: 7px;
+  color: var(--ink-dim);
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dice-legend-exp {
+  display: inline-block;
+  width: 16px;
+  height: 2px;
+  background: var(--ink);
+}
+
+/* Confronto tra clan: barre orizzontali */
+.cmp-group {
+  margin-bottom: 12px;
+}
+.cmp-label {
+  font-size: 8px;
+  color: var(--ink-dim);
+  margin-bottom: 3px;
+}
+.cmp-row {
+  display: grid;
+  grid-template-columns: 64px 1fr 22px;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+.cmp-name {
+  font-size: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cmp-track {
+  position: relative;
+  height: 11px;
+  background: var(--bg-deep);
+}
+.cmp-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  min-width: 0;
+  transition: width 600ms ease-out;
+}
+.cmp-val {
+  font-size: 8px;
+  color: var(--ink);
+  text-align: right;
+}
+
+/* Albo dei primati */
+.primati {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+.primato {
+  background: var(--bg-panel);
+  border: var(--px) solid var(--bg-deep);
+  padding: 8px;
+}
+.primato-title {
+  font-size: 8px;
+  color: var(--accent);
+}
+.primato-name {
+  font-size: 9px;
+  margin: 5px 0 3px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.primato-name--empty {
+  color: var(--ink-dim);
+}
+.primato-sub {
+  font-size: 7px;
+  color: var(--ink-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dice-bar,
+  .cmp-bar {
+    transition: none;
+  }
+}

@@ -29,6 +29,7 @@ import {
 import { createBot, type Bot } from '@vikiland/bots';
 import { describeEvent, describeStartingOrder, dragonComplaints } from './logFormat';
 import { nextHumanActor } from './hotseat';
+import { accumulateStats, emptyStats, type GameStats } from './stats';
 import type { GameController, GameSnapshot, LogEntry } from './controller';
 
 export type { GameSnapshot, LogEntry } from './controller';
@@ -61,9 +62,11 @@ export class LocalGameController implements GameController {
   private handoff: PlayerId | null = null;
   private lastRoll: GameSnapshot['lastRoll'] = null;
   private rollCounter = 0;
+  private readonly stats: GameStats;
 
   constructor(setup: GameSetup) {
     this.state = createGame(setup);
+    this.stats = emptyStats(setup.players.length);
     setup.players.forEach((p, id) => {
       if (p.isBot) this.bots.set(id, createBot(p.botLevel ?? 'normale'));
     });
@@ -115,6 +118,7 @@ export class LocalGameController implements GameController {
     // Il diario mostra gli eventi senza i segreti che il tavolo non deve vedere.
     const visible = filterEventsForPlayer(events, this.logViewer);
     for (const e of visible) {
+      accumulateStats(this.stats, e);
       const text = describeEvent(e, next);
       if (text) this.log.push({ id: this.logCounter++, text });
       // Il popup del tiro si aggancia all'evento (anche per i bot).
@@ -152,6 +156,7 @@ export class LocalGameController implements GameController {
       remoteError: null,
       turnDeadline: null,
       lastRoll: this.lastRoll,
+      stats: this.stats,
     };
   }
 
