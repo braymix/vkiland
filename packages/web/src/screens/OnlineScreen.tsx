@@ -4,7 +4,7 @@
  * la partita riusa la GameScreen identica al locale.
  */
 import { useEffect, useRef, useState } from 'react';
-import type { BotLevel } from '@vikiland/engine';
+import type { BotLevel, PlayerColor } from '@vikiland/engine';
 import type { LobbyState, PublicLobbySummary } from '@vikiland/server/protocol';
 import { isApiError } from '@vikiland/server/protocol';
 import { it, t } from '../i18n';
@@ -242,6 +242,7 @@ export function OnlineScreen({ onBack }: { onBack: () => void }) {
           onLeave={leaveLobby}
           onAddBot={(level) => socketRef.current?.emit('lobby:addBot', level)}
           onRemoveSlot={(i) => socketRef.current?.emit('lobby:removeSlot', i)}
+          onSetColor={(i, color) => socketRef.current?.emit('lobby:setColor', i, color)}
           onStart={() => socketRef.current?.emit('lobby:start')}
         />
       );
@@ -559,6 +560,8 @@ function OnlineHome({
   );
 }
 
+const CLAN_COLORS: PlayerColor[] = ['rosso', 'blu', 'verde', 'giallo', 'viola'];
+
 function LobbyRoom({
   lobby,
   myUserId,
@@ -566,6 +569,7 @@ function LobbyRoom({
   onLeave,
   onAddBot,
   onRemoveSlot,
+  onSetColor,
   onStart,
 }: {
   lobby: LobbyState;
@@ -574,11 +578,16 @@ function LobbyRoom({
   onLeave: () => void;
   onAddBot: (level: BotLevel) => void;
   onRemoveSlot: (i: number) => void;
+  onSetColor: (i: number, color: PlayerColor) => void;
   onStart: () => void;
 }) {
   const isHost = lobby.hostUserId === myUserId;
   const [botLevel, setBotLevel] = useState<BotLevel>('normale');
-  const colors = (['rosso', 'blu', 'verde', 'giallo'] as const).map((c) => PLAYER_COLORS[c].main);
+  // Posto col picker dei colori aperto (null = nessuno).
+  const [pickerOpen, setPickerOpen] = useState<number | null>(null);
+  // Puoi cambiare il TUO colore; l'host può cambiare anche quello dei bot.
+  const canRecolor = (slot: LobbyState['slots'][number]) =>
+    slot.userId === myUserId || (isHost && slot.isBot);
   return (
     <div className="screen" style={{ justifyContent: 'center' }}>
       <h2 style={{ color: 'var(--accent)', fontSize: 14 }}>
@@ -599,22 +608,59 @@ function LobbyRoom({
       </div>
       <div className="setup-grid pixel-frame" style={{ maxWidth: 400 }}>
         {lobby.slots.map((slot, i) => (
-          <div key={i} className="setup-player">
-            <span className="player-chip" style={{ background: colors[i] }} />
-            <span style={{ flex: 1, fontSize: 10 }}>
-              {slot.name}
-              {slot.isBot && <span style={{ color: 'var(--ink-dim)' }}> (bot)</span>}
-              {slot.userId === lobby.hostUserId && (
-                <span style={{ color: 'var(--accent)' }}> ({it.hostTag})</span>
+          <div key={i}>
+            <div className="setup-player">
+              {canRecolor(slot) ? (
+                <button
+                  className="player-chip"
+                  style={{ background: PLAYER_COLORS[slot.color].main, cursor: 'pointer' }}
+                  onClick={() => setPickerOpen(pickerOpen === i ? null : i)}
+                  title={it.cambiaColore}
+                  aria-label={it.cambiaColore}
+                />
+              ) : (
+                <span className="player-chip" style={{ background: PLAYER_COLORS[slot.color].main }} />
               )}
-              {!slot.isBot && !slot.connected && (
-                <span style={{ color: 'var(--danger)' }}> ({it.disconnessoTag})</span>
+              <span style={{ flex: 1, fontSize: 10 }}>
+                {slot.name}
+                {slot.isBot && <span style={{ color: 'var(--ink-dim)' }}> (bot)</span>}
+                {slot.userId === lobby.hostUserId && (
+                  <span style={{ color: 'var(--accent)' }}> ({it.hostTag})</span>
+                )}
+                {!slot.isBot && !slot.connected && (
+                  <span style={{ color: 'var(--danger)' }}> ({it.disconnessoTag})</span>
+                )}
+              </span>
+              {isHost && slot.userId !== myUserId && (
+                <button className="pxbtn pxbtn--danger pxbtn--small" onClick={() => onRemoveSlot(i)}>
+                  X
+                </button>
               )}
-            </span>
-            {isHost && slot.userId !== myUserId && (
-              <button className="pxbtn pxbtn--danger pxbtn--small" onClick={() => onRemoveSlot(i)}>
-                X
-              </button>
+            </div>
+            {pickerOpen === i && canRecolor(slot) && (
+              <div className="color-picker">
+                {CLAN_COLORS.map((c) => {
+                  const owner = lobby.slots.findIndex((q, qi) => qi !== i && q.color === c);
+                  return (
+                    <button
+                      key={c}
+                      className={`color-swatch ${slot.color === c ? 'color-swatch--active' : ''}`}
+                      style={{ background: PLAYER_COLORS[c].main }}
+                      title={
+                        owner >= 0
+                          ? t(it.scambiaColoreCon, { nome: lobby.slots[owner]!.name })
+                          : it.nomeColore[c]
+                      }
+                      onClick={() => {
+                        onSetColor(i, c);
+                        setPickerOpen(null);
+                      }}
+                    >
+                      {owner >= 0 ? lobby.slots[owner]!.name.charAt(0).toUpperCase() : ''}
+                    </button>
+                  );
+                })}
+              </div>
             )}
           </div>
         ))}

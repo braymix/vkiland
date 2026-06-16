@@ -64,7 +64,9 @@ attivato via `html[data-lang='ru']`; il serbo è in alfabeto latino.
      Drizzle SQLite/PostgreSQL + argon2id, formati versionati)
 - ✅ Lobby: codici invito a 6 caratteri non ambigui, posti umani/bot gestiti
      dall'host, espulsione, chiusura, riconnessione (il posto resta legato
-     all'utente a partita iniziata)
+     all'utente a partita iniziata); colore del clan scelto nella lobby
+     (`lobby:setColor`): ognuno cambia il PROPRIO, l'host anche quello dei bot,
+     con scambio automatico per evitare duplicati (5 colori, viola incluso)
 - ✅ `GameRoom` autoritativa: i client mandano `Action` come intenzioni, il
      server valida con lo stesso engine e rimanda a ciascun posto la SUA
      vista filtrata + eventi filtrati; bot sul server; partite finite

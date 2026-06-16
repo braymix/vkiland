@@ -1,18 +1,25 @@
 /** Stanza autoritativa: partita completa, identità, timer di turno. */
 import { describe, expect, it } from 'vitest';
-import type { Action } from '@vikiland/engine';
+import type { Action, PlayerColor } from '@vikiland/engine';
 import type { GameUpdate, LobbyConfig } from '../src/protocol';
 import type { FinishedGameRecord } from '../src/storage';
 import { GameRoom, type Seat } from '../src/room';
 
 const CFG: LobbyConfig = { avoidAdjacent68: true, targetGloryPoints: 10, turnTimerSec: 0, isPublic: false };
 
-const bot = (name: string): Seat => ({ userId: null, name, isBot: true, botLevel: 'normale' });
-const human = (id: string, name: string): Seat => ({
+const bot = (name: string, color: PlayerColor = 'blu'): Seat => ({
+  userId: null,
+  name,
+  isBot: true,
+  botLevel: 'normale',
+  color,
+});
+const human = (id: string, name: string, color: PlayerColor = 'rosso'): Seat => ({
   userId: id,
   name,
   isBot: false,
   botLevel: null,
+  color,
 });
 
 describe('GameRoom', () => {
@@ -21,7 +28,7 @@ describe('GameRoom', () => {
       new GameRoom(
         'TEST01',
         'seed-room-bots',
-        [bot('A'), bot('B'), bot('C')],
+        [bot('A', 'rosso'), bot('B', 'blu'), bot('C', 'verde')],
         CFG,
         { sendUpdate: () => {}, sendRejected: () => {}, onFinished: resolve },
         { botDelayMs: [0, 0] }
@@ -38,7 +45,7 @@ describe('GameRoom', () => {
       const room: GameRoom = new GameRoom(
         'TEST02',
         'seed-room-human',
-        [human('u1', 'Bjorn'), bot('B'), bot('C')],
+        [human('u1', 'Bjorn'), bot('B'), bot('C', 'verde')],
         CFG,
         {
           sendUpdate: (seat, update: GameUpdate) => {

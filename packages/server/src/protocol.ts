@@ -11,6 +11,7 @@ import type {
   GameEvent,
   GameState,
   LegalMove,
+  PlayerColor,
   PlayerId,
   PlayerView,
 } from '@vikiland/engine';
@@ -68,6 +69,8 @@ export interface LobbySlot {
   name: string;
   isBot: boolean;
   botLevel: BotLevel | null;
+  /** Colore del clan, scelto nella lobby (mai due uguali). */
+  color: PlayerColor;
   /** Connessione socket attiva (per mostrare chi è presente). */
   connected: boolean;
 }
@@ -128,6 +131,8 @@ export interface ClientToServerEvents {
   'lobby:leave': () => void;
   'lobby:addBot': (level: BotLevel) => void;
   'lobby:removeSlot': (index: number) => void;
+  /** Cambia il colore di un posto (il proprio sempre; i bot solo l'host). */
+  'lobby:setColor': (index: number, color: PlayerColor) => void;
   'lobby:start': () => void;
   /** Solo l'host: chiude la partita/lobby per TUTTI, anche a partita in corso. */
   'lobby:terminate': () => void;

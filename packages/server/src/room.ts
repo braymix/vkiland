@@ -27,6 +27,7 @@ export interface Seat {
   name: string;
   isBot: boolean;
   botLevel: BotLevel | null;
+  color: PlayerColor;
 }
 
 export interface RoomCallbacks {
@@ -40,8 +41,6 @@ export interface RoomOptions {
   /** Ritardo dei bot [min,max] ms (nei test: [0,0]). */
   botDelayMs?: [number, number];
 }
-
-const COLORS: readonly PlayerColor[] = ['rosso', 'blu', 'verde', 'giallo'];
 
 export class GameRoom {
   readonly code: string;
@@ -77,9 +76,9 @@ export class GameRoom {
     this.botDelay = opts.botDelayMs ?? [300, 700];
     this.state = createGame({
       seed,
-      players: seats.map((s, i) => ({
+      players: seats.map((s) => ({
         name: s.name,
-        color: COLORS[i]!,
+        color: s.color,
         isBot: s.isBot,
         ...(s.botLevel ? { botLevel: s.botLevel } : {}),
       })),

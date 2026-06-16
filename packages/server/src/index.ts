@@ -183,6 +183,11 @@ io.on('connection', (socket: AnySocket) => {
     if (isApiError(res)) socket.emit('lobby:error', res);
   });
 
+  socket.on('lobby:setColor', (index, color) => {
+    const res = lobbies.setColor(userId, Number(index), color);
+    if (isApiError(res)) socket.emit('lobby:error', res);
+  });
+
   socket.on('lobby:start', () => {
     const res = lobbies.start(userId);
     if (isApiError(res)) socket.emit('lobby:error', res);

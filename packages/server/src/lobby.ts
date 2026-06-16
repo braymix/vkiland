@@ -4,7 +4,7 @@
  * così la riconnessione ritrova il proprio posto.
  */
 import { randomInt } from 'node:crypto';
-import type { Action, BotLevel } from '@vikiland/engine';
+import type { Action, BotLevel, PlayerColor } from '@vikiland/engine';
 import type { ApiError, GameUpdate, LobbyConfig, LobbyState, PublicLobbySummary } from './protocol';
 import type { FinishedGameRecord } from './storage';
 import { GameRoom, type RoomOptions, type Seat } from './room';
@@ -14,6 +14,8 @@ const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const CODE_LEN = 6;
 const MAX_SLOTS = 4;
 const BOT_NAMES = ['Astrid', 'Leif', 'Sigrid', 'Ragnhild', 'Olaf', 'Freya'];
+/** Ordine dei colori del clan (5 disponibili, max 4 posti ⇒ uno resta sempre libero). */
+const PALETTE: PlayerColor[] = ['rosso', 'blu', 'verde', 'giallo', 'viola'];
 
 export interface LobbyUser {
   id: string;
@@ -25,7 +27,13 @@ interface Slot {
   name: string;
   isBot: boolean;
   botLevel: BotLevel | null;
+  color: PlayerColor;
   connected: boolean;
+}
+
+/** Primo colore della palette non ancora usato nella lobby. */
+function firstFreeColor(slots: Slot[]): PlayerColor {
+  return PALETTE.find((c) => !slots.some((s) => s.color === c)) ?? 'rosso';
 }
 
 export interface Lobby {
@@ -67,7 +75,9 @@ export class LobbyManager {
       code,
       hostUserId: user.id,
       config: sanitizeConfig(config),
-      slots: [{ userId: user.id, name: user.name, isBot: false, botLevel: null, connected: true }],
+      slots: [
+        { userId: user.id, name: user.name, isBot: false, botLevel: null, color: 'rosso', connected: true },
+      ],
       started: false,
       room: null,
     };
@@ -98,6 +108,7 @@ export class LobbyManager {
       name: user.name,
       isBot: false,
       botLevel: null,
+      color: firstFreeColor(lobby.slots),
       connected: true,
     });
     this.userLobby.set(user.id, code);
@@ -135,7 +146,38 @@ export class LobbyManager {
     const name =
       BOT_NAMES.find((n) => !lobby.slots.some((s) => s.name === n)) ??
       `Bot ${lobby.slots.length + 1}`;
-    lobby.slots.push({ userId: null, name, isBot: true, botLevel: level, connected: true });
+    lobby.slots.push({
+      userId: null,
+      name,
+      isBot: true,
+      botLevel: level,
+      color: firstFreeColor(lobby.slots),
+      connected: true,
+    });
+    this.broadcast(lobby);
+    return this.toState(lobby);
+  }
+
+  /**
+   * Cambia il colore di un posto. Può farlo il proprietario del posto (il
+   * proprio) oppure l'host (anche per i bot). Se il colore è già di un altro
+   * posto, i due si SCAMBIANO (come nel setup locale): mai due uguali.
+   */
+  setColor(userId: string, index: number, color: PlayerColor): Result {
+    const lobby = this.lobbyOfUser(userId);
+    if (!lobby) return { error: 'Non sei in una lobby' };
+    if (lobby.started) return { error: 'Partita già iniziata' };
+    if (!PALETTE.includes(color)) return { error: 'Colore non valido' };
+    const slot = lobby.slots[index];
+    if (!slot) return { error: 'Posto inesistente' };
+    const isHost = lobby.hostUserId === userId;
+    const isOwn = slot.userId === userId;
+    if (!isOwn && !(isHost && slot.isBot)) return { error: 'Non puoi cambiare questo colore' };
+    if (slot.color === color) return this.toState(lobby);
+    // Scambio col posto che ha già quel colore (se esiste).
+    const other = lobby.slots.find((s) => s !== slot && s.color === color);
+    if (other) other.color = slot.color;
+    slot.color = color;
     this.broadcast(lobby);
     return this.toState(lobby);
   }
@@ -169,6 +211,7 @@ export class LobbyManager {
       name: s.name,
       isBot: s.isBot,
       botLevel: s.botLevel,
+      color: s.color,
     }));
     const seed = `vikiland-online-${Date.now()}-${randomInt(1e9)}`;
     lobby.room = new GameRoom(
