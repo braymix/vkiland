@@ -1,7 +1,7 @@
 /** Schermata di vittoria: coriandoli, vincitore in GRANDE e classifica. */
 import { useMemo, useState } from 'react';
 import { getPlayerView, scoreBreakdown, type GameState } from '@vikiland/engine';
-import { it } from '../i18n/it';
+import { it } from '../i18n';
 import { PLAYER_COLORS } from '../render/sprites/palettes';
 import { ConfettiCanvas } from '../components/ConfettiCanvas';
 import { UiIcon } from '../components/icons';

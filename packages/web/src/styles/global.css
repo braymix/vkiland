@@ -1031,3 +1031,41 @@ label.check {
     transition: none;
   }
 }
+
+/* Selettore lingua (menu principale) */
+.lang-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  margin-top: 6px;
+}
+.lang-btn {
+  font-family: inherit;
+  font-size: 8px;
+  cursor: pointer;
+  padding: 5px 6px;
+  color: var(--ink-dim);
+  background: var(--bg-panel);
+  border: 0;
+  box-shadow: 0 0 0 2px var(--bg-deep);
+  user-select: none;
+}
+.lang-btn--active {
+  color: #2b2008;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-dark);
+}
+
+/* Russo: Press Start 2P non ha il cirillico → font pixel con cirillico (Handjet).
+   Per il latino resta il font principale; il russo usa Handjet, leggermente
+   più grande perché la sua griglia è più fitta. */
+html[data-lang='ru'] body,
+html[data-lang='ru'] button,
+html[data-lang='ru'] input,
+html[data-lang='ru'] textarea {
+  font-family: 'Handjet', 'Press Start 2P', monospace;
+}
+html[data-lang='ru'] {
+  font-size: 13px;
+}

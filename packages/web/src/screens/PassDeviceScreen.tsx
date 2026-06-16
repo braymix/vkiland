@@ -4,7 +4,7 @@
  * o i dialoghi dell'altro.
  */
 import type { PlayerView } from '@vikiland/engine';
-import { it, t } from '../i18n/it';
+import { it, t } from '../i18n';
 import { PLAYER_COLORS } from '../render/sprites/palettes';
 
 interface Props {

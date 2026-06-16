@@ -1,7 +1,7 @@
 /** Traduzione degli eventi del motore in righe del diario di bordo. */
 import type { GameEvent, ResourceCount } from '@vikiland/engine';
 import { RESOURCES, getTopology, nextInt, seedRng, totalResources } from '@vikiland/engine';
-import { it, t } from '../i18n/it';
+import { it, t } from '../i18n';
 
 /** Basta il nome dei giocatori: lo soddisfano sia GameState sia PlayerView. */
 export interface NamedPlayers {

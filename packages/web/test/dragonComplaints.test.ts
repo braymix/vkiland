@@ -2,7 +2,11 @@
 import { describe, expect, it } from 'vitest';
 import { getTopology } from '@vikiland/engine';
 import { it as itStr } from '../src/i18n/it';
+import { setLang } from '../src/i18n';
 import { dragonComplaints, type PiecesForComplaints } from '../src/game/logFormat';
+
+// Il diario usa la lingua attiva: fissiamo l'italiano per confrontare col repertorio.
+setLang('it');
 
 const topo = getTopology();
 const HEX = topo.hexKeys[9]!;

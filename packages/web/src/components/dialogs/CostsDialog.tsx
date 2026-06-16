@@ -9,22 +9,22 @@ import {
   flattenResources,
   type Buildable,
 } from '@vikiland/engine';
-import { it, t } from '../../i18n/it';
+import { it, t } from '../../i18n';
 import { ResIcon, UiIcon } from '../icons';
 import { Dialog } from './Dialog';
 
 interface RowDef {
   kind: Buildable;
-  label: string;
   glory: number;
   max: number | null;
 }
 
+// Niente testi qui: le etichette si leggono dalla lingua attiva al render.
 const ROWS: RowDef[] = [
-  { kind: 'sentiero', label: it.sentiero, glory: 0, max: PIECE_LIMITS.sentiero },
-  { kind: 'villaggio', label: it.villaggio, glory: 1, max: PIECE_LIMITS.villaggio },
-  { kind: 'roccaforte', label: it.roccaforte, glory: 2, max: PIECE_LIMITS.roccaforte },
-  { kind: 'cartaSaga', label: it.compraCarta, glory: 0, max: null },
+  { kind: 'sentiero', glory: 0, max: PIECE_LIMITS.sentiero },
+  { kind: 'villaggio', glory: 1, max: PIECE_LIMITS.villaggio },
+  { kind: 'roccaforte', glory: 2, max: PIECE_LIMITS.roccaforte },
+  { kind: 'cartaSaga', glory: 0, max: null },
 ];
 
 function CostIcons({ kind }: { kind: Buildable }) {
@@ -63,13 +63,19 @@ export function CostsDialog({
     fontSize: 9,
   };
   const dimStyle: React.CSSProperties = { fontSize: 8, color: 'var(--ink-dim)' };
+  const label: Record<Buildable, string> = {
+    sentiero: it.sentiero,
+    villaggio: it.villaggio,
+    roccaforte: it.roccaforte,
+    cartaSaga: it.compraCarta,
+  };
   return (
     <Dialog title={it.bugiardinoTitolo}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {ROWS.map((row) => (
           <div key={row.kind} style={rowStyle}>
             <span>
-              {row.label}
+              {label[row.kind]}
               {row.max !== null && (
                 <span style={dimStyle}> · {t(it.pezziMax, { n: row.max })}</span>
               )}

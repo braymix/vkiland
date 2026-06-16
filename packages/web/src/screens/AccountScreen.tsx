@@ -7,7 +7,7 @@
  * l'email non esiste proprio nel database (e va bene così).
  */
 import { useEffect, useState } from 'react';
-import { it } from '../i18n/it';
+import { it } from '../i18n';
 import { Dialog } from '../components/dialogs/Dialog';
 import {
   apiChangeName,

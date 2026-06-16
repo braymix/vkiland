@@ -5,7 +5,7 @@
  * da solo quando arrivano righe nuove.
  */
 import type { LogEntry } from '../game/LocalGameController';
-import { it } from '../i18n/it';
+import { it } from '../i18n';
 
 export function GameLog({ entries }: { entries: LogEntry[] }) {
   return (

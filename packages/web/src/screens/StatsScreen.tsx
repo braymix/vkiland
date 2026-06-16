@@ -5,7 +5,7 @@
  */
 import { useEffect } from 'react';
 import type { GameState, PlayerState } from '@vikiland/engine';
-import { it, t } from '../i18n/it';
+import { it, t } from '../i18n';
 import { PLAYER_COLORS } from '../render/sprites/palettes';
 import type { GameStats } from '../game/stats';
 

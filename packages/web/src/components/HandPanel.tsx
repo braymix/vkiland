@@ -1,6 +1,6 @@
 /** Pannello della propria mano: risorse e Carte Saga. */
 import { RESOURCES, type PlayerView } from '@vikiland/engine';
-import { it, t } from '../i18n/it';
+import { it, t } from '../i18n';
 import { ResIcon } from './icons';
 
 interface Props {

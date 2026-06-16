@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@fontsource/handjet": "^5.2.7",
     "@fontsource/press-start-2p": "catalog:",
     "@vikiland/bots": "workspace:*",
     "@vikiland/engine": "workspace:*",

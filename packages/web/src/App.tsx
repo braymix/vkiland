@@ -1,5 +1,6 @@
 /** Router a stati dell'app: menu → setup → partita locale, oppure online. */
 import { useState } from 'react';
+import { useLang } from './i18n';
 import { LocalGameController, type GameSetup } from './game/LocalGameController';
 import { GameScreen } from './screens/GameScreen';
 import { MenuScreen } from './screens/MenuScreen';
@@ -16,6 +17,9 @@ type Route =
 
 export function App() {
   const [route, setRoute] = useState<Route>({ screen: 'menu' });
+  // Sottoscrive la lingua attiva: al cambio si ri-renderizza tutto l'albero,
+  // così il proxy `it` rilegge i testi nella nuova lingua ovunque.
+  useLang();
 
   switch (route.screen) {
     case 'menu':

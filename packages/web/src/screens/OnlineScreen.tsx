@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { BotLevel } from '@vikiland/engine';
 import type { LobbyState, PublicLobbySummary } from '@vikiland/server/protocol';
 import { isApiError } from '@vikiland/server/protocol';
-import { it, t } from '../i18n/it';
+import { it, t } from '../i18n';
 import {
   apiLogin,
   apiMe,

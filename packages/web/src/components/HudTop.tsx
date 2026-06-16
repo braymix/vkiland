@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import type { PlayerView } from '@vikiland/engine';
 import { PLAYER_COLORS } from '../render/sprites/palettes';
-import { it, t } from '../i18n/it';
+import { it, t } from '../i18n';
 import { UiIcon } from './icons';
 
 function phaseMessage(view: PlayerView): string {

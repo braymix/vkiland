@@ -5,7 +5,7 @@
  * così il dialogo di scarto che il 7 apre sotto resta subito usabile.
  */
 import { useEffect, useRef, useState } from 'react';
-import { it } from '../i18n/it';
+import { it } from '../i18n';
 import type { GameSnapshot } from '../game/controller';
 
 type Roll = NonNullable<GameSnapshot['lastRoll']>;

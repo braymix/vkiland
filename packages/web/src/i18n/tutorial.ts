@@ -1,9 +1,17 @@
 /**
  * Contenuto del tutorial («Libro delle Saghe»): tutte le regole di Vikiland
- * e l'uso dell'app, in capitoli. Testo separato dalla presentazione per la
- * futura i18n; i blocchi tipizzati vengono resi da TutorialScreen.
+ * e l'uso dell'app, in capitoli. Testo separato dalla presentazione: i blocchi
+ * tipizzati vengono resi da TutorialScreen. Una versione per lingua, stessa
+ * struttura (stessi blocchi e `kind`), solo i testi cambiano.
  */
 import type { Buildable } from '@vikiland/engine';
+import type { Lang } from './index';
+import { tutorialEn } from './tutorial.en';
+import { tutorialEs } from './tutorial.es';
+import { tutorialFr } from './tutorial.fr';
+import { tutorialDe } from './tutorial.de';
+import { tutorialRu } from './tutorial.ru';
+import { tutorialSr } from './tutorial.sr';
 
 export type TutorialBlock =
   | { t: 'h'; text: string }
@@ -20,7 +28,7 @@ export interface TutorialChapter {
   blocks: TutorialBlock[];
 }
 
-export const TUTORIAL: TutorialChapter[] = [
+const tutorialIt: TutorialChapter[] = [
   {
     chip: 'Obiettivo',
     title: 'Benvenuto a Viking-Island!',
@@ -386,5 +394,21 @@ export const TUTORIAL: TutorialChapter[] = [
   },
 ];
 
-/** Indice del capitolo «Giocare online» (per aprirlo direttamente). */
-export const TUTORIAL_ONLINE_CHAPTER = TUTORIAL.length - 1;
+/** Tutte le lingue (stessa struttura di capitoli). */
+const TUTORIAL_BY_LANG: Record<Lang, TutorialChapter[]> = {
+  it: tutorialIt,
+  en: tutorialEn,
+  es: tutorialEs,
+  fr: tutorialFr,
+  de: tutorialDe,
+  ru: tutorialRu,
+  sr: tutorialSr,
+};
+
+/** Capitoli del tutorial nella lingua richiesta. */
+export function getTutorial(lang: Lang): TutorialChapter[] {
+  return TUTORIAL_BY_LANG[lang];
+}
+
+/** Indice del capitolo «Giocare online» (uguale in tutte le lingue). */
+export const TUTORIAL_ONLINE_CHAPTER = tutorialIt.length - 1;

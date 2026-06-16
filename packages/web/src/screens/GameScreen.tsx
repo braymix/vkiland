@@ -1,7 +1,7 @@
 /** Schermata di partita: orchestrazione di tavola, pannelli e dialoghi. */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Action, EdgeId, HexId, VertexId } from '@vikiland/engine';
-import { it, t } from '../i18n/it';
+import { it, t } from '../i18n';
 import type { GameController } from '../game/controller';
 import { useGame } from '../game/useGame';
 import { ActionBar, type BuildMode } from '../components/ActionBar';

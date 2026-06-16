@@ -1,7 +1,8 @@
 /** Schermata iniziale. */
 import { useState } from 'react';
-import { it } from '../i18n/it';
+import { it } from '../i18n';
 import { Dialog } from '../components/dialogs/Dialog';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
 export function MenuScreen({
   onNewGame,
@@ -33,6 +34,8 @@ export function MenuScreen({
           {it.negozio}
         </button>
       </div>
+
+      <LanguageSwitcher />
 
       {/* Popup scherzoso pre-partita. PUNTO DI ESTENSIONE (Fase 4): qui un
           giorno andranno davvero ads/abbonamento — per ora è solo un meme. */}

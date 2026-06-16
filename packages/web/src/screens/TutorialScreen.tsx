@@ -6,16 +6,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { BUILD_COSTS, SAGA_DECK_COMPOSITION, flattenResources, RESOURCES } from '@vikiland/engine';
 import type { SagaCard } from '@vikiland/engine';
-import { it, t } from '../i18n/it';
-import { TUTORIAL, type TutorialBlock } from '../i18n/tutorial';
+import { it, t, useLang } from '../i18n';
+import { getTutorial, type TutorialBlock } from '../i18n/tutorial';
 import { ResIcon, SagaIcon } from '../components/icons';
-
-const BUILD_LABEL = {
-  sentiero: it.sentiero,
-  villaggio: it.villaggio,
-  roccaforte: it.roccaforte,
-  cartaSaga: it.compraCarta,
-} as const;
 
 /** Le 5 Carte Saga con quante copie ha il mazzo. */
 const SAGA_KINDS: SagaCard[] = ['berserker', 'sagaDegliEroi', 'costruttoriDiSentieri', 'banchetto', 'tributo'];
@@ -37,10 +30,16 @@ function Block({ block }: { block: TutorialBlock }) {
       );
     case 'tip':
       return <div className="tutorial-tip">⚑ {block.text}</div>;
-    case 'cost':
+    case 'cost': {
+      const labels = {
+        sentiero: it.sentiero,
+        villaggio: it.villaggio,
+        roccaforte: it.roccaforte,
+        cartaSaga: it.compraCarta,
+      };
       return (
         <div className="tutorial-cost">
-          <span className="tutorial-cost-label">{BUILD_LABEL[block.kind]}</span>
+          <span className="tutorial-cost-label">{labels[block.kind]}</span>
           <span style={{ display: 'inline-flex', gap: 2 }}>
             {flattenResources(BUILD_COSTS[block.kind]).map((r, i) => (
               <ResIcon key={i} r={r} scale={2} />
@@ -49,6 +48,7 @@ function Block({ block }: { block: TutorialBlock }) {
           <span className="tutorial-cost-note">{block.note}</span>
         </div>
       );
+    }
     case 'resRow':
       return (
         <div className="tutorial-resrow">
@@ -86,9 +86,12 @@ export function TutorialScreen({
   onClose: () => void;
   initialChapter?: number;
 }) {
-  const [idx, setIdx] = useState(Math.min(Math.max(0, initialChapter), TUTORIAL.length - 1));
+  const lang = useLang();
+  const chapters = getTutorial(lang);
+  const [idx, setIdx] = useState(Math.min(Math.max(0, initialChapter), chapters.length - 1));
   const contentRef = useRef<HTMLDivElement>(null);
-  const chapter = TUTORIAL[idx]!;
+  const chapter = chapters[idx]!;
+  const lastIdx = chapters.length - 1;
 
   useEffect(() => {
     contentRef.current?.scrollTo({ top: 0 });
@@ -97,12 +100,12 @@ export function TutorialScreen({
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
-      if (e.key === 'ArrowRight') setIdx((i) => Math.min(TUTORIAL.length - 1, i + 1));
+      if (e.key === 'ArrowRight') setIdx((i) => Math.min(lastIdx, i + 1));
       if (e.key === 'ArrowLeft') setIdx((i) => Math.max(0, i - 1));
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  }, [onClose, lastIdx]);
 
   return (
     <div className="tutorial-screen">
@@ -114,7 +117,7 @@ export function TutorialScreen({
           </button>
         </div>
         <div className="tutorial-chips">
-          {TUTORIAL.map((c, i) => (
+          {chapters.map((c, i) => (
             <button
               key={i}
               className={`pxbtn pxbtn--small ${i === idx ? '' : 'pxbtn--ghost'}`}
@@ -139,9 +142,9 @@ export function TutorialScreen({
             ← {it.indietro}
           </button>
           <span style={{ fontSize: 8, color: 'var(--ink-dim)' }}>
-            {t(it.capitoloDi, { n: idx + 1, tot: TUTORIAL.length })}
+            {t(it.capitoloDi, { n: idx + 1, tot: chapters.length })}
           </span>
-          {idx < TUTORIAL.length - 1 ? (
+          {idx < lastIdx ? (
             <button className="pxbtn" onClick={() => setIdx(idx + 1)}>
               {it.avanti} →
             </button>

@@ -109,6 +109,9 @@ importers:
 
   packages/web:
     dependencies:
+      '@fontsource/handjet':
+        specifier: ^5.2.7
+        version: 5.2.7
       '@fontsource/press-start-2p':
         specifier: 'catalog:'
         version: 5.2.7
@@ -1047,6 +1050,9 @@ packages:
 
   '@fastify/proxy-addr@5.1.0':
     resolution: {integrity: sha512-INS+6gh91cLUjB+PVHfu1UqcB76Sqtpyp7bnL+FYojhjygvOPA9ctiD/JDKsyD9Xgu4hUhCSJBPig/w7duNajw==}
+
+  '@fontsource/handjet@5.2.7':
+    resolution: {integrity: sha512-BjSgZT16PWV/iNOg5hXH01/UabzuSaLuJYwpaSsbfKfydJ/yxW4bGpRdwGnf7cudZpcKilRFTdOICleBbzZIxw==}
 
   '@fontsource/press-start-2p@5.2.7':
     resolution: {integrity: sha512-ezSxYRchANoteja170ZHh2Tt4oejmVEvX42VFPOVVvERSZ68pcuZFjbhHfrK/sNjYmaGg656y7B3431ojO9PCQ==}
@@ -3879,6 +3885,8 @@ snapshots:
     dependencies:
       '@fastify/forwarded': 3.0.1
       ipaddr.js: 2.4.0
+
+  '@fontsource/handjet@5.2.7': {}
 
   '@fontsource/press-start-2p@5.2.7': {}
 

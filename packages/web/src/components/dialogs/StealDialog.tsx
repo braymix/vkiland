@@ -1,6 +1,6 @@
 /** Scelta della vittima del Drago. */
 import type { Action, PlayerId, PlayerView } from '@vikiland/engine';
-import { it } from '../../i18n/it';
+import { it } from '../../i18n';
 import { PLAYER_COLORS } from '../../render/sprites/palettes';
 import { Dialog } from './Dialog';
 

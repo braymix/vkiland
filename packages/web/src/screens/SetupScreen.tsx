@@ -1,7 +1,7 @@
 /** Configurazione della partita: 2–4 giocatori, ognuno umano o bot (hot-seat). */
 import { useState } from 'react';
 import { DEFAULT_TARGET_GLORY, type BotLevel, type PlayerColor } from '@vikiland/engine';
-import { it, t } from '../i18n/it';
+import { it, t } from '../i18n';
 import type { GameSetup } from '../game/LocalGameController';
 import { PLAYER_COLORS } from '../render/sprites/palettes';
 

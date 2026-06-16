@@ -45,7 +45,15 @@ evidenziato), confronto tra clan su scambi/costruzioni/risorse/Carte
 Saga/saccheggi e un «Albo dei primati» (Mani d'oro, Mercante, Mastro
 costruttore, Predone, Sfortunato, Stratega). Le statistiche si accumulano
 lato client dal flusso di eventi (`game/stats.ts`, condiviso dai due
-controller, solo eventi pubblici ⇒ coerenti anche online).
+controller, solo eventi pubblici ⇒ coerenti anche online). Multilingua
+al 100% in 7 lingue (italiano, inglese, spagnolo, francese, tedesco, russo,
+serbo) con lingua predefinita dedotta dal browser e selettore nel menu:
+`i18n/index.ts` espone `it` come PROXY sulla lingua attiva (i punti d'uso
+`it.qualcosa` non cambiano) e `useLang()` ri-renderizza l'albero al cambio;
+ogni dizionario è tipizzato `: Strings` (forma derivata dall'italiano), così
+TypeScript impone la copertura totale delle chiavi. Tutorial e diario di
+bordo tradotti. Il russo usa un font pixel con cirillico (`@fontsource/handjet`)
+attivato via `html[data-lang='ru']`; il serbo è in alfabeto latino.
 
 ## Checklist Fase 3 (online)
 

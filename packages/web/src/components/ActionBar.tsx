@@ -1,6 +1,6 @@
 /** Barra delle azioni contestuale alla fase del turno. */
 import type { LegalMove, PlayerView } from '@vikiland/engine';
-import { it } from '../i18n/it';
+import { it } from '../i18n';
 
 export type BuildMode = 'sentiero' | 'villaggio' | 'roccaforte' | null;
 
