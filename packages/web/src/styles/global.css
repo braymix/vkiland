@@ -1058,14 +1058,42 @@ label.check {
 }
 
 /* Russo: Press Start 2P non ha il cirillico → font pixel con cirillico (Handjet).
-   Per il latino resta il font principale; il russo usa Handjet, leggermente
-   più grande perché la sua griglia è più fitta. */
+   Handjet ha una griglia di "dot" fitta e sottile: per renderlo leggibile come
+   il tratto pieno di Press Start 2P lo usiamo in GRASSETTO (700), più grande e
+   con un po' di respiro tra lettere e righe. Le intestazioni hanno di default
+   font-weight: normal → qui le forziamo a 700 (il 400 non è nemmeno caricato). */
 html[data-lang='ru'] body,
 html[data-lang='ru'] button,
 html[data-lang='ru'] input,
-html[data-lang='ru'] textarea {
+html[data-lang='ru'] textarea,
+html[data-lang='ru'] select,
+html[data-lang='ru'] h1,
+html[data-lang='ru'] h2,
+html[data-lang='ru'] h3 {
   font-family: 'Handjet', 'Press Start 2P', monospace;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 html[data-lang='ru'] {
   font-size: 13px;
+  line-height: 1.7;
+}
+html[data-lang='ru'] body {
+  font-size: 13px;
+}
+/* Testo dei bottoni e dei pannelli: un filo più grande, così i "dot" si leggono. */
+html[data-lang='ru'] .pxbtn {
+  font-size: 12px;
+}
+html[data-lang='ru'] .pxbtn--small {
+  font-size: 10px;
+}
+html[data-lang='ru'] .menu-sub {
+  font-size: 12px;
+}
+/* Il logo «VIKING-ISLAND» è latino: resta nel font principale a peso pieno. */
+html[data-lang='ru'] .menu-title {
+  font-family: 'Press Start 2P', monospace;
+  font-weight: normal;
+  letter-spacing: normal;
 }

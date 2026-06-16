@@ -2,9 +2,11 @@ import { createRoot } from 'react-dom/client';
 import { registerSW } from 'virtual:pwa-register';
 import '@fontsource/press-start-2p';
 // Font pixel con cirillico per il russo (Press Start 2P non ha il cirillico).
-import '@fontsource/handjet/latin-400.css';
-import '@fontsource/handjet/cyrillic-400.css';
-import '@fontsource/handjet/cyrillic-ext-400.css';
+// Peso 700: i "dot" di Handjet si ispessiscono e diventano leggibili, vicini
+// al tratto pieno di Press Start 2P.
+import '@fontsource/handjet/latin-700.css';
+import '@fontsource/handjet/cyrillic-700.css';
+import '@fontsource/handjet/cyrillic-ext-700.css';
 import './styles/global.css';
 import { App } from './App';
 
