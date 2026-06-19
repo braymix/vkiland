@@ -342,6 +342,8 @@ export const de: Strings = {
     apri: 'Kurzes Tutorial',
     titolo: 'Kurzes Tutorial',
     sottotitolo: 'Lerne Schritt für Schritt beim Spielen',
+    benvenutoTitolo: 'Willkommen in der magischen Welt von Viking-Island',
+    benvenutoVai: 'Los geht’s!',
     passoDi: 'Schritt {n} von {tot}',
     salta: 'Überspringen',
     auto: 'Auto',

@@ -342,6 +342,8 @@ export const ru: Strings = {
     apri: 'Краткое обучение',
     titolo: 'Краткое обучение',
     sottotitolo: 'Учись на ходу, шаг за шагом',
+    benvenutoTitolo: 'Добро пожаловать в волшебный мир Viking-Island',
+    benvenutoVai: 'Поехали!',
     passoDi: 'Шаг {n} из {tot}',
     salta: 'Пропустить',
     auto: 'Авто',

@@ -342,6 +342,8 @@ export const en: Strings = {
     apri: 'Quick tutorial',
     titolo: 'Quick tutorial',
     sottotitolo: 'Learn by playing, step by step',
+    benvenutoTitolo: 'Welcome to the magical world of Viking-Island',
+    benvenutoVai: 'Let’s go!',
     passoDi: 'Step {n} of {tot}',
     salta: 'Skip',
     auto: 'Auto',

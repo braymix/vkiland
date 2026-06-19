@@ -347,6 +347,8 @@ export const it = {
     apri: 'Breve tutorial',
     titolo: 'Breve tutorial',
     sottotitolo: 'Impara giocando, passo dopo passo',
+    benvenutoTitolo: 'Benvenuto nel magico mondo di Viking-Island',
+    benvenutoVai: 'Si parte!',
     passoDi: 'Passo {n} di {tot}',
     salta: 'Salta',
     auto: 'Auto',

@@ -1463,3 +1463,69 @@ html[data-lang='ru'] .demo-cost,
 html[data-lang='ru'] .demo-saga {
   font-size: 11px;
 }
+
+/* === Popup di benvenuto del Breve tutorial (coriandoli + applausi) === */
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  background: rgba(10, 14, 19, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 96;
+}
+.welcome-card {
+  position: relative;
+  z-index: 97;
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 16px;
+  text-align: center;
+  box-shadow:
+    0 0 0 4px var(--accent-dark),
+    0 0 32px rgba(231, 185, 76, 0.35);
+  animation: welcomePop 0.32s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+}
+.welcome-title {
+  color: var(--accent);
+  font-size: 14px;
+  line-height: 1.8;
+  text-transform: uppercase;
+}
+.welcome-claps {
+  display: flex;
+  gap: 4px;
+  font-size: 26px;
+}
+.welcome-claps span {
+  animation: clapWave 0.9s ease-in-out infinite;
+}
+@keyframes clapWave {
+  0%, 100% { transform: translateY(0) rotate(-6deg); }
+  50% { transform: translateY(-6px) rotate(6deg); }
+}
+@keyframes welcomePop {
+  0% { transform: scale(0.7); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .welcome-claps span { animation: none; }
+  .welcome-card { animation: none; }
+}
+/* Russo: titolo del benvenuto un filo più piccolo per starci in larghezza */
+html[data-lang='ru'] .welcome-title {
+  font-size: 12px;
+}

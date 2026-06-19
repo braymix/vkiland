@@ -342,6 +342,8 @@ export const sr: Strings = {
     apri: 'Kratak tutorijal',
     titolo: 'Kratak tutorijal',
     sottotitolo: 'Uči kroz igru, korak po korak',
+    benvenutoTitolo: 'Dobro došao u čarobni svet Viking-Island',
+    benvenutoVai: 'Krećemo!',
     passoDi: 'Korak {n} od {tot}',
     salta: 'Preskoči',
     auto: 'Auto',

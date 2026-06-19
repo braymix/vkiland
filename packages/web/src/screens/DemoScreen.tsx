@@ -17,6 +17,7 @@ import {
 import { it, t, useLang } from '../i18n';
 import { BoardCanvas, type BoardTargets } from '../components/BoardCanvas';
 import { ResIcon, SagaIcon } from '../components/icons';
+import { WelcomeConfetti } from '../components/WelcomeConfetti';
 import { PLAYER_COLORS } from '../render/sprites/palettes';
 import { buildDemo, DEMO_SEED, DEMO_YOU_COLOR, type DemoData } from '../game/demoScript';
 
@@ -266,6 +267,8 @@ export function DemoScreen({
   const demo = useMemo(() => buildDemo(DEMO_SEED), []);
   const [idx, setIdx] = useState(0);
   const [auto, setAuto] = useState(false);
+  // All'apertura: popup di benvenuto con coriandoli (la frase portafortuna).
+  const [welcome, setWelcome] = useState(true);
   const last = ALL_STEPS.length - 1;
   const id = ALL_STEPS[idx]!;
   const step = it.demo.passi[id];
@@ -277,16 +280,18 @@ export function DemoScreen({
     setIdx(Math.min(last, Math.max(0, next)));
   };
 
-  // Tastiera: Esc chiude, frecce navigano.
+  // Tastiera: Esc chiude, frecce navigano. Mentre c'è il popup di benvenuto
+  // i tasti li gestisce lui (Invio/Esc per cominciare), non la navigazione.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (welcome) return;
       if (e.key === 'Escape') onClose();
       if (e.key === 'ArrowRight') setIdx((i) => Math.min(last, i + 1));
       if (e.key === 'ArrowLeft') setIdx((i) => Math.max(0, i - 1));
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onClose, last]);
+  }, [onClose, last, welcome]);
 
   // Riproduzione automatica: avanza da sola, si ferma all'ultimo passo.
   useEffect(() => {
@@ -304,6 +309,7 @@ export function DemoScreen({
 
   return (
     <div className="demo-screen" data-step={id}>
+      {welcome && <WelcomeConfetti onStart={() => setWelcome(false)} />}
       <div className="demo-head">
         <h2 className="demo-title">{it.demo.titolo}</h2>
         <div className="demo-tabs">
