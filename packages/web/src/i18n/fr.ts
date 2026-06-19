@@ -339,8 +339,8 @@ export const fr: Strings = {
   },
 
   demo: {
-    apri: 'Démo guidée',
-    titolo: 'Démo guidée',
+    apri: 'Tutoriel rapide',
+    titolo: 'Tutoriel rapide',
     sottotitolo: 'Apprends en jouant, pas à pas',
     passoDi: 'Étape {n} sur {tot}',
     salta: 'Passer',

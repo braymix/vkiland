@@ -339,8 +339,8 @@ export const es: Strings = {
   },
 
   demo: {
-    apri: 'Demo guiada',
-    titolo: 'Demo guiada',
+    apri: 'Tutorial breve',
+    titolo: 'Tutorial breve',
     sottotitolo: 'Aprende jugando, paso a paso',
     passoDi: 'Paso {n} de {tot}',
     salta: 'Saltar',

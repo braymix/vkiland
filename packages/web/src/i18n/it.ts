@@ -344,8 +344,8 @@ export const it = {
 
   // Demo guidata (tour interattivo passo-passo, separato dal «Libro delle Saghe»)
   demo: {
-    apri: 'Demo guidata',
-    titolo: 'Demo guidata',
+    apri: 'Breve tutorial',
+    titolo: 'Breve tutorial',
     sottotitolo: 'Impara giocando, passo dopo passo',
     passoDi: 'Passo {n} di {tot}',
     salta: 'Salta',

@@ -339,8 +339,8 @@ export const ru: Strings = {
   },
 
   demo: {
-    apri: 'Обучение с гидом',
-    titolo: 'Обучение с гидом',
+    apri: 'Краткое обучение',
+    titolo: 'Краткое обучение',
     sottotitolo: 'Учись на ходу, шаг за шагом',
     passoDi: 'Шаг {n} из {tot}',
     salta: 'Пропустить',

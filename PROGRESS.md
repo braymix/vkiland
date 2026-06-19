@@ -54,7 +54,7 @@ ogni dizionario è tipizzato `: Strings` (forma derivata dall'italiano), così
 TypeScript impone la copertura totale delle chiavi. Tutorial e diario di
 bordo tradotti. Il russo usa un font pixel con cirillico (`@fontsource/handjet`)
 attivato via `html[data-lang='ru']`; il serbo è in alfabeto latino.
-**Demo guidata** (pulsante «a parte» in alto a destra del menu, distinto dal
+**Breve tutorial** (pulsante «a parte» in alto a destra del menu, distinto dal
 «Libro delle Saghe»): tour interattivo passo-passo in 21 schede. La prima metà
 mostra una PARTITA VERA che si svolge sulla tavola — istantanee DETERMINISTICHE
 dal motore (`game/demoScript.ts`, seme verificato dal test: tocca a te per

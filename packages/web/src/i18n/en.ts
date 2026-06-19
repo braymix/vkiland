@@ -339,8 +339,8 @@ export const en: Strings = {
   },
 
   demo: {
-    apri: 'Guided demo',
-    titolo: 'Guided demo',
+    apri: 'Quick tutorial',
+    titolo: 'Quick tutorial',
     sottotitolo: 'Learn by playing, step by step',
     passoDi: 'Step {n} of {tot}',
     salta: 'Skip',

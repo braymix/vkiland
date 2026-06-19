@@ -339,8 +339,8 @@ export const sr: Strings = {
   },
 
   demo: {
-    apri: 'Vođeni demo',
-    titolo: 'Vođeni demo',
+    apri: 'Kratak tutorijal',
+    titolo: 'Kratak tutorijal',
     sottotitolo: 'Uči kroz igru, korak po korak',
     passoDi: 'Korak {n} od {tot}',
     salta: 'Preskoči',
