@@ -8,14 +8,20 @@ export function MenuScreen({
   onNewGame,
   onOnline,
   onTutorial,
+  onDemo,
 }: {
   onNewGame: () => void;
   onOnline: () => void;
   onTutorial: () => void;
+  onDemo: () => void;
 }) {
   const [memeOpen, setMemeOpen] = useState(false);
   return (
     <div className="screen" style={{ justifyContent: 'center' }}>
+      {/* Pulsante «a parte», in alto a destra: lancia il tour interattivo passo-passo. */}
+      <button className="pxbtn pxbtn--small menu-demo-btn" onClick={onDemo}>
+        ▶ {it.demo.apri}
+      </button>
       <h1 className="menu-title">{it.titolo}</h1>
       <div className="menu-sub">{it.sottotitolo}</div>
       <div className="menu-buttons">

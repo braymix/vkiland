@@ -1097,3 +1097,369 @@ html[data-lang='ru'] .menu-title {
   font-weight: normal;
   letter-spacing: normal;
 }
+
+/* === Demo guidata (tour interattivo passo-passo) === */
+/* Pulsante «a parte», angolo in alto a destra del menu. */
+.menu-demo-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+}
+
+.demo-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 86;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+}
+.demo-screen > * {
+  width: 100%;
+  max-width: 600px;
+}
+
+.demo-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.demo-title {
+  color: var(--accent);
+  font-size: 12px;
+  flex: 0 0 auto;
+}
+.demo-tabs {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.demo-tab {
+  font-family: inherit;
+  font-size: 8px;
+  line-height: 1.4;
+  padding: 5px 7px;
+  color: var(--ink-dim);
+  background: var(--bg-panel);
+  border: 2px solid var(--bg-deep);
+  cursor: pointer;
+}
+.demo-tab--on {
+  color: var(--accent);
+  border-color: var(--accent-dark);
+}
+
+.demo-stage {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 0;
+}
+.demo-board {
+  width: 100%;
+  max-width: 420px;
+}
+
+.demo-card {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+.demo-card-title {
+  color: var(--accent);
+  font-size: 11px;
+}
+.demo-card-body {
+  font-size: 9px;
+  line-height: 1.9;
+}
+
+.demo-progress {
+  flex: 0 0 auto;
+  height: 8px;
+  background: var(--bg-deep);
+  border: 2px solid var(--bg-deep);
+}
+.demo-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.25s ease;
+}
+
+.demo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.demo-nav-mid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.demo-step-count {
+  font-size: 8px;
+  color: var(--ink-dim);
+}
+.demo-skip {
+  flex: 0 0 auto;
+  opacity: 0.85;
+}
+
+/* Contenuti extra dentro la card */
+.demo-youclan {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9px;
+}
+.demo-swatch {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--bg-deep);
+  flex: 0 0 auto;
+  image-rendering: pixelated;
+}
+.demo-dice {
+  font-size: 11px;
+  color: var(--accent);
+  text-align: center;
+  padding: 4px;
+}
+.demo-gain {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9px;
+  flex-wrap: wrap;
+}
+.demo-gain-icons,
+.demo-cost-icons {
+  display: inline-flex;
+  gap: 3px;
+}
+.demo-costs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.demo-cost {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 8px;
+  align-items: center;
+  font-size: 9px;
+}
+.demo-cost-label {
+  font-weight: bold;
+}
+.demo-cost-note {
+  font-size: 8px;
+  color: var(--ink-dim);
+  line-height: 1.6;
+}
+.demo-sagalist {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.demo-saga {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  align-items: start;
+  font-size: 9px;
+}
+.demo-resrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 8px;
+}
+.demo-resrow-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+/* Finte schermate dell'online (illustrative, non interattive) */
+.demo-mock {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  background: var(--bg-panel);
+  border: 2px solid var(--bg-deep);
+  font-size: 9px;
+  min-height: 150px;
+}
+.demo-net-row {
+  display: flex;
+  gap: 14px;
+}
+.demo-device,
+.demo-server {
+  font-size: 26px;
+}
+.demo-server {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.demo-server span {
+  font-size: 8px;
+  color: var(--ink-dim);
+}
+.demo-net-link {
+  font-size: 18px;
+  color: var(--accent);
+}
+.demo-hourglass {
+  font-size: 38px;
+}
+.demo-status {
+  padding: 5px 8px;
+  border: 2px solid var(--bg-deep);
+  text-align: center;
+}
+.demo-status--wake {
+  color: #e8a33d;
+}
+.demo-status--ok {
+  color: #6fcf6f;
+}
+.demo-status-arrow {
+  font-size: 8px;
+  color: var(--ink-dim);
+}
+.demo-mock-form {
+  align-items: stretch;
+}
+.demo-mock-form label {
+  font-size: 8px;
+  color: var(--ink-dim);
+}
+.demo-input {
+  background: var(--bg-deep);
+  border: 2px solid var(--bg-deep);
+  padding: 6px;
+  font-size: 9px;
+}
+.demo-noemail {
+  color: var(--ink-dim);
+  text-decoration: line-through;
+  font-size: 8px;
+}
+.demo-fakebtn {
+  margin-top: 4px;
+  text-align: center;
+  background: var(--accent);
+  color: var(--bg-deep);
+  padding: 7px;
+  font-size: 9px;
+  border-bottom: 3px solid var(--accent-dark);
+}
+.demo-mock-code {
+  flex-direction: row;
+  align-items: stretch;
+  gap: 8px;
+}
+.demo-code-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-deep);
+  padding: 10px;
+  border: 2px solid var(--bg-deep);
+}
+.demo-code {
+  font-size: 16px;
+  color: var(--accent);
+  letter-spacing: 2px;
+}
+.demo-code--empty {
+  color: var(--ink-dim);
+}
+.demo-code-or {
+  align-self: center;
+  color: var(--ink-dim);
+}
+.demo-mock-lobby {
+  align-items: stretch;
+}
+.demo-lobby-slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-deep);
+  padding: 7px;
+  border: 2px solid var(--bg-deep);
+}
+.demo-lobby-slot--add {
+  color: var(--ink-dim);
+  justify-content: center;
+}
+.demo-tag {
+  margin-left: auto;
+  font-size: 7px;
+  color: var(--ink-dim);
+  border: 1px solid var(--ink-dim);
+  padding: 1px 4px;
+}
+.demo-mock-play {
+  align-items: stretch;
+}
+.demo-play-line {
+  color: var(--accent);
+}
+.demo-play-log {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 8px;
+  color: var(--ink-dim);
+}
+.demo-timer {
+  text-align: center;
+  font-size: 8px;
+  color: var(--ink-dim);
+}
+.demo-mock-fine .demo-fine-flag {
+  font-size: 52px;
+}
+.demo-fine-cta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.demo-fine-cta .pxbtn {
+  flex: 1;
+}
+
+/* Russo: testi un filo più grandi anche nella demo */
+html[data-lang='ru'] .demo-card-body,
+html[data-lang='ru'] .demo-cost,
+html[data-lang='ru'] .demo-saga {
+  font-size: 11px;
+}

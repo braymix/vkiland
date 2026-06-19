@@ -342,6 +342,153 @@ export const it = {
     vittoria: '{nome} vince con {n} Punti Gloria!',
   },
 
+  // Demo guidata (tour interattivo passo-passo, separato dal «Libro delle Saghe»)
+  demo: {
+    apri: 'Demo guidata',
+    titolo: 'Demo guidata',
+    sottotitolo: 'Impara giocando, passo dopo passo',
+    passoDi: 'Passo {n} di {tot}',
+    salta: 'Salta',
+    auto: 'Auto',
+    sezioneGioco: 'Come si gioca',
+    sezioneOnline: 'Giocare online',
+    seiClan: 'In questa demo sei il clan {colore}.',
+    haiTirato: 'Hai tirato {d1} + {d2} = {tot}!',
+    haiRicevuto: 'Hai ricevuto:',
+    niente: 'niente, questa volta',
+    giocaOffline: 'Gioca coi bot',
+    vaiOnline: 'Prova l’online',
+    fineChiudi: 'Chiudi la demo',
+    senzaEmail: 'Email — non serve!',
+    passi: {
+      intro: {
+        titolo: 'Benvenuto nella demo!',
+        testo:
+          'Ti accompagno passo dopo passo in una partita a Viking-Island, poi ti mostro come si gioca online. ' +
+          'Premi «Avanti» per procedere: puoi tornare «Indietro» o «Salta» quando vuoi.',
+      },
+      isola: {
+        titolo: 'L’isola e le risorse',
+        testo:
+          'L’isola è fatta di esagoni. Ognuno produce una risorsa e ha un numero: i puntini dicono quanto è ' +
+          'probabile che esca coi dadi (6 e 8, in rosso, escono spessissimo). La tundra non produce: è la tana del Drago.',
+      },
+      setupVillaggio: {
+        titolo: 'Il tuo primo villaggio',
+        testo:
+          'Si parte piazzando un villaggio gratis su un incrocio (il mirino bianco). Cerca numeri forti e risorse ' +
+          'diverse. Regola della distanza: due edifici non possono mai stare su incroci confinanti.',
+      },
+      setupSentiero: {
+        titolo: 'Il tuo primo sentiero',
+        testo:
+          'Subito dopo il villaggio piazzi un sentiero su un lato adiacente: è l’inizio della tua rete di strade, ' +
+          'che ti servirà per espanderti.',
+      },
+      altri: {
+        titolo: 'Anche gli altri clan piazzano',
+        testo:
+          'A turno ogni clan piazza «a serpentina»: prima in ordine, poi a ritroso. Chi piazza per ultimo il primo ' +
+          'villaggio piazza per primo il secondo.',
+      },
+      secondoVillaggio: {
+        titolo: 'Il secondo villaggio produce subito',
+        testo:
+          'Al secondo giro piazzi un altro villaggio (e un sentiero). Il secondo villaggio ti regala subito una ' +
+          'risorsa per ogni esagono evidenziato qui intorno.',
+      },
+      tiraDadi: {
+        titolo: 'Tira i dadi',
+        testo:
+          'Comincia il gioco vero! Ogni turno parte tirando due dadi: il numero che esce decide quali esagoni ' +
+          'producono per TUTTI i giocatori, non solo per chi tira.',
+      },
+      produzione: {
+        titolo: 'La produzione',
+        testo:
+          'Ogni esagono col numero uscito dà 1 risorsa per ogni villaggio adiacente e 2 per ogni roccaforte. ' +
+          'Gli esagoni evidenziati sono quelli che fruttano a te.',
+      },
+      costruire: {
+        titolo: 'Costruire e comprare',
+        testo:
+          'Con le risorse costruisci sentieri, villaggi e roccaforti (il potenziamento del villaggio) oppure ' +
+          'compri una Carta Saga. Ecco quanto costa ciascuna cosa:',
+      },
+      drago: {
+        titolo: 'Il 7 e il Drago',
+        testo:
+          'Se esce 7 nessuno produce: chi ha più di 7 carte ne scarta metà, poi chi ha tirato sposta il Drago ' +
+          '(evidenziato) e ruba una carta a un vicino. L’esagono col Drago non produce finché resta lì.',
+      },
+      carteSaga: {
+        titolo: 'Le Carte Saga',
+        testo:
+          'Un mazzo di 25 carte con effetti speciali. Le compri ora e le giochi dal turno dopo, al massimo una per turno ' +
+          '(la Saga degli Eroi invece conta subito, da nascosta).',
+      },
+      scambi: {
+        titolo: 'Gli scambi',
+        testo:
+          'Ti manca una risorsa? Scambia con la banca (4:1), con gli approdi (3:1 o 2:1) oppure proponi uno scambio ' +
+          'agli altri giocatori durante il tuo turno.',
+      },
+      bonus: {
+        titolo: 'I bonus e i punti nascosti',
+        testo:
+          'La Grande Via (la catena di sentieri più lunga) e la Furia dei Berserker (più carte Berserker giocate) ' +
+          'valgono 2 Punti Gloria ciascuna. La Saga degli Eroi vale 1 punto segreto: occhio alle sorprese!',
+      },
+      vittoria: {
+        titolo: 'Vincere la partita',
+        testo:
+          'Vince il primo clan che raggiunge 10 Punti Gloria nel proprio turno. Ecco come potrebbe presentarsi ' +
+          'l’isola a fine partita: piena di villaggi, roccaforti e sentieri.',
+      },
+      onlineIntro: {
+        titolo: 'Giocare online con gli amici',
+        testo:
+          'Dal menu «Online» giochi con persone vere, ognuno dal proprio dispositivo. L’arbitro è il server: ' +
+          'convalida ogni mossa con le stesse regole, così è impossibile barare.',
+      },
+      serverFreddo: {
+        titolo: 'Abbi pazienza: il server si sveglia',
+        testo:
+          'Importante: il server gratuito va «in letargo» quando nessuno gioca. La PRIMA connessione può ' +
+          'richiedere da 30 a 60 secondi per risvegliarlo — è normale, basta aspettare. Una spunta verde ti avvisa quando è pronto.',
+      },
+      account: {
+        titolo: '1. Crea un account',
+        testo:
+          'Bastano un nome utente (sarà anche il tuo nome in gioco) e una password di almeno 8 caratteri. ' +
+          'Niente email: non serve e non la chiediamo.',
+      },
+      creaEntra: {
+        titolo: '2. Crea o entra in una partita',
+        testo:
+          'Premi «Crea partita» per ottenere un codice di 6 caratteri da mandare agli amici, oppure «Unisciti» ' +
+          'e inserisci il codice che hai ricevuto.',
+      },
+      lobby: {
+        titolo: '3. La lobby',
+        testo:
+          'Nella sala d’attesa puoi cambiare il tuo colore e l’host può aggiungere bot per riempire i posti. ' +
+          'Quando siete da 2 a 4, l’host preme «Salpa!».',
+      },
+      onlinePartita: {
+        titolo: '4. Si gioca!',
+        testo:
+          'Le mosse di tutti arrivano in tempo reale. Se cade la linea, rientra col codice della lobby: il tuo ' +
+          'posto resta tuo. C’è anche un timer di turno opzionale, così nessuno blocca la partita.',
+      },
+      fine: {
+        titolo: 'Sei pronto, vichingo!',
+        testo:
+          'Questo è tutto! Puoi rivedere ogni regola nel «Libro delle Saghe» dal menu. Adesso tocca a te: salpa!',
+      },
+    },
+  },
+
   erroreMossa: 'Mossa non valida: {motivo}',
 } as const;
 

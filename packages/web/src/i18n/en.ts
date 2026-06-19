@@ -338,5 +338,170 @@ export const en: Strings = {
     vittoria: '{nome} wins with {n} Glory Points!',
   },
 
+  demo: {
+    apri: 'Guided demo',
+    titolo: 'Guided demo',
+    sottotitolo: 'Learn by playing, step by step',
+    passoDi: 'Step {n} of {tot}',
+    salta: 'Skip',
+    auto: 'Auto',
+    sezioneGioco: 'How to play',
+    sezioneOnline: 'Playing online',
+    seiClan: 'In this demo you are the {colore} clan.',
+    haiTirato: 'You rolled {d1} + {d2} = {tot}!',
+    haiRicevuto: 'You received:',
+    niente: 'nothing this time',
+    giocaOffline: 'Play with bots',
+    vaiOnline: 'Try online',
+    fineChiudi: 'Close the demo',
+    senzaEmail: 'Email — no need!',
+    passi: {
+      intro: {
+        titolo: 'Welcome to the demo!',
+        testo:
+          'I’ll walk you step by step through a game of Viking-Island, then ' +
+          'show you how to play online. Press «Next» to go on: you can go ' +
+          '«Back» or «Skip» whenever you like.',
+      },
+      isola: {
+        titolo: 'The isle and the resources',
+        testo:
+          'The isle is made of hexagons. Each one produces a resource and has ' +
+          'a number: the dots tell you how likely it is to come up on the dice ' +
+          '(6 and 8, in red, come up very often). The tundra produces nothing: ' +
+          'it is the Dragon’s lair.',
+      },
+      setupVillaggio: {
+        titolo: 'Your first village',
+        testo:
+          'You start by placing a free village on a corner (the white ' +
+          'crosshair). Look for strong numbers and varied resources. Distance ' +
+          'rule: two buildings can never sit on neighboring corners.',
+      },
+      setupSentiero: {
+        titolo: 'Your first path',
+        testo:
+          'Right after the village you place a path on an adjacent side: it is ' +
+          'the start of your road network, which you’ll need to expand.',
+      },
+      altri: {
+        titolo: 'The other clans place too',
+        testo:
+          'Each clan takes turns placing «snake-style»: first in order, then ' +
+          'backwards. Whoever places the first village last places the second ' +
+          'one first.',
+      },
+      secondoVillaggio: {
+        titolo: 'The second village produces right away',
+        testo:
+          'On the second round you place another village (and a path). The ' +
+          'second village gives you a resource right away for every hexagon ' +
+          'highlighted around it.',
+      },
+      tiraDadi: {
+        titolo: 'Roll the dice',
+        testo:
+          'The real game begins! Every turn starts by rolling two dice: the ' +
+          'number that comes up decides which hexagons produce for ALL ' +
+          'players, not just for whoever rolls.',
+      },
+      produzione: {
+        titolo: 'Production',
+        testo:
+          'Each hexagon with the rolled number gives 1 resource for every ' +
+          'adjacent village and 2 for every stronghold. The highlighted ' +
+          'hexagons are the ones that pay out to you.',
+      },
+      costruire: {
+        titolo: 'Building and buying',
+        testo:
+          'With resources you build paths, villages and strongholds (the ' +
+          'village upgrade) or you buy a Saga Card. Here’s how much each thing ' +
+          'costs:',
+      },
+      drago: {
+        titolo: 'The 7 and the Dragon',
+        testo:
+          'If a 7 comes up nobody produces: anyone with more than 7 cards ' +
+          'discards half, then whoever rolled moves the Dragon (highlighted) ' +
+          'and steals a card from a neighbor. The hexagon with the Dragon ' +
+          'produces nothing while it stays there.',
+      },
+      carteSaga: {
+        titolo: 'The Saga Cards',
+        testo:
+          'A deck of 25 cards with special effects. You buy them now and play ' +
+          'them from the next turn, at most one per turn (the Hero Saga, ' +
+          'instead, counts right away, while hidden).',
+      },
+      scambi: {
+        titolo: 'Trades',
+        testo:
+          'Missing a resource? Trade with the bank (4:1), with the harbors ' +
+          '(3:1 or 2:1) or offer a trade to the other players during your turn.',
+      },
+      bonus: {
+        titolo: 'Bonuses and hidden points',
+        testo:
+          'The Great Road (the longest chain of paths) and the Berserker Fury ' +
+          '(most Berserker cards played) are worth 2 Glory Points each. The ' +
+          'Hero Saga is worth 1 secret point: watch out for surprises!',
+      },
+      vittoria: {
+        titolo: 'Winning the game',
+        testo:
+          'The first clan to reach 10 Glory Points on their own turn wins. ' +
+          'Here’s how the isle might look at the end of the game: full of ' +
+          'villages, strongholds and paths.',
+      },
+      onlineIntro: {
+        titolo: 'Playing online with friends',
+        testo:
+          'From the «Online» menu you play with real people, each on their own ' +
+          'device. The referee is the server: it validates every move with the ' +
+          'same rules, so cheating is impossible.',
+      },
+      serverFreddo: {
+        titolo: 'Be patient: the server wakes up',
+        testo:
+          'Important: the free server goes «to sleep» when nobody is playing. ' +
+          'The FIRST connection can take 30 to 60 seconds to wake it up — it’s ' +
+          'normal, just wait. A green check lets you know when it’s ready.',
+      },
+      account: {
+        titolo: '1. Create an account',
+        testo:
+          'All you need is a username (it will also be your in-game name) and ' +
+          'a password of at least 8 characters. No email: it’s not needed and ' +
+          'we don’t ask for it.',
+      },
+      creaEntra: {
+        titolo: '2. Create or join a game',
+        testo:
+          'Press «Create game» to get a 6-character code to send to your ' +
+          'friends, or «Join» and enter the code you received.',
+      },
+      lobby: {
+        titolo: '3. The lobby',
+        testo:
+          'In the waiting room you can change your color and the host can add ' +
+          'bots to fill the seats. When there are 2 to 4 of you, the host ' +
+          'presses «Set sail!».',
+      },
+      onlinePartita: {
+        titolo: '4. Let’s play!',
+        testo:
+          'Everyone’s moves arrive in real time. If your connection drops, ' +
+          'rejoin with the lobby code: your seat stays yours. There’s also an ' +
+          'optional turn timer, so nobody holds up the game.',
+      },
+      fine: {
+        titolo: 'You’re ready, Viking!',
+        testo:
+          'That’s all! You can review every rule in the «Book of Sagas» from ' +
+          'the menu. Now it’s your turn: set sail!',
+      },
+    },
+  },
   erroreMossa: 'Invalid move: {motivo}',
 };

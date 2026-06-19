@@ -54,6 +54,22 @@ ogni dizionario è tipizzato `: Strings` (forma derivata dall'italiano), così
 TypeScript impone la copertura totale delle chiavi. Tutorial e diario di
 bordo tradotti. Il russo usa un font pixel con cirillico (`@fontsource/handjet`)
 attivato via `html[data-lang='ru']`; il serbo è in alfabeto latino.
+**Demo guidata** (pulsante «a parte» in alto a destra del menu, distinto dal
+«Libro delle Saghe»): tour interattivo passo-passo in 21 schede. La prima metà
+mostra una PARTITA VERA che si svolge sulla tavola — istantanee DETERMINISTICHE
+dal motore (`game/demoScript.ts`, seme verificato dal test: tocca a te per
+primo, primo tiro ≠ 7 e produci): piazzi villaggio e sentiero, gli altri clan
+piazzano, il secondo villaggio produce (esagoni evidenziati), tiri i dadi e
+incassi (icone delle risorse ottenute), poi spiegazioni di costruzioni/costi,
+Drago, Carte Saga, scambi, bonus e vittoria (con l'isola «a fine partita»
+generata dai bot). La seconda metà spiega l'online con finte schermate
+illustrative: l'arbitro-server, **il fatto che il server gratuito va in letargo
+e al primo accesso ci mette 30–60 s a risvegliarsi** (con stato 🟠→🟢),
+creazione account, codice invito, lobby e partita; chiude con i pulsanti «Gioca
+coi bot» / «Prova l'online». Tutto tradotto nelle 7 lingue (chiavi `it.demo.*`,
+copertura imposta dal tipo `Strings`). Navigazione avanti/indietro/salta, barre
+di sezione, riproduzione automatica opzionale. Riusa `BoardCanvas` in sola
+lettura. Test: `demoScript.test.ts` (determinismo + invarianti dell'arco).
 
 ## Checklist Fase 3 (online)
 

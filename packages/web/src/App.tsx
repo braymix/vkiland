@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useLang } from './i18n';
 import { LocalGameController, type GameSetup } from './game/LocalGameController';
+import { DemoScreen } from './screens/DemoScreen';
 import { GameScreen } from './screens/GameScreen';
 import { MenuScreen } from './screens/MenuScreen';
 import { OnlineScreen } from './screens/OnlineScreen';
@@ -13,7 +14,8 @@ type Route =
   | { screen: 'setup' }
   | { screen: 'game'; setup: GameSetup; gameKey: number }
   | { screen: 'online' }
-  | { screen: 'tutorial' };
+  | { screen: 'tutorial' }
+  | { screen: 'demo' };
 
 export function App() {
   const [route, setRoute] = useState<Route>({ screen: 'menu' });
@@ -28,10 +30,19 @@ export function App() {
           onNewGame={() => setRoute({ screen: 'setup' })}
           onOnline={() => setRoute({ screen: 'online' })}
           onTutorial={() => setRoute({ screen: 'tutorial' })}
+          onDemo={() => setRoute({ screen: 'demo' })}
         />
       );
     case 'tutorial':
       return <TutorialScreen onClose={() => setRoute({ screen: 'menu' })} />;
+    case 'demo':
+      return (
+        <DemoScreen
+          onClose={() => setRoute({ screen: 'menu' })}
+          onPlay={() => setRoute({ screen: 'setup' })}
+          onOnline={() => setRoute({ screen: 'online' })}
+        />
+      );
     case 'setup':
       return (
         <SetupScreen
