@@ -43,7 +43,7 @@ import {
   VILLAGGIO,
   type SpriteDef,
 } from './sprites/defs';
-import { getActiveTheme, PLAYER_COLORS } from './sprites/palettes';
+import { getActiveTheme, shadesFor } from './sprites/palettes';
 
 export interface BoardUiState {
   /** Bersagli evidenziati (mosse legali della modalità attiva). */
@@ -272,7 +272,7 @@ function drawRoad(
   playerColor: PlayerColor
 ): void {
   const [p1, p2] = edgeEndpoints(edge);
-  const colors = PLAYER_COLORS[playerColor];
+  const colors = shadesFor(playerColor);
   // Accorcia il segmento per lasciare respiro ai vertici.
   const dx = p2.x - p1.x;
   const dy = p2.y - p1.y;
@@ -332,9 +332,12 @@ export function renderBoard(
     }
   }
 
-  // Il Drago sull'esagono bloccato.
+  // Il Drago sull'esagono bloccato: prende il colore di CHI l'ha spostato per
+  // ultimo (viola neutro se nessuno lo ha ancora mosso).
   const dragonCenter = hexCenterById(view.board.dragonHex);
-  drawSpriteCentered(ctx, bakeSprite('drago', DRAGO), dragonCenter.x, dragonCenter.y + 2);
+  const moverId = view.board.dragonMovedBy;
+  const dragonColor = moverId !== null ? view.players[moverId]?.color ?? null : null;
+  drawSpriteCentered(ctx, bakeSprite('drago', DRAGO, dragonColor), dragonCenter.x, dragonCenter.y + 2);
 
   // Evidenziazioni delle mosse legali. I vertici degli approdi usano il
   // mirino VIOLA al posto del bianco: si vede subito quale piazzamento

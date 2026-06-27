@@ -146,7 +146,12 @@ function clonePhase(phase: Phase): Phase {
 export function cloneState(s: GameState): GameState {
   return {
     ...s,
-    board: { hexes: s.board.hexes, ports: s.board.ports, dragonHex: s.board.dragonHex },
+    board: {
+      hexes: s.board.hexes,
+      ports: s.board.ports,
+      dragonHex: s.board.dragonHex,
+      dragonMovedBy: s.board.dragonMovedBy,
+    },
     players: s.players.map((p) => ({
       ...p,
       resources: { ...p.resources },

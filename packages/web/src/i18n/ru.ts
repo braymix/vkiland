@@ -117,6 +117,7 @@ export const ru: Strings = {
   aggiungiGiocatore: '+ Добавить викинга',
   cambiaColore: 'Сменить цвет',
   scambiaColoreCon: 'Поменять цвет с {nome}',
+  coloreCustom: 'Свой цвет',
   nomeColore: {
     rosso: 'Красный',
     blu: 'Синий',
@@ -159,6 +160,9 @@ export const ru: Strings = {
   scambiaBanca: 'Банк / Пристани',
   proponiScambio: 'Предложить игрокам',
   carte: 'Карты',
+  costruzioni: 'Постройки',
+  costruzioniSub: 'Сколько ещё можешь построить',
+  disponibili: 'доступно',
   fineTurno: 'Конец хода',
   annulla: 'Отмена',
   conferma: 'Подтвердить',

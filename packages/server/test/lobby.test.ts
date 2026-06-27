@@ -86,33 +86,39 @@ describe('LobbyManager', () => {
     manager.join(created.code, astrid);
     const withBot = manager.addBot(bjorn.id, 'facile');
     if (isApiError(withBot)) throw new Error('addBot fallita');
-    // Colori assegnati di default in ordine, tutti distinti.
-    expect(withBot.slots.map((s) => s.color)).toEqual(['rosso', 'blu', 'verde']);
+    // Colori assegnati di default in ordine (palette libera), tutti distinti.
+    expect(withBot.slots.map((s) => s.color)).toEqual(['#c0392b', '#2e6fb7', '#3e8f4e']);
 
     // Astrid (posto 1, blu) prende il verde del bot → SCAMBIO: il bot diventa blu.
-    const swapped = manager.setColor(astrid.id, 1, 'verde');
+    const swapped = manager.setColor(astrid.id, 1, '#3e8f4e');
     if (isApiError(swapped)) throw new Error('setColor fallita');
-    expect(swapped.slots[1]!.color).toBe('verde');
-    expect(swapped.slots[2]!.color).toBe('blu');
-    expect(swapped.slots[0]!.color).toBe('rosso');
+    expect(swapped.slots[1]!.color).toBe('#3e8f4e');
+    expect(swapped.slots[2]!.color).toBe('#2e6fb7');
+    expect(swapped.slots[0]!.color).toBe('#c0392b');
 
     // Astrid può prendere un colore libero (viola), nessuno scambio.
-    const free = manager.setColor(astrid.id, 1, 'viola');
+    const free = manager.setColor(astrid.id, 1, '#8e44ad');
     if (isApiError(free)) throw new Error('setColor libero fallita');
-    expect(free.slots[1]!.color).toBe('viola');
-    expect(free.slots[2]!.color).toBe('blu');
+    expect(free.slots[1]!.color).toBe('#8e44ad');
+    expect(free.slots[2]!.color).toBe('#2e6fb7');
+
+    // Un colore QUALSIASI (fuori palette) va bene: basta che sia esadecimale,
+    // e viene normalizzato in minuscolo.
+    const custom = manager.setColor(astrid.id, 1, '#123ABC');
+    if (isApiError(custom)) throw new Error('setColor personalizzato fallita');
+    expect(custom.slots[1]!.color).toBe('#123abc');
 
     // Astrid NON può cambiare il colore del bot (non è host).
-    expect(isApiError(manager.setColor(astrid.id, 2, 'giallo'))).toBe(true);
+    expect(isApiError(manager.setColor(astrid.id, 2, '#d9a525'))).toBe(true);
     // L'host invece sì.
-    const hostBot = manager.setColor(bjorn.id, 2, 'giallo');
+    const hostBot = manager.setColor(bjorn.id, 2, '#d9a525');
     if (isApiError(hostBot)) throw new Error('host setColor bot fallita');
-    expect(hostBot.slots[2]!.color).toBe('giallo');
+    expect(hostBot.slots[2]!.color).toBe('#d9a525');
 
     // Astrid non può cambiare il colore di un ALTRO umano (l'host).
-    expect(isApiError(manager.setColor(astrid.id, 0, 'verde'))).toBe(true);
-    // Colore non valido respinto.
-    expect(isApiError(manager.setColor(bjorn.id, 0, 'arcobaleno' as never))).toBe(true);
+    expect(isApiError(manager.setColor(astrid.id, 0, '#3e8f4e'))).toBe(true);
+    // Colore non valido (non esadecimale) respinto.
+    expect(isApiError(manager.setColor(bjorn.id, 0, 'arcobaleno'))).toBe(true);
   });
 
   it('si parte in almeno 2; all’avvio ogni umano riceve subito la sua vista', () => {

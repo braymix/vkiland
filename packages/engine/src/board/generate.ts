@@ -59,5 +59,5 @@ export function generateBoard(
   // 4) Il Drago parte dalla tundra.
   const tundra = hexes.find((h) => h.terrain === 'tundra')!;
 
-  return [{ hexes, ports, dragonHex: tundra.id }, rng];
+  return [{ hexes, ports, dragonHex: tundra.id, dragonMovedBy: null }, rng];
 }

@@ -5,7 +5,7 @@
  */
 import type { PlayerView } from '@vikiland/engine';
 import { it, t } from '../i18n';
-import { PLAYER_COLORS } from '../render/sprites/palettes';
+import { shadesFor } from '../render/sprites/palettes';
 
 interface Props {
   view: PlayerView;
@@ -17,7 +17,7 @@ interface Props {
 export function PassDeviceScreen({ view, to, onConfirm }: Props) {
   const p = view.players[to];
   if (!p) return null;
-  const colors = PLAYER_COLORS[p.color];
+  const colors = shadesFor(p.color);
   return (
     <div className="handoff-screen">
       <div className="menu-sub">{it.passaDispositivo}</div>

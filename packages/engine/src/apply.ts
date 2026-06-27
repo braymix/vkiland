@@ -185,7 +185,7 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
     }
     case 'muoviDrago': {
       const cause = state.phase.type === 'moveDragon' ? state.phase.cause : 'sette';
-      state.board = { ...state.board, dragonHex: action.hex };
+      state.board = { ...state.board, dragonHex: action.hex, dragonMovedBy: me.id };
       events.push({ type: 'dragoMosso', player: me.id, hex: action.hex, cause });
       resolveDragonArrival(state, cause);
       break;

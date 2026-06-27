@@ -6,9 +6,10 @@ import { ResIcon } from './icons';
 interface Props {
   view: PlayerView;
   onOpenCards: () => void;
+  onOpenBuildings: () => void;
 }
 
-export function HandPanel({ view, onOpenCards }: Props) {
+export function HandPanel({ view, onOpenCards, onOpenBuildings }: Props) {
   const me = view.me;
   if (!me) return null;
   const totalCards = me.sagaCards.length + me.sagaCardsBoughtThisTurn.length;
@@ -26,6 +27,9 @@ export function HandPanel({ view, onOpenCards }: Props) {
         ))}
         <button className="pxbtn pxbtn--ghost pxbtn--small" onClick={onOpenCards}>
           {it.carte} ({totalCards})
+        </button>
+        <button className="pxbtn pxbtn--ghost pxbtn--small" onClick={onOpenBuildings}>
+          {it.costruzioni}
         </button>
         <span style={{ fontSize: 8, color: 'var(--ink-dim)' }}>
           {t(it.mazzoRimasto, { n: view.sagaDeckCount })}

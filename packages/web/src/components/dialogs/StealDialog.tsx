@@ -1,7 +1,7 @@
 /** Scelta della vittima del Drago. */
 import type { Action, PlayerId, PlayerView } from '@vikiland/engine';
 import { it } from '../../i18n';
-import { PLAYER_COLORS } from '../../render/sprites/palettes';
+import { shadesFor } from '../../render/sprites/palettes';
 import { Dialog } from './Dialog';
 
 interface Props {
@@ -25,7 +25,7 @@ export function StealDialog({ view, candidates, onSubmit }: Props) {
             >
               <span
                 className="player-chip"
-                style={{ background: PLAYER_COLORS[p.color].main, display: 'inline-block', marginRight: 8 }}
+                style={{ background: shadesFor(p.color).main, display: 'inline-block', marginRight: 8 }}
               />
               {p.name} — PG {p.gloryPointsPublic} · carte {p.resourceCardCount}
             </button>

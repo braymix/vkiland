@@ -18,7 +18,7 @@ import { it, t, useLang } from '../i18n';
 import { BoardCanvas, type BoardTargets } from '../components/BoardCanvas';
 import { ResIcon, SagaIcon } from '../components/icons';
 import { WelcomeConfetti } from '../components/WelcomeConfetti';
-import { PLAYER_COLORS } from '../render/sprites/palettes';
+import { shadesFor } from '../render/sprites/palettes';
 import { buildDemo, DEMO_SEED, DEMO_YOU_COLOR, type DemoData } from '../game/demoScript';
 
 type StepId =
@@ -122,11 +122,11 @@ function SagaList() {
 function StepExtra({ id, d }: { id: StepId; d: DemoData }) {
   switch (id) {
     case 'intro': {
-      const main = PLAYER_COLORS[DEMO_YOU_COLOR].main;
+      const main = shadesFor(DEMO_YOU_COLOR).main;
       return (
         <div className="demo-youclan">
           <span className="demo-swatch" style={{ background: main }} />
-          <span>{t(it.demo.seiClan, { colore: it.nomeColore[DEMO_YOU_COLOR] })}</span>
+          <span>{t(it.demo.seiClan, { colore: it.nomeColore.rosso })}</span>
         </div>
       );
     }
@@ -224,12 +224,12 @@ function OnlineMock({ id }: { id: StepId }) {
       return (
         <div className="demo-mock demo-mock-lobby">
           <div className="demo-lobby-slot">
-            <span className="demo-swatch" style={{ background: PLAYER_COLORS.rosso.main }} />
+            <span className="demo-swatch" style={{ background: shadesFor('#c0392b').main }} />
             <span>Bjorn</span>
             <span className="demo-tag">{it.hostTag}</span>
           </div>
           <div className="demo-lobby-slot">
-            <span className="demo-swatch" style={{ background: PLAYER_COLORS.blu.main }} />
+            <span className="demo-swatch" style={{ background: shadesFor('#2e6fb7').main }} />
             <span>Astrid</span>
             <span className="demo-tag">{it.bot}</span>
           </div>

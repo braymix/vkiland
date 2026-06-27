@@ -28,7 +28,12 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
   const self = viewer === 'spettatore' ? null : state.players[viewer] ?? null;
 
   return {
-    board: { hexes: state.board.hexes, ports: state.board.ports, dragonHex: state.board.dragonHex },
+    board: {
+      hexes: state.board.hexes,
+      ports: state.board.ports,
+      dragonHex: state.board.dragonHex,
+      dragonMovedBy: state.board.dragonMovedBy,
+    },
     bank: { ...state.bank },
     sagaDeckCount: state.sagaDeck.length,
     players,

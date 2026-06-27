@@ -121,6 +121,7 @@ export const it = {
   aggiungiGiocatore: '+ Aggiungi vichingo',
   cambiaColore: 'Cambia colore',
   scambiaColoreCon: 'Scambia il colore con {nome}',
+  coloreCustom: 'Personalizzato',
   nomeColore: {
     rosso: 'Rosso',
     blu: 'Blu',
@@ -163,6 +164,9 @@ export const it = {
   scambiaBanca: 'Banca / Approdi',
   proponiScambio: 'Proponi ai giocatori',
   carte: 'Carte',
+  costruzioni: 'Costruzioni',
+  costruzioniSub: 'Quante te ne restano da costruire',
+  disponibili: 'disponibili',
   fineTurno: 'Fine turno',
   annulla: 'Annulla',
   conferma: 'Conferma',

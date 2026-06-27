@@ -33,7 +33,7 @@ import { vertexTotalPips } from '@vikiland/bots';
 
 /** Il clan del giocatore nella demo (il rosso). Gli altri sono pilotati dai bot. */
 export const DEMO_YOU: PlayerId = 0;
-export const DEMO_YOU_COLOR: PlayerColor = 'rosso';
+export const DEMO_YOU_COLOR: PlayerColor = '#c0392b';
 
 /**
  * Seme della demo. Scelto (e verificato dal test) perché:
@@ -44,7 +44,7 @@ export const DEMO_YOU_COLOR: PlayerColor = 'rosso';
 export const DEMO_SEED = 'viking-demo-028';
 
 const DEMO_NAMES = ['Tu', 'Astrid', 'Leif'];
-const DEMO_COLORS: PlayerColor[] = ['rosso', 'blu', 'verde'];
+const DEMO_COLORS: PlayerColor[] = ['#c0392b', '#2e6fb7', '#3e8f4e'];
 
 function demoOptions(seed: string): NewGameOptions {
   return {

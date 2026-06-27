@@ -117,6 +117,7 @@ export const de: Strings = {
   aggiungiGiocatore: '+ Wikinger hinzufügen',
   cambiaColore: 'Farbe ändern',
   scambiaColoreCon: 'Farbe tauschen mit {nome}',
+  coloreCustom: 'Eigene Farbe',
   nomeColore: {
     rosso: 'Rot',
     blu: 'Blau',
@@ -159,6 +160,9 @@ export const de: Strings = {
   scambiaBanca: 'Bank / Häfen',
   proponiScambio: 'Spielern anbieten',
   carte: 'Karten',
+  costruzioni: 'Bauten',
+  costruzioniSub: 'Wie viele du noch bauen kannst',
+  disponibili: 'verfügbar',
   fineTurno: 'Zug beenden',
   annulla: 'Abbrechen',
   conferma: 'Bestätigen',

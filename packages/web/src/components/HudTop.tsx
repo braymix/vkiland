@@ -1,7 +1,7 @@
 /** Testata di gioco: dadi, messaggio di fase e strip dei giocatori. */
 import { useEffect, useState } from 'react';
 import type { PlayerView } from '@vikiland/engine';
-import { PLAYER_COLORS } from '../render/sprites/palettes';
+import { shadesFor } from '../render/sprites/palettes';
 import { it, t } from '../i18n';
 import { UiIcon } from './icons';
 
@@ -96,7 +96,7 @@ export function HudTop({
       <div>
         {/* Strip nell'ORDINE DI GIOCO deciso dai dadi, non per posto. */}
         {view.turnOrder.map((pid) => view.players[pid]!).map((p) => {
-          const colors = PLAYER_COLORS[p.color];
+          const colors = shadesFor(p.color);
           const isCurrent = p.id === view.currentPlayer;
           const pg =
             view.me && p.id === view.me.id ? view.me.gloryPointsTotal : p.gloryPointsPublic;

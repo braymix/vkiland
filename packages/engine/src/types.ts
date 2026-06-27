@@ -13,7 +13,12 @@ export type SagaCard =
   | 'costruttoriDiSentieri'
   | 'banchetto'
   | 'tributo';
-export type PlayerColor = 'rosso' | 'blu' | 'verde' | 'giallo' | 'viola';
+/**
+ * Colore del clan: un esadecimale `#rrggbb` (palette libera, qualsiasi colore).
+ * In passato era uno di cinque nomi fissi; ora il motore lo tratta come stringa
+ * opaca — a interpretarlo è solo il renderer.
+ */
+export type PlayerColor = string;
 
 export type HexId = string;
 export type VertexId = string;
@@ -44,6 +49,8 @@ export interface Board {
   ports: Port[];
   /** Esagono attualmente occupato dal Drago (niente produzione lì). */
   dragonHex: HexId;
+  /** Chi ha spostato il Drago per ultimo (per colorarlo); null all'inizio. */
+  dragonMovedBy: PlayerId | null;
 }
 
 export type BotLevel = 'facile' | 'normale' | 'difficile' | 'esperto';

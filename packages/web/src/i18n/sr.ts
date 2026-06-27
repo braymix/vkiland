@@ -117,6 +117,7 @@ export const sr: Strings = {
   aggiungiGiocatore: '+ Dodaj Vikinga',
   cambiaColore: 'Promeni boju',
   scambiaColoreCon: 'Zameni boju sa {nome}',
+  coloreCustom: 'Prilagođeno',
   nomeColore: {
     rosso: 'Crvena',
     blu: 'Plava',
@@ -159,6 +160,9 @@ export const sr: Strings = {
   scambiaBanca: 'Banka / Pristaništa',
   proponiScambio: 'Ponudi igračima',
   carte: 'Karte',
+  costruzioni: 'Građevine',
+  costruzioniSub: 'Koliko ti je još ostalo za gradnju',
+  disponibili: 'dostupno',
   fineTurno: 'Kraj poteza',
   annulla: 'Otkaži',
   conferma: 'Potvrdi',

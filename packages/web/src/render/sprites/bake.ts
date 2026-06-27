@@ -6,7 +6,7 @@
 import type { PlayerColor } from '@vikiland/engine';
 import type { SpriteDef } from './defs';
 import { DIGIT_FONT } from './defs';
-import { getActiveTheme, PLAYER_COLORS, type ThemePalette } from './palettes';
+import { getActiveTheme, shadesFor, type ThemePalette } from './palettes';
 
 const cache = new Map<string, HTMLCanvasElement>();
 
@@ -15,9 +15,15 @@ function resolveColor(
   theme: ThemePalette,
   playerColor: PlayerColor | null
 ): string {
-  if (key === 'giocatoreMain' || key === 'giocatoreDark' || key === 'giocatoreLight') {
-    const pc = PLAYER_COLORS[playerColor ?? 'rosso'];
-    return key === 'giocatoreMain' ? pc.main : key === 'giocatoreDark' ? pc.dark : pc.light;
+  // Con un colore giocatore: tingono di quel colore sia i pezzi (chiavi
+  // `giocatore*`) sia il CORPO del Drago (chiavi `drago*`), così il Drago
+  // prende il colore di chi l'ha spostato. Senza colore, il Drago resta
+  // viola (dalla palette del tema).
+  if (playerColor !== null) {
+    const s = shadesFor(playerColor);
+    if (key === 'giocatoreMain' || key === 'dragoCorpo') return s.main;
+    if (key === 'giocatoreDark' || key === 'dragoScuro') return s.dark;
+    if (key === 'giocatoreLight' || key === 'dragoAla') return s.light;
   }
   return theme.colors[key] ?? '#ff00ff'; // magenta = chiave mancante (debug)
 }

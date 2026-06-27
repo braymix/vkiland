@@ -21,7 +21,7 @@ import {
   type ServerSocket,
 } from '../online/connection';
 import { RemoteGameController } from '../online/RemoteGameController';
-import { PLAYER_COLORS } from '../render/sprites/palettes';
+import { FREE_PALETTE, shadesFor } from '../render/sprites/palettes';
 import { TUTORIAL_ONLINE_CHAPTER } from '../i18n/tutorial';
 import { Dialog } from '../components/dialogs/Dialog';
 import { AccountScreen } from './AccountScreen';
@@ -560,8 +560,6 @@ function OnlineHome({
   );
 }
 
-const CLAN_COLORS: PlayerColor[] = ['rosso', 'blu', 'verde', 'giallo', 'viola'];
-
 function LobbyRoom({
   lobby,
   myUserId,
@@ -613,13 +611,13 @@ function LobbyRoom({
               {canRecolor(slot) ? (
                 <button
                   className="player-chip"
-                  style={{ background: PLAYER_COLORS[slot.color].main, cursor: 'pointer' }}
+                  style={{ background: shadesFor(slot.color).main, cursor: 'pointer' }}
                   onClick={() => setPickerOpen(pickerOpen === i ? null : i)}
                   title={it.cambiaColore}
                   aria-label={it.cambiaColore}
                 />
               ) : (
-                <span className="player-chip" style={{ background: PLAYER_COLORS[slot.color].main }} />
+                <span className="player-chip" style={{ background: shadesFor(slot.color).main }} />
               )}
               <span style={{ flex: 1, fontSize: 10 }}>
                 {slot.name}
@@ -639,18 +637,14 @@ function LobbyRoom({
             </div>
             {pickerOpen === i && canRecolor(slot) && (
               <div className="color-picker">
-                {CLAN_COLORS.map((c) => {
+                {FREE_PALETTE.map((c) => {
                   const owner = lobby.slots.findIndex((q, qi) => qi !== i && q.color === c);
                   return (
                     <button
                       key={c}
                       className={`color-swatch ${slot.color === c ? 'color-swatch--active' : ''}`}
-                      style={{ background: PLAYER_COLORS[c].main }}
-                      title={
-                        owner >= 0
-                          ? t(it.scambiaColoreCon, { nome: lobby.slots[owner]!.name })
-                          : it.nomeColore[c]
-                      }
+                      style={{ background: shadesFor(c).main }}
+                      title={owner >= 0 ? t(it.scambiaColoreCon, { nome: lobby.slots[owner]!.name }) : c}
                       onClick={() => {
                         onSetColor(i, c);
                         setPickerOpen(null);
@@ -660,6 +654,17 @@ function LobbyRoom({
                     </button>
                   );
                 })}
+                {/* Colore personalizzato (qualsiasi colore dalla tavolozza di sistema). */}
+                <label className="color-swatch color-swatch--custom" title={it.coloreCustom}>
+                  <input
+                    type="color"
+                    value={shadesFor(slot.color).main}
+                    onChange={(e) => {
+                      onSetColor(i, e.target.value);
+                      setPickerOpen(null);
+                    }}
+                  />
+                </label>
               </div>
             )}
           </div>

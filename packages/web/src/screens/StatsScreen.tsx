@@ -6,7 +6,7 @@
 import { useEffect } from 'react';
 import type { GameState, PlayerState } from '@vikiland/engine';
 import { it, t } from '../i18n';
-import { PLAYER_COLORS } from '../render/sprites/palettes';
+import { shadesFor } from '../render/sprites/palettes';
 import type { GameStats } from '../game/stats';
 
 interface Props {
@@ -160,7 +160,7 @@ function Compare({
       <div className="cmp-label">{label}</div>
       {players.map((p) => (
         <div className="cmp-row" key={p.id}>
-          <span className="cmp-name" style={{ color: PLAYER_COLORS[p.color].light }}>
+          <span className="cmp-name" style={{ color: shadesFor(p.color).light }}>
             {p.name}
           </span>
           <span className="cmp-track">
@@ -168,7 +168,7 @@ function Compare({
               className="cmp-bar"
               style={{
                 width: `${(values[p.id]! / max) * 100}%`,
-                background: PLAYER_COLORS[p.color].main,
+                background: shadesFor(p.color).main,
               }}
             />
           </span>
@@ -196,8 +196,8 @@ function Primato({
     <div className="primato">
       <div className="primato-title">{title}</div>
       {winner ? (
-        <div className="primato-name" style={{ color: PLAYER_COLORS[winner.color].light }}>
-          <span className="player-chip" style={{ background: PLAYER_COLORS[winner.color].main }} />
+        <div className="primato-name" style={{ color: shadesFor(winner.color).light }}>
+          <span className="player-chip" style={{ background: shadesFor(winner.color).main }} />
           {winner.name} <b>({values[idx!]})</b>
         </div>
       ) : (

@@ -2,7 +2,7 @@
 import { useMemo, useState } from 'react';
 import { getPlayerView, scoreBreakdown, type GameState } from '@vikiland/engine';
 import { it } from '../i18n';
-import { PLAYER_COLORS } from '../render/sprites/palettes';
+import { shadesFor } from '../render/sprites/palettes';
 import { ConfettiCanvas } from '../components/ConfettiCanvas';
 import { UiIcon } from '../components/icons';
 import { FullscreenMap } from '../components/FullscreenMap';
@@ -23,14 +23,14 @@ export function VictoryScreen({ state, stats, onExit, onRematch }: Props) {
   const spectatorView = useMemo(() => getPlayerView(state, 'spettatore'), [state]);
   if (state.phase.type !== 'gameOver') return null;
   const winner = state.players[state.phase.winner]!;
-  const winnerColors = PLAYER_COLORS[winner.color];
+  const winnerColors = shadesFor(winner.color);
   const rows = state.players
     .map((p) => scoreBreakdown(state, p.id))
     .sort((a, b) => b.totale - a.totale);
 
   // Coriandoli nei colori dei clan in partita + oro e bianco.
   const confettiColors = [
-    ...state.players.map((p) => PLAYER_COLORS[p.color].main),
+    ...state.players.map((p) => shadesFor(p.color).main),
     '#e7b94c',
     '#f0e9d6',
   ];
@@ -78,7 +78,7 @@ export function VictoryScreen({ state, stats, onExit, onRematch }: Props) {
                       <span
                         className="player-chip"
                         style={{
-                          background: PLAYER_COLORS[p.color].main,
+                          background: shadesFor(p.color).main,
                           display: 'inline-block',
                           marginRight: 6,
                         }}

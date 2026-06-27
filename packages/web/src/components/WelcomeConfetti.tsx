@@ -95,7 +95,7 @@ function ConfettiCanvas() {
     };
   }, []);
 
-  return <canvas ref={ref} className="confetti-canvas" aria-hidden="true" />;
+  return <canvas ref={ref} className="welcome-confetti" aria-hidden="true" />;
 }
 
 /** Riga di applausi (👏) che ondeggiano. */

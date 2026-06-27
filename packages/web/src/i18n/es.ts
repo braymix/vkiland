@@ -117,6 +117,7 @@ export const es: Strings = {
   aggiungiGiocatore: '+ Añadir vikingo',
   cambiaColore: 'Cambiar color',
   scambiaColoreCon: 'Intercambiar el color con {nome}',
+  coloreCustom: 'Personalizado',
   nomeColore: {
     rosso: 'Rojo',
     blu: 'Azul',
@@ -159,6 +160,9 @@ export const es: Strings = {
   scambiaBanca: 'Banca / Puertos',
   proponiScambio: 'Proponer a los jugadores',
   carte: 'Cartas',
+  costruzioni: 'Construcciones',
+  costruzioniSub: 'Cuántas te quedan por construir',
+  disponibili: 'disponibles',
   fineTurno: 'Fin del turno',
   annulla: 'Cancelar',
   conferma: 'Confirmar',

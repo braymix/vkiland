@@ -3,9 +3,8 @@ import { useState } from 'react';
 import { DEFAULT_TARGET_GLORY, type BotLevel, type PlayerColor } from '@vikiland/engine';
 import { it, t } from '../i18n';
 import type { GameSetup } from '../game/LocalGameController';
-import { PLAYER_COLORS } from '../render/sprites/palettes';
+import { FREE_PALETTE, shadesFor } from '../render/sprites/palettes';
 
-const COLORS: PlayerColor[] = ['rosso', 'blu', 'verde', 'giallo', 'viola'];
 const BOT_NAMES = ['Astrid', 'Leif', 'Sigrid'];
 
 interface PlayerRow {
@@ -22,9 +21,9 @@ interface Props {
 
 export function SetupScreen({ onStart, onBack }: Props) {
   const [players, setPlayers] = useState<PlayerRow[]>([
-    { name: 'Bjorn', isBot: false, botLevel: 'normale', color: 'rosso' },
-    { name: 'Astrid', isBot: true, botLevel: 'normale', color: 'blu' },
-    { name: 'Leif', isBot: true, botLevel: 'facile', color: 'verde' },
+    { name: 'Bjorn', isBot: false, botLevel: 'normale', color: FREE_PALETTE[0]! },
+    { name: 'Astrid', isBot: true, botLevel: 'normale', color: FREE_PALETTE[1]! },
+    { name: 'Leif', isBot: true, botLevel: 'facile', color: FREE_PALETTE[2]! },
   ]);
   const [seed, setSeed] = useState('');
   const [avoid68, setAvoid68] = useState(true);
@@ -41,7 +40,9 @@ export function SetupScreen({ onStart, onBack }: Props) {
   const addBot = () => {
     if (players.length >= 4) return;
     const name = BOT_NAMES.find((n) => !players.some((p) => p.name === n)) ?? 'Ragnhild';
-    const color = COLORS.find((c) => !players.some((p) => p.color === c)) ?? 'giallo';
+    const color =
+      FREE_PALETTE.find((c) => !players.some((p) => p.color === c)) ??
+      FREE_PALETTE[players.length % FREE_PALETTE.length]!;
     setPlayers([...players, { name, isBot: true, botLevel: 'normale', color }]);
   };
 
@@ -94,7 +95,7 @@ export function SetupScreen({ onStart, onBack }: Props) {
           <div className="setup-player">
             <button
               className="player-chip"
-              style={{ background: PLAYER_COLORS[p.color].main, cursor: 'pointer' }}
+              style={{ background: shadesFor(p.color).main, cursor: 'pointer' }}
               onClick={() => setPickerOpen(pickerOpen === i ? null : i)}
               title={it.cambiaColore}
               aria-label={it.cambiaColore}
@@ -130,24 +131,28 @@ export function SetupScreen({ onStart, onBack }: Props) {
           </div>
           {pickerOpen === i && (
             <div className="color-picker">
-              {COLORS.map((c) => {
+              {FREE_PALETTE.map((c) => {
                 const owner = players.findIndex((q, qi) => qi !== i && q.color === c);
                 return (
                   <button
                     key={c}
                     className={`color-swatch ${p.color === c ? 'color-swatch--active' : ''}`}
-                    style={{ background: PLAYER_COLORS[c].main }}
-                    title={
-                      owner >= 0
-                        ? t(it.scambiaColoreCon, { nome: players[owner]!.name })
-                        : it.nomeColore[c]
-                    }
+                    style={{ background: shadesFor(c).main }}
+                    title={owner >= 0 ? t(it.scambiaColoreCon, { nome: players[owner]!.name }) : c}
                     onClick={() => pickColor(i, c)}
                   >
                     {owner >= 0 ? players[owner]!.name.charAt(0).toUpperCase() : ''}
                   </button>
                 );
               })}
+              {/* Colore personalizzato: qualsiasi colore dalla tavolozza di sistema. */}
+              <label className="color-swatch color-swatch--custom" title={it.coloreCustom}>
+                <input
+                  type="color"
+                  value={shadesFor(p.color).main}
+                  onChange={(e) => pickColor(i, e.target.value)}
+                />
+              </label>
             </div>
           )}
           </div>

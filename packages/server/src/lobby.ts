@@ -14,8 +14,22 @@ const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const CODE_LEN = 6;
 const MAX_SLOTS = 4;
 const BOT_NAMES = ['Astrid', 'Leif', 'Sigrid', 'Ragnhild', 'Olaf', 'Freya'];
-/** Ordine dei colori del clan (5 disponibili, max 4 posti ⇒ uno resta sempre libero). */
-const PALETTE: PlayerColor[] = ['rosso', 'blu', 'verde', 'giallo', 'viola'];
+/**
+ * Ordine dei colori di DEFAULT del clan (palette libera: ognuno può poi
+ * sceglierne uno qualsiasi col selettore). I primi sono i classici, così le
+ * lobby partono coi colori di sempre, ma ce ne sono molti per evitare doppioni.
+ */
+const PALETTE: PlayerColor[] = [
+  '#c0392b', '#2e6fb7', '#3e8f4e', '#d9a525', '#8e44ad', '#e67e22',
+  '#16a085', '#e84393', '#34495e', '#1abc9c', '#e74c3c', '#2980b9',
+  '#27ae60', '#f39c12', '#9b59b6', '#d35400', '#3498db', '#6c5ce7',
+  '#00cec9', '#be2edd', '#a0522d', '#7f8c8d', '#2c3e50', '#fd79a8',
+];
+
+/** Un colore del clan valido è un esadecimale `#rrggbb`. */
+function isHexColor(c: string): boolean {
+  return /^#[0-9a-fA-F]{6}$/.test(c);
+}
 
 export interface LobbyUser {
   id: string;
@@ -33,7 +47,7 @@ interface Slot {
 
 /** Primo colore della palette non ancora usato nella lobby. */
 function firstFreeColor(slots: Slot[]): PlayerColor {
-  return PALETTE.find((c) => !slots.some((s) => s.color === c)) ?? 'rosso';
+  return PALETTE.find((c) => !slots.some((s) => s.color === c)) ?? PALETTE[0]!;
 }
 
 export interface Lobby {
@@ -76,7 +90,7 @@ export class LobbyManager {
       hostUserId: user.id,
       config: sanitizeConfig(config),
       slots: [
-        { userId: user.id, name: user.name, isBot: false, botLevel: null, color: 'rosso', connected: true },
+        { userId: user.id, name: user.name, isBot: false, botLevel: null, color: PALETTE[0]!, connected: true },
       ],
       started: false,
       room: null,
@@ -167,17 +181,18 @@ export class LobbyManager {
     const lobby = this.lobbyOfUser(userId);
     if (!lobby) return { error: 'Non sei in una lobby' };
     if (lobby.started) return { error: 'Partita già iniziata' };
-    if (!PALETTE.includes(color)) return { error: 'Colore non valido' };
+    if (!isHexColor(color)) return { error: 'Colore non valido' };
+    const norm = color.toLowerCase();
     const slot = lobby.slots[index];
     if (!slot) return { error: 'Posto inesistente' };
     const isHost = lobby.hostUserId === userId;
     const isOwn = slot.userId === userId;
     if (!isOwn && !(isHost && slot.isBot)) return { error: 'Non puoi cambiare questo colore' };
-    if (slot.color === color) return this.toState(lobby);
-    // Scambio col posto che ha già quel colore (se esiste).
-    const other = lobby.slots.find((s) => s !== slot && s.color === color);
+    if (slot.color === norm) return this.toState(lobby);
+    // Scambio col posto che ha già quel colore (se esiste): mai due uguali.
+    const other = lobby.slots.find((s) => s !== slot && s.color === norm);
     if (other) other.color = slot.color;
-    slot.color = color;
+    slot.color = norm;
     this.broadcast(lobby);
     return this.toState(lobby);
   }

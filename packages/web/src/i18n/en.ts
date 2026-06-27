@@ -117,6 +117,7 @@ export const en: Strings = {
   aggiungiGiocatore: '+ Add Viking',
   cambiaColore: 'Change color',
   scambiaColoreCon: 'Swap color with {nome}',
+  coloreCustom: 'Custom',
   nomeColore: {
     rosso: 'Red',
     blu: 'Blue',
@@ -159,6 +160,9 @@ export const en: Strings = {
   scambiaBanca: 'Bank / Harbors',
   proponiScambio: 'Offer to players',
   carte: 'Cards',
+  costruzioni: 'Buildings',
+  costruzioniSub: 'How many you have left to build',
+  disponibili: 'available',
   fineTurno: 'End turn',
   annulla: 'Cancel',
   conferma: 'Confirm',

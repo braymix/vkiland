@@ -70,6 +70,28 @@ coi bot» / «Prova l'online». Tutto tradotto nelle 7 lingue (chiavi `it.demo.*
 copertura imposta dal tipo `Strings`). Navigazione avanti/indietro/salta, barre
 di sezione, riproduzione automatica opzionale. Riusa `BoardCanvas` in sola
 lettura. Test: `demoScript.test.ts` (determinismo + invarianti dell'arco).
+All'apertura del Breve tutorial parte un **popup di benvenuto con coriandoli
+pixel** (canvas, due ondate, gravità; classe dedicata `welcome-confetti`) e la
+frase «Benvenuto nel magico mondo di Viking-Island» fra due file di 👏 animati;
+si chiude col bottone/tap/Invio-Esc e rispetta prefers-reduced-motion.
+**Palette colori LIBERA**: `PlayerColor` è ora un esadecimale qualsiasi (non più
+5 nomi fissi). `render/sprites/palettes.ts` espone `FREE_PALETTE` (24 colori
+vivaci, i primi 5 sono i classici) e `shadesFor(hex)` che ricava le tre tonalità
+(piena/scura/chiara) sostituendo la vecchia mappa `PLAYER_COLORS`; i selettori
+(setup e lobby online) mostrano la griglia di pastiglie **+ una pastiglia
+arcobaleno «Personalizzato»** (`<input type=color>`) per QUALSIASI colore, con
+lo stesso scambio anti-doppione. Lato server la lobby assegna i default dalla
+palette e `setColor` accetta ogni `#rrggbb` valido (normalizzato minuscolo).
+**Il Drago prende il colore di chi lo sposta**: lo stato porta
+`board.dragonMovedBy` (null all'inizio, impostato in `muoviDrago`, esposto nella
+vista); il renderer cuoce lo sprite del Drago con quel colore (chiavi `drago*`
+mappate alle tonalità del giocatore in `bake.ts`), viola neutro finché nessuno
+lo muove. Nuovo pannello **«Costruzioni»** (bottone accanto a «Carte» nella mano,
+`BuildingsDialog`): mostra quanti sentieri/villaggi/roccaforti restano da
+costruire (limite − piazzati, col villaggio promosso che torna disponibile),
+con le icone tinte del proprio colore. Nuove chiavi i18n in 7 lingue
+(`coloreCustom`, `costruzioni`, `costruzioniSub`, `disponibili`). Test:
+`dragonColor.test.ts` (il Drago ricorda il suo ultimo «mover», anche nella vista).
 
 ## Checklist Fase 3 (online)
 

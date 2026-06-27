@@ -13,6 +13,7 @@ import { BankTradeDialog } from '../components/dialogs/BankTradeDialog';
 import { CostsDialog } from '../components/dialogs/CostsDialog';
 import { DiscardDialog } from '../components/dialogs/DiscardDialog';
 import { SagaCardsDialog } from '../components/dialogs/SagaCardsDialog';
+import { BuildingsDialog } from '../components/dialogs/BuildingsDialog';
 import { StealDialog } from '../components/dialogs/StealDialog';
 import {
   ManageTradeDialog,
@@ -48,6 +49,7 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
   const [bankOpen, setBankOpen] = useState(false);
   const [proposeOpen, setProposeOpen] = useState(false);
   const [cardsOpen, setCardsOpen] = useState(false);
+  const [buildingsOpen, setBuildingsOpen] = useState(false);
   const [costsOpen, setCostsOpen] = useState(false);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [mapFullscreen, setMapFullscreen] = useState(false);
@@ -63,6 +65,7 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
       setBankOpen(false);
       setProposeOpen(false);
       setCardsOpen(false);
+      setBuildingsOpen(false);
       setCostsOpen(false);
     }
   }, [handoff]);
@@ -192,7 +195,11 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
           onOpenCards={() => setCardsOpen(true)}
           errorText={error}
         />
-        <HandPanel view={view} onOpenCards={() => setCardsOpen(true)} />
+        <HandPanel
+          view={view}
+          onOpenCards={() => setCardsOpen(true)}
+          onOpenBuildings={() => setBuildingsOpen(true)}
+        />
         <GameLog entries={snap.log} />
       </div>
 
@@ -220,6 +227,7 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
           onClose={() => setCardsOpen(false)}
         />
       )}
+      {buildingsOpen && <BuildingsDialog view={view} onClose={() => setBuildingsOpen(false)} />}
       {costsOpen && (
         <CostsDialog
           targetGloryPoints={view.targetGloryPoints}
