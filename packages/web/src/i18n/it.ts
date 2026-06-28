@@ -13,6 +13,10 @@ export const it = {
   multigiocatore: 'Online',
   negozio: 'Negozio (in arrivo)',
   comeSiGioca: 'Come si gioca',
+  crediti: 'Riconoscimenti',
+  creditiFattoDa: 'Fatto da',
+  creditiInvito: 'Hai un consiglio o hai trovato un bug? Non esitare a scrivermi: ogni feedback è benvenuto!',
+  creditiGrazie: 'Grazie per aver giocato a Viking-Island!',
 
   // Popup "monetizzazione" scherzoso (Nuova partita)
   memeTitolo: 'Un attimo, vichingo!',

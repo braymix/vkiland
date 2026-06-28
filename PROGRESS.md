@@ -57,6 +57,10 @@ TypeScript impone la copertura totale delle chiavi. Tutorial e diario di
 bordo tradotti (incluso l'olandese: `nl.ts` + `tutorial.nl.ts`). Il russo usa
 un font pixel con cirillico (`@fontsource/handjet`) attivato via
 `html[data-lang='ru']`; il serbo e l'olandese sono in alfabeto latino.
+Nel menu c'è un piccolo link «Riconoscimenti» che apre un popup (pixel-style)
+con l'autore — Michele Panarotto, michelepanarotto00@gmail.com (link `mailto:`) —
+e l'invito a mandare consigli/feedback; i testi sono tradotti nelle 8 lingue
+(`crediti`, `creditiFattoDa`, `creditiInvito`, `creditiGrazie`).
 **Breve tutorial** (pulsante «a parte» in alto a destra del menu, distinto dal
 «Libro delle Saghe»): tour interattivo passo-passo in 21 schede. La prima metà
 mostra una PARTITA VERA che si svolge sulla tavola — istantanee DETERMINISTICHE

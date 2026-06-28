@@ -10,6 +10,10 @@ export const ru: Strings = {
   multigiocatore: 'Онлайн',
   negozio: 'Магазин (скоро)',
   comeSiGioca: 'Как играть',
+  crediti: 'Благодарности',
+  creditiFattoDa: 'Сделал',
+  creditiInvito: 'Есть совет или нашли баг? Не стесняйтесь писать — любой отзыв приветствуется!',
+  creditiGrazie: 'Спасибо, что играли в Viking-Island!',
 
   // Joke "monetization" popup (New game)
   memeTitolo: 'Погоди, викинг!',

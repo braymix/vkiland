@@ -10,6 +10,10 @@ export const nl: Strings = {
   multigiocatore: 'Online',
   negozio: 'Winkel (binnenkort)',
   comeSiGioca: 'Hoe te spelen',
+  crediti: 'Credits',
+  creditiFattoDa: 'Gemaakt door',
+  creditiInvito: 'Heb je een tip of een bug gevonden? Schrijf me gerust — alle feedback is welkom!',
+  creditiGrazie: 'Bedankt dat je Viking-Island hebt gespeeld!',
 
   // Grappige "monetisatie"-pop-up (Nieuw spel)
   memeTitolo: 'Wacht even, Viking!',

@@ -10,6 +10,10 @@ export const sr: Strings = {
   multigiocatore: 'Onlajn',
   negozio: 'Prodavnica (uskoro)',
   comeSiGioca: 'Kako se igra',
+  crediti: 'Zahvalnice',
+  creditiFattoDa: 'Napravio',
+  creditiInvito: 'Imaš savet ili si našao grešku? Slobodno mi piši — svaki povratni utisak je dobrodošao!',
+  creditiGrazie: 'Hvala što si igrao Viking-Island!',
 
   // Joke "monetization" popup (New game)
   memeTitolo: 'Samo trenutak, Vikinže!',

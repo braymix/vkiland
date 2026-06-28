@@ -10,6 +10,10 @@ export const es: Strings = {
   multigiocatore: 'En línea',
   negozio: 'Tienda (próximamente)',
   comeSiGioca: 'Cómo se juega',
+  crediti: 'Créditos',
+  creditiFattoDa: 'Hecho por',
+  creditiInvito: '¿Tienes un consejo o has encontrado un error? No dudes en escribirme: ¡todo comentario es bienvenido!',
+  creditiGrazie: '¡Gracias por jugar a Viking-Island!',
 
   // Joke "monetization" popup (New game)
   memeTitolo: '¡Un momento, vikingo!',
