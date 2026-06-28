@@ -94,7 +94,7 @@ con le icone tinte del proprio colore. Nuove chiavi i18n in 7 lingue
 `dragonColor.test.ts` (il Drago ricorda il suo ultimo «mover», anche nella vista).
 **Fino a 6 giocatori con DUE taglie di tavola**: 2–4 → campo PICCOLO (raggio 2,
 19 caselle, come sempre); 5–6 → campo GRANDE (raggio 3, 37 caselle, 96 vertici,
-132 spigoli, 42 spigoli costieri, 11 approdi, banca 24, 1 tundra). La topologia
+132 spigoli, 42 spigoli costieri, 11 approdi, banca 24, 2 tundra/deserti). La topologia
 è ora memoizzata PER RAGGIO (`getTopology(radius)`), `isOnBoard`/`allBoardHexes`
 accettano il raggio, e `constants.ts` espone un `BoardSpec` (sacchetti
 terreni/segnalini/approdi + banca) con `SMALL_BOARD`/`LARGE_BOARD` e

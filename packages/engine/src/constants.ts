@@ -17,17 +17,17 @@ export const TERRAIN_POOL: readonly TerrainType[] = [
 /** 18 segnalini numerici (la tundra non ne ha). */
 export const TOKEN_POOL: readonly number[] = [2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9, 9, 10, 10, 11, 11, 12];
 
-/** 37 terreni della tavola GRANDE (5–6 giocatori): 1 tundra, 36 caselle produttive. */
+/** 37 terreni della tavola GRANDE (5–6 giocatori): 2 tundra (deserti), 35 produttive. */
 export const TERRAIN_POOL_LARGE: readonly TerrainType[] = [
   ...Array<TerrainType>(8).fill('legname'),
-  ...Array<TerrainType>(8).fill('lana'),
+  ...Array<TerrainType>(7).fill('lana'),
   ...Array<TerrainType>(8).fill('orzo'),
   ...Array<TerrainType>(6).fill('pietra'),
   ...Array<TerrainType>(6).fill('ferro'),
-  'tundra',
+  'tundra', 'tundra',
 ];
 
-/** 36 segnalini per la tavola grande: campana bilanciata (6 e 8 quattro volte). */
+/** 35 segnalini per le 35 caselle produttive della tavola grande (campana, 6/8 ×4). */
 export const TOKEN_POOL_LARGE: readonly number[] = [
   2, 2,
   3, 3, 3, 3,
@@ -37,7 +37,7 @@ export const TOKEN_POOL_LARGE: readonly number[] = [
   8, 8, 8, 8,
   9, 9, 9, 9,
   10, 10, 10, 10,
-  11, 11, 11, 11,
+  11, 11, 11,
   12, 12,
 ];
 

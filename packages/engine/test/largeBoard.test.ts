@@ -44,7 +44,7 @@ describe('tavola piccola (4 giocatori) invariata', () => {
 });
 
 describe('tavola grande (6 giocatori)', () => {
-  it('37 caselle, 96 vertici/132 spigoli, banca 24, 11 approdi, 1 tundra', () => {
+  it('37 caselle, 96 vertici/132 spigoli, banca 24, 11 approdi, 2 deserti', () => {
     const g = createGame({ seed: 'large-6', players: makePlayers(6) });
     expect(g.config.boardRadius).toBe(3);
     expect(g.board.hexes).toHaveLength(37);
@@ -53,12 +53,13 @@ describe('tavola grande (6 giocatori)', () => {
     const topo = getTopology(3);
     expect(topo.vertices).toHaveLength(96);
     expect(topo.edges).toHaveLength(132);
-    // Esattamente una tundra (la tana del Drago) e segnalini sulle altre 36.
+    // DUE tundra (deserti); il Drago parte dalla prima. Segnalini sulle altre 35.
     const tundra = g.board.hexes.filter((h) => h.terrain === 'tundra');
-    expect(tundra).toHaveLength(1);
+    expect(tundra).toHaveLength(2);
     expect(g.board.dragonHex).toBe(tundra[0]!.id);
-    expect(g.board.hexes.filter((h) => h.token !== null)).toHaveLength(36);
-    // Nessun segnalino 7 (è il Drago).
+    expect(g.board.hexes.filter((h) => h.token !== null)).toHaveLength(35);
+    // Le tundra non hanno segnalino; nessun 7 (è il Drago).
+    expect(tundra.every((h) => h.token === null)).toBe(true);
     expect(g.board.hexes.some((h) => h.token === 7)).toBe(false);
   });
 
