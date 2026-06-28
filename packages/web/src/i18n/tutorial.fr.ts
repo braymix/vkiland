@@ -335,7 +335,7 @@ export const tutorialFr: TutorialChapter[] = [
         items: [
           'CRÉER UNE PARTIE → tu obtiens un CODE de 6 lettres/chiffres : envoie-le à tes amis',
           'REJOINDRE → saisis le code reçu et te voilà dans le salon',
-          'L’hôte peut ajouter des bots puis appuyer sur « Larguez les amarres ! » (de 2 à 4 joueurs)',
+          'L’hôte peut ajouter des bots puis appuyer sur « Larguez les amarres ! » (de 2 à 6 joueurs)',
         ],
       },
       { t: 'h', text: '3. On joue !' },

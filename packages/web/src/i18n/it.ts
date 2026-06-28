@@ -138,6 +138,9 @@ export const it = {
   via: 'Salpa!',
   indietro: 'Indietro',
   serveUnUmano: 'Serve almeno un vichingo umano',
+  campoPiccolo: 'Campo piccolo',
+  campoGrande: 'Campo grande',
+  infoCampo: 'Da 5 giocatori: campo grande',
 
   // Hot-seat (passaggio del dispositivo)
   passaDispositivo: 'Passa il dispositivo',
@@ -479,7 +482,7 @@ export const it = {
         titolo: '3. La lobby',
         testo:
           'Nella sala d’attesa puoi cambiare il tuo colore e l’host può aggiungere bot per riempire i posti. ' +
-          'Quando siete da 2 a 4, l’host preme «Salpa!».',
+          'Quando siete da 2 a 6, l’host preme «Salpa!».',
       },
       onlinePartita: {
         titolo: '4. Si gioca!',

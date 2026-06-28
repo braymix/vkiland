@@ -93,7 +93,7 @@ export class RemoteGameController implements GameController {
       // Easter egg: i bot bloccati dal Drago si lamentano (stessa frase
       // su tutti i client: la scelta è deterministica).
       if (e.type === 'dragoMosso') {
-        for (const line of dragonComplaints(e, u.view, botIds)) {
+        for (const line of dragonComplaints(e, u.view, botIds, u.view.boardRadius)) {
           this.log.push({ id: this.logCounter++, text: line });
         }
       }

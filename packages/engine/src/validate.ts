@@ -78,7 +78,8 @@ function mainPhaseGuard(state: GameState, player: PlayerId): ValidationError | n
 export function isLegal(state: GameState, action: Action): ValidationError | null {
   if (state.phase.type === 'gameOver') return ERR.partitaFinita;
   if (!isPlayerId(state, action.player)) return ERR.giocatoreInesistente;
-  const topo = getTopology();
+  const radius = state.config.boardRadius;
+  const topo = getTopology(radius);
   const me = state.players[action.player]!;
 
   switch (action.type) {
@@ -89,7 +90,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (action.player !== state.setupOrder[state.setupIndex]) return ERR.nonIlTuoTurno;
       if (!(action.vertex in topo.vertexEdges)) return ERR.verticeNonValido;
       if (buildingOwnerAt(state, action.vertex) !== null) return ERR.verticeOccupato;
-      if (!vertexFreeWithDistance(state, action.vertex)) return ERR.distanza;
+      if (!vertexFreeWithDistance(state, action.vertex, radius)) return ERR.distanza;
       return null;
     }
     case 'piazzaSentieroIniziale': {
@@ -141,7 +142,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (!(action.edge in topo.edgeVertices)) return ERR.spigoloNonValido;
       if (roadOwnerAt(state, action.edge) !== null) return ERR.spigoloOccupato;
       if (me.roads.length >= PIECE_LIMITS.sentiero) return ERR.pezziEsauriti;
-      if (!roadConnects(state, action.player, action.edge)) return ERR.nonConnesso;
+      if (!roadConnects(state, action.player, action.edge, radius)) return ERR.nonConnesso;
       if (!hasAtLeast(me.resources, BUILD_COSTS.sentiero)) return ERR.risorseInsufficienti;
       return null;
     }
@@ -150,7 +151,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (guard) return guard;
       if (!(action.vertex in topo.vertexEdges)) return ERR.verticeNonValido;
       if (buildingOwnerAt(state, action.vertex) !== null) return ERR.verticeOccupato;
-      if (!vertexFreeWithDistance(state, action.vertex)) return ERR.distanza;
+      if (!vertexFreeWithDistance(state, action.vertex, radius)) return ERR.distanza;
       // Connettività: serve un proprio sentiero che tocchi il vertice.
       const connected = topo.vertexEdges[action.vertex]!.some((e) => me.roads.includes(e));
       if (!connected) return ERR.nonConnesso;
@@ -179,7 +180,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       const guard = mainPhaseGuard(state, action.player);
       if (guard) return guard;
       if (action.give === action.receive) return ERR.scambioNonValido;
-      const ratio = bankTradeRatio(state, action.player, action.give);
+      const ratio = bankTradeRatio(state, action.player, action.give, radius);
       if (me.resources[action.give] < ratio) return ERR.risorseInsufficienti;
       if (state.bank[action.receive] < 1) return ERR.bancaVuota;
       return null;
@@ -256,7 +257,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (!(action.edge in topo.edgeVertices)) return ERR.spigoloNonValido;
       if (roadOwnerAt(state, action.edge) !== null) return ERR.spigoloOccupato;
       if (me.roads.length >= PIECE_LIMITS.sentiero) return ERR.pezziEsauriti;
-      if (!roadConnects(state, action.player, action.edge)) return ERR.nonConnesso;
+      if (!roadConnects(state, action.player, action.edge, radius)) return ERR.nonConnesso;
       return null;
     }
     case 'giocaBanchetto': {

@@ -19,7 +19,8 @@ import {
 import type { GameState, PlayerId, Resource } from './types';
 
 export function getLegalActions(state: GameState, player: PlayerId): LegalMove[] {
-  const topo = getTopology();
+  const radius = state.config.boardRadius;
+  const topo = getTopology(radius);
   const moves: LegalMove[] = [];
   if (player < 0 || player >= state.players.length) return moves;
   const me = state.players[player]!;
@@ -32,7 +33,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
       if (player !== state.setupOrder[state.setupIndex]) return moves;
       if (state.phase.expecting === 'villaggio') {
         for (const v of topo.vertices) {
-          if (vertexFreeWithDistance(state, v)) {
+          if (vertexFreeWithDistance(state, v, radius)) {
             moves.push({ type: 'piazzaVillaggioIniziale', player, vertex: v });
           }
         }
@@ -81,7 +82,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
 
     case 'freeRoads': {
       if (player !== state.currentPlayer) return moves;
-      for (const e of legalRoadEdges(state, player)) {
+      for (const e of legalRoadEdges(state, player, radius)) {
         moves.push({ type: 'piazzaSentieroGratis', player, edge: e });
       }
       return moves;
@@ -119,7 +120,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
         hasAtLeast(me.resources, BUILD_COSTS.sentiero) &&
         me.roads.length < PIECE_LIMITS.sentiero
       ) {
-        for (const e of legalRoadEdges(state, player)) {
+        for (const e of legalRoadEdges(state, player, radius)) {
           moves.push({ type: 'costruisciSentiero', player, edge: e });
         }
       }
@@ -127,7 +128,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
         hasAtLeast(me.resources, BUILD_COSTS.villaggio) &&
         me.villages.length < PIECE_LIMITS.villaggio
       ) {
-        for (const v of legalVillageVertices(state, player)) {
+        for (const v of legalVillageVertices(state, player, radius)) {
           moves.push({ type: 'costruisciVillaggio', player, vertex: v });
         }
       }
@@ -145,7 +146,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
 
       // Scambi con banca/approdi.
       for (const give of RESOURCES) {
-        const ratio = bankTradeRatio(state, player, give);
+        const ratio = bankTradeRatio(state, player, give, radius);
         if (me.resources[give] < ratio) continue;
         for (const receive of RESOURCES) {
           if (receive === give || state.bank[receive] < 1) continue;

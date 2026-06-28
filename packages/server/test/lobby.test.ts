@@ -173,11 +173,13 @@ describe('LobbyManager', () => {
     expect(isApiError(manager.join(list[0]!.code, leif))).toBe(false);
     expect(manager.listPublic()[0]!.players).toBe(2);
 
-    // Piena (4) o avviata ⇒ sparisce dalla lista.
+    // Piena (6) o avviata ⇒ sparisce dalla lista. Bjorn + Leif + 4 bot = 6.
+    manager.addBot(bjorn.id, 'facile');
+    manager.addBot(bjorn.id, 'facile');
     manager.addBot(bjorn.id, 'facile');
     manager.addBot(bjorn.id, 'facile');
     expect(manager.listPublic()).toHaveLength(0);
-    const reopened = manager.removeSlot(bjorn.id, 3);
+    const reopened = manager.removeSlot(bjorn.id, 5);
     if (isApiError(reopened)) throw new Error('removeSlot fallita');
     expect(manager.listPublic()).toHaveLength(1);
     manager.start(bjorn.id);

@@ -4,7 +4,7 @@
  * la partita riusa la GameScreen identica al locale.
  */
 import { useEffect, useRef, useState } from 'react';
-import type { BotLevel, PlayerColor } from '@vikiland/engine';
+import { MAX_PLAYERS, type BotLevel, type PlayerColor } from '@vikiland/engine';
 import type { LobbyState, PublicLobbySummary } from '@vikiland/server/protocol';
 import { isApiError } from '@vikiland/server/protocol';
 import { it, t } from '../i18n';
@@ -669,7 +669,7 @@ function LobbyRoom({
             )}
           </div>
         ))}
-        {isHost && lobby.slots.length < 4 && (
+        {isHost && lobby.slots.length < MAX_PLAYERS && (
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <select value={botLevel} onChange={(e) => setBotLevel(e.target.value as BotLevel)}>
               <option value="facile">{it.facile}</option>

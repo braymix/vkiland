@@ -134,6 +134,9 @@ export const de: Strings = {
   via: 'In See stechen!',
   indietro: 'Zurück',
   serveUnUmano: 'Du brauchst mindestens einen menschlichen Wikinger',
+  campoPiccolo: 'Kleines Feld',
+  campoGrande: 'Großes Feld',
+  infoCampo: 'Ab 5 Spielern: großes Feld',
 
   // Hot-seat (passing the device)
   passaDispositivo: 'Gerät weitergeben',
@@ -380,7 +383,7 @@ export const de: Strings = {
       serverFreddo: { titolo: 'Hab Geduld: Der Server wacht auf', testo: 'Wichtig: Der kostenlose Server geht „in den Winterschlaf“, wenn niemand spielt. Die ERSTE Verbindung kann 30 bis 60 Sekunden dauern, um ihn aufzuwecken — das ist normal, du musst nur warten. Ein grünes Häkchen sagt dir Bescheid, wenn er bereit ist.' },
       account: { titolo: '1. Erstelle ein Konto', testo: 'Du brauchst nur einen Benutzernamen (er ist zugleich dein Name im Spiel) und ein Passwort mit mindestens 8 Zeichen. Keine E-Mail: Sie ist nicht nötig, und wir fragen nicht danach.' },
       creaEntra: { titolo: '2. Erstelle ein Spiel oder tritt einem bei', testo: 'Drück auf „Spiel erstellen“, um einen 6-stelligen Code zu erhalten, den du deinen Freunden schickst, oder auf „Beitreten“ und gib den Code ein, den du bekommen hast.' },
-      lobby: { titolo: '3. Die Lobby', testo: 'Im Warteraum kannst du deine Farbe ändern, und der Host kann Bots hinzufügen, um die Plätze zu füllen. Wenn ihr zu zweit bis zu viert seid, drückt der Host auf „In See stechen!“.' },
+      lobby: { titolo: '3. Die Lobby', testo: 'Im Warteraum kannst du deine Farbe ändern, und der Host kann Bots hinzufügen, um die Plätze zu füllen. Wenn ihr zu zweit bis zu sechst seid, drückt der Host auf „In See stechen!“.' },
       onlinePartita: { titolo: '4. Es wird gespielt!', testo: 'Die Züge aller kommen in Echtzeit an. Wenn die Verbindung abbricht, komm mit dem Lobby-Code zurück: Dein Platz bleibt deiner. Es gibt auch einen optionalen Zugtimer, damit niemand die Partie blockiert.' },
       fine: { titolo: 'Du bist bereit, Wikinger!', testo: 'Das war’s! Du kannst jede Regel im „Buch der Sagas“ über das Menü noch einmal nachlesen. Jetzt bist du dran: Stich in See!' },
     },

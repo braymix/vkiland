@@ -74,6 +74,7 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
     longestRoad: { ...state.longestRoad },
     largestArmy: { ...state.largestArmy },
     targetGloryPoints: state.config.targetGloryPoints,
+    boardRadius: state.config.boardRadius,
   };
 }
 

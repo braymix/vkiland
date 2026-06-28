@@ -18,8 +18,7 @@ import {
   type VertexId,
 } from '@vikiland/engine';
 import {
-  CANVAS_H,
-  CANVAS_W,
+  boardCanvasSize,
   edgeEndpoints,
   hexCenterById,
   hexHalfWidthAt,
@@ -105,6 +104,7 @@ function color(key: string): string {
 
 function boardSignature(view: PlayerView): string {
   return (
+    `r${view.boardRadius}#` +
     view.board.hexes.map((h) => `${h.terrain}${h.token ?? ''}`).join('|') +
     '#' +
     view.board.ports.map((p) => `${p.edge}${p.kind}`).join('|')
@@ -213,24 +213,26 @@ function drawPortJetty(ctx: CanvasRenderingContext2D, from: Point, to: Point): v
 }
 
 function renderStatic(view: PlayerView): HTMLCanvasElement {
+  const radius = view.boardRadius;
+  const { w, h } = boardCanvasSize(radius);
   const canvas = document.createElement('canvas');
-  canvas.width = CANVAS_W;
-  canvas.height = CANVAS_H;
+  canvas.width = w;
+  canvas.height = h;
   const ctx = canvas.getContext('2d')!;
 
   // Mare con un dithering deterministico di onde.
   ctx.fillStyle = color('mare');
-  ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+  ctx.fillRect(0, 0, w, h);
   ctx.fillStyle = color('mareChiaro');
-  for (let y = 0; y < CANVAS_H; y += 3) {
-    for (let x = 0; x < CANVAS_W; x++) {
+  for (let y = 0; y < h; y += 3) {
+    for (let x = 0; x < w; x++) {
       if ((x * 7 + y * 13) % 53 === 0) ctx.fillRect(x, y, 3, 1);
     }
   }
 
   // Terreni con decorazioni e segnalini.
   for (const hex of view.board.hexes) {
-    const { x, y } = hexCenterById(hex.id);
+    const { x, y } = hexCenterById(hex.id, radius);
     const [fillKey, borderKey] = TERRAIN_FILL[hex.terrain];
     fillHex(ctx, x, y, color(fillKey), color(borderKey));
     const deco = TERRAIN_DECO[hex.terrain];
@@ -242,12 +244,12 @@ function renderStatic(view: PlayerView): HTMLCanvasElement {
 
   // Approdi: pontili verso i vertici costieri + drakkar al largo + etichetta
   // del rapporto (+ icona risorsa).
-  const topo = getTopology();
+  const topo = getTopology(radius);
   for (const port of view.board.ports) {
-    const anchor = portAnchor(port.edge);
+    const anchor = portAnchor(port.edge, radius);
     // Pontili PRIMA dello scafo: convergono e si infilano sotto la chiglia.
     for (const v of topo.edgeVertices[port.edge] ?? []) {
-      drawPortJetty(ctx, vertexPoint(v), anchor);
+      drawPortJetty(ctx, vertexPoint(v, radius), anchor);
     }
     drawSpriteCentered(ctx, bakeSprite('drakkar', DRAKKAR), anchor.x, anchor.y);
     const label = `${port.ratio}:1`;
@@ -269,9 +271,10 @@ function renderStatic(view: PlayerView): HTMLCanvasElement {
 function drawRoad(
   ctx: CanvasRenderingContext2D,
   edge: EdgeId,
-  playerColor: PlayerColor
+  playerColor: PlayerColor,
+  radius: number
 ): void {
-  const [p1, p2] = edgeEndpoints(edge);
+  const [p1, p2] = edgeEndpoints(edge, radius);
   const colors = shadesFor(playerColor);
   // Accorcia il segmento per lasciare respiro ai vertici.
   const dx = p2.x - p1.x;
@@ -302,9 +305,11 @@ export function renderBoard(
   view: PlayerView,
   ui: BoardUiState = {}
 ): void {
-  const topo = getTopology();
-  canvas.width = CANVAS_W;
-  canvas.height = CANVAS_H;
+  const radius = view.boardRadius;
+  const topo = getTopology(radius);
+  const { w, h } = boardCanvasSize(radius);
+  canvas.width = w;
+  canvas.height = h;
   const ctx = canvas.getContext('2d')!;
   ctx.imageSmoothingEnabled = false;
 
@@ -317,24 +322,24 @@ export function renderBoard(
 
   // Sentieri di tutti i giocatori.
   for (const p of view.players) {
-    for (const e of p.roads) drawRoad(ctx, e, p.color);
+    for (const e of p.roads) drawRoad(ctx, e, p.color, radius);
   }
 
   // Edifici.
   for (const p of view.players) {
     for (const v of p.villages) {
-      const pt = vertexPoint(v);
+      const pt = vertexPoint(v, radius);
       drawSpriteCentered(ctx, bakeSprite('villaggio', VILLAGGIO, p.color), pt.x, pt.y - 2);
     }
     for (const v of p.strongholds) {
-      const pt = vertexPoint(v);
+      const pt = vertexPoint(v, radius);
       drawSpriteCentered(ctx, bakeSprite('roccaforte', ROCCAFORTE, p.color), pt.x, pt.y - 2);
     }
   }
 
   // Il Drago sull'esagono bloccato: prende il colore di CHI l'ha spostato per
   // ultimo (viola neutro se nessuno lo ha ancora mosso).
-  const dragonCenter = hexCenterById(view.board.dragonHex);
+  const dragonCenter = hexCenterById(view.board.dragonHex, radius);
   const moverId = view.board.dragonMovedBy;
   const dragonColor = moverId !== null ? view.players[moverId]?.color ?? null : null;
   drawSpriteCentered(ctx, bakeSprite('drago', DRAGO, dragonColor), dragonCenter.x, dragonCenter.y + 2);
@@ -348,15 +353,15 @@ export function renderBoard(
     view.board.ports.flatMap((p) => topo.edgeVertices[p.edge] ?? [])
   );
   for (const v of ui.highlightVertices ?? []) {
-    const pt = vertexPoint(v);
+    const pt = vertexPoint(v, radius);
     drawSpriteCentered(ctx, portVertices.has(v) ? markerPorto : marker, pt.x, pt.y);
   }
   for (const e of ui.highlightEdges ?? []) {
-    const [p1, p2] = edgeEndpoints(e);
+    const [p1, p2] = edgeEndpoints(e, radius);
     drawSpriteCentered(ctx, marker, Math.round((p1.x + p2.x) / 2), Math.round((p1.y + p2.y) / 2));
   }
   for (const h of ui.highlightHexes ?? []) {
-    const c = hexCenterById(h);
+    const c = hexCenterById(h, radius);
     drawSpriteCentered(ctx, marker, c.x, c.y - 16);
   }
 }

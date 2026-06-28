@@ -160,7 +160,7 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
       const { view, player } = input;
       const me = view.players[player]!;
       const my = view.me!;
-      const topo = getTopology();
+      const topo = getTopology(view.boardRadius);
 
       // --- Livello facile: ogni tanto gioca a caso (ma mai scambi/proposte) ---
       if (epsilon > 0) {
@@ -201,7 +201,7 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
       // --- Scarto sul 7 ---
       const discard = input.legalActions.find((m) => m.type === 'scartaDescr');
       if (discard && discard.type === 'scartaDescr') {
-        const spots = legalVillageVertices(view, player);
+        const spots = legalVillageVertices(view, player, view.boardRadius);
         const { cost } = currentGoal(view, player, BUILD_COSTS, spots.length > 0);
         return {
           type: 'scarta',
@@ -249,7 +249,7 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
       const tradeResponses = bucket(input, 'rispondiScambio');
       if (tradeResponses.length > 0) {
         const offer = view.pendingTrade!;
-        const spots = legalVillageVertices(view, player);
+        const spots = legalVillageVertices(view, player, view.boardRadius);
         const { cost } = currentGoal(view, player, BUILD_COSTS, spots.length > 0);
         const need = deficit(my.resources, cost);
         // Ciò che RICEVO è offer.give; ciò che PAGO è offer.receive.
@@ -310,7 +310,7 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
       }
 
       // --- Fase main: priorità di costruzione ---
-      const spots = legalVillageVertices(view, player);
+      const spots = legalVillageVertices(view, player, view.boardRadius);
       const { goal, cost } = currentGoal(view, player, BUILD_COSTS, spots.length > 0);
       const need = deficit(my.resources, cost);
 

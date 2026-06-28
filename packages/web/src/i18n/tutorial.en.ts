@@ -335,7 +335,7 @@ export const tutorialEn: TutorialChapter[] = [
         items: [
           'CREATE GAME → you get a 6-letter/digit CODE: send it to your friends',
           'JOIN → enter the code you received and you’re in the lobby',
-          'The host can add bots and then press “Set sail!” (2 to 4 players)',
+          'The host can add bots and then press “Set sail!” (2 to 6 players)',
         ],
       },
       { t: 'h', text: '3. Play!' },

@@ -46,7 +46,7 @@ function afterDragonPhase(state: GameState): void {
 
 /** Avversari derubabili sull'esagono del Drago: edificio adiacente e ≥1 carta. */
 function stealCandidates(state: GameState, mover: PlayerId): PlayerId[] {
-  const topo = getTopology();
+  const topo = getTopology(state.config.boardRadius);
   const verts = new Set(topo.hexVertices[state.board.dragonHex]!);
   const out: PlayerId[] = [];
   for (const p of state.players) {
@@ -254,7 +254,7 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
 
     // ----------------------------------------------------------- scambi
     case 'scambioBanca': {
-      const ratio = bankTradeRatio(state, me.id, action.give);
+      const ratio = bankTradeRatio(state, me.id, action.give, state.config.boardRadius);
       me.resources[action.give] -= ratio;
       state.bank[action.give] += ratio;
       state.bank[action.receive] -= 1;
@@ -346,7 +346,7 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       const remaining = Math.min(2, PIECE_LIMITS.sentiero - me.roads.length);
       state.phase = { type: 'freeRoads', remaining };
       // Se non c'è nessun piazzamento legale la carta si esaurisce subito.
-      if (legalRoadEdges(state, me.id).length === 0) state.phase = { type: 'main' };
+      if (legalRoadEdges(state, me.id, state.config.boardRadius).length === 0) state.phase = { type: 'main' };
       break;
     }
     case 'piazzaSentieroGratis': {
@@ -361,7 +361,7 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       recomputeGrandeVia(state, events);
       if (state.phase.type === 'freeRoads') {
         const remaining = state.phase.remaining - 1;
-        if (remaining <= 0 || legalRoadEdges(state, me.id).length === 0) {
+        if (remaining <= 0 || legalRoadEdges(state, me.id, state.config.boardRadius).length === 0) {
           state.phase = { type: 'main' };
         } else {
           state.phase = { type: 'freeRoads', remaining };

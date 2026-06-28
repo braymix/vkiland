@@ -1,7 +1,7 @@
 /** Creazione della partita e clonazione dello stato. */
 import { generateBoard } from './board/generate';
 import {
-  BANK_PER_RESOURCE,
+  boardSpecForPlayers,
   DEFAULT_TARGET_GLORY,
   MAX_PLAYERS,
   MIN_PLAYERS,
@@ -30,15 +30,19 @@ export function createGame(options: NewGameOptions): GameState {
     throw new Error('createGame: i colori dei giocatori devono essere tutti diversi');
   }
 
+  // La taglia della tavola dipende dal numero di giocatori: 2–4 piccola, 5–6 grande.
+  const spec = boardSpecForPlayers(players.length);
+
   const config: GameConfig = {
     seed,
     players: players.map((p) => ({ ...p })),
     avoidAdjacent68: options.avoidAdjacent68 ?? true,
     targetGloryPoints: options.targetGloryPoints ?? DEFAULT_TARGET_GLORY,
+    boardRadius: spec.radius,
   };
 
   let rng = seedRng(seed);
-  const [board, rngAfterBoard] = generateBoard(rng, config.avoidAdjacent68);
+  const [board, rngAfterBoard] = generateBoard(rng, config.avoidAdjacent68, spec);
   rng = rngAfterBoard;
   const [sagaDeck, rngAfterDeck] = shuffle(rng, SAGA_DECK_COMPOSITION);
   rng = rngAfterDeck;
@@ -103,11 +107,11 @@ export function createGame(options: NewGameOptions): GameState {
     board,
     players: playerStates,
     bank: {
-      legname: BANK_PER_RESOURCE,
-      pietra: BANK_PER_RESOURCE,
-      lana: BANK_PER_RESOURCE,
-      orzo: BANK_PER_RESOURCE,
-      ferro: BANK_PER_RESOURCE,
+      legname: spec.bankPerResource,
+      pietra: spec.bankPerResource,
+      lana: spec.bankPerResource,
+      orzo: spec.bankPerResource,
+      ferro: spec.bankPerResource,
     },
     sagaDeck,
     currentPlayer: setupOrder[0]!,

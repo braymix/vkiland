@@ -1609,3 +1609,26 @@ html[data-lang='ru'] .welcome-title {
   min-width: 34px;
   text-align: right;
 }
+
+/* Avviso taglia della tavola nel setup (piccola 2–4 / grande 5–6) */
+.setup-board-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 8px;
+}
+.board-size-chip {
+  padding: 3px 6px;
+  border: 2px solid var(--bg-deep);
+  background: var(--bg-deep);
+  color: var(--ink-dim);
+  font-size: 9px;
+}
+.board-size-chip--big {
+  border-color: var(--accent-dark);
+  color: var(--accent);
+}
+.setup-board-info {
+  color: var(--ink-dim);
+}

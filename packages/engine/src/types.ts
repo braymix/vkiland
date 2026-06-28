@@ -68,6 +68,8 @@ export interface GameConfig {
   /** Se true, la generazione evita segnalini 6/8 su esagoni adiacenti. */
   avoidAdjacent68: boolean;
   targetGloryPoints: number;
+  /** Raggio della tavola (2 = piccola/2–4 giocatori, 3 = grande/5–6). */
+  boardRadius: number;
 }
 
 export interface PlayerState {
@@ -238,4 +240,6 @@ export interface PlayerView {
   longestRoad: { holder: PlayerId | null; length: number };
   largestArmy: { holder: PlayerId | null; count: number };
   targetGloryPoints: number;
+  /** Raggio della tavola: il renderer e i bot lo usano per la topologia giusta. */
+  boardRadius: number;
 }

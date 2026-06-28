@@ -134,6 +134,9 @@ export const en: Strings = {
   via: 'Set sail!',
   indietro: 'Back',
   serveUnUmano: 'You need at least one human Viking',
+  campoPiccolo: 'Small board',
+  campoGrande: 'Large board',
+  infoCampo: 'From 5 players: large board',
 
   // Hot-seat (passing the device)
   passaDispositivo: 'Pass the device',
@@ -491,7 +494,7 @@ export const en: Strings = {
         titolo: '3. The lobby',
         testo:
           'In the waiting room you can change your color and the host can add ' +
-          'bots to fill the seats. When there are 2 to 4 of you, the host ' +
+          'bots to fill the seats. When there are 2 to 6 of you, the host ' +
           'presses «Set sail!».',
       },
       onlinePartita: {

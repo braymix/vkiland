@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { getTopology } from '@vikiland/engine';
 import {
+  boardCanvasSize,
   CANVAS_H,
   CANVAS_W,
   edgeEndpoints,
@@ -84,6 +85,44 @@ describe('geometria della tavola', () => {
     expect(hexHalfWidthAt(29)).toBe(-1);
     for (let dy = 0; dy <= 28; dy++) {
       expect(hexHalfWidthAt(dy)).toBe(hexHalfWidthAt(-dy));
+    }
+  });
+});
+
+describe('tavola GRANDE (raggio 3): geometria e hit-test', () => {
+  const topo3 = getTopology(3);
+
+  it('il canvas grande è 416×364 (più grande del piccolo 320×280)', () => {
+    expect(boardCanvasSize(2)).toEqual({ w: CANVAS_W, h: CANVAS_H });
+    expect(boardCanvasSize(3)).toEqual({ w: 416, h: 364 });
+  });
+
+  it('i 96 vertici sono interi e dentro il canvas grande', () => {
+    const { w, h } = boardCanvasSize(3);
+    expect(topo3.vertices).toHaveLength(96);
+    for (const v of topo3.vertices) {
+      const p = vertexPoint(v, 3);
+      expect(Number.isInteger(p.x) && Number.isInteger(p.y)).toBe(true);
+      expect(p.x).toBeGreaterThan(0);
+      expect(p.x).toBeLessThan(w);
+      expect(p.y).toBeGreaterThan(0);
+      expect(p.y).toBeLessThan(h);
+    }
+  });
+
+  it('l’hit-test col raggio 3 ritrova ogni vertice dal suo punto disegnato', () => {
+    for (const v of topo3.vertices) {
+      const p = vertexPoint(v, 3);
+      expect(nearestVertex(p.x, p.y, [v], 3)).toBe(v);
+    }
+    // Gli ancoraggi degli approdi della costa (42 spigoli) stanno nel canvas.
+    const { w, h } = boardCanvasSize(3);
+    for (const e of topo3.coastalRing) {
+      const a = portAnchor(e, 3);
+      expect(a.x).toBeGreaterThanOrEqual(6);
+      expect(a.x).toBeLessThanOrEqual(w - 6);
+      expect(a.y).toBeGreaterThanOrEqual(6);
+      expect(a.y).toBeLessThanOrEqual(h - 6);
     }
   });
 });

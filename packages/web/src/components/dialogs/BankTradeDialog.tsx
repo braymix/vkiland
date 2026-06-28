@@ -21,8 +21,8 @@ export function BankTradeDialog({ view, onSubmit, onClose }: Props) {
   const me = view.me!;
   const [give, setGive] = useState<Resource | null>(null);
   const [receive, setReceive] = useState<Resource | null>(null);
-  const ratio = give ? bankTradeRatio(view, me.id, give) : null;
-  const canGive = (r: Resource) => me.resources[r] >= bankTradeRatio(view, me.id, r);
+  const ratio = give ? bankTradeRatio(view, me.id, give, view.boardRadius) : null;
+  const canGive = (r: Resource) => me.resources[r] >= bankTradeRatio(view, me.id, r, view.boardRadius);
   const valid =
     give !== null &&
     receive !== null &&

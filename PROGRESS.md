@@ -92,6 +92,23 @@ costruire (limite − piazzati, col villaggio promosso che torna disponibile),
 con le icone tinte del proprio colore. Nuove chiavi i18n in 7 lingue
 (`coloreCustom`, `costruzioni`, `costruzioniSub`, `disponibili`). Test:
 `dragonColor.test.ts` (il Drago ricorda il suo ultimo «mover», anche nella vista).
+**Fino a 6 giocatori con DUE taglie di tavola**: 2–4 → campo PICCOLO (raggio 2,
+19 caselle, come sempre); 5–6 → campo GRANDE (raggio 3, 37 caselle, 96 vertici,
+132 spigoli, 42 spigoli costieri, 11 approdi, banca 24, 1 tundra). La topologia
+è ora memoizzata PER RAGGIO (`getTopology(radius)`), `isOnBoard`/`allBoardHexes`
+accettano il raggio, e `constants.ts` espone un `BoardSpec` (sacchetti
+terreni/segnalini/approdi + banca) con `SMALL_BOARD`/`LARGE_BOARD` e
+`boardSpecForPlayers(n)`. `createGame` sceglie la taglia dal numero di giocatori
+e salva `config.boardRadius` (esposto anche in `PlayerView`); il raggio viene
+infilato in tutte le funzioni che usano la topologia (validate, legal, apply,
+rules, longestRoad, production, view) e nei bot/renderer (`view.boardRadius`).
+Il renderer è a misura: `boardCanvasSize(radius)` (piccolo 320×280, grande
+416×364) e le funzioni di `layout.ts` accettano il raggio (origine al centro,
+sprite invariati, tavola grande rimpicciolita via CSS), hit-testing
+radius-aware. `MAX_PLAYERS=6` (server `MAX_SLOTS=6`); il Setup arriva a 6
+vichinghi e mostra l'avviso «Campo piccolo/grande». Test: `largeBoard.test.ts`
+(selezione taglia, dimensioni, partita completa a 6 con replay deterministico) e
+`layout.test.ts` (geometria + hit-test del raggio 3).
 
 ## Checklist Fase 3 (online)
 

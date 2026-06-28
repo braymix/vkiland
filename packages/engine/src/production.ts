@@ -12,7 +12,7 @@ import type { GameState, Resource, ResourceCount } from './types';
  * se la richiede uno solo, riceve quel che resta.
  */
 export function produceResources(state: GameState, total: number, events: GameEvent[]): void {
-  const topo = getTopology();
+  const topo = getTopology(state.config.boardRadius);
   const demand = new Map<number, ResourceCount>(); // giocatore → richiesta
 
   for (const hex of state.board.hexes) {
@@ -79,7 +79,7 @@ export function produceForSetupVillage(
   vertex: string,
   events: GameEvent[]
 ): void {
-  const topo = getTopology();
+  const topo = getTopology(state.config.boardRadius);
   const byId = new Map(state.board.hexes.map((h) => [h.id, h]));
   const gained = zeroResources();
   for (const hexId of topo.vertexLandHexes[vertex]!) {

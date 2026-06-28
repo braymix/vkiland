@@ -336,7 +336,7 @@ export const tutorialDe: TutorialChapter[] = [
         items: [
           'SPIEL ERSTELLEN → du erhältst einen CODE aus 6 Buchstaben/Ziffern: schick ihn deinen Freunden',
           'BEITRETEN → gib den erhaltenen Code ein und du bist in der Lobby',
-          'Der Host kann Bots hinzufügen und dann „In See stechen!“ drücken (2 bis 4 Spieler)',
+          'Der Host kann Bots hinzufügen und dann „In See stechen!“ drücken (2 bis 6 Spieler)',
         ],
       },
       { t: 'h', text: '3. Los geht’s!' },

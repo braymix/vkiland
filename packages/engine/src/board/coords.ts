@@ -29,8 +29,10 @@ export const HEX_DIRECTIONS: readonly AxialCoord[] = [
   { q: -1, r: 0 }, // W
 ];
 
-/** Raggio della tavola standard: esagono di esagoni → 19 caselle (3-4-5-4-3). */
+/** Raggio della tavola PICCOLA (2–4 giocatori): esagono → 19 caselle (3-4-5-4-3). */
 export const BOARD_RADIUS = 2;
+/** Raggio della tavola GRANDE (5–6 giocatori): esagono → 37 caselle (4-5-6-7-6-5-4). */
+export const BOARD_RADIUS_LARGE = 3;
 
 export function hexKey(c: AxialCoord): string {
   return `${c.q},${c.r}`;
@@ -52,16 +54,16 @@ export function hexDistance(a: AxialCoord, b: AxialCoord): number {
   return Math.max(Math.abs(dq), Math.abs(dr), Math.abs(dq + dr));
 }
 
-export function isOnBoard(c: AxialCoord): boolean {
-  return Math.max(Math.abs(c.q), Math.abs(c.r), Math.abs(c.q + c.r)) <= BOARD_RADIUS;
+export function isOnBoard(c: AxialCoord, radius: number = BOARD_RADIUS): boolean {
+  return Math.max(Math.abs(c.q), Math.abs(c.r), Math.abs(c.q + c.r)) <= radius;
 }
 
 /** Tutte le caselle della tavola in ordine deterministico (r crescente, poi q). */
-export function allBoardHexes(): AxialCoord[] {
+export function allBoardHexes(radius: number = BOARD_RADIUS): AxialCoord[] {
   const out: AxialCoord[] = [];
-  for (let r = -BOARD_RADIUS; r <= BOARD_RADIUS; r++) {
-    for (let q = -BOARD_RADIUS; q <= BOARD_RADIUS; q++) {
-      if (isOnBoard({ q, r })) out.push({ q, r });
+  for (let r = -radius; r <= radius; r++) {
+    for (let q = -radius; q <= radius; q++) {
+      if (isOnBoard({ q, r }, radius)) out.push({ q, r });
     }
   }
   return out;

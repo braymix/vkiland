@@ -364,7 +364,7 @@ const tutorialIt: TutorialChapter[] = [
         items: [
           'CREA PARTITA → ottieni un CODICE di 6 lettere/cifre: mandalo agli amici',
           'UNISCITI → inserisci il codice ricevuto e sei nella lobby',
-          'L’host può aggiungere bot e poi premere «Salpa!» (da 2 a 4 giocatori)',
+          'L’host può aggiungere bot e poi premere «Salpa!» (da 2 a 6 giocatori)',
         ],
       },
       { t: 'h', text: '3. Si gioca!' },

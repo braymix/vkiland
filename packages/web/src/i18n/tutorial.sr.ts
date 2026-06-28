@@ -334,7 +334,7 @@ export const tutorialSr: TutorialChapter[] = [
         items: [
           'NAPRAVI IGRU → dobijaš KOD od 6 slova/cifara: pošalji ga prijateljima',
           'PRIDRUŽI SE → unesi primljeni kod i u čekaonici si',
-          'Domaćin može da doda botove i zatim pritisne „Isplovi!“ (od 2 do 4 igrača)',
+          'Domaćin može da doda botove i zatim pritisne „Isplovi!“ (od 2 do 6 igrača)',
         ],
       },
       { t: 'h', text: '3. Igraj!' },

@@ -1,5 +1,5 @@
 /** Generazione procedurale (e deterministica, dato l'RNG) della tavola. */
-import { PORT_KINDS_POOL, PORT_RING_INDICES, TERRAIN_POOL, TOKEN_POOL } from '../constants';
+import { SMALL_BOARD, type BoardSpec } from '../constants';
 import { shuffle, type RngState } from '../rng';
 import type { Board, Hex, Port } from '../types';
 import { allBoardHexes, hexKey, hexNeighbors } from './coords';
@@ -19,15 +19,16 @@ function hasAdjacent68(hexes: readonly Hex[]): boolean {
 
 export function generateBoard(
   rngIn: RngState,
-  avoidAdjacent68: boolean
+  avoidAdjacent68: boolean,
+  spec: BoardSpec = SMALL_BOARD
 ): [Board, RngState] {
-  const topo = getTopology();
+  const topo = getTopology(spec.radius);
   let rng = rngIn;
 
-  // 1) Terreni mescolati sulle 19 caselle (in ordine deterministico).
-  const [terrains, rngAfterTerrains] = shuffle(rng, TERRAIN_POOL);
+  // 1) Terreni mescolati sulle caselle della tavola (in ordine deterministico).
+  const [terrains, rngAfterTerrains] = shuffle(rng, spec.terrainPool);
   rng = rngAfterTerrains;
-  const hexes: Hex[] = allBoardHexes().map((c, i) => ({
+  const hexes: Hex[] = allBoardHexes(spec.radius).map((c, i) => ({
     id: hexKey(c),
     q: c.q,
     r: c.r,
@@ -39,7 +40,7 @@ export function generateBoard(
   //    per il vincolo "niente 6/8 adiacenti" (consuma RNG a ogni tentativo).
   const nonTundra = hexes.filter((h) => h.terrain !== 'tundra');
   for (let attempt = 0; attempt < 1000; attempt++) {
-    const [tokens, next] = shuffle(rng, TOKEN_POOL);
+    const [tokens, next] = shuffle(rng, spec.tokenPool);
     rng = next;
     nonTundra.forEach((h, i) => {
       h.token = tokens[i]!;
@@ -48,10 +49,10 @@ export function generateBoard(
     // In caso (statisticamente impossibile) di 1000 fallimenti, resta l'ultima.
   }
 
-  // 3) Approdi: tipi mescolati sulle 9 posizioni fisse dell'anello costiero.
-  const [kinds, rngAfterPorts] = shuffle(rng, PORT_KINDS_POOL);
+  // 3) Approdi: tipi mescolati sulle posizioni fisse dell'anello costiero.
+  const [kinds, rngAfterPorts] = shuffle(rng, spec.portKinds);
   rng = rngAfterPorts;
-  const ports: Port[] = PORT_RING_INDICES.map((ringIdx, i) => {
+  const ports: Port[] = spec.portRingIndices.map((ringIdx, i) => {
     const kind = kinds[i]!;
     return { edge: topo.coastalRing[ringIdx]!, kind, ratio: kind === 'generico' ? 3 : 2 };
   });

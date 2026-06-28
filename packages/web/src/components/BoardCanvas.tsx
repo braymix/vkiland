@@ -16,8 +16,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { EdgeId, HexId, PlayerView, VertexId } from '@vikiland/engine';
 import { renderBoard } from '../render/boardRenderer';
 import {
-  CANVAS_H,
-  CANVAS_W,
+  boardCanvasSize,
   nearestEdge,
   nearestHex,
   nearestVertex,
@@ -211,28 +210,32 @@ export function BoardCanvas({ view, targets, onPickVertex, onPickEdge, onPickHex
     const canvas = canvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect(); // include la trasformazione
-    const x = ((clientX - rect.left) / rect.width) * CANVAS_W;
-    const y = ((clientY - rect.top) / rect.height) * CANVAS_H;
+    const { w, h } = boardCanvasSize(view.boardRadius);
+    const x = ((clientX - rect.left) / rect.width) * w;
+    const y = ((clientY - rect.top) / rect.height) * h;
+    const radius = view.boardRadius;
     // Priorità: vertici, poi spigoli, poi esagoni (dal bersaglio più piccolo).
     if (targets.vertices?.length && onPickVertex) {
-      const v = nearestVertex(x, y, targets.vertices);
+      const v = nearestVertex(x, y, targets.vertices, radius);
       if (v) {
         onPickVertex(v);
         return;
       }
     }
     if (targets.edges?.length && onPickEdge) {
-      const e = nearestEdge(x, y, targets.edges);
+      const e = nearestEdge(x, y, targets.edges, radius);
       if (e) {
         onPickEdge(e);
         return;
       }
     }
     if (targets.hexes?.length && onPickHex) {
-      const h = nearestHex(x, y, targets.hexes);
+      const h = nearestHex(x, y, targets.hexes, radius);
       if (h) onPickHex(h);
     }
   };
+
+  const dims = boardCanvasSize(view.boardRadius);
 
   return (
     <div ref={wrapRef} className="board-wrap area-board pixel-frame">
@@ -241,7 +244,7 @@ export function BoardCanvas({ view, targets, onPickVertex, onPickEdge, onPickHex
         className="board-canvas"
         style={{
           width: '100%',
-          aspectRatio: `${CANVAS_W} / ${CANVAS_H}`,
+          aspectRatio: `${dims.w} / ${dims.h}`,
           transform: `translate(${zoom.tx}px, ${zoom.ty}px) scale(${zoom.scale})`,
           transformOrigin: '0 0',
         }}

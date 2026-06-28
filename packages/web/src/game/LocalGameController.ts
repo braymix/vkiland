@@ -127,7 +127,7 @@ export class LocalGameController implements GameController {
       }
       // Easter egg: i bot bloccati dal Drago si lamentano nel diario.
       if (e.type === 'dragoMosso') {
-        for (const line of dragonComplaints(e, next, new Set(this.bots.keys()))) {
+        for (const line of dragonComplaints(e, next, new Set(this.bots.keys()), next.config.boardRadius)) {
           this.log.push({ id: this.logCounter++, text: line });
         }
       }

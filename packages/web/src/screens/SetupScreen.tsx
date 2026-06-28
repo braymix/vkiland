@@ -1,11 +1,17 @@
 /** Configurazione della partita: 2–4 giocatori, ognuno umano o bot (hot-seat). */
 import { useState } from 'react';
-import { DEFAULT_TARGET_GLORY, type BotLevel, type PlayerColor } from '@vikiland/engine';
+import {
+  DEFAULT_TARGET_GLORY,
+  LARGE_BOARD_MIN_PLAYERS,
+  MAX_PLAYERS,
+  type BotLevel,
+  type PlayerColor,
+} from '@vikiland/engine';
 import { it, t } from '../i18n';
 import type { GameSetup } from '../game/LocalGameController';
 import { FREE_PALETTE, shadesFor } from '../render/sprites/palettes';
 
-const BOT_NAMES = ['Astrid', 'Leif', 'Sigrid'];
+const BOT_NAMES = ['Astrid', 'Leif', 'Sigrid', 'Ragnhild', 'Olaf', 'Freya'];
 
 interface PlayerRow {
   name: string;
@@ -38,7 +44,7 @@ export function SetupScreen({ onStart, onBack }: Props) {
   };
 
   const addBot = () => {
-    if (players.length >= 4) return;
+    if (players.length >= MAX_PLAYERS) return;
     const name = BOT_NAMES.find((n) => !players.some((p) => p.name === n)) ?? 'Ragnhild';
     const color =
       FREE_PALETTE.find((c) => !players.some((p) => p.color === c)) ??
@@ -157,11 +163,18 @@ export function SetupScreen({ onStart, onBack }: Props) {
           )}
           </div>
         ))}
-        {players.length < 4 && (
+        {players.length < MAX_PLAYERS && (
           <button className="pxbtn pxbtn--ghost pxbtn--small" onClick={addBot}>
             {it.aggiungiGiocatore}
           </button>
         )}
+        {/* Taglia della tavola in base ai giocatori: 2–4 piccola, 5–6 grande. */}
+        <div className="setup-board-hint">
+          <span className={`board-size-chip ${players.length >= LARGE_BOARD_MIN_PLAYERS ? 'board-size-chip--big' : ''}`}>
+            {players.length >= LARGE_BOARD_MIN_PLAYERS ? it.campoGrande : it.campoPiccolo}
+          </span>
+          <span className="setup-board-info">{it.infoCampo}</span>
+        </div>
         <button
           className="pxbtn pxbtn--ghost pxbtn--small"
           onClick={() => setConfigOpen(!configOpen)}

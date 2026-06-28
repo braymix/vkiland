@@ -134,6 +134,9 @@ export const fr: Strings = {
   via: 'Larguez les amarres !',
   indietro: 'Retour',
   serveUnUmano: 'Il faut au moins un Viking humain',
+  campoPiccolo: 'Petit plateau',
+  campoGrande: 'Grand plateau',
+  infoCampo: 'À partir de 5 joueurs : grand plateau',
 
   // Hot-seat (passing the device)
   passaDispositivo: "Passe l'appareil",
@@ -380,7 +383,7 @@ export const fr: Strings = {
       serverFreddo: { titolo: 'Sois patient : le serveur se réveille', testo: 'Important : le serveur gratuit se met « en hibernation » quand personne ne joue. La PREMIÈRE connexion peut prendre de 30 à 60 secondes pour le réveiller — c’est normal, il suffit d’attendre. Une coche verte te prévient quand il est prêt.' },
       account: { titolo: '1. Crée un compte', testo: 'Il suffit d’un nom d’utilisateur (ce sera aussi ton nom en jeu) et d’un mot de passe d’au moins 8 caractères. Pas d’e-mail : il ne sert à rien et nous ne le demandons pas.' },
       creaEntra: { titolo: '2. Crée une partie ou rejoins-en une', testo: 'Appuie sur « Créer une partie » pour obtenir un code de 6 caractères à envoyer à tes amis, ou sur « Rejoindre » et saisis le code que tu as reçu.' },
-      lobby: { titolo: '3. Le salon', testo: 'Dans la salle d’attente, tu peux changer ta couleur et l’hôte peut ajouter des bots pour remplir les places. Quand vous êtes de 2 à 4, l’hôte appuie sur « Larguez les amarres ! ».' },
+      lobby: { titolo: '3. Le salon', testo: 'Dans la salle d’attente, tu peux changer ta couleur et l’hôte peut ajouter des bots pour remplir les places. Quand vous êtes de 2 à 6, l’hôte appuie sur « Larguez les amarres ! ».' },
       onlinePartita: { titolo: '4. On joue !', testo: 'Les coups de tout le monde arrivent en temps réel. Si la connexion tombe, reviens avec le code du salon : ta place reste la tienne. Il y a aussi un minuteur de tour optionnel, pour que personne ne bloque la partie.' },
       fine: { titolo: 'Tu es prêt, Viking !', testo: 'C’est tout ! Tu peux revoir chaque règle dans le « Livre des Sagas » depuis le menu. Maintenant, à toi de jouer : largue les amarres !' },
     },

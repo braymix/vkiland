@@ -335,7 +335,7 @@ export const tutorialEs: TutorialChapter[] = [
         items: [
           'CREAR PARTIDA → obtienes un CÓDIGO de 6 letras/cifras: envíaselo a tus amigos',
           'UNIRSE → introduce el código que has recibido y estás en la sala',
-          'El anfitrión puede añadir bots y luego pulsar «¡Zarpar!» (de 2 a 4 jugadores)',
+          'El anfitrión puede añadir bots y luego pulsar «¡Zarpar!» (de 2 a 6 jugadores)',
         ],
       },
       { t: 'h', text: '3. ¡A jugar!' },

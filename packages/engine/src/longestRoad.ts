@@ -6,14 +6,19 @@
  * quindi gli anelli contano per intero). Un vertice con un edificio avversario
  * SPEZZA il percorso: ci si può terminare, ma non attraversarlo.
  */
+import { BOARD_RADIUS } from './board/coords';
 import { getTopology } from './board/topology';
 import { GRANDE_VIA_MIN } from './constants';
 import type { GameEvent } from './actions';
 import { buildingOwnerAt } from './rules';
 import type { GameState, PiecesView, PlayerId, VertexId } from './types';
 
-export function longestRoadLength(state: PiecesView, player: PlayerId): number {
-  const topo = getTopology();
+export function longestRoadLength(
+  state: PiecesView,
+  player: PlayerId,
+  radius: number = BOARD_RADIUS
+): number {
+  const topo = getTopology(radius);
   const roads = new Set(state.players[player]!.roads);
   if (roads.size === 0) return 0;
 
@@ -61,7 +66,7 @@ export function longestRoadLength(state: PiecesView, player: PlayerId): number {
  * non va a nessuno finché qualcuno non resta da solo in testa.
  */
 export function recomputeGrandeVia(state: GameState, events: GameEvent[]): void {
-  const lengths = state.players.map((p) => longestRoadLength(state, p.id));
+  const lengths = state.players.map((p) => longestRoadLength(state, p.id, state.config.boardRadius));
   const best = Math.max(...lengths);
   const prev = state.longestRoad;
 

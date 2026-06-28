@@ -1,6 +1,6 @@
 /** Traduzione degli eventi del motore in righe del diario di bordo. */
 import type { GameEvent, ResourceCount } from '@vikiland/engine';
-import { RESOURCES, getTopology, nextInt, seedRng, totalResources } from '@vikiland/engine';
+import { BOARD_RADIUS, RESOURCES, getTopology, nextInt, seedRng, totalResources } from '@vikiland/engine';
 import { it, t } from '../i18n';
 
 /** Basta il nome dei giocatori: lo soddisfano sia GameState sia PlayerView. */
@@ -27,9 +27,10 @@ export interface PiecesForComplaints {
 export function dragonComplaints(
   event: Extract<GameEvent, { type: 'dragoMosso' }>,
   state: PiecesForComplaints,
-  botIds: ReadonlySet<number>
+  botIds: ReadonlySet<number>,
+  radius: number = BOARD_RADIUS
 ): string[] {
-  const vertices = getTopology().hexVertices[event.hex] ?? [];
+  const vertices = getTopology(radius).hexVertices[event.hex] ?? [];
   const lines: string[] = [];
   state.players.forEach((p, pid) => {
     if (!botIds.has(pid) || pid === event.player) return;

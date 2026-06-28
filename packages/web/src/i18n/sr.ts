@@ -134,6 +134,9 @@ export const sr: Strings = {
   via: 'Isplovi!',
   indietro: 'Nazad',
   serveUnUmano: 'Potreban je bar jedan Viking čovek',
+  campoPiccolo: 'Malo polje',
+  campoGrande: 'Veliko polje',
+  infoCampo: 'Od 5 igrača: veliko polje',
 
   // Hot-seat (passing the device)
   passaDispositivo: 'Dodaj uređaj',
@@ -380,7 +383,7 @@ export const sr: Strings = {
       serverFreddo: { titolo: 'Strpi se: server se budi', testo: 'Važno: besplatni server pada „u zimski san“ kada niko ne igra. PRVO povezivanje može da potraje od 30 do 60 sekundi da bi se probudio — to je normalno, samo sačekaj. Zelena kvačica te obaveštava kada je spreman.' },
       account: { titolo: '1. Napravi nalog', testo: 'Dovoljni su korisničko ime (biće ujedno i tvoje ime u igri) i lozinka od najmanje 8 znakova. Bez imejla: ne treba nam i ne tražimo ga.' },
       creaEntra: { titolo: '2. Napravi igru ili joj se pridruži', testo: 'Pritisni „Napravi igru“ da dobiješ kod od 6 znakova koji šalješ prijateljima, ili „Pridruži se“ i unesi kod koji si dobio.' },
-      lobby: { titolo: '3. Čekaonica', testo: 'U čekaonici možeš da promeniš svoju boju, a domaćin može da doda botove da popuni mesta. Kada vas je od 2 do 4, domaćin pritiska „Isplovi!“.' },
+      lobby: { titolo: '3. Čekaonica', testo: 'U čekaonici možeš da promeniš svoju boju, a domaćin može da doda botove da popuni mesta. Kada vas je od 2 do 6, domaćin pritiska „Isplovi!“.' },
       onlinePartita: { titolo: '4. Igra počinje!', testo: 'Potezi svih stižu u realnom vremenu. Ako padne veza, vrati se sa kodom čekaonice: tvoje mesto ostaje tvoje. Postoji i opcioni tajmer poteza, tako da niko ne blokira partiju.' },
       fine: { titolo: 'Spreman si, Vikinže!', testo: 'To je sve! Svako pravilo možeš ponovo da pogledaš u „Knjizi saga“ iz menija. Sada je red na tebe: isplovi!' },
     },

@@ -12,7 +12,7 @@ import { GameRoom, type RoomOptions, type Seat } from './room';
 /** Senza caratteri ambigui (0/O, 1/I/L). */
 const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const CODE_LEN = 6;
-const MAX_SLOTS = 4;
+const MAX_SLOTS = 6;
 const BOT_NAMES = ['Astrid', 'Leif', 'Sigrid', 'Ragnhild', 'Olaf', 'Freya'];
 /**
  * Ordine dei colori di DEFAULT del clan (palette libera: ognuno può poi

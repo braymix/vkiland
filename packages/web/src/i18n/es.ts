@@ -134,6 +134,9 @@ export const es: Strings = {
   via: '¡Zarpar!',
   indietro: 'Atrás',
   serveUnUmano: 'Hace falta al menos un vikingo humano',
+  campoPiccolo: 'Tablero pequeño',
+  campoGrande: 'Tablero grande',
+  infoCampo: 'Desde 5 jugadores: tablero grande',
 
   // Hot-seat (passing the device)
   passaDispositivo: 'Pasa el dispositivo',
@@ -380,7 +383,7 @@ export const es: Strings = {
       serverFreddo: { titolo: 'Ten paciencia: el servidor se despierta', testo: 'Importante: el servidor gratuito entra «en letargo» cuando nadie juega. La PRIMERA conexión puede tardar de 30 a 60 segundos en despertarlo: es normal, basta con esperar. Una marca verde te avisa cuando está listo.' },
       account: { titolo: '1. Crea una cuenta', testo: 'Basta con un nombre de usuario (que será también tu nombre en el juego) y una contraseña de al menos 8 caracteres. Sin correo electrónico: no hace falta y no lo pedimos.' },
       creaEntra: { titolo: '2. Crea una partida o únete', testo: 'Pulsa «Crear partida» para obtener un código de 6 caracteres que enviar a tus amigos, o «Unirse» e introduce el código que has recibido.' },
-      lobby: { titolo: '3. La sala', testo: 'En la sala de espera puedes cambiar tu color y el anfitrión puede añadir bots para llenar los puestos. Cuando seáis de 2 a 4, el anfitrión pulsa «¡Zarpar!».' },
+      lobby: { titolo: '3. La sala', testo: 'En la sala de espera puedes cambiar tu color y el anfitrión puede añadir bots para llenar los puestos. Cuando seáis de 2 a 6, el anfitrión pulsa «¡Zarpar!».' },
       onlinePartita: { titolo: '4. ¡A jugar!', testo: 'Los movimientos de todos llegan en tiempo real. Si se cae la conexión, vuelve a entrar con el código de la sala: tu puesto sigue siendo tuyo. También hay un temporizador de turno opcional, así nadie bloquea la partida.' },
       fine: { titolo: '¡Estás listo, vikingo!', testo: '¡Esto es todo! Puedes repasar cada regla en el «Libro de las Sagas» desde el menú. Ahora te toca a ti: ¡zarpa!' },
     },
