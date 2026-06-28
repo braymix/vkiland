@@ -1034,29 +1034,21 @@ label.check {
   }
 }
 
-/* Selettore lingua (menu principale) */
-.lang-switcher {
+/* Selettore lingua (menu principale): picker a tendina con bandierina */
+.lang-picker {
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+  align-items: center;
   justify-content: center;
+  gap: 6px;
   margin-top: 6px;
 }
-.lang-btn {
-  font-family: inherit;
-  font-size: 8px;
-  cursor: pointer;
-  padding: 5px 6px;
-  color: var(--ink-dim);
-  background: var(--bg-panel);
-  border: 0;
-  box-shadow: 0 0 0 2px var(--bg-deep);
-  user-select: none;
+.lang-flag {
+  font-size: 18px;
+  line-height: 1;
 }
-.lang-btn--active {
-  color: #2b2008;
-  background: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-dark);
+.lang-select {
+  cursor: pointer;
+  padding: 6px 8px;
 }
 
 /* Russo: Press Start 2P non ha il cirillico → font pixel con cirillico (Handjet).

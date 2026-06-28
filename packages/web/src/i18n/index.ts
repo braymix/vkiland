@@ -13,6 +13,7 @@ import { en } from './en';
 import { es } from './es';
 import { fr } from './fr';
 import { de } from './de';
+import { nl } from './nl';
 import { ru } from './ru';
 import { sr } from './sr';
 import type { Strings } from './types';
@@ -20,20 +21,21 @@ import type { Strings } from './types';
 export type { Strings } from './types';
 export { t };
 
-export type Lang = 'it' | 'en' | 'es' | 'fr' | 'de' | 'ru' | 'sr';
+export type Lang = 'it' | 'en' | 'es' | 'fr' | 'de' | 'nl' | 'ru' | 'sr';
 
-/** Ordine e codici mostrati nel selettore (etichette in alfabeto latino). */
-export const LANGS: { code: Lang; label: string; native: string }[] = [
-  { code: 'it', label: 'IT', native: 'Italiano' },
-  { code: 'en', label: 'EN', native: 'English' },
-  { code: 'es', label: 'ES', native: 'Español' },
-  { code: 'fr', label: 'FR', native: 'Français' },
-  { code: 'de', label: 'DE', native: 'Deutsch' },
-  { code: 'ru', label: 'RU', native: 'Russkij' },
-  { code: 'sr', label: 'SR', native: 'Srpski' },
+/** Ordine, etichette e bandierine mostrate nel selettore (picker). */
+export const LANGS: { code: Lang; label: string; native: string; flag: string }[] = [
+  { code: 'it', label: 'IT', native: 'Italiano', flag: '🇮🇹' },
+  { code: 'en', label: 'EN', native: 'English', flag: '🇬🇧' },
+  { code: 'es', label: 'ES', native: 'Español', flag: '🇪🇸' },
+  { code: 'fr', label: 'FR', native: 'Français', flag: '🇫🇷' },
+  { code: 'de', label: 'DE', native: 'Deutsch', flag: '🇩🇪' },
+  { code: 'nl', label: 'NL', native: 'Nederlands', flag: '🇳🇱' },
+  { code: 'ru', label: 'RU', native: 'Russkij', flag: '🇷🇺' },
+  { code: 'sr', label: 'SR', native: 'Srpski', flag: '🇷🇸' },
 ];
 
-const DICTS: Record<Lang, Strings> = { it: itDict, en, es, fr, de, ru, sr };
+const DICTS: Record<Lang, Strings> = { it: itDict, en, es, fr, de, nl, ru, sr };
 const SUPPORTED = new Set<Lang>(LANGS.map((l) => l.code));
 const STORAGE_KEY = 'vikiland-lang';
 

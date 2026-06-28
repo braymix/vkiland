@@ -46,14 +46,17 @@ Saga/saccheggi e un «Albo dei primati» (Mani d'oro, Mercante, Mastro
 costruttore, Predone, Sfortunato, Stratega). Le statistiche si accumulano
 lato client dal flusso di eventi (`game/stats.ts`, condiviso dai due
 controller, solo eventi pubblici ⇒ coerenti anche online). Multilingua
-al 100% in 7 lingue (italiano, inglese, spagnolo, francese, tedesco, russo,
-serbo) con lingua predefinita dedotta dal browser e selettore nel menu:
+al 100% in 8 lingue (italiano, inglese, spagnolo, francese, tedesco,
+OLANDESE, russo, serbo) con lingua predefinita dedotta dal browser e
+selettore nel menu — ora un PICKER a tendina (`<select>`) con la bandierina
+della lingua accanto, non più una fila di pulsanti (`LanguageSwitcher`).
 `i18n/index.ts` espone `it` come PROXY sulla lingua attiva (i punti d'uso
 `it.qualcosa` non cambiano) e `useLang()` ri-renderizza l'albero al cambio;
 ogni dizionario è tipizzato `: Strings` (forma derivata dall'italiano), così
 TypeScript impone la copertura totale delle chiavi. Tutorial e diario di
-bordo tradotti. Il russo usa un font pixel con cirillico (`@fontsource/handjet`)
-attivato via `html[data-lang='ru']`; il serbo è in alfabeto latino.
+bordo tradotti (incluso l'olandese: `nl.ts` + `tutorial.nl.ts`). Il russo usa
+un font pixel con cirillico (`@fontsource/handjet`) attivato via
+`html[data-lang='ru']`; il serbo e l'olandese sono in alfabeto latino.
 **Breve tutorial** (pulsante «a parte» in alto a destra del menu, distinto dal
 «Libro delle Saghe»): tour interattivo passo-passo in 21 schede. La prima metà
 mostra una PARTITA VERA che si svolge sulla tavola — istantanee DETERMINISTICHE

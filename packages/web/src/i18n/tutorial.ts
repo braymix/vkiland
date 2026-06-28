@@ -10,6 +10,7 @@ import { tutorialEn } from './tutorial.en';
 import { tutorialEs } from './tutorial.es';
 import { tutorialFr } from './tutorial.fr';
 import { tutorialDe } from './tutorial.de';
+import { tutorialNl } from './tutorial.nl';
 import { tutorialRu } from './tutorial.ru';
 import { tutorialSr } from './tutorial.sr';
 
@@ -401,6 +402,7 @@ const TUTORIAL_BY_LANG: Record<Lang, TutorialChapter[]> = {
   es: tutorialEs,
   fr: tutorialFr,
   de: tutorialDe,
+  nl: tutorialNl,
   ru: tutorialRu,
   sr: tutorialSr,
 };
