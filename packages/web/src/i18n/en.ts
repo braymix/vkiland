@@ -134,9 +134,6 @@ export const en: Strings = {
   via: 'Set sail!',
   indietro: 'Back',
   serveUnUmano: 'You need at least one human Viking',
-  campoPiccolo: 'Small board',
-  campoGrande: 'Large board',
-  infoCampo: 'From 5 players: large board',
 
   // Hot-seat (passing the device)
   passaDispositivo: 'Pass the device',

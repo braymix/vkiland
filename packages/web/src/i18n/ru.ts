@@ -134,9 +134,6 @@ export const ru: Strings = {
   via: 'Отплываем!',
   indietro: 'Назад',
   serveUnUmano: 'Нужен хотя бы один викинг-человек',
-  campoPiccolo: 'Малое поле',
-  campoGrande: 'Большое поле',
-  infoCampo: 'С 5 игроков: большое поле',
 
   // Hot-seat (passing the device)
   passaDispositivo: 'Передай устройство',

@@ -138,9 +138,6 @@ export const it = {
   via: 'Salpa!',
   indietro: 'Indietro',
   serveUnUmano: 'Serve almeno un vichingo umano',
-  campoPiccolo: 'Campo piccolo',
-  campoGrande: 'Campo grande',
-  infoCampo: 'Da 5 giocatori: campo grande',
 
   // Hot-seat (passaggio del dispositivo)
   passaDispositivo: 'Passa il dispositivo',

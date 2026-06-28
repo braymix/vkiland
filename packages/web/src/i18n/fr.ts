@@ -134,9 +134,6 @@ export const fr: Strings = {
   via: 'Larguez les amarres !',
   indietro: 'Retour',
   serveUnUmano: 'Il faut au moins un Viking humain',
-  campoPiccolo: 'Petit plateau',
-  campoGrande: 'Grand plateau',
-  infoCampo: 'À partir de 5 joueurs : grand plateau',
 
   // Hot-seat (passing the device)
   passaDispositivo: "Passe l'appareil",

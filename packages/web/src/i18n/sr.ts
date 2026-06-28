@@ -134,9 +134,6 @@ export const sr: Strings = {
   via: 'Isplovi!',
   indietro: 'Nazad',
   serveUnUmano: 'Potreban je bar jedan Viking čovek',
-  campoPiccolo: 'Malo polje',
-  campoGrande: 'Veliko polje',
-  infoCampo: 'Od 5 igrača: veliko polje',
 
   // Hot-seat (passing the device)
   passaDispositivo: 'Dodaj uređaj',

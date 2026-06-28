@@ -134,9 +134,6 @@ export const es: Strings = {
   via: '¡Zarpar!',
   indietro: 'Atrás',
   serveUnUmano: 'Hace falta al menos un vikingo humano',
-  campoPiccolo: 'Tablero pequeño',
-  campoGrande: 'Tablero grande',
-  infoCampo: 'Desde 5 jugadores: tablero grande',
 
   // Hot-seat (passing the device)
   passaDispositivo: 'Pasa el dispositivo',

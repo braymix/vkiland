@@ -134,9 +134,6 @@ export const de: Strings = {
   via: 'In See stechen!',
   indietro: 'Zurück',
   serveUnUmano: 'Du brauchst mindestens einen menschlichen Wikinger',
-  campoPiccolo: 'Kleines Feld',
-  campoGrande: 'Großes Feld',
-  infoCampo: 'Ab 5 Spielern: großes Feld',
 
   // Hot-seat (passing the device)
   passaDispositivo: 'Gerät weitergeben',
