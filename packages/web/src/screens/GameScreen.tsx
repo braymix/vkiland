@@ -193,6 +193,12 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
           onOpenBank={() => setBankOpen(true)}
           onOpenPropose={() => setProposeOpen(true)}
           onOpenCards={() => setCardsOpen(true)}
+          canUndo={snap.canUndo}
+          onUndo={() => {
+            setMode(null);
+            setError(null);
+            controller.undo();
+          }}
           errorText={error}
         />
         <HandPanel

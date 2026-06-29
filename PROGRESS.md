@@ -61,6 +61,15 @@ Nel menu c'è un piccolo link «Riconoscimenti» che apre un popup (pixel-style)
 con l'autore — Michele Panarotto, michelepanarotto00@gmail.com (link `mailto:`) —
 e l'invito a mandare consigli/feedback; i testi sono tradotti nelle 8 lingue
 (`crediti`, `creditiFattoDa`, `creditiInvito`, `creditiGrazie`).
+Pulsante **«Annulla»** intelligente per i piazzamenti: compare nella barra
+azioni solo dopo aver costruito (sentiero/villaggio/roccaforte, **setup
+incluso**), annulla l'ULTIMO piazzamento e solo finché è ancora il tuo turno
+(la finestra si chiude appena un bot o un altro umano agisce, o fai un'azione
+non annullabile come tiro/scambio/fine turno). In locale: `LocalGameController`
+tiene una pila di istantanee (stato + diario + statistiche di PRIMA dell'azione)
+e `undo()` le ripristina; `GameSnapshot.canUndo` guida la UI. Online è sempre
+`false` (stato autorevole sul server, gli altri hanno già visto la mossa).
+Test: `undo.test.ts`.
 **Breve tutorial** (pulsante «a parte» in alto a destra del menu, distinto dal
 «Libro delle Saghe»): tour interattivo passo-passo in 21 schede. La prima metà
 mostra una PARTITA VERA che si svolge sulla tavola — istantanee DETERMINISTICHE

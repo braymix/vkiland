@@ -1660,3 +1660,11 @@ html[data-lang='ru'] .welcome-title {
   font-size: 8px;
   color: var(--ink-dim);
 }
+
+/* «Annulla» l'ultimo piazzamento: un filo evidenziato per distinguerlo */
+.undo-btn {
+  box-shadow:
+    0 0 0 var(--px) var(--bg-deep),
+    inset 0 calc(-1 * var(--px)) 0 0 var(--accent-dark);
+  color: var(--accent);
+}

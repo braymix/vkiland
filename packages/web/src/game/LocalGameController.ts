@@ -45,6 +45,24 @@ const BOT_DELAY_MIN = 450;
 const BOT_DELAY_MAX = 850;
 const MAX_LOG = 120;
 
+/** Le azioni ANNULLABILI: solo i piazzamenti di costruzioni (setup incluso). */
+const UNDOABLE_BUILDS = new Set<Action['type']>([
+  'piazzaVillaggioIniziale',
+  'piazzaSentieroIniziale',
+  'costruisciSentiero',
+  'costruisciVillaggio',
+  'costruisciRoccaforte',
+  'piazzaSentieroGratis',
+]);
+
+/** Istantanea per annullare un piazzamento: stato e diario PRIMA dell'azione. */
+interface UndoEntry {
+  state: GameState;
+  log: LogEntry[];
+  logCounter: number;
+  stats: GameStats;
+}
+
 export class LocalGameController implements GameController {
   private state: GameState;
   private readonly bots = new Map<PlayerId, Bot>();
@@ -62,7 +80,9 @@ export class LocalGameController implements GameController {
   private handoff: PlayerId | null = null;
   private lastRoll: GameSnapshot['lastRoll'] = null;
   private rollCounter = 0;
-  private readonly stats: GameStats;
+  private stats: GameStats;
+  /** Pila di annullamenti dei piazzamenti consecutivi dell'umano (l'ultimo in cima). */
+  private undoStack: UndoEntry[] = [];
 
   constructor(setup: GameSetup) {
     this.state = createGame(setup);
@@ -91,10 +111,44 @@ export class LocalGameController implements GameController {
 
   /** Azione dell'umano: rifiutata dal motore ⇒ la UI mostra il motivo. */
   dispatch = (action: Action): ValidationError | null => {
+    // Se è un piazzamento di costruzione MIO, salvo lo stato per poterlo
+    // annullare. Qualunque altra mia azione (tiro, scambio, fine turno…)
+    // "consolida" i piazzamenti e chiude la finestra di annullamento.
+    const undoable = UNDOABLE_BUILDS.has(action.type) && action.player === this.viewpoint;
+    const before: UndoEntry | null = undoable
+      ? {
+          state: this.state,
+          log: [...this.log],
+          logCounter: this.logCounter,
+          stats: structuredClone(this.stats),
+        }
+      : null;
     const res = applyAction(this.state, action);
     if (!res.ok) return res.error;
+    if (before) this.undoStack.push(before);
+    else this.undoStack = [];
     this.commit(res.state, res.events);
     return null;
+  };
+
+  /**
+   * Annulla l'ULTIMO piazzamento di costruzione dell'umano (anche nel setup):
+   * ripristina stato, diario e statistiche di PRIMA dell'azione. Possibile solo
+   * finché nessun altro ha agito (un bot o un altro umano svuotano la pila).
+   */
+  undo = (): void => {
+    if (this.handoff !== null) return;
+    const entry = this.undoStack.pop();
+    if (!entry) return;
+    this.state = entry.state;
+    this.log = entry.log;
+    this.logCounter = entry.logCounter;
+    this.stats = entry.stats;
+    this.handoff = null; // lo stato ripristinato è di nuovo "il tuo turno"
+    this.generation += 1;
+    this.snapshot = this.buildSnapshot();
+    for (const cb of this.listeners) cb();
+    this.scheduleBots();
   };
 
   /** Il nuovo giocatore conferma di avere il dispositivo: la sua vista si rivela. */
@@ -102,6 +156,7 @@ export class LocalGameController implements GameController {
     if (this.handoff === null) return;
     this.viewpoint = this.handoff;
     this.handoff = null;
+    this.undoStack = []; // turno di un altro umano: niente più annullamenti
     this.generation += 1;
     this.snapshot = this.buildSnapshot();
     for (const cb of this.listeners) cb();
@@ -157,6 +212,10 @@ export class LocalGameController implements GameController {
       turnDeadline: null,
       lastRoll: this.lastRoll,
       stats: this.stats,
+      canUndo:
+        this.undoStack.length > 0 &&
+        this.handoff === null &&
+        this.state.phase.type !== 'gameOver',
     };
   }
 
@@ -198,6 +257,8 @@ export class LocalGameController implements GameController {
       if (this.disposed || this.generation !== expected) return;
       const pid = this.nextBotActor();
       if (pid === null) return;
+      // Un bot sta per agire: la finestra di annullamento dell'umano si chiude.
+      this.undoStack = [];
       const legalActions = getLegalActions(this.state, pid);
       const bot = this.bots.get(pid)!;
       const action = bot.decide({

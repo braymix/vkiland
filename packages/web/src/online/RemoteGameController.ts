@@ -66,6 +66,11 @@ export class RemoteGameController implements GameController {
     // Online ogni giocatore ha il proprio schermo: nessun passaggio di mano.
   };
 
+  undo = (): void => {
+    // Online lo stato è autorevole sul server e gli altri hanno già visto la
+    // mossa in tempo reale: nessun annullamento (`canUndo` è sempre falso).
+  };
+
   dispose = (): void => {
     this.socket.off('game:update', this.onUpdate);
     this.socket.off('game:rejected', this.onRejected);
@@ -112,6 +117,7 @@ export class RemoteGameController implements GameController {
       turnDeadline: u.turnDeadline,
       lastRoll: this.lastRoll,
       stats: this.stats,
+      canUndo: false,
     };
     this.emit();
   }

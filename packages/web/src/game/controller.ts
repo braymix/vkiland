@@ -40,6 +40,12 @@ export interface GameSnapshot {
   lastRoll: { id: number; dice: [number, number]; total: number } | null;
   /** Statistiche cumulate della partita (per la schermata di fine partita). */
   stats: GameStats;
+  /**
+   * Si può annullare l'ULTIMO piazzamento di costruzione (sentiero/villaggio/
+   * roccaforte, anche nel setup)? Vero solo se è stato l'umano che guarda lo
+   * schermo a piazzarlo e da allora nessun altro ha agito. Online è sempre falso.
+   */
+  canUndo: boolean;
 }
 
 export interface GameController {
@@ -47,6 +53,8 @@ export interface GameController {
   getSnapshot(): GameSnapshot;
   /** Locale: errore sincrono o null. Online: sempre null (errori via snapshot). */
   dispatch(action: Action): ValidationError | null;
+  /** Annulla l'ultimo piazzamento di costruzione (no-op se non si può). */
+  undo(): void;
   confirmHandoff(): void;
   dispose(): void;
 }
