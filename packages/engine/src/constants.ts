@@ -54,7 +54,7 @@ export const PIECE_LIMITS = { villaggio: 5, roccaforte: 4, sentiero: 15 } as con
 
 export const BANK_PER_RESOURCE = 19;
 /** Banca più capiente sulla tavola grande (più caselle, più giocatori). */
-export const BANK_PER_RESOURCE_LARGE = 24;
+export const BANK_PER_RESOURCE_LARGE = 30;
 
 /** Mazzo Carte Saga: 25 carte. */
 export const SAGA_DECK_COMPOSITION: readonly SagaCard[] = [

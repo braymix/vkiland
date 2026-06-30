@@ -44,7 +44,7 @@ describe('tavola piccola (4 giocatori) invariata', () => {
 });
 
 describe('tavola grande (6 giocatori)', () => {
-  it('37 caselle, 96 vertici/132 spigoli, banca 24, 11 approdi, 2 deserti', () => {
+  it('37 caselle, 96 vertici/132 spigoli, banca 30, 11 approdi, 2 deserti', () => {
     const g = createGame({ seed: 'large-6', players: makePlayers(6) });
     expect(g.config.boardRadius).toBe(3);
     expect(g.board.hexes).toHaveLength(37);
