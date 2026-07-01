@@ -60,6 +60,11 @@ export const de: Strings = {
   avviaPartita: 'In See stechen!',
   aggiungiBot: '+ Bot',
   esciLobby: 'Lobby verlassen',
+  esciPartita: 'Spiel verlassen',
+  esciPartitaTitolo: 'Das Spiel verlassen?',
+  esciPartitaTesto:
+    'Das Spiel läuft ohne dich weiter und dein Platz bleibt DEINER: Komm jederzeit über „Online“ mit dem Code {code} zurück.',
+  esciPartitaConferma: 'Ja, verlassen',
   timerTurno: 'Zugtimer',
   timerSecondi: 'Zugtimer (Sekunden, 0 = keiner)',
   timerLobby: 'Zugtimer: {s}',

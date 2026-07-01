@@ -60,6 +60,11 @@ export const sr: Strings = {
   avviaPartita: 'Isplovi!',
   aggiungiBot: '+ Bot',
   esciLobby: 'Napusti čekaonicu',
+  esciPartita: 'Napusti igru',
+  esciPartitaTitolo: 'Napustiti igru?',
+  esciPartitaTesto:
+    'Igra se nastavlja bez tebe, a tvoje mesto ostaje TVOJE: vrati se kad god želiš preko „Online” pomoću koda {code}.',
+  esciPartitaConferma: 'Da, izađi',
   timerTurno: 'Tajmer poteza',
   timerSecondi: 'Tajmer poteza (sekunde, 0 = bez)',
   timerLobby: 'Tajmer poteza: {s}',

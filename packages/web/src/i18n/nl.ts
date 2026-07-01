@@ -60,6 +60,11 @@ export const nl: Strings = {
   avviaPartita: 'Uitvaren!',
   aggiungiBot: '+ Bot',
   esciLobby: 'Lobby verlaten',
+  esciPartita: 'Spel verlaten',
+  esciPartitaTitolo: 'Het spel verlaten?',
+  esciPartitaTesto:
+    'Het spel gaat zonder jou verder en je plaats blijft van JOU: kom wanneer je wilt terug via „Online” met de code {code}.',
+  esciPartitaConferma: 'Ja, verlaten',
   timerTurno: 'Beurttimer',
   timerSecondi: 'Beurttimer (seconden, 0 = geen)',
   timerLobby: 'Beurttimer: {s}',

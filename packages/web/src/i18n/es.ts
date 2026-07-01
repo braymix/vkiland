@@ -60,6 +60,11 @@ export const es: Strings = {
   avviaPartita: '¡Zarpar!',
   aggiungiBot: '+ Bot',
   esciLobby: 'Salir de la sala',
+  esciPartita: 'Salir de la partida',
+  esciPartitaTitolo: '¿Salir de la partida?',
+  esciPartitaTesto:
+    'La partida continúa sin ti y tu puesto sigue siendo TUYO: puedes volver cuando quieras desde «Online» con el código {code}.',
+  esciPartitaConferma: 'Sí, salir',
   timerTurno: 'Temporizador de turno',
   timerSecondi: 'Temporizador de turno (segundos, 0 = ninguno)',
   timerLobby: 'Temporizador de turno: {s}',

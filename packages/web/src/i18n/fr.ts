@@ -60,6 +60,11 @@ export const fr: Strings = {
   avviaPartita: 'Larguez les amarres !',
   aggiungiBot: '+ Bot',
   esciLobby: 'Quitter le salon',
+  esciPartita: 'Quitter la partie',
+  esciPartitaTitolo: 'Quitter la partie ?',
+  esciPartitaTesto:
+    'La partie continue sans toi et ta place reste la TIENNE : reviens quand tu veux depuis « Online » avec le code {code}.',
+  esciPartitaConferma: 'Oui, quitter',
   timerTurno: 'Minuteur de tour',
   timerSecondi: 'Minuteur de tour (secondes, 0 = aucun)',
   timerLobby: 'Minuteur de tour : {s}',

@@ -60,6 +60,11 @@ export const ru: Strings = {
   avviaPartita: 'Отплываем!',
   aggiungiBot: '+ Бот',
   esciLobby: 'Выйти из лобби',
+  esciPartita: 'Покинуть игру',
+  esciPartitaTitolo: 'Покинуть игру?',
+  esciPartitaTesto:
+    'Игра продолжится без тебя, а место останется ТВОИМ: вернуться можно в любой момент через «Онлайн» по коду {code}.',
+  esciPartitaConferma: 'Да, выйти',
   timerTurno: 'Таймер хода',
   timerSecondi: 'Таймер хода (секунды, 0 = нет)',
   timerLobby: 'Таймер хода: {s}',

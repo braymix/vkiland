@@ -70,6 +70,13 @@ tiene una pila di istantanee (stato + diario + statistiche di PRIMA dell'azione)
 e `undo()` le ripristina; `GameSnapshot.canUndo` guida la UI. Online è sempre
 `false` (stato autorevole sul server, gli altri hanno già visto la mossa).
 Test: `undo.test.ts`.
+Nelle partite online ora TUTTI possono **uscire dalla partita** (non solo
+l'host): in basso a sinistra c'è «⇠ Esci dalla partita» per chiunque, con
+popup di conferma che ricorda che il posto resta riservato e mostra il codice
+per rientrare («Online» → «Unisciti»); l'host mantiene in più «✕ Termina
+partita» (chiude per tutti). Lato server non serviva nulla: `lobby:leave` a
+partita iniziata marca il posto disconnesso e il rientro col codice era già
+supportato (coperto dai test lobby). Testi in 8 lingue (`esciPartita*`).
 **Breve tutorial** (pulsante «a parte» in alto a destra del menu, distinto dal
 «Libro delle Saghe»): tour interattivo passo-passo in 21 schede. La prima metà
 mostra una PARTITA VERA che si svolge sulla tavola — istantanee DETERMINISTICHE

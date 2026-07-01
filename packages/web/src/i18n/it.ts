@@ -63,6 +63,11 @@ export const it = {
   avviaPartita: 'Salpa!',
   aggiungiBot: '+ Bot',
   esciLobby: 'Esci dalla lobby',
+  esciPartita: 'Esci dalla partita',
+  esciPartitaTitolo: 'Uscire dalla partita?',
+  esciPartitaTesto:
+    'La partita continua senza di te e il tuo posto resta TUO: puoi rientrare quando vuoi da «Online» col codice {code}.',
+  esciPartitaConferma: 'Sì, esci',
   timerTurno: 'Timer di turno',
   timerSecondi: 'Timer di turno (secondi, 0 = nessuno)',
   timerLobby: 'Timer di turno: {s}',

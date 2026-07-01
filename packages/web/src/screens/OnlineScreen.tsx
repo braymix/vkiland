@@ -37,6 +37,7 @@ export function OnlineScreen({ onBack }: { onBack: () => void }) {
   const [lobby, setLobby] = useState<LobbyState | null>(null);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [terminateOpen, setTerminateOpen] = useState(false);
+  const [leaveOpen, setLeaveOpen] = useState(false);
   const sessionRef = useRef<OnlineSession | null>(null);
   /** Bump per ri-renderizzare quando la sessione nella ref cambia (token/nome). */
   const [, setSessionVersion] = useState(0);
@@ -258,14 +259,45 @@ export function OnlineScreen({ onBack }: { onBack: () => void }) {
             onExit={leaveLobby}
             onRematch={null}
           />
-          {/* Solo l'host: chiude la partita per TUTTI (con conferma). */}
-          {isHost && (
+          {/* In basso a sinistra: TUTTI possono uscire dalla propria partita
+              (il posto resta, si rientra col codice); SOLO l'host può anche
+              terminarla per tutti. Entrambi con conferma. */}
+          <div className="game-exit-bar">
             <button
-              className="pxbtn pxbtn--danger pxbtn--small terminate-btn"
-              onClick={() => setTerminateOpen(true)}
+              className="pxbtn pxbtn--ghost pxbtn--small"
+              onClick={() => setLeaveOpen(true)}
             >
-              ✕ {it.terminaPartita}
+              ⇠ {it.esciPartita}
             </button>
+            {isHost && (
+              <button
+                className="pxbtn pxbtn--danger pxbtn--small"
+                onClick={() => setTerminateOpen(true)}
+              >
+                ✕ {it.terminaPartita}
+              </button>
+            )}
+          </div>
+          {leaveOpen && (
+            <Dialog title={it.esciPartitaTitolo}>
+              <p style={{ fontSize: 9, lineHeight: 1.9 }}>
+                {t(it.esciPartitaTesto, { code: lobby?.code ?? '' })}
+              </p>
+              <div className="dialog-buttons">
+                <button className="pxbtn pxbtn--ghost" onClick={() => setLeaveOpen(false)}>
+                  {it.annulla}
+                </button>
+                <button
+                  className="pxbtn"
+                  onClick={() => {
+                    setLeaveOpen(false);
+                    leaveLobby();
+                  }}
+                >
+                  {it.esciPartitaConferma}
+                </button>
+              </div>
+            </Dialog>
           )}
           {terminateOpen && (
             <Dialog title={it.terminaTitolo}>

@@ -60,6 +60,11 @@ export const en: Strings = {
   avviaPartita: 'Set sail!',
   aggiungiBot: '+ Bot',
   esciLobby: 'Leave the lobby',
+  esciPartita: 'Leave the game',
+  esciPartitaTitolo: 'Leave the game?',
+  esciPartitaTesto:
+    'The game goes on without you and your seat stays YOURS: come back any time from «Online» with the code {code}.',
+  esciPartitaConferma: 'Yes, leave',
   timerTurno: 'Turn timer',
   timerSecondi: 'Turn timer (seconds, 0 = none)',
   timerLobby: 'Turn timer: {s}',
