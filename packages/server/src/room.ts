@@ -15,6 +15,7 @@ import {
   type GameEvent,
   type GameState,
   type PlayerColor,
+  type PlayerCosmetics,
   type PlayerId,
 } from '@vikiland/engine';
 import { createBot, type Bot } from '@vikiland/bots';
@@ -28,6 +29,8 @@ export interface Seat {
   isBot: boolean;
   botLevel: BotLevel | null;
   color: PlayerColor;
+  /** Skin dell'account (passthrough estetico verso il motore). */
+  cosmetics?: PlayerCosmetics;
 }
 
 export interface RoomCallbacks {
@@ -81,6 +84,7 @@ export class GameRoom {
         color: s.color,
         isBot: s.isBot,
         ...(s.botLevel ? { botLevel: s.botLevel } : {}),
+        ...(s.cosmetics ? { cosmetics: s.cosmetics } : {}),
       })),
       avoidAdjacent68: config.avoidAdjacent68,
       targetGloryPoints: config.targetGloryPoints,

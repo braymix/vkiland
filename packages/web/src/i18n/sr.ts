@@ -88,6 +88,24 @@ export const sr: Strings = {
 
   // Account management
   account: 'Nalog',
+
+  inventario: 'Inventar',
+  invSottotitolo: 'Tvoje skin-ove, vezane za nalog, u partiji vide svi.',
+  invDrago: 'Tvoj Zmaj',
+  invDragoInfo: 'U igri poprima izgled I boju onoga ko ga je poslednji pomerio.',
+  invRocca: 'Tvoja utvrđenja',
+  invRoccaInfo: 'Koji god izgled izabereš, uvek nosi boju tvog klana.',
+  invSelezionato: 'U upotrebi',
+  invSalvato: 'Sačuvano ✓',
+  skin: {
+    drago: 'Klasični zmaj',
+    navicella: 'Svemirski brod',
+    trex: 'T-Reks',
+    briganti: 'Razbojnici',
+    roccaforte: 'Klasično utvrđenje',
+    torre: 'Stražarska kula',
+    castello: 'Zamak',
+  },
   ilTuoAccount: 'Tvoj nalog',
   datiSalvati: 'Ovo su podaci koje čuvamo o tebi:',
   registratoIl: 'Registrovan',

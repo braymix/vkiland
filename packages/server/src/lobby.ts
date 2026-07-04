@@ -4,7 +4,7 @@
  * così la riconnessione ritrova il proprio posto.
  */
 import { randomInt } from 'node:crypto';
-import type { Action, BotLevel, PlayerColor } from '@vikiland/engine';
+import type { Action, BotLevel, PlayerColor, PlayerCosmetics } from '@vikiland/engine';
 import type { ApiError, GameUpdate, LobbyConfig, LobbyState, PublicLobbySummary } from './protocol';
 import type { FinishedGameRecord } from './storage';
 import { GameRoom, type RoomOptions, type Seat } from './room';
@@ -67,6 +67,8 @@ export interface LobbyManagerCallbacks {
   sendUpdate(userId: string, update: GameUpdate): void;
   sendRejected(userId: string, message: string, generation: number): void;
   gameFinished(record: FinishedGameRecord): void;
+  /** Skin dell'account (lette FRESCHE all'avvio della partita); opzionale. */
+  getCosmetics?(userId: string): PlayerCosmetics | undefined;
 }
 
 type Result = LobbyState | ApiError;
@@ -221,13 +223,19 @@ export class LobbyManager {
     if (lobby.started) return { error: 'Partita già iniziata' };
     if (lobby.slots.length < 2) return { error: 'Servono almeno 2 giocatori' };
 
-    const seats: Seat[] = lobby.slots.map((s) => ({
-      userId: s.userId,
-      name: s.name,
-      isBot: s.isBot,
-      botLevel: s.botLevel,
-      color: s.color,
-    }));
+    const seats: Seat[] = lobby.slots.map((s) => {
+      // Skin dell'inventario: lette dall'account ADESSO, così una modifica
+      // fatta in lobby vale già per questa partita. I bot restano classici.
+      const cosmetics = s.userId ? this.callbacks.getCosmetics?.(s.userId) : undefined;
+      return {
+        userId: s.userId,
+        name: s.name,
+        isBot: s.isBot,
+        botLevel: s.botLevel,
+        color: s.color,
+        ...(cosmetics ? { cosmetics } : {}),
+      };
+    });
     const seed = `vikiland-online-${Date.now()}-${randomInt(1e9)}`;
     lobby.room = new GameRoom(
       lobby.code,

@@ -32,6 +32,8 @@ export {
   LARGE_BOARD_MIN_PLAYERS,
   boardSpecForPlayers,
   type BoardSpec,
+  DRAGON_SKIN_IDS,
+  STRONGHOLD_SKIN_IDS,
   BANK_PER_RESOURCE,
   pipWeight,
   type Buildable,

@@ -88,6 +88,24 @@ export const en: Strings = {
 
   // Account management
   account: 'Account',
+
+  inventario: 'Inventory',
+  invSottotitolo: 'Your skins, tied to your account: everyone sees them in game.',
+  invDrago: 'Your Dragon',
+  invDragoInfo: 'In game it takes the look AND color of whoever moved it last.',
+  invRocca: 'Your strongholds',
+  invRoccaInfo: 'Whatever look you pick, it is always tinted in your clan color.',
+  invSelezionato: 'In use',
+  invSalvato: 'Saved ✓',
+  skin: {
+    drago: 'Classic Dragon',
+    navicella: 'Spaceship',
+    trex: 'T-Rex',
+    briganti: 'Brigands',
+    roccaforte: 'Classic stronghold',
+    torre: 'Watchtower',
+    castello: 'Castle',
+  },
   ilTuoAccount: 'Your account',
   datiSalvati: 'This is the data we keep about you:',
   registratoIl: 'Registered on',

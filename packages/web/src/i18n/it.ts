@@ -92,6 +92,25 @@ export const it = {
 
   // Gestione account
   account: 'Account',
+
+  // Inventario (skin legate all'account)
+  inventario: 'Inventario',
+  invSottotitolo: 'Le tue skin, legate all’account: in partita le vedono tutti.',
+  invDrago: 'Il tuo Drago',
+  invDragoInfo: 'In gioco prende aspetto E colore di chi lo ha spostato per ultimo.',
+  invRocca: 'Le tue roccaforti',
+  invRoccaInfo: 'Qualunque aspetto scegli, si tinge sempre del colore del tuo clan.',
+  invSelezionato: 'In uso',
+  invSalvato: 'Salvato ✓',
+  skin: {
+    drago: 'Drago classico',
+    navicella: 'Navicella spaziale',
+    trex: 'T-Rex',
+    briganti: 'Briganti',
+    roccaforte: 'Roccaforte classica',
+    torre: 'Torre di guardia',
+    castello: 'Castello',
+  },
   ilTuoAccount: 'Il tuo account',
   datiSalvati: 'Questi sono i dati che salviamo su di te:',
   registratoIl: 'Registrato il',

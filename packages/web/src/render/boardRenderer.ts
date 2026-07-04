@@ -30,18 +30,17 @@ import {
 import { bakeSprite, drawDigits, drawSpriteCentered, digitsWidth } from './sprites/bake';
 import {
   CRISTALLO_GHIACCIO,
-  DRAGO,
   DRAKKAR,
   ICONA_RISORSA,
   MATTONE_DECO,
   MINERALE,
   PECORA,
   PINO,
-  ROCCAFORTE,
   SPIGA,
   VILLAGGIO,
   type SpriteDef,
 } from './sprites/defs';
+import { dragonSkin, strongholdSkin } from './sprites/cosmetics';
 import { getActiveTheme, shadesFor } from './sprites/palettes';
 
 export interface BoardUiState {
@@ -333,16 +332,20 @@ export function renderBoard(
     }
     for (const v of p.strongholds) {
       const pt = vertexPoint(v, radius);
-      drawSpriteCentered(ctx, bakeSprite('roccaforte', ROCCAFORTE, p.color), pt.x, pt.y - 2);
+      // Skin dell'inventario del proprietario (classica se assente).
+      const skin = strongholdSkin(p.cosmetics?.stronghold);
+      drawSpriteCentered(ctx, bakeSprite(`roccaforte-${skin.id}`, skin.def, p.color), pt.x, pt.y - 2);
     }
   }
 
-  // Il Drago sull'esagono bloccato: prende il colore di CHI l'ha spostato per
-  // ultimo (viola neutro se nessuno lo ha ancora mosso).
+  // Il Drago sull'esagono bloccato: prende COLORE e ASPETTO (skin) di CHI lo
+  // ha spostato per ultimo (Drago classico viola neutro se nessuno lo ha mosso).
   const dragonCenter = hexCenterById(view.board.dragonHex, radius);
   const moverId = view.board.dragonMovedBy;
-  const dragonColor = moverId !== null ? view.players[moverId]?.color ?? null : null;
-  drawSpriteCentered(ctx, bakeSprite('drago', DRAGO, dragonColor), dragonCenter.x, dragonCenter.y + 2);
+  const mover = moverId !== null ? view.players[moverId] : undefined;
+  const dragonColor = mover?.color ?? null;
+  const dSkin = dragonSkin(mover?.cosmetics?.dragon);
+  drawSpriteCentered(ctx, bakeSprite(`drago-${dSkin.id}`, dSkin.def, dragonColor), dragonCenter.x, dragonCenter.y + 2);
 
   // Evidenziazioni delle mosse legali. I vertici degli approdi usano il
   // mirino VIOLA al posto del bianco: si vede subito quale piazzamento

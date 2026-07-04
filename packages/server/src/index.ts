@@ -11,7 +11,7 @@ import { dirname, join } from 'node:path';
 import Fastify from 'fastify';
 import fastifyCors from '@fastify/cors';
 import { Server, type Socket } from 'socket.io';
-import type { Action } from '@vikiland/engine';
+import { DRAGON_SKIN_IDS, STRONGHOLD_SKIN_IDS, type Action, type PlayerCosmetics } from '@vikiland/engine';
 import { AuthService } from './auth';
 import { LobbyManager } from './lobby';
 import { JsonFileStorage } from './storage';
@@ -50,6 +50,8 @@ const lobbies = new LobbyManager({
   sendRejected: (userId, message, generation) =>
     io.to(`user:${userId}`).emit('game:rejected', { message, generation }),
   gameFinished: (record) => storage.appendFinishedGame(record),
+  // All'avvio della partita ogni posto umano riceve le skin del suo account.
+  getCosmetics: (userId) => storage.getUserById(userId)?.cosmetics,
 });
 
 // ---------------------------------------------------------------------------
@@ -114,6 +116,40 @@ function authedUser(header: string | undefined) {
   const token = bearerOf(header);
   return token ? auth.authenticate(token) : null;
 }
+
+// --- Inventario (skin legate all'account) -----------------------------------
+
+/** Tiene solo id validi; id assente/na = torna al classico. */
+function sanitizeCosmetics(raw: unknown): PlayerCosmetics {
+  const body = (raw ?? {}) as { dragon?: unknown; stronghold?: unknown };
+  const out: PlayerCosmetics = {};
+  if (typeof body.dragon === 'string' && (DRAGON_SKIN_IDS as readonly string[]).includes(body.dragon)) {
+    out.dragon = body.dragon;
+  }
+  if (
+    typeof body.stronghold === 'string' &&
+    (STRONGHOLD_SKIN_IDS as readonly string[]).includes(body.stronghold)
+  ) {
+    out.stronghold = body.stronghold;
+  }
+  return out;
+}
+
+app.get('/api/cosmetics', async (req, reply) => {
+  const user = authedUser(req.headers.authorization);
+  if (!user) return reply.code(401).send({ error: 'Sessione non valida' });
+  return { cosmetics: storage.getUserById(user.id)?.cosmetics ?? {} };
+});
+
+app.post('/api/cosmetics', async (req, reply) => {
+  const user = authedUser(req.headers.authorization);
+  if (!user) return reply.code(401).send({ error: 'Sessione non valida' });
+  const record = storage.getUserById(user.id);
+  if (!record) return reply.code(401).send({ error: 'Sessione non valida' });
+  const cosmetics = sanitizeCosmetics(req.body);
+  storage.updateUser({ ...record, cosmetics });
+  return { cosmetics };
+});
 
 app.get('/api/health', async () => ({ ok: true }));
 

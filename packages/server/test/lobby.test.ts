@@ -26,6 +26,9 @@ function makeManager(): { manager: LobbyManager; rec: Recorded } {
     },
     sendRejected: () => {},
     gameFinished: () => {},
+    // Inventario finto: solo Bjorn ha skin salvate sull'account.
+    getCosmetics: (userId) =>
+      userId === 'u-bjorn' ? { dragon: 'navicella', stronghold: 'torre' } : undefined,
   };
   return { manager: new LobbyManager(callbacks, { botDelayMs: [0, 0] }), rec };
 }
@@ -119,6 +122,19 @@ describe('LobbyManager', () => {
     expect(isApiError(manager.setColor(astrid.id, 0, '#3e8f4e'))).toBe(true);
     // Colore non valido (non esadecimale) respinto.
     expect(isApiError(manager.setColor(bjorn.id, 0, 'arcobaleno'))).toBe(true);
+  });
+
+  it('all’avvio le skin dell’account entrano in partita e le vedono TUTTI', () => {
+    const { manager, rec } = makeManager();
+    const created = manager.create(bjorn, CFG);
+    if (isApiError(created)) throw new Error('create fallita');
+    manager.join(created.code, astrid);
+    manager.start(bjorn.id);
+    // Nella vista di ASTRID le skin di Bjorn (posto 0) sono visibili; lei,
+    // senza skin salvate, non ha il campo (⇒ aspetto classico).
+    const view = rec.updates.get(astrid.id)!.at(-1)!.view;
+    expect(view.players[0]!.cosmetics).toEqual({ dragon: 'navicella', stronghold: 'torre' });
+    expect(view.players[1]!.cosmetics).toBeUndefined();
   });
 
   it('si parte in almeno 2; all’avvio ogni umano riceve subito la sua vista', () => {

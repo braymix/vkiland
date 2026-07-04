@@ -8,7 +8,8 @@ import { PIECE_LIMITS, type PlayerView } from '@vikiland/engine';
 import { it } from '../../i18n';
 import { Dialog } from './Dialog';
 import { spriteDataURL } from '../../render/sprites/bake';
-import { ROCCAFORTE, VILLAGGIO } from '../../render/sprites/defs';
+import { VILLAGGIO } from '../../render/sprites/defs';
+import { strongholdSkin } from '../../render/sprites/cosmetics';
 import { shadesFor } from '../../render/sprites/palettes';
 
 export function BuildingsDialog({ view, onClose }: { view: PlayerView; onClose: () => void }) {
@@ -40,7 +41,18 @@ export function BuildingsDialog({ view, onClose }: { view: PlayerView; onClose: 
       label: it.roccaforte,
       used: pub.strongholds.length,
       total: PIECE_LIMITS.roccaforte,
-      icon: <img src={spriteDataURL('roccaforte', ROCCAFORTE, 3, color)} alt="" />,
+      // L'icona rispetta la skin dell'inventario del giocatore.
+      icon: (
+        <img
+          src={spriteDataURL(
+            `roccaforte-${strongholdSkin(pub.cosmetics?.stronghold).id}`,
+            strongholdSkin(pub.cosmetics?.stronghold).def,
+            3,
+            color
+          )}
+          alt=""
+        />
+      ),
     },
   ];
 

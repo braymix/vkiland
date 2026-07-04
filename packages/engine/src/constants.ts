@@ -122,6 +122,14 @@ export function boardSpecForPlayers(playerCount: number): BoardSpec {
   return playerCount >= LARGE_BOARD_MIN_PLAYERS ? LARGE_BOARD : SMALL_BOARD;
 }
 
+/**
+ * Id delle skin VALIDE (inventario legato all'account). Vocabolario condiviso
+ * tra server (validazione) e client (registro sprite); i disegni vivono solo
+ * nel client. Id fuori lista ⇒ il renderer ripiega sul classico.
+ */
+export const DRAGON_SKIN_IDS = ['drago', 'navicella', 'trex', 'briganti'] as const;
+export const STRONGHOLD_SKIN_IDS = ['roccaforte', 'torre', 'castello'] as const;
+
 /** Con più di 7 carte in mano, un 7 costringe a scartarne la metà. */
 export const HAND_LIMIT = 7;
 

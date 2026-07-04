@@ -88,6 +88,24 @@ export const de: Strings = {
 
   // Account management
   account: 'Konto',
+
+  inventario: 'Inventar',
+  invSottotitolo: 'Deine Skins, an dein Konto gebunden: im Spiel sehen sie alle.',
+  invDrago: 'Dein Drache',
+  invDragoInfo: 'Im Spiel nimmt er Aussehen UND Farbe dessen an, der ihn zuletzt bewegt hat.',
+  invRocca: 'Deine Festungen',
+  invRoccaInfo: 'Egal welches Aussehen: Sie trägt immer die Farbe deines Clans.',
+  invSelezionato: 'In Gebrauch',
+  invSalvato: 'Gespeichert ✓',
+  skin: {
+    drago: 'Klassischer Drache',
+    navicella: 'Raumschiff',
+    trex: 'T-Rex',
+    briganti: 'Räuber',
+    roccaforte: 'Klassische Festung',
+    torre: 'Wachturm',
+    castello: 'Schloss',
+  },
   ilTuoAccount: 'Dein Konto',
   datiSalvati: 'Das sind die Daten, die wir über dich speichern:',
   registratoIl: 'Registriert am',

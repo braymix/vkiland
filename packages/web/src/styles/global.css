@@ -1673,3 +1673,70 @@ html[data-lang='ru'] .welcome-title {
     inset 0 calc(-1 * var(--px)) 0 0 var(--accent-dark);
   color: var(--accent);
 }
+
+/* === Inventario (skin legate all'account) === */
+.inv-section {
+  font-size: 11px;
+  color: var(--accent);
+  margin-top: 4px;
+}
+.inv-info {
+  font-size: 8px;
+  color: var(--ink-dim);
+  line-height: 1.7;
+}
+.skin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+}
+.skin-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  min-height: 112px;
+  padding: 10px 6px 8px;
+  cursor: pointer;
+  background: var(--bg-deep);
+  border: 2px solid var(--bg-deep);
+  color: var(--ink);
+  font-family: inherit;
+}
+.skin-card img {
+  image-rendering: pixelated;
+  max-width: 100%;
+  margin: auto 0;
+}
+.skin-card--on {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-dark);
+}
+.skin-name {
+  font-size: 7px;
+  line-height: 1.5;
+  text-align: center;
+}
+.skin-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 7px;
+  color: #2b2008;
+  background: var(--accent);
+  padding: 1px 4px;
+}
+/* Feedback di salvataggio: riservato in layout, visibile solo quando serve */
+.inv-saved {
+  font-size: 8px;
+  color: var(--ok);
+  text-align: right;
+  min-height: 12px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.inv-saved[data-visible='true'] {
+  opacity: 1;
+}

@@ -3,6 +3,7 @@
  * La sessione (token) è ricordata in localStorage per riconnettersi al volo.
  */
 import { io, type Socket } from 'socket.io-client';
+import type { PlayerCosmetics } from '@vikiland/engine';
 import type {
   AuthResponse,
   ClientToServerEvents,
@@ -116,6 +117,22 @@ async function authedGet(session: OnlineSession, path: string): Promise<unknown>
 
 export async function apiGetAccount(session: OnlineSession): Promise<AccountProfile> {
   return (await authedGet(session, '/api/account')) as AccountProfile;
+}
+
+/** Inventario: skin dell'account (Drago, roccaforti). */
+export async function apiGetCosmetics(session: OnlineSession): Promise<PlayerCosmetics> {
+  const data = (await authedGet(session, '/api/cosmetics')) as { cosmetics?: PlayerCosmetics };
+  return data.cosmetics ?? {};
+}
+
+export async function apiSetCosmetics(
+  session: OnlineSession,
+  cosmetics: PlayerCosmetics
+): Promise<PlayerCosmetics> {
+  const data = (await post(session.serverUrl, '/api/cosmetics', cosmetics, session.token)) as {
+    cosmetics?: PlayerCosmetics;
+  };
+  return data.cosmetics ?? {};
 }
 
 export async function apiChangeName(

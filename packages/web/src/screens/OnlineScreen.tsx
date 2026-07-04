@@ -26,9 +26,10 @@ import { TUTORIAL_ONLINE_CHAPTER } from '../i18n/tutorial';
 import { Dialog } from '../components/dialogs/Dialog';
 import { AccountScreen } from './AccountScreen';
 import { GameScreen } from './GameScreen';
+import { InventoryScreen } from './InventoryScreen';
 import { TutorialScreen } from './TutorialScreen';
 
-type Stage = 'login' | 'home' | 'room' | 'game' | 'account';
+type Stage = 'login' | 'home' | 'room' | 'game' | 'account' | 'inventory';
 
 export function OnlineScreen({ onBack }: { onBack: () => void }) {
   const [stage, setStage] = useState<Stage>('login');
@@ -187,6 +188,7 @@ export function OnlineScreen({ onBack }: { onBack: () => void }) {
           }}
           onOpenTutorial={() => setTutorialOpen(true)}
           onAccount={() => setStage('account')}
+          onInventory={() => setStage('inventory')}
           onLogout={logout}
           onCreate={(timerSec, isPublic) => {
             socketRef.current?.emit(
@@ -216,6 +218,9 @@ export function OnlineScreen({ onBack }: { onBack: () => void }) {
         {tutorialOverlay}
         </>
       );
+    case 'inventory':
+      if (!sessionRef.current) return null;
+      return <InventoryScreen session={sessionRef.current} onBack={() => setStage('home')} />;
     case 'account':
       if (!sessionRef.current) return null;
       return (
@@ -469,6 +474,7 @@ function OnlineHome({
   onBack,
   onOpenTutorial,
   onAccount,
+  onInventory,
   fetchPublic,
 }: {
   name: string;
@@ -479,6 +485,7 @@ function OnlineHome({
   onBack: () => void;
   onOpenTutorial: () => void;
   onAccount: () => void;
+  onInventory: () => void;
   fetchPublic: (cb: (rooms: PublicLobbySummary[]) => void) => void;
 }) {
   const [code, setCode] = useState('');
@@ -580,6 +587,9 @@ function OnlineHome({
         </button>
         <button className="pxbtn pxbtn--ghost" onClick={onAccount}>
           {it.account}
+        </button>
+        <button className="pxbtn pxbtn--ghost" onClick={onInventory}>
+          🎒 {it.inventario}
         </button>
         <button className="pxbtn pxbtn--ghost" onClick={onLogout}>
           {it.esciAccount}

@@ -8,7 +8,7 @@
  */
 import { mkdirSync, readFileSync, writeFileSync, appendFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import type { Action } from '@vikiland/engine';
+import type { Action, PlayerCosmetics } from '@vikiland/engine';
 
 export interface UserRecord {
   id: string;
@@ -17,6 +17,8 @@ export interface UserRecord {
   /** `scrypt$N$r$p$saltHex$hashHex` */
   passwordHash: string;
   createdAt: number;
+  /** Inventario: skin scelte dall'account (Drago, roccaforti). */
+  cosmetics?: PlayerCosmetics;
 }
 
 export interface SessionRecord {

@@ -16,6 +16,10 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
     name: p.name,
     color: p.color,
     isBot: state.config.players[p.id]?.isBot ?? false,
+    // Skin dell'account: informazione pubblica (il tabellone la mostra a tutti).
+    ...(state.config.players[p.id]?.cosmetics
+      ? { cosmetics: state.config.players[p.id]!.cosmetics }
+      : {}),
     resourceCardCount: totalResources(p.resources),
     sagaCardCount: p.sagaCards.length + p.sagaCardsBoughtThisTurn.length,
     playedBerserkers: p.playedBerserkers,

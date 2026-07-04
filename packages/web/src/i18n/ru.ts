@@ -88,6 +88,24 @@ export const ru: Strings = {
 
   // Account management
   account: 'Аккаунт',
+
+  inventario: 'Инвентарь',
+  invSottotitolo: 'Твои скины, привязанные к аккаунту: в игре их видят все.',
+  invDrago: 'Твой Дракон',
+  invDragoInfo: 'В игре он принимает облик И цвет того, кто передвинул его последним.',
+  invRocca: 'Твои крепости',
+  invRoccaInfo: 'Какой бы облик ты ни выбрал, он всегда окрашен в цвет твоего клана.',
+  invSelezionato: 'Выбрано',
+  invSalvato: 'Сохранено ✓',
+  skin: {
+    drago: 'Классический дракон',
+    navicella: 'Космический корабль',
+    trex: 'Ти-рекс',
+    briganti: 'Разбойники',
+    roccaforte: 'Классическая крепость',
+    torre: 'Сторожевая башня',
+    castello: 'Замок',
+  },
   ilTuoAccount: 'Твой аккаунт',
   datiSalvati: 'Вот данные, которые мы храним о тебе:',
   registratoIl: 'Зарегистрирован',

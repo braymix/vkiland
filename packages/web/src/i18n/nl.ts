@@ -88,6 +88,24 @@ export const nl: Strings = {
 
   // Accountbeheer
   account: 'Account',
+
+  inventario: 'Inventaris',
+  invSottotitolo: 'Jouw skins, gekoppeld aan je account: iedereen ziet ze in het spel.',
+  invDrago: 'Jouw Draak',
+  invDragoInfo: 'In het spel neemt hij het uiterlijk ÉN de kleur aan van wie hem het laatst verplaatste.',
+  invRocca: 'Jouw burchten',
+  invRoccaInfo: 'Welk uiterlijk je ook kiest, hij kleurt altijd in de kleur van je clan.',
+  invSelezionato: 'In gebruik',
+  invSalvato: 'Opgeslagen ✓',
+  skin: {
+    drago: 'Klassieke Draak',
+    navicella: 'Ruimteschip',
+    trex: 'T-Rex',
+    briganti: 'Rovers',
+    roccaforte: 'Klassieke burcht',
+    torre: 'Wachttoren',
+    castello: 'Kasteel',
+  },
   ilTuoAccount: 'Jouw account',
   datiSalvati: 'Dit zijn de gegevens die we van je bewaren:',
   registratoIl: 'Geregistreerd op',

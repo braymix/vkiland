@@ -55,11 +55,25 @@ export interface Board {
 
 export type BotLevel = 'facile' | 'normale' | 'difficile' | 'esperto';
 
+/**
+ * Cosmetici (skin) del giocatore: PASSTHROUGH opaco legato all'account.
+ * Il motore non li interpreta mai — li trasporta solo fino alla vista, dove
+ * il renderer sceglie gli sprite. Id sconosciuti ⇒ aspetto classico.
+ */
+export interface PlayerCosmetics {
+  /** Aspetto del Drago QUANDO è questo giocatore ad averlo spostato. */
+  dragon?: string;
+  /** Aspetto delle roccaforti di questo giocatore. */
+  stronghold?: string;
+}
+
 export interface PlayerConfig {
   name: string;
   color: PlayerColor;
   isBot: boolean;
   botLevel?: BotLevel;
+  /** Skin scelte dall'account (facoltative, solo estetica). */
+  cosmetics?: PlayerCosmetics;
 }
 
 export interface GameConfig {
@@ -203,6 +217,8 @@ export interface PublicPlayer {
   roads: EdgeId[];
   /** Punti Gloria visibili (esclusi gli Eroi nascosti). */
   gloryPointsPublic: number;
+  /** Skin del giocatore (pubbliche: le vedono tutti sul tabellone). */
+  cosmetics?: PlayerCosmetics;
 }
 
 /** Vista completa di sé stessi. */

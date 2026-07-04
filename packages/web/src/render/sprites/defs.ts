@@ -87,6 +87,151 @@ export const DRAGO: SpriteDef = {
   ],
 };
 
+/**
+ * SKIN del Drago (inventario). Usano le STESSE chiavi semantiche del Drago
+ * (dragoCorpo/dragoScuro/dragoAla…): così la logica dei colori resta ESATTA —
+ * il pezzo si tinge del colore di chi lo ha spostato, qualunque sia l'aspetto.
+ */
+
+/** Navicella spaziale: disco volante con cupola, luci e raggi di atterraggio. */
+export const NAVICELLA: SpriteDef = {
+  map: {
+    A: 'dragoAla',
+    C: 'dragoCorpo',
+    c: 'dragoScuro',
+    O: 'dragoOcchio',
+    F: 'dragoFuoco',
+  },
+  rows: [
+    '........ccAAAAcc........',
+    '.......cAAAAAAAAc.......',
+    '.......cAAAOOAAAc.......',
+    '....ccccCCCCCCCCcccc....',
+    '..ccCCCCCCCCCCCCCCCCcc..',
+    '.cCCCCCCCCCCCCCCCCCCCCc.',
+    'cCCOCCCOCCCOCCCOCCCOCCCc',
+    '.cCCCCCCCCCCCCCCCCCCCCc.',
+    '...cccCCCCCCCCCCCCccc...',
+    '.....cc....cc....cc.....',
+    '......F.....F.....F.....',
+    '.....FF....FFF....FF....',
+    '......F.....F.....F.....',
+  ],
+};
+
+/** T-Rex: il tiranno dell'isola, con pancino chiaro e braccine minuscole. */
+export const TREX: SpriteDef = {
+  map: {
+    C: 'dragoCorpo',
+    c: 'dragoScuro',
+    A: 'dragoAla',
+    O: 'dragoOcchio',
+    W: 'bianco',
+    n: 'nero',
+  },
+  rows: [
+    '.....ccCCCCc............',
+    '....cCCCCCCCc...........',
+    '....cCOnCCCCc...........',
+    '....cCCCCCCCc...........',
+    '....cWcWcCCc............',
+    '......cCCCc.............',
+    '......cCCCCcc......cc...',
+    '.....cCCCCCCCCCCCCCCc...',
+    '....cCCCCCCCCCCCCCCc....',
+    '....cCAAACCnCCCCCc......',
+    '....cCAAAACCCCCCc.......',
+    '.....cCCCCCCCCCc........',
+    '......cCCc..cCCc........',
+    '......cCCc..cCCc........',
+    '.....nnnn...nnnn........',
+  ],
+};
+
+/** Briganti: due incappucciati accampati (con pugnale e falò). */
+export const BRIGANTI: SpriteDef = {
+  map: {
+    C: 'dragoCorpo',
+    c: 'dragoScuro',
+    O: 'dragoOcchio',
+    F: 'dragoFuoco',
+    W: 'bianco',
+    n: 'nero',
+    q: 'nero',
+    t: 'tronco',
+  },
+  rows: [
+    '...ccc.........ccc......',
+    '..cCCCc.......cCCCc.....',
+    '..cOCOc.......cOCOc.....',
+    '..cCCCc.......cCCCc.....',
+    '.cCCCCCc..W..cCCCCCc....',
+    '.cCCCCCc..W..cCCCCCc....',
+    '.cCCCCCcnW...cCCCCCc....',
+    '.cCCCCCc.....cCCCCCc....',
+    '..cCCCc..FF...cCCCc.....',
+    '..cCCCc.FFFF..cCCCc.....',
+    '..qqqqq.FFFF..qqqqq.....',
+    '........tttt............',
+  ],
+};
+
+/**
+ * SKIN delle roccaforti (inventario): come la Roccaforte classica mostrano il
+ * colore del clan tramite le chiavi `giocatore*` — la logica dei colori non cambia.
+ */
+
+/** Torre di guardia: torrione alto con stendardo del clan in cima. */
+export const TORRE: SpriteDef = {
+  map: {
+    S: 'roccia',
+    s: 'rocciaScura',
+    P: 'giocatoreMain',
+    q: 'nero',
+  },
+  rows: [
+    '......PP.....',
+    '......PPPP...',
+    '......PP.....',
+    '......s......',
+    '...S.SsS.S...',
+    '...SSSSSSS...',
+    '...SqSSSqS...',
+    '...SSSSSSS...',
+    '...SsSSSsS...',
+    '...SSSSSSS...',
+    '...SSqqqSS...',
+    '...SSqqqSS...',
+    '...sssssss...',
+  ],
+};
+
+/** Castello: due torri laterali coi tetti a cono nel colore del clan. */
+export const CASTELLO: SpriteDef = {
+  map: {
+    S: 'roccia',
+    s: 'rocciaScura',
+    P: 'giocatoreMain',
+    p: 'giocatoreDark',
+    q: 'nero',
+  },
+  rows: [
+    '.PP...........PP.',
+    'PPPP.........PPPP',
+    'pPPp....P....pPPp',
+    '.SS.....P.....SS.',
+    '.SS....sPP....SS.',
+    '.SSSS.S.S.S.SSSS.',
+    '.SSSSSSSSSSSSSSS.',
+    '.SqSSqSSSSSqSSqS.',
+    '.SSSSSSSSSSSSSSS.',
+    '.SSSSSqqqqqSSSSS.',
+    '.SsSSSqqqqqSSSsS.',
+    '.SSSSSqqqqqSSSSS.',
+    '.sssssssssssssss.',
+  ],
+};
+
 /** Drakkar degli approdi: vela a strisce e scudi sullo scafo. */
 export const DRAKKAR: SpriteDef = {
   map: {
