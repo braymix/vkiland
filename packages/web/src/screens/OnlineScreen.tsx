@@ -5,7 +5,7 @@
  * la GameScreen identica al locale.
  */
 import { useEffect, useRef, useState } from 'react';
-import { MAX_PLAYERS, type BotLevel, type PlayerColor } from '@vikiland/engine';
+import { DEFAULT_TARGET_GLORY, MAX_PLAYERS, type BotLevel, type PlayerColor } from '@vikiland/engine';
 import type { LobbyState, PublicLobbySummary } from '@vikiland/server/protocol';
 import { isApiError } from '@vikiland/server/protocol';
 import { it, t } from '../i18n';
@@ -140,10 +140,13 @@ export function OnlineScreen({
               onBack();
             }}
             onOpenTutorial={() => setTutorialOpen(true)}
-            onCreate={(timerSec, isPublic) => {
+            onCreate={(timerSec, isPublic, seed, targetGloryPoints, avoidAdjacent68) => {
+              const config = seed.trim()
+                ? { avoidAdjacent68, targetGloryPoints, turnTimerSec: timerSec, isPublic, seed }
+                : { avoidAdjacent68, targetGloryPoints, turnTimerSec: timerSec, isPublic };
               socketRef.current?.emit(
                 'lobby:create',
-                { avoidAdjacent68: true, targetGloryPoints: 10, turnTimerSec: timerSec, isPublic },
+                config,
                 (res) => {
                   if (isApiError(res)) return showError(res.error);
                   setLobby(res);
@@ -272,7 +275,7 @@ function OnlineHome({
 }: {
   name: string;
   error: string | null;
-  onCreate: (timerSec: number, isPublic: boolean) => void;
+  onCreate: (timerSec: number, isPublic: boolean, seed: string, targetGloryPoints: number, avoidAdjacent68: boolean) => void;
   onJoin: (code: string) => void;
   onBack: () => void;
   onOpenTutorial: () => void;
@@ -285,6 +288,13 @@ function OnlineHome({
   const [isPublic, setIsPublic] = useState(false);
   /** Partite pubbliche aperte, aggiornate ogni 5 secondi. */
   const [publicRooms, setPublicRooms] = useState<PublicLobbySummary[]>([]);
+  /** Configurazione della partita. */
+  const [seed, setSeed] = useState('');
+  const [targetPG, setTargetPG] = useState(10);
+  const [avoid68, setAvoid68] = useState(true);
+  const [configOpen, setConfigOpen] = useState(false);
+  const bumpTarget = (delta: number) =>
+    setTargetPG((n) => Math.max(5, Math.min(20, n + delta)));
   useEffect(() => {
     let alive = true;
     const refresh = () => fetchPublic((rooms) => alive && setPublicRooms(rooms));
@@ -318,10 +328,71 @@ function OnlineHome({
             <span style={{ fontSize: 8, color: 'var(--ink-dim)' }}>
               {timerSec === 0 ? it.nessunTimer : t(it.secondiAbbr, { n: timerSec })}
             </span>
-            <button className="pxbtn" onClick={() => onCreate(timerSec, isPublic)}>
+            <button className="pxbtn" onClick={() => onCreate(timerSec, isPublic, seed, targetPG, avoid68)}>
               {it.creaPartita}
             </button>
           </div>
+          <button
+            className={`pxbtn pxbtn--ghost pxbtn--small`}
+            onClick={() => setConfigOpen(!configOpen)}
+            aria-expanded={configOpen}
+          >
+            {configOpen ? '▾' : '▸'} {it.configurazione}
+          </button>
+          {configOpen && (
+            <div className="config-section">
+              <div className="stepper-row">
+                <span style={{ fontSize: 9 }}>
+                  {it.puntiVittoria}{' '}
+                  <span style={{ color: 'var(--ink-dim)', fontSize: 8 }}>
+                    {t(it.standardN, { n: DEFAULT_TARGET_GLORY })}
+                  </span>
+                </span>
+                <span className="stepper">
+                  <button
+                    className="pxbtn pxbtn--ghost pxbtn--small"
+                    onClick={() => bumpTarget(-1)}
+                    disabled={targetPG <= 5}
+                  >
+                    -
+                  </button>
+                  <span
+                    style={{
+                      minWidth: 26,
+                      textAlign: 'center',
+                      color: targetPG === DEFAULT_TARGET_GLORY ? 'inherit' : 'var(--accent)',
+                    }}
+                  >
+                    {targetPG}
+                  </span>
+                  <button
+                    className="pxbtn pxbtn--ghost pxbtn--small"
+                    onClick={() => bumpTarget(+1)}
+                    disabled={targetPG >= 20}
+                  >
+                    +
+                  </button>
+                </span>
+              </div>
+              <div className="setup-player">
+                <input
+                  type="text"
+                  placeholder={it.seedOpzionale}
+                  value={seed}
+                  onChange={(e) => setSeed(e.target.value)}
+                  style={{ width: 240 }}
+                />
+              </div>
+              <label className="check">
+                <input
+                  type="checkbox"
+                  checked={avoid68}
+                  onChange={(e) => setAvoid68(e.target.checked)}
+                />
+                {it.evita68}
+              </label>
+            </div>
+          )}
           <label className="check" style={{ fontSize: 9 }}>
             <input
               type="checkbox"
