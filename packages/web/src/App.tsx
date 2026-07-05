@@ -10,16 +10,14 @@ import { EntryScreen } from './screens/EntryScreen';
 import { GameScreen } from './screens/GameScreen';
 import { InventoryScreen } from './screens/InventoryScreen';
 import { MenuScreen } from './screens/MenuScreen';
-import { OnlineScreen } from './screens/OnlineScreen';
-import { SetupScreen } from './screens/SetupScreen';
+import { NewGameScreen } from './screens/NewGameScreen';
 import { TutorialScreen } from './screens/TutorialScreen';
 
 type Route =
   | { screen: 'entry' }
   | { screen: 'menu' }
-  | { screen: 'setup' }
+  | { screen: 'newGame'; mode: 'locale' | 'online' }
   | { screen: 'game'; setup: GameSetup; gameKey: number }
-  | { screen: 'online' }
   | { screen: 'account' }
   | { screen: 'tutorial'; chapter?: number }
   | { screen: 'demo' }
@@ -66,7 +64,7 @@ export function App() {
       return (
         <MenuScreen
           hasAccount={hasAccount}
-          onNewGame={() => setRoute({ screen: 'setup' })}
+          onNewGame={() => setRoute({ screen: 'newGame', mode: 'locale' })}
           onLibro={() => setRoute({ screen: 'tutorial' })}
           onInventory={() => setRoute({ screen: 'inventory' })}
           // Senza account, «Gestione account» porta all'entrata per accedere.
@@ -100,18 +98,22 @@ export function App() {
       return (
         <DemoScreen
           onClose={() => setRoute({ screen: 'menu' })}
-          onPlay={() => setRoute({ screen: 'setup' })}
+          onPlay={() => setRoute({ screen: 'newGame', mode: 'locale' })}
           // L'online richiede un account: senza, si passa dall'entrata.
-          onOnline={() => setRoute({ screen: hasAccount ? 'online' : 'entry' })}
+          onOnline={() =>
+            setRoute(hasAccount ? { screen: 'newGame', mode: 'online' } : { screen: 'entry' })
+          }
         />
       );
-    case 'setup':
+    case 'newGame':
       return (
-        <SetupScreen
-          hasAccount={hasAccount}
+        <NewGameScreen
+          session={session}
+          initialMode={route.mode}
           onBack={() => setRoute({ screen: 'menu' })}
-          onGoOnline={() => setRoute({ screen: 'online' })}
-          onStart={(setup) => setRoute({ screen: 'game', setup, gameKey: Date.now() })}
+          onStartLocal={(setup) => setRoute({ screen: 'game', setup, gameKey: Date.now() })}
+          onInvalidSession={onLogout}
+          onNeedAccount={() => setRoute({ screen: 'entry' })}
         />
       );
     case 'game':
@@ -131,15 +133,21 @@ export function App() {
               },
             })
           }
-        />
-      );
-    case 'online':
-      if (!session) return null;
-      return (
-        <OnlineScreen
-          session={session}
-          onBack={() => setRoute({ screen: 'menu' })}
-          onInvalidSession={onLogout}
+          // Gestione partita locale (☰): unica azione «esci» = torna al menu.
+          manage={{
+            online: false,
+            code: null,
+            isHost: true,
+            players: route.setup.players.map((p) => ({
+              name: p.name,
+              isBot: p.isBot,
+              color: p.color,
+              connected: true,
+              isHost: false,
+            })),
+            onLeave: () => setRoute({ screen: 'menu' }),
+            onTerminate: null,
+          }}
         />
       );
   }

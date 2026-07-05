@@ -177,6 +177,29 @@ export const es: Strings = {
   indietro: 'Atrás',
   serveUnUmano: 'Hace falta al menos un vikingo humano',
 
+  // Nueva partida (flujo único: local + online en una vista)
+  stessoDevice: 'Mismo dispositivo',
+  nuovaPartitaHintLocale:
+    'Pasa el teléfono entre los jugadores por turnos. Cada asiento puede ser Tú o un Bot.',
+  nuovaPartitaHintOnline:
+    'Comparte el código: los amigos entran desde lejos. Rellena los asientos libres con bots.',
+  aggiungiPosto: '+ Añadir asiento',
+  aggiungiBotPosto: '+ Añadir bot',
+  ruoloTu: 'Tú',
+  ruoloAmico: 'Amigo',
+  regoleEtichetta: 'Reglas',
+  regoleClassica: 'Clásica',
+  regolePersonalizzate: 'A medida',
+  modificaRegole: 'Editar',
+  altreRegole: 'Más',
+  avvia: 'Empezar',
+  copia: 'Copiar',
+  copiato: '¡Copiado!',
+  gestionePartita: 'Gestión de la partida',
+  riprendi: 'Reanudar',
+  esciLocaleTesto: 'La partida actual se perderá y volverás al menú.',
+  statoOffline: 'ausente',
+
   // Hot-seat (passing the device)
   passaDispositivo: 'Pasa el dispositivo',
   toccaA: 'Turno de {nome}',

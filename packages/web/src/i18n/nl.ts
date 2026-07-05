@@ -177,6 +177,29 @@ export const nl: Strings = {
   indietro: 'Terug',
   serveUnUmano: 'Je hebt minstens één menselijke Viking nodig',
 
+  // Nieuw spel (één flow: lokaal + online in één weergave)
+  stessoDevice: 'Zelfde apparaat',
+  nuovaPartitaHintLocale:
+    'Geef de telefoon om de beurt door. Elke plek kan Jij of een Bot zijn.',
+  nuovaPartitaHintOnline:
+    'Deel de code: vrienden doen van veraf mee. Vul de vrije plekken met bots.',
+  aggiungiPosto: '+ Plek toevoegen',
+  aggiungiBotPosto: '+ Bot toevoegen',
+  ruoloTu: 'Jij',
+  ruoloAmico: 'Vriend',
+  regoleEtichetta: 'Regels',
+  regoleClassica: 'Klassiek',
+  regolePersonalizzate: 'Op maat',
+  modificaRegole: 'Bewerken',
+  altreRegole: 'Meer',
+  avvia: 'Starten',
+  copia: 'Kopiëren',
+  copiato: 'Gekopieerd!',
+  gestionePartita: 'Spelbeheer',
+  riprendi: 'Hervatten',
+  esciLocaleTesto: 'Het huidige spel gaat verloren en je keert terug naar het menu.',
+  statoOffline: 'offline',
+
   // Hot-seat (het apparaat doorgeven)
   passaDispositivo: 'Geef het apparaat door',
   toccaA: '{nome} is aan de beurt',
