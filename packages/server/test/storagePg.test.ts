@@ -5,7 +5,7 @@
  * DB con la query attesa.
  */
 import { describe, expect, it } from 'vitest';
-import { PostgresStorage, type PgLike } from '../src/storagePg';
+import { PostgresStorage, stripSslParams, type PgLike } from '../src/storagePg';
 
 interface Call {
   text: string;
@@ -124,6 +124,17 @@ describe('PostgresStorage (write-through su memoria)', () => {
     const call = fake.last(/insert into finished_games/i)!;
     expect(call.params[0]).toBe('ABCD');
     expect(call.params[4]).toBe(JSON.stringify([{ userId: 'u1', name: 'A', isBot: false }]));
+  });
+
+  it('stripSslParams toglie sslmode/ssl per non riabilitare SSL su host senza SSL', () => {
+    expect(stripSslParams('postgresql://u:p@host:5432/db?sslmode=require')).toBe(
+      'postgresql://u:p@host:5432/db'
+    );
+    expect(stripSslParams('postgresql://u:p@host:5432/db?ssl=true&x=1')).toBe(
+      'postgresql://u:p@host:5432/db?x=1'
+    );
+    // Senza parametri SSL la stringa resta invariata (host/porta/db intatti).
+    expect(stripSslParams('postgresql://u:p@host:5432/db')).toBe('postgresql://u:p@host:5432/db');
   });
 
   it('un errore di scrittura non propaga (i dati restano in memoria)', async () => {

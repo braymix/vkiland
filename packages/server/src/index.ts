@@ -28,8 +28,15 @@ const DATABASE_URL = process.env['DATABASE_URL'];
 let storage: Storage;
 if (DATABASE_URL) {
   const { PostgresStorage } = await import('./storagePg');
-  storage = await PostgresStorage.connect(DATABASE_URL);
-  console.log('[storage] PostgreSQL: dati persistenti');
+  try {
+    storage = await PostgresStorage.connect(DATABASE_URL);
+    console.log('[storage] PostgreSQL: dati persistenti');
+  } catch (err) {
+    // Messaggio pulito e attivabile invece di uno stack trace grezzo: quasi
+    // sempre è DATABASE_URL o DATABASE_SSL da correggere nelle variabili.
+    console.error(`[storage] ${err instanceof Error ? err.message : String(err)}`);
+    process.exit(1);
+  }
 } else {
   storage = new JsonFileStorage(DATA_DIR);
   console.log(`[storage] file JSON in ${DATA_DIR} (effimero: imposta DATABASE_URL per la persistenza)`);

@@ -88,8 +88,12 @@ PostgreSQL gestito. [filess.io](https://filess.io) ne offre uno gratis:
    al primo avvio — non devi eseguire nessuna migrazione a mano.
 
 Senza `DATABASE_URL` il server continua a usare il file JSON in `DATA_DIR`
-(comodo in sviluppo). Se l'host richiede una connessione cifrata e vedi un
-errore SSL all'avvio, aggiungi `DATABASE_SSL=true`.
+(comodo in sviluppo).
+
+**SSL:** filess.io **non** usa SSL, quindi lascia `DATABASE_SSL` non impostata
+(e se la tua `DATABASE_URL` contiene `?sslmode=require`, il server lo ignora da
+solo per non andare in crash). Solo su host che *richiedono* TLS (es. Neon,
+Supabase) imposta `DATABASE_SSL=true`.
 
 Come funziona: il server tiene i dati **in memoria** e li scrive sul database in
 background (write-through), ricaricandoli all'avvio. Così le letture restano
