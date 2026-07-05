@@ -131,6 +131,19 @@ button {
     'hand'
     'log';
 }
+/* Modalità Calamità: si inserisce una riga «banner» sotto l'HUD, così la carta
+   attiva sta subito in alto (senza questa variante il banner non ha area e il
+   grid lo relega in fondo). La riga esiste SOLO in modalità calamità: le partite
+   standard non si prendono un gap vuoto. */
+.game-layout--calamity {
+  grid-template-areas:
+    'hud'
+    'banner'
+    'board'
+    'actions'
+    'hand'
+    'log';
+}
 @media (min-width: 900px) {
   .game-layout {
     grid-template-columns: 320px 1fr;
@@ -141,9 +154,18 @@ button {
       'actions actions';
     align-items: start;
   }
+  .game-layout--calamity {
+    grid-template-areas:
+      'hud board'
+      'banner board'
+      'hand board'
+      'log board'
+      'actions actions';
+  }
 }
 
 .area-hud { grid-area: hud; }
+.area-banner { grid-area: banner; }
 .area-board { grid-area: board; }
 .area-actions { grid-area: actions; }
 .area-hand { grid-area: hand; }

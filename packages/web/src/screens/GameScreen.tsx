@@ -196,17 +196,21 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
 
   return (
     <div className="screen">
-      <div className="game-layout">
+      <div className={`game-layout${view.calamity ? ' game-layout--calamity' : ''}`}>
         <HudTop
           view={view}
           onOpenCosts={() => setCostsOpen(true)}
           onOpenMap={() => setMapFullscreen(true)}
           turnDeadline={gameOver ? null : snap.turnDeadline}
         />
-        <CalamityBanner view={view} />
-        {placingCalamityRoads && (
-          <div style={{ fontSize: 9, color: 'var(--accent)', textAlign: 'center' }}>
-            {it.calamita.strade}
+        {view.calamity && (
+          <div className="area-banner" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <CalamityBanner view={view} />
+            {placingCalamityRoads && (
+              <div style={{ fontSize: 9, color: 'var(--accent)', textAlign: 'center' }}>
+                {it.calamita.strade}
+              </div>
+            )}
           </div>
         )}
         <BoardCanvas

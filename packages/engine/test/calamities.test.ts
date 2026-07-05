@@ -3,6 +3,7 @@ import {
   CALAMITY_DECK_COMPOSITION,
   RESOURCES,
   applyAction,
+  calamityBankFloorForCard,
   createGame,
   effectiveBankRatio,
   getLegalActions,
@@ -228,6 +229,18 @@ describe('Calamità persistenti — scambi e divieti', () => {
       effectiveBankRatio(withCalamity(noPorts, { kind: 'scambioDue', resource: 'legname' }), 0, 'orzo', R)
     ).toBe(4); // altro materiale: nessuno sconto
     expect(effectiveBankRatio(withCalamity(noPorts, { kind: 'mercatoOro' }), 0, 'orzo', R)).toBe(2);
+  });
+
+  // La UI non ha lo stato, solo la carta nella vista: questo helper è ciò che
+  // usa il BankTradeDialog per non restare bloccato a 4:1 sotto Mercato d'oro.
+  it('calamityBankFloorForCard: stesso "tetto" partendo dalla sola carta (per la UI)', () => {
+    expect(calamityBankFloorForCard(null, 'legname')).toBe(Infinity);
+    expect(calamityBankFloorForCard({ kind: 'mercatoOro' }, 'orzo')).toBe(2);
+    expect(calamityBankFloorForCard({ kind: 'scambiTre' }, 'orzo')).toBe(3);
+    expect(calamityBankFloorForCard({ kind: 'scambioDue', resource: 'legname' }, 'legname')).toBe(2);
+    expect(calamityBankFloorForCard({ kind: 'scambioDue', resource: 'legname' }, 'orzo')).toBe(Infinity);
+    // Una calamità non di scambio non tocca il rapporto.
+    expect(calamityBankFloorForCard({ kind: 'bufera' }, 'legname')).toBe(Infinity);
   });
 
   it('scambiTre: si scambia davvero 3:1', () => {

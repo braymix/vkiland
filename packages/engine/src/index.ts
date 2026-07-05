@@ -67,6 +67,7 @@ export {
   activeCalamity,
   materialMultiplier,
   calamityBankFloor,
+  calamityBankFloorForCard,
   calamityBlocksBankTrade,
   calamityBlocksRoad,
   calamityBlocksStronghold,

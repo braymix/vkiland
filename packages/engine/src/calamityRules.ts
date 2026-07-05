@@ -31,16 +31,24 @@ export function materialMultiplier(state: GameState, r: Resource): number {
 }
 
 /**
- * "Tetto" al rapporto di scambio con la banca imposto dalla calamità (Infinity
- * se nessuno): il rapporto finale è il minimo tra questo e quello degli approdi.
+ * "Tetto" al rapporto di scambio con la banca imposto da una specifica carta
+ * (Infinity se nessuno). Pura sulla carta: la usano sia l'engine (via
+ * `calamityBankFloor`) sia la UI, che ha la calamità nella vista ma non lo stato.
+ */
+export function calamityBankFloorForCard(card: CalamityCard | null, give: Resource): number {
+  if (!card) return Infinity;
+  if (card.kind === 'scambiTre') return 3;
+  if (card.kind === 'mercatoOro') return 2;
+  if (card.kind === 'scambioDue' && card.resource === give) return 2;
+  return Infinity;
+}
+
+/**
+ * "Tetto" al rapporto di scambio con la banca imposto dalla calamità del giro
+ * (Infinity se nessuno): il rapporto finale è il minimo tra questo e gli approdi.
  */
 export function calamityBankFloor(state: GameState, give: Resource): number {
-  const c = activeCalamity(state);
-  if (!c) return Infinity;
-  if (c.kind === 'scambiTre') return 3;
-  if (c.kind === 'mercatoOro') return 2;
-  if (c.kind === 'scambioDue' && c.resource === give) return 2;
-  return Infinity;
+  return calamityBankFloorForCard(activeCalamity(state), give);
 }
 
 export function calamityBlocksBankTrade(state: GameState): boolean {

@@ -1,8 +1,8 @@
 /** Calamità rivelata: modal full-screen con nome, descrizione, effetto. */
 import { useEffect, useRef, useState } from 'react';
 import type { CalamityCard } from '@vikiland/engine';
-import { it } from '../i18n';
-import { calamityDesc, calamityName } from '../game/calamityText';
+import { it, t } from '../i18n';
+import { CalamityDesc, CalamityName } from './CalamityText';
 
 export function CalamityRevealedModal({
   card,
@@ -65,13 +65,13 @@ export function CalamityRevealedModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 16, color: 'var(--accent)' }}>
-          ⚡ {calamityName(card)}
+          ⚡ <CalamityName card={card} />
         </div>
         <div style={{ fontSize: 14, marginBottom: 12, color: 'var(--ink)', lineHeight: 1.6 }}>
-          {calamityDesc(card)}
+          <CalamityDesc card={card} />
         </div>
         <div style={{ fontSize: 11, color: 'var(--ink-dim)', marginTop: 16 }}>
-          {remaining} {it.calamita.rimaste}
+          {t(it.calamita.rimaste, { n: remaining })}
         </div>
         <button
           className="pxbtn pxbtn--small"
