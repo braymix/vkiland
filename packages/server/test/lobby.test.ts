@@ -251,4 +251,30 @@ describe('LobbyManager', () => {
       expect(back.slots.find((s) => s.userId === astrid.id)?.connected).toBe(true);
     }
   });
+
+  it('solo l’host cambia la configurazione, solo prima dell’avvio; il seed scelto è preservato', () => {
+    const { manager, rec } = makeManager();
+    const created = manager.create(bjorn, CFG);
+    if (isApiError(created)) throw new Error('create fallita');
+    manager.join(created.code, astrid);
+
+    // Un non-host non può.
+    expect(isApiError(manager.updateConfig(astrid.id, { ...CFG, calamities: true }))).toBe(true);
+
+    // L'host sì: la modifica arriva in broadcast a tutti.
+    const updated = manager.updateConfig(bjorn.id, {
+      ...CFG,
+      calamities: true,
+      targetGloryPoints: 12,
+      seed: 'seme-scelto',
+    });
+    if (isApiError(updated)) throw new Error('updateConfig fallita');
+    expect(updated.config.calamities).toBe(true);
+    expect(updated.config.targetGloryPoints).toBe(12);
+    expect(rec.lobbyStates.at(-1)?.config.calamities).toBe(true);
+
+    // A partita avviata la config è fissata: nemmeno l'host può più cambiarla.
+    manager.start(bjorn.id);
+    expect(isApiError(manager.updateConfig(bjorn.id, { ...CFG, calamities: false }))).toBe(true);
+  });
 });

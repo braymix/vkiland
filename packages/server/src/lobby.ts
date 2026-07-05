@@ -199,6 +199,21 @@ export class LobbyManager {
     return this.toState(lobby);
   }
 
+  /**
+   * Cambia la configurazione di una lobby già creata (solo l'host, solo prima
+   * dell'avvio). Così la scelta di calamità/PG/timer/seed resta modificabile
+   * finché non si parte, esattamente come nel setup locale.
+   */
+  updateConfig(userId: string, config: LobbyConfig): Result {
+    const lobby = this.lobbyOfUser(userId);
+    if (!lobby) return { error: 'Non sei in una lobby' };
+    if (lobby.hostUserId !== userId) return { error: 'Solo l’host può farlo' };
+    if (lobby.started) return { error: 'Partita già iniziata' };
+    lobby.config = sanitizeConfig(config);
+    this.broadcast(lobby);
+    return this.toState(lobby);
+  }
+
   removeSlot(userId: string, index: number): Result {
     const lobby = this.lobbyOfUser(userId);
     if (!lobby) return { error: 'Non sei in una lobby' };
@@ -236,7 +251,7 @@ export class LobbyManager {
         ...(cosmetics ? { cosmetics } : {}),
       };
     });
-    const seed = `vikiland-online-${Date.now()}-${randomInt(1e9)}`;
+    const seed = lobby.config.seed?.trim() || `vikiland-online-${Date.now()}-${randomInt(1e9)}`;
     lobby.room = new GameRoom(
       lobby.code,
       seed,
@@ -366,13 +381,14 @@ export class LobbyManager {
 }
 
 function sanitizeConfig(c: LobbyConfig): LobbyConfig {
-  return {
+  const base = {
     avoidAdjacent68: Boolean(c.avoidAdjacent68),
     targetGloryPoints: clampInt(c.targetGloryPoints, 5, 20, 10),
     turnTimerSec: clampInt(c.turnTimerSec, 0, 600, 0),
     isPublic: Boolean(c.isPublic),
     calamities: Boolean(c.calamities),
   };
+  return c.seed?.trim() ? { ...base, seed: c.seed.trim() } : base;
 }
 
 function clampInt(x: unknown, min: number, max: number, dflt: number): number {

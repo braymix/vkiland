@@ -192,6 +192,8 @@ io.on('connection', (socket: AnySocket) => {
     cb(res);
   });
 
+  socket.on('lobby:updateConfig', (config, cb) => cb(lobbies.updateConfig(userId, config)));
+
   socket.on('lobby:list', (cb) => cb(lobbies.listPublic()));
 
   socket.on('lobby:join', (code, cb) => {

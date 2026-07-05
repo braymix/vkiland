@@ -129,6 +129,8 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
   'lobby:create': (config: LobbyConfig, cb: (res: LobbyState | ApiError) => void) => void;
+  /** Solo l'host, solo prima dell'avvio: cambia la configurazione della lobby già creata. */
+  'lobby:updateConfig': (config: LobbyConfig, cb: (res: LobbyState | ApiError) => void) => void;
   /** Lista delle partite pubbliche aperte (non iniziate, con posti liberi). */
   'lobby:list': (cb: (rooms: PublicLobbySummary[]) => void) => void;
   'lobby:join': (code: string, cb: (res: LobbyState | ApiError) => void) => void;
