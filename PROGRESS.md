@@ -194,8 +194,17 @@ vichinghi e mostra l'avviso «Campo piccolo/grande». Test: `largeBoard.test.ts`
 - ✅ `packages/server`: Fastify (REST `/api/register|login|logout|me`) +
      Socket.io con handshake autenticato dal token di sessione
 - ✅ Account: hash scrypt (`node:crypto`, zero dipendenze native), sessioni
-     token, storage JSON dietro interfaccia `Storage` (swap previsto a
-     Drizzle SQLite/PostgreSQL + argon2id, formati versionati)
+     token, storage dietro interfaccia `Storage` (sincrona)
+- ✅ **Persistenza durevole su PostgreSQL** (`storagePg.ts`, es. filess.io):
+     attiva con `DATABASE_URL`, altrimenti ripiego sul file JSON. Strategia
+     cache in memoria + **write-through**: carica utenti/sessioni all'avvio,
+     letture sincrone dalla memoria (interfaccia `Storage` invariata → auth e
+     lobby non toccati), scritture propagate al DB in background e in ordine,
+     con log degli errori (un singhiozzo del DB non blocca il gioco). Tabelle
+     create da sole al primo avvio; partite finite append-only (JSONB).
+     `DATABASE_SSL=true` per host TLS. Verificato end-to-end su un PostgreSQL
+     reale (dati sopravvivono a riconnessione/deploy) + test con DB finto
+     (`storagePg.test.ts`)
 - ✅ Lobby: codici invito a 6 caratteri non ambigui, posti umani/bot gestiti
      dall'host, espulsione, chiusura, riconnessione (il posto resta legato
      all'utente a partita iniziata); colore del clan scelto nella lobby

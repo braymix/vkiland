@@ -14,15 +14,26 @@ import { Server, type Socket } from 'socket.io';
 import { sanitizeCosmetics, type Action } from '@vikiland/engine';
 import { AuthService } from './auth';
 import { LobbyManager } from './lobby';
-import { JsonFileStorage } from './storage';
+import { JsonFileStorage, type Storage } from './storage';
 import { isApiError, type ClientToServerEvents, type LoginRequest, type RegisterRequest, type ServerToClientEvents } from './protocol';
 
 const PORT = Number(process.env['PORT'] ?? 8787);
 const HOST = process.env['HOST'] ?? '0.0.0.0';
 const DATA_DIR =
   process.env['DATA_DIR'] ?? join(dirname(fileURLToPath(import.meta.url)), '..', 'data');
+const DATABASE_URL = process.env['DATABASE_URL'];
 
-const storage = new JsonFileStorage(DATA_DIR);
+// Con DATABASE_URL usiamo PostgreSQL (dati DUREVOLI, es. filess.io): resiste ai
+// deploy e ai dischi effimeri. Senza, ripiego sul file JSON locale (sviluppo).
+let storage: Storage;
+if (DATABASE_URL) {
+  const { PostgresStorage } = await import('./storagePg');
+  storage = await PostgresStorage.connect(DATABASE_URL);
+  console.log('[storage] PostgreSQL: dati persistenti');
+} else {
+  storage = new JsonFileStorage(DATA_DIR);
+  console.log(`[storage] file JSON in ${DATA_DIR} (effimero: imposta DATABASE_URL per la persistenza)`);
+}
 const auth = new AuthService(storage);
 
 const app = Fastify({ logger: { level: 'warn' } });
