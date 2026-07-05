@@ -6,3 +6,6 @@ coverage/
 .env.*
 .DS_Store
 *.log
+
+# Dati locali del server (account/partite di sviluppo)
+packages/server/data/

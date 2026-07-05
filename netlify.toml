@@ -1,0 +1,23 @@
+# Deploy del CLIENT Vikiland su Netlify (build statica Vite).
+#
+# Il gioco locale (vs bot e hot-seat) funziona subito, senza server.
+# Per l'ONLINE serve anche il server di gioco (packages/server) su un host
+# con processi persistenti/WebSocket (Render, Railway, Fly, VPS — c'è il
+# Dockerfile): le Functions di Netlify non possono ospitare Socket.io.
+# Imposta la variabile d'ambiente VITE_SERVER_URL (Site settings →
+# Environment variables) all'indirizzo pubblico del server, es.
+#   VITE_SERVER_URL = https://vikiland-server.onrender.com
+# e il form "Online" del client la userà come indirizzo precompilato.
+
+[build]
+  command = "pnpm build"
+  publish = "packages/web/dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Single-page app: ogni percorso torna all'index.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

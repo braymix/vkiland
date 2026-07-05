@@ -8,7 +8,7 @@ import {
   type Action,
   type PlayerView,
 } from '@vikiland/engine';
-import { it, t } from '../../i18n/it';
+import { it, t } from '../../i18n';
 import { ResIcon } from '../icons';
 import { Dialog, ResourceStepper } from './Dialog';
 

@@ -1,0 +1,24 @@
+# Blueprint Render per il SERVER di gioco Vikiland (l'online).
+#
+# Uso: su https://render.com → New + → Blueprint → collega questo repo →
+# Apply. Render costruisce il Dockerfile del server e lo pubblica in HTTPS
+# (es. https://vikiland-server.onrender.com). Poi su Netlify imposta
+#   VITE_SERVER_URL = https://<il-tuo-servizio>.onrender.com
+# e rilancia il deploy del client: il form Online arriverà precompilato.
+#
+# Nota sul piano free: il servizio si addormenta dopo ~15 minuti di
+# inattività; la prima richiesta lo risveglia (attesa ~30-60s). I dati
+# (account/partite) sono su disco effimero: si azzerano a ogni deploy.
+
+services:
+  - type: web
+    name: vikiland-server
+    runtime: docker
+    plan: free
+    dockerfilePath: ./packages/server/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: DATA_DIR
+        value: /tmp/vikiland-data

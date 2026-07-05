@@ -7,11 +7,17 @@
  */
 import type { LegalMove } from './actions';
 import { getTopology } from './board/topology';
-import { BUILD_COSTS, PIECE_LIMITS, RESOURCES } from './constants';
-import { hasAtLeast } from './resources';
 import {
-  bankTradeRatio,
+  calamityBlocksBankTrade,
+  calamityBlocksRoad,
+  calamityBlocksStronghold,
+  calamityDragonFrozen,
+} from './calamityRules';
+import { BUILD_COSTS, PIECE_LIMITS, RESOURCES } from './constants';
+import { hasAtLeast, totalResources } from './resources';
+import {
   canPlaySagaCard,
+  effectiveBankRatio,
   legalRoadEdges,
   legalVillageVertices,
   vertexFreeWithDistance,
@@ -19,7 +25,8 @@ import {
 import type { GameState, PlayerId, Resource } from './types';
 
 export function getLegalActions(state: GameState, player: PlayerId): LegalMove[] {
-  const topo = getTopology();
+  const radius = state.config.boardRadius;
+  const topo = getTopology(radius);
   const moves: LegalMove[] = [];
   if (player < 0 || player >= state.players.length) return moves;
   const me = state.players[player]!;
@@ -32,7 +39,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
       if (player !== state.setupOrder[state.setupIndex]) return moves;
       if (state.phase.expecting === 'villaggio') {
         for (const v of topo.vertices) {
-          if (vertexFreeWithDistance(state, v)) {
+          if (vertexFreeWithDistance(state, v, radius)) {
             moves.push({ type: 'piazzaVillaggioIniziale', player, vertex: v });
           }
         }
@@ -49,7 +56,11 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
     case 'preRoll': {
       if (player !== state.currentPlayer) return moves;
       moves.push({ type: 'tiraDadi', player });
-      if (canPlaySagaCard(state, player, 'berserker') && !state.devCardPlayedThisTurn) {
+      if (
+        canPlaySagaCard(state, player, 'berserker') &&
+        !state.devCardPlayedThisTurn &&
+        !calamityDragonFrozen(state)
+      ) {
         moves.push({ type: 'giocaBerserker', player });
       }
       return moves;
@@ -58,6 +69,29 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
     case 'discard': {
       const due = state.phase.mustDiscard[player];
       if (due !== undefined) moves.push({ type: 'scartaDescr', player, amount: due });
+      return moves;
+    }
+
+    case 'calamityDiscard': {
+      const due = state.phase.mustDiscard[player];
+      if (due !== undefined) moves.push({ type: 'scartaDescr', player, amount: due });
+      return moves;
+    }
+
+    case 'calamityGain': {
+      const due = state.phase.mustGain[player];
+      // Si prende il minimo tra la propria quota e ciò che resta in banca.
+      if (due !== undefined) {
+        moves.push({ type: 'guadagnaDescr', player, amount: Math.min(due, totalResources(state.bank)) });
+      }
+      return moves;
+    }
+
+    case 'calamityRoads': {
+      if (player !== state.phase.queue[0]) return moves;
+      for (const e of legalRoadEdges(state, player, radius)) {
+        moves.push({ type: 'piazzaSentieroGratis', player, edge: e });
+      }
       return moves;
     }
 
@@ -81,7 +115,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
 
     case 'freeRoads': {
       if (player !== state.currentPlayer) return moves;
-      for (const e of legalRoadEdges(state, player)) {
+      for (const e of legalRoadEdges(state, player, radius)) {
         moves.push({ type: 'piazzaSentieroGratis', player, edge: e });
       }
       return moves;
@@ -115,11 +149,13 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
       if (player !== state.currentPlayer) return moves;
 
       // Costruzioni (solo se ci sono risorse e pezzi: liste concrete di posizioni).
+      // Alcune calamità del giro bloccano sentieri (bufera) o roccaforti (assedio).
       if (
+        !calamityBlocksRoad(state) &&
         hasAtLeast(me.resources, BUILD_COSTS.sentiero) &&
         me.roads.length < PIECE_LIMITS.sentiero
       ) {
-        for (const e of legalRoadEdges(state, player)) {
+        for (const e of legalRoadEdges(state, player, radius)) {
           moves.push({ type: 'costruisciSentiero', player, edge: e });
         }
       }
@@ -127,11 +163,12 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
         hasAtLeast(me.resources, BUILD_COSTS.villaggio) &&
         me.villages.length < PIECE_LIMITS.villaggio
       ) {
-        for (const v of legalVillageVertices(state, player)) {
+        for (const v of legalVillageVertices(state, player, radius)) {
           moves.push({ type: 'costruisciVillaggio', player, vertex: v });
         }
       }
       if (
+        !calamityBlocksStronghold(state) &&
         hasAtLeast(me.resources, BUILD_COSTS.roccaforte) &&
         me.strongholds.length < PIECE_LIMITS.roccaforte
       ) {
@@ -143,19 +180,23 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
         moves.push({ type: 'compraCartaSaga', player });
       }
 
-      // Scambi con banca/approdi.
-      for (const give of RESOURCES) {
-        const ratio = bankTradeRatio(state, player, give);
-        if (me.resources[give] < ratio) continue;
-        for (const receive of RESOURCES) {
-          if (receive === give || state.bank[receive] < 1) continue;
-          moves.push({ type: 'scambioBanca', player, give, receive });
+      // Scambi con banca/approdi (col rapporto scontato dalla calamità del giro,
+      // salvo "mare in tempesta" che li vieta del tutto).
+      if (!calamityBlocksBankTrade(state)) {
+        for (const give of RESOURCES) {
+          const ratio = effectiveBankRatio(state, player, give, radius);
+          if (me.resources[give] < ratio) continue;
+          for (const receive of RESOURCES) {
+            if (receive === give || state.bank[receive] < 1) continue;
+            moves.push({ type: 'scambioBanca', player, give, receive });
+          }
         }
       }
       moves.push({ type: 'proponiScambioDescr', player });
 
-      // Carte Saga.
-      if (canPlaySagaCard(state, player, 'berserker')) {
+      // Carte Saga (canPlaySagaCard blocca già "niente Saga"; il Berserker anche
+      // se il Drago è fermo, perché lo sposterebbe).
+      if (canPlaySagaCard(state, player, 'berserker') && !calamityDragonFrozen(state)) {
         moves.push({ type: 'giocaBerserker', player });
       }
       if (

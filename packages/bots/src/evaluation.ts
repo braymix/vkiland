@@ -21,7 +21,7 @@ export function hexById(view: PlayerView): Map<string, Hex> {
 
 /** Pip per risorsa garantiti da un vertice (esagoni di terra adiacenti). */
 export function vertexPips(view: PlayerView, vertex: VertexId): ResourceCount {
-  const topo = getTopology();
+  const topo = getTopology(view.boardRadius);
   const byId = hexById(view);
   const out = zeroResources();
   for (const hexId of topo.vertexLandHexes[vertex] ?? []) {
@@ -54,7 +54,7 @@ export function playerPips(view: PlayerView, player: number): ResourceCount {
  * NUOVE rispetto a quelle già coperte + bonus approdo.
  */
 export function placementScore(view: PlayerView, player: number, vertex: VertexId): number {
-  const topo = getTopology();
+  const topo = getTopology(view.boardRadius);
   const own = playerPips(view, player);
   const pips = vertexPips(view, vertex);
   let score = 0;
@@ -120,14 +120,14 @@ export function totalOf(rc: ResourceCount): number {
  * scontati del 40%).
  */
 export function edgeExpansionScore(view: PlayerView, player: number, edge: string): number {
-  const topo = getTopology();
+  const topo = getTopology(view.boardRadius);
   let best = 0;
   for (const v of topo.edgeVertices[edge] ?? []) {
-    if (vertexFreeWithDistance(view, v)) {
+    if (vertexFreeWithDistance(view, v, view.boardRadius)) {
       best = Math.max(best, placementScore(view, player, v));
     }
     for (const w of topo.vertexNeighbors[v] ?? []) {
-      if (vertexFreeWithDistance(view, w)) {
+      if (vertexFreeWithDistance(view, w, view.boardRadius)) {
         best = Math.max(best, placementScore(view, player, w) * 0.6);
       }
     }
@@ -154,7 +154,7 @@ export function dragonDamage(
   view: PlayerView,
   hexId: string
 ): { perPlayer: Map<number, number>; total: number } {
-  const topo = getTopology();
+  const topo = getTopology(view.boardRadius);
   const byId = hexById(view);
   const hex = byId.get(hexId);
   const perPlayer = new Map<number, number>();

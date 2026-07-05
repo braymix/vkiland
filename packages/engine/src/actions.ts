@@ -3,6 +3,7 @@
  * animazioni) ed errori di validazione.
  */
 import type {
+  CalamityCard,
   EdgeId,
   HexId,
   PlayerId,
@@ -45,6 +46,9 @@ export type Action =
   | { type: 'piazzaSentieroGratis'; player: PlayerId; edge: EdgeId }
   | { type: 'giocaBanchetto'; player: PlayerId; resources: [Resource, Resource] }
   | { type: 'giocaTributo'; player: PlayerId; resource: Resource }
+  // --- Calamità: guadagno "a scelta" (fase calamityGain); scarti e strade
+  //     riusano `scarta` e `piazzaSentieroGratis`. ---
+  | { type: 'guadagnaCalamita'; player: PlayerId; resources: ResourceCount }
   // --- Fine turno ---
   | { type: 'fineTurno'; player: PlayerId };
 
@@ -56,6 +60,7 @@ export type Action =
 export type LegalMove =
   | Action
   | { type: 'scartaDescr'; player: PlayerId; amount: number }
+  | { type: 'guadagnaDescr'; player: PlayerId; amount: number }
   | { type: 'proponiScambioDescr'; player: PlayerId };
 
 export interface ValidationError {
@@ -76,11 +81,12 @@ export interface ScoreBreakdown {
 
 export type GameEvent =
   | { type: 'turnoIniziato'; player: PlayerId; turnNumber: number }
+  | { type: 'calamitaRivelata'; card: CalamityCard }
   | { type: 'dadiTirati'; player: PlayerId; dice: [number, number]; total: number }
   | { type: 'risorseProdotte'; gains: { player: PlayerId; resources: ResourceCount }[] }
   | { type: 'penuriaBanca'; resources: Resource[] }
   | { type: 'risorseScartate'; player: PlayerId; resources: ResourceCount | null; total: number }
-  | { type: 'dragoMosso'; player: PlayerId; hex: HexId; cause: 'sette' | 'berserker' }
+  | { type: 'dragoMosso'; player: PlayerId; hex: HexId; cause: 'sette' | 'berserker' | 'calamita' }
   | { type: 'risorsaRubata'; thief: PlayerId; victim: PlayerId; resource: Resource | null }
   | {
       type: 'costruito';

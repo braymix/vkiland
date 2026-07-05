@@ -1,6 +1,6 @@
 /** Barra delle azioni contestuale alla fase del turno. */
 import type { LegalMove, PlayerView } from '@vikiland/engine';
-import { it } from '../i18n/it';
+import { it } from '../i18n';
 
 export type BuildMode = 'sentiero' | 'villaggio' | 'roccaforte' | null;
 
@@ -16,6 +16,9 @@ interface Props {
   onOpenBank: () => void;
   onOpenPropose: () => void;
   onOpenCards: () => void;
+  /** Annulla l'ultimo piazzamento (mostrato solo quando ha senso). */
+  canUndo: boolean;
+  onUndo: () => void;
   errorText: string | null;
 }
 
@@ -92,7 +95,16 @@ export function ActionBar(props: Props) {
 
   return (
     <div className="area-actions pixel-frame">
-      <div className="action-bar">{content}</div>
+      <div className="action-bar">
+        {content}
+        {/* «Annulla» l'ultimo piazzamento: compare solo dopo aver costruito,
+            solo per l'ultima costruzione e solo finché è ancora il tuo turno. */}
+        {props.canUndo && (
+          <button className="pxbtn pxbtn--ghost undo-btn" onClick={props.onUndo}>
+            ↩ {it.annulla}
+          </button>
+        )}
+      </div>
       {props.errorText && (
         <div className="phase-banner" style={{ color: 'var(--danger)' }}>
           {props.errorText}

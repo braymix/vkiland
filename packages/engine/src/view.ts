@@ -4,6 +4,8 @@
  * Bot e client remoti (Fase 3) ricevono solo questo.
  */
 import type { GameEvent } from './actions';
+import { activeCalamity } from './calamityRules';
+import { clonePhase } from './game';
 import { totalResources } from './resources';
 import { gloryPoints } from './scoring';
 import type { GameState, PlayerId, PlayerView, PublicPlayer } from './types';
@@ -16,6 +18,10 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
     name: p.name,
     color: p.color,
     isBot: state.config.players[p.id]?.isBot ?? false,
+    // Skin dell'account: informazione pubblica (il tabellone la mostra a tutti).
+    ...(state.config.players[p.id]?.cosmetics
+      ? { cosmetics: state.config.players[p.id]!.cosmetics }
+      : {}),
     resourceCardCount: totalResources(p.resources),
     sagaCardCount: p.sagaCards.length + p.sagaCardsBoughtThisTurn.length,
     playedBerserkers: p.playedBerserkers,
@@ -28,7 +34,12 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
   const self = viewer === 'spettatore' ? null : state.players[viewer] ?? null;
 
   return {
-    board: { hexes: state.board.hexes, ports: state.board.ports, dragonHex: state.board.dragonHex },
+    board: {
+      hexes: state.board.hexes,
+      ports: state.board.ports,
+      dragonHex: state.board.dragonHex,
+      dragonMovedBy: state.board.dragonMovedBy,
+    },
     bank: { ...state.bank },
     sagaDeckCount: state.sagaDeck.length,
     players,
@@ -43,15 +54,14 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
       : null,
     currentPlayer: state.currentPlayer,
     turnNumber: state.turnNumber,
-    phase:
-      state.phase.type === 'discard'
-        ? { type: 'discard', mustDiscard: { ...state.phase.mustDiscard } }
-        : state.phase.type === 'steal'
-          ? { type: 'steal', candidates: [...state.phase.candidates], cause: state.phase.cause }
-          : { ...state.phase },
+    phase: clonePhase(state.phase),
     dice: state.dice ? [state.dice[0], state.dice[1]] : null,
     rolledThisTurn: state.rolledThisTurn,
     devCardPlayedThisTurn: state.devCardPlayedThisTurn,
+    turnOrder: [...state.turnOrder],
+    startingRolls: state.startingRolls.map((round) =>
+      round.map((r) => ({ player: r.player, dice: [r.dice[0], r.dice[1]] as [number, number] }))
+    ),
     setupOrder: [...state.setupOrder],
     setupIndex: state.setupIndex,
     pendingTrade: state.pendingTrade
@@ -65,6 +75,9 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
     longestRoad: { ...state.longestRoad },
     largestArmy: { ...state.largestArmy },
     targetGloryPoints: state.config.targetGloryPoints,
+    boardRadius: state.config.boardRadius,
+    calamity: activeCalamity(state),
+    calamitiesLeft: state.calamities ? state.calamities.deck.length : null,
   };
 }
 

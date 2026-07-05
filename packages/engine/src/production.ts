@@ -2,6 +2,7 @@
 import { getTopology } from './board/topology';
 import { RESOURCES } from './constants';
 import type { GameEvent } from './actions';
+import { materialMultiplier } from './calamityRules';
 import { totalResources, zeroResources } from './resources';
 import type { GameState, Resource, ResourceCount } from './types';
 
@@ -12,7 +13,7 @@ import type { GameState, Resource, ResourceCount } from './types';
  * se la richiede uno solo, riceve quel che resta.
  */
 export function produceResources(state: GameState, total: number, events: GameEvent[]): void {
-  const topo = getTopology();
+  const topo = getTopology(state.config.boardRadius);
   const demand = new Map<number, ResourceCount>(); // giocatore → richiesta
 
   for (const hex of state.board.hexes) {
@@ -20,6 +21,9 @@ export function produceResources(state: GameState, total: number, events: GameEv
     if (hex.id === state.board.dragonHex) continue; // il Drago blocca la produzione
     if (hex.terrain === 'tundra') continue; // (per costruzione non ha token)
     const res = hex.terrain;
+    // Calamità: materiale bloccato (×0) o raddoppiato (×2) per questo giro.
+    const mult = materialMultiplier(state, res);
+    if (mult === 0) continue;
     for (const v of topo.hexVertices[hex.id]!) {
       for (const p of state.players) {
         let amount = 0;
@@ -27,7 +31,7 @@ export function produceResources(state: GameState, total: number, events: GameEv
         else if (p.strongholds.includes(v)) amount = 2;
         if (amount === 0) continue;
         const d = demand.get(p.id) ?? zeroResources();
-        d[res] += amount;
+        d[res] += amount * mult;
         demand.set(p.id, d);
       }
     }
@@ -79,7 +83,7 @@ export function produceForSetupVillage(
   vertex: string,
   events: GameEvent[]
 ): void {
-  const topo = getTopology();
+  const topo = getTopology(state.config.boardRadius);
   const byId = new Map(state.board.hexes.map((h) => [h.id, h]));
   const gained = zeroResources();
   for (const hexId of topo.vertexLandHexes[vertex]!) {

@@ -8,7 +8,7 @@ import {
   type Resource,
   type SagaCard,
 } from '@vikiland/engine';
-import { it } from '../../i18n/it';
+import { it } from '../../i18n';
 import { ResIcon, SagaIcon } from '../icons';
 import { Dialog } from './Dialog';
 

@@ -33,6 +33,35 @@ describe('simulazioni di partite complete', () => {
     }
   }, 120_000);
 
+  it('esperto vs 3 facile: vince nettamente (e nessuna mossa illegale)', () => {
+    const N = 20;
+    let vittorie = 0;
+    for (let i = 0; i < N; i++) {
+      const { winner } = runBotGame(`sim-esperto-${i}`, [
+        createHeuristicBot('esperto'),
+        createHeuristicBot('facile'),
+        createHeuristicBot('facile'),
+        createHeuristicBot('facile'),
+      ]);
+      expect(winner).not.toBeNull();
+      if (winner === 0) vittorie++;
+    }
+    // Base casuale = 25%: al 50% la superiorità è netta senza flakiness.
+    expect(vittorie / N).toBeGreaterThanOrEqual(0.5);
+  }, 120_000);
+
+  it('difficile ed esperto allo stesso tavolo terminano sempre (scambi inclusi)', () => {
+    for (let i = 0; i < 8; i++) {
+      const { winner } = runBotGame(`sim-dif-${i}`, [
+        createHeuristicBot('difficile'),
+        createHeuristicBot('esperto'),
+        createHeuristicBot('normale'),
+        createHeuristicBot('difficile'),
+      ]);
+      expect(winner).not.toBeNull();
+    }
+  }, 120_000);
+
   it('2 giocatori: euristico vs facile termina e produce un vincitore', () => {
     for (let i = 0; i < 8; i++) {
       const { winner } = runBotGame(`sim-2p-${i}`, [
@@ -40,6 +69,23 @@ describe('simulazioni di partite complete', () => {
         createHeuristicBot('facile'),
       ]);
       expect(winner).not.toBeNull();
+    }
+  }, 120_000);
+
+  it('MODALITÀ CALAMITÀ: i bot giocano partite complete senza mosse illegali', () => {
+    for (let i = 0; i < 12; i++) {
+      const { winner, steps } = runBotGame(
+        `sim-cal-${i}`,
+        [
+          createHeuristicBot('normale'),
+          createHeuristicBot('facile'),
+          createRandomBot(),
+        ],
+        8000,
+        undefined,
+        true // ← calamità attive
+      );
+      expect(winner, `partita calamità ${i} non conclusa (${steps} passi)`).not.toBeNull();
     }
   }, 120_000);
 });

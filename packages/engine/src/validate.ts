@@ -6,7 +6,14 @@
  */
 import type { Action, ValidationError } from './actions';
 import { getTopology } from './board/topology';
-import { BUILD_COSTS, PIECE_LIMITS } from './constants';
+import {
+  calamityBlocksBankTrade,
+  calamityBlocksRoad,
+  calamityBlocksSaga,
+  calamityBlocksStronghold,
+  calamityDragonFrozen,
+} from './calamityRules';
+import { BUILD_COSTS, PIECE_LIMITS, RESOURCES } from './constants';
 import {
   hasAtLeast,
   isValidResourceCount,
@@ -14,8 +21,8 @@ import {
   totalResources,
 } from './resources';
 import {
-  bankTradeRatio,
   buildingOwnerAt,
+  effectiveBankRatio,
   roadConnects,
   roadOwnerAt,
   vertexFreeWithDistance,
@@ -61,6 +68,14 @@ const ERR = {
   giaRisposto: err('GIA_RISPOSTO', 'Hai già risposto a questa offerta.'),
   rapportoErrato: err('RAPPORTO_ERRATO', 'Quantità non conforme al rapporto di scambio.'),
   azioneSconosciuta: err('AZIONE_SCONOSCIUTA', 'Azione non riconosciuta.'),
+  // --- Calamità ---
+  calamitaSentiero: err('CALAMITA_SENTIERO', 'Una calamità impedisce di costruire sentieri in questo giro.'),
+  calamitaRoccaforte: err('CALAMITA_ROCCAFORTE', 'Una calamità impedisce di costruire roccaforti in questo giro.'),
+  calamitaScambio: err('CALAMITA_SCAMBIO', 'Una calamità vieta gli scambi con la banca in questo giro.'),
+  calamitaSaga: err('CALAMITA_SAGA', 'Una calamità impedisce di giocare Carte Saga in questo giro.'),
+  calamitaDrago: err('CALAMITA_DRAGO', 'Una calamità tiene fermo il Drago in questo giro.'),
+  nienteDaGuadagnare: err('NIENTE_DA_GUADAGNARE', 'Non hai un guadagno da riscuotere.'),
+  guadagnoErrato: err('GUADAGNO_ERRATO', 'La selezione di risorse da guadagnare non è valida.'),
 } as const;
 
 function isPlayerId(state: GameState, id: unknown): id is PlayerId {
@@ -78,7 +93,8 @@ function mainPhaseGuard(state: GameState, player: PlayerId): ValidationError | n
 export function isLegal(state: GameState, action: Action): ValidationError | null {
   if (state.phase.type === 'gameOver') return ERR.partitaFinita;
   if (!isPlayerId(state, action.player)) return ERR.giocatoreInesistente;
-  const topo = getTopology();
+  const radius = state.config.boardRadius;
+  const topo = getTopology(radius);
   const me = state.players[action.player]!;
 
   switch (action.type) {
@@ -89,7 +105,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (action.player !== state.setupOrder[state.setupIndex]) return ERR.nonIlTuoTurno;
       if (!(action.vertex in topo.vertexEdges)) return ERR.verticeNonValido;
       if (buildingOwnerAt(state, action.vertex) !== null) return ERR.verticeOccupato;
-      if (!vertexFreeWithDistance(state, action.vertex)) return ERR.distanza;
+      if (!vertexFreeWithDistance(state, action.vertex, radius)) return ERR.distanza;
       return null;
     }
     case 'piazzaSentieroIniziale': {
@@ -112,12 +128,24 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       return null;
     }
     case 'scarta': {
-      if (state.phase.type !== 'discard') return ERR.faseErrata;
+      if (state.phase.type !== 'discard' && state.phase.type !== 'calamityDiscard')
+        return ERR.faseErrata;
       const due = state.phase.mustDiscard[action.player];
       if (due === undefined) return ERR.nienteDaScartare;
       if (!isValidResourceCount(action.resources)) return ERR.scartoErrato;
       if (totalResources(action.resources) !== due) return ERR.scartoErrato;
       if (!hasAtLeast(me.resources, action.resources)) return ERR.scartoErrato;
+      return null;
+    }
+    case 'guadagnaCalamita': {
+      if (state.phase.type !== 'calamityGain') return ERR.faseErrata;
+      const due = state.phase.mustGain[action.player];
+      if (due === undefined) return ERR.nienteDaGuadagnare;
+      if (!isValidResourceCount(action.resources)) return ERR.guadagnoErrato;
+      // Si prende ESATTAMENTE il minimo tra la propria quota e ciò che resta in banca.
+      const cap = Math.min(due, totalResources(state.bank));
+      if (totalResources(action.resources) !== cap) return ERR.guadagnoErrato;
+      for (const r of RESOURCES) if (action.resources[r] > state.bank[r]) return ERR.bancaVuota;
       return null;
     }
     case 'muoviDrago': {
@@ -138,10 +166,11 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
     case 'costruisciSentiero': {
       const guard = mainPhaseGuard(state, action.player);
       if (guard) return guard;
+      if (calamityBlocksRoad(state)) return ERR.calamitaSentiero;
       if (!(action.edge in topo.edgeVertices)) return ERR.spigoloNonValido;
       if (roadOwnerAt(state, action.edge) !== null) return ERR.spigoloOccupato;
       if (me.roads.length >= PIECE_LIMITS.sentiero) return ERR.pezziEsauriti;
-      if (!roadConnects(state, action.player, action.edge)) return ERR.nonConnesso;
+      if (!roadConnects(state, action.player, action.edge, radius)) return ERR.nonConnesso;
       if (!hasAtLeast(me.resources, BUILD_COSTS.sentiero)) return ERR.risorseInsufficienti;
       return null;
     }
@@ -150,7 +179,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (guard) return guard;
       if (!(action.vertex in topo.vertexEdges)) return ERR.verticeNonValido;
       if (buildingOwnerAt(state, action.vertex) !== null) return ERR.verticeOccupato;
-      if (!vertexFreeWithDistance(state, action.vertex)) return ERR.distanza;
+      if (!vertexFreeWithDistance(state, action.vertex, radius)) return ERR.distanza;
       // Connettività: serve un proprio sentiero che tocchi il vertice.
       const connected = topo.vertexEdges[action.vertex]!.some((e) => me.roads.includes(e));
       if (!connected) return ERR.nonConnesso;
@@ -161,6 +190,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
     case 'costruisciRoccaforte': {
       const guard = mainPhaseGuard(state, action.player);
       if (guard) return guard;
+      if (calamityBlocksStronghold(state)) return ERR.calamitaRoccaforte;
       if (!me.villages.includes(action.vertex)) return ERR.verticeNonValido;
       if (me.strongholds.length >= PIECE_LIMITS.roccaforte) return ERR.pezziEsauriti;
       if (!hasAtLeast(me.resources, BUILD_COSTS.roccaforte)) return ERR.risorseInsufficienti;
@@ -178,8 +208,9 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
     case 'scambioBanca': {
       const guard = mainPhaseGuard(state, action.player);
       if (guard) return guard;
+      if (calamityBlocksBankTrade(state)) return ERR.calamitaScambio;
       if (action.give === action.receive) return ERR.scambioNonValido;
-      const ratio = bankTradeRatio(state, action.player, action.give);
+      const ratio = effectiveBankRatio(state, action.player, action.give, radius);
       if (me.resources[action.give] < ratio) return ERR.risorseInsufficienti;
       if (state.bank[action.receive] < 1) return ERR.bancaVuota;
       return null;
@@ -238,6 +269,8 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (state.phase.type !== 'preRoll' && state.phase.type !== 'main') return ERR.faseErrata;
       if (action.player !== state.currentPlayer) return ERR.nonIlTuoTurno;
       if (state.pendingTrade !== null) return ERR.scambioPendente;
+      if (calamityBlocksSaga(state)) return ERR.calamitaSaga;
+      if (calamityDragonFrozen(state)) return ERR.calamitaDrago; // il Berserker sposta il Drago
       if (state.devCardPlayedThisTurn) return ERR.cartaGiaGiocata;
       if (!me.sagaCards.includes('berserker')) return ERR.cartaNonDisponibile;
       return null;
@@ -245,23 +278,31 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
     case 'giocaCostruttori': {
       const guard = mainPhaseGuard(state, action.player);
       if (guard) return guard;
+      if (calamityBlocksSaga(state)) return ERR.calamitaSaga;
       if (state.devCardPlayedThisTurn) return ERR.cartaGiaGiocata;
       if (!me.sagaCards.includes('costruttoriDiSentieri')) return ERR.cartaNonDisponibile;
       if (me.roads.length >= PIECE_LIMITS.sentiero) return ERR.pezziEsauriti;
       return null;
     }
     case 'piazzaSentieroGratis': {
-      if (state.phase.type !== 'freeRoads') return ERR.faseErrata;
-      if (action.player !== state.currentPlayer) return ERR.nonIlTuoTurno;
+      // Vale nella fase Costruttori (freeRoads) e nella fase strade delle calamità.
+      if (state.phase.type === 'freeRoads') {
+        if (action.player !== state.currentPlayer) return ERR.nonIlTuoTurno;
+      } else if (state.phase.type === 'calamityRoads') {
+        if (action.player !== state.phase.queue[0]) return ERR.nonIlTuoTurno;
+      } else {
+        return ERR.faseErrata;
+      }
       if (!(action.edge in topo.edgeVertices)) return ERR.spigoloNonValido;
       if (roadOwnerAt(state, action.edge) !== null) return ERR.spigoloOccupato;
       if (me.roads.length >= PIECE_LIMITS.sentiero) return ERR.pezziEsauriti;
-      if (!roadConnects(state, action.player, action.edge)) return ERR.nonConnesso;
+      if (!roadConnects(state, action.player, action.edge, radius)) return ERR.nonConnesso;
       return null;
     }
     case 'giocaBanchetto': {
       const guard = mainPhaseGuard(state, action.player);
       if (guard) return guard;
+      if (calamityBlocksSaga(state)) return ERR.calamitaSaga;
       if (state.devCardPlayedThisTurn) return ERR.cartaGiaGiocata;
       if (!me.sagaCards.includes('banchetto')) return ERR.cartaNonDisponibile;
       const [r1, r2] = action.resources;
@@ -272,6 +313,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
     case 'giocaTributo': {
       const guard = mainPhaseGuard(state, action.player);
       if (guard) return guard;
+      if (calamityBlocksSaga(state)) return ERR.calamitaSaga;
       if (state.devCardPlayedThisTurn) return ERR.cartaGiaGiocata;
       if (!me.sagaCards.includes('tributo')) return ERR.cartaNonDisponibile;
       return null;

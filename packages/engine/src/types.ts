@@ -13,7 +13,56 @@ export type SagaCard =
   | 'costruttoriDiSentieri'
   | 'banchetto'
   | 'tributo';
-export type PlayerColor = 'rosso' | 'blu' | 'verde' | 'giallo';
+
+/**
+ * Carta CALAMITÀ (modalità opzionale). Una si rivela all'inizio di ogni giro
+ * e vale SOLO per quel giro. Il discriminante è `kind` (per non confondersi col
+ * `type` di azioni/fasi/eventi). Due famiglie:
+ *  - PERSISTENTI: modificano le regole per tutto il giro (produzione, scambi,
+ *    costruzioni, Drago, Carte Saga) — consultate da production/rules/validate.
+ *  - ISTANTANEE: si risolvono subito alla rivelazione (scarti, guadagni), a
+ *    volte aprendo una breve fase interattiva.
+ */
+export type CalamityCard =
+  // --- Persistenti (valgono per tutto il giro) ---
+  | { kind: 'materialeDoppio'; resource: Resource } // 1 · quel materiale si prende doppio
+  | { kind: 'materialeBloccato'; resource: Resource } // 2 · quel materiale non si prende
+  | { kind: 'dragoFermo' } // 3 · il Drago non si può spostare
+  | { kind: 'nienteSaga' } // 4 · non si giocano Carte Saga
+  | { kind: 'dragoPrimaDelTiro' } // 5 · a ogni turno si sposta il Drago prima di tirare
+  | { kind: 'scambiTre' } // 6 · tutti gli scambi con la banca 3:1
+  | { kind: 'scambioDue'; resource: Resource } // 7 · scambi di quel materiale 2:1
+  | { kind: 'abbondanza' } // extra · TUTTI i materiali si prendono doppi
+  | { kind: 'bufera' } // extra · non si costruiscono sentieri
+  | { kind: 'assedio' } // extra · non si costruiscono roccaforti
+  | { kind: 'mareInTempesta' } // extra · vietati gli scambi con la banca
+  | { kind: 'mercatoOro' } // extra · tutti gli scambi con la banca 2:1
+  // --- Istantanee (si risolvono all'inizio del giro) ---
+  | { kind: 'leaderScartaTutto' } // 8 · chi ha più punti scarta tutte le risorse
+  | { kind: 'tuttiScartanoMeta' } // 9 · tutti scartano metà delle risorse
+  | { kind: 'ultimoPesca4' } // 10 · chi ha meno punti guadagna 4 risorse a scelta
+  | { kind: 'ultimoStrade2' } // 11 · chi ha meno strade ne piazza 2 gratis
+  | { kind: 'tuttiPiu2'; resource: Resource } // 12 · tutti guadagnano 2 di quel materiale
+  | { kind: 'scartaFino7' } // 13 · chi ha più di 7 risorse scarta fino a 7
+  | { kind: 'tuttiUnoDiTutto' } // 14 · tutti guadagnano 1 di ogni materiale
+  | { kind: 'donoDegliDei' } // extra · tutti pescano 1 Carta Saga
+  | { kind: 'bottino' } // extra · chi ha meno punti pesca 1 Carta Saga
+  | { kind: 'razzia' }; // extra · chi ha più punti dà 1 risorsa a ciascun avversario
+
+export type CalamityKind = CalamityCard['kind'];
+
+export interface CalamityState {
+  /** Mazzo rimanente, già mescolato col seed; si pesca dalla fine. */
+  deck: CalamityCard[];
+  /** Calamità attiva nel giro corrente (null prima del 1° giro o a mazzo finito). */
+  current: CalamityCard | null;
+}
+/**
+ * Colore del clan: un esadecimale `#rrggbb` (palette libera, qualsiasi colore).
+ * In passato era uno di cinque nomi fissi; ora il motore lo tratta come stringa
+ * opaca — a interpretarlo è solo il renderer.
+ */
+export type PlayerColor = string;
 
 export type HexId = string;
 export type VertexId = string;
@@ -44,15 +93,31 @@ export interface Board {
   ports: Port[];
   /** Esagono attualmente occupato dal Drago (niente produzione lì). */
   dragonHex: HexId;
+  /** Chi ha spostato il Drago per ultimo (per colorarlo); null all'inizio. */
+  dragonMovedBy: PlayerId | null;
 }
 
-export type BotLevel = 'facile' | 'normale';
+export type BotLevel = 'facile' | 'normale' | 'difficile' | 'esperto';
+
+/**
+ * Cosmetici (skin) del giocatore: PASSTHROUGH opaco legato all'account.
+ * Il motore non li interpreta mai — li trasporta solo fino alla vista, dove
+ * il renderer sceglie gli sprite. Id sconosciuti ⇒ aspetto classico.
+ */
+export interface PlayerCosmetics {
+  /** Aspetto del Drago QUANDO è questo giocatore ad averlo spostato. */
+  dragon?: string;
+  /** Aspetto delle roccaforti di questo giocatore. */
+  stronghold?: string;
+}
 
 export interface PlayerConfig {
   name: string;
   color: PlayerColor;
   isBot: boolean;
   botLevel?: BotLevel;
+  /** Skin scelte dall'account (facoltative, solo estetica). */
+  cosmetics?: PlayerCosmetics;
 }
 
 export interface GameConfig {
@@ -61,6 +126,10 @@ export interface GameConfig {
   /** Se true, la generazione evita segnalini 6/8 su esagoni adiacenti. */
   avoidAdjacent68: boolean;
   targetGloryPoints: number;
+  /** Raggio della tavola (2 = piccola/2–4 giocatori, 3 = grande/5–6). */
+  boardRadius: number;
+  /** Modalità Calamità: una carta per giro. false = partita standard. */
+  calamities: boolean;
 }
 
 export interface PlayerState {
@@ -107,12 +176,29 @@ export type Phase =
       type: 'discard';
       mustDiscard: Record<PlayerId, number>;
     }
-  | { type: 'moveDragon'; cause: 'sette' | 'berserker' }
-  | { type: 'steal'; candidates: PlayerId[]; cause: 'sette' | 'berserker' }
+  | { type: 'moveDragon'; cause: 'sette' | 'berserker' | 'calamita' }
+  | { type: 'steal'; candidates: PlayerId[]; cause: 'sette' | 'berserker' | 'calamita' }
   | { type: 'main' }
   | {
       /** Sentieri gratuiti della carta Costruttori di Sentieri. */
       type: 'freeRoads';
+      remaining: number;
+    }
+  // --- Fasi interattive delle CALAMITÀ istantanee (inizio giro) ---
+  | {
+      /** Scarto simultaneo imposto da una calamità (metà / fino a 7). */
+      type: 'calamityDiscard';
+      mustDiscard: Record<PlayerId, number>;
+    }
+  | {
+      /** Guadagno "a scelta" imposto da una calamità: quante risorse per giocatore. */
+      type: 'calamityGain';
+      mustGain: Record<PlayerId, number>;
+    }
+  | {
+      /** Sentieri gratis della calamità: coda di giocatori, ciascuno ne piazza `remaining`. */
+      type: 'calamityRoads';
+      queue: PlayerId[];
       remaining: number;
     }
   | { type: 'gameOver'; winner: PlayerId };
@@ -134,13 +220,22 @@ export interface GameState {
   rolledThisTurn: boolean;
   /** Già giocata una carta Saga in questo turno? (massimo 1, esclusi gli Eroi). */
   devCardPlayedThisTurn: boolean;
-  /** Ordine a serpentina del setup, già espanso: es. [0,1,2,2,1,0]. */
+  /**
+   * Ordine di gioco deciso dai dadi alla creazione della partita (il più alto
+   * inizia, spareggi ritirati): viene mantenuto per TUTTA la partita.
+   */
+  turnOrder: PlayerId[];
+  /** Tiri per l'ordine di partenza: round successivi solo per gli spareggi. */
+  startingRolls: { player: PlayerId; dice: [number, number] }[][];
+  /** Ordine a serpentina del setup, già espanso da turnOrder: es. [2,0,1,1,0,2]. */
   setupOrder: PlayerId[];
   setupIndex: number;
   pendingTrade: TradeOffer | null;
   tradeCounter: number;
   longestRoad: { holder: PlayerId | null; length: number };
   largestArmy: { holder: PlayerId | null; count: number };
+  /** Modalità Calamità: mazzo + carta del giro. Assente nelle partite standard. */
+  calamities?: CalamityState;
 }
 
 // ---------------------------------------------------------------------------
@@ -187,6 +282,8 @@ export interface PublicPlayer {
   roads: EdgeId[];
   /** Punti Gloria visibili (esclusi gli Eroi nascosti). */
   gloryPointsPublic: number;
+  /** Skin del giocatore (pubbliche: le vedono tutti sul tabellone). */
+  cosmetics?: PlayerCosmetics;
 }
 
 /** Vista completa di sé stessi. */
@@ -216,10 +313,18 @@ export interface PlayerView {
   dice: [number, number] | null;
   rolledThisTurn: boolean;
   devCardPlayedThisTurn: boolean;
+  turnOrder: PlayerId[];
+  startingRolls: { player: PlayerId; dice: [number, number] }[][];
   setupOrder: PlayerId[];
   setupIndex: number;
   pendingTrade: TradeOffer | null;
   longestRoad: { holder: PlayerId | null; length: number };
   largestArmy: { holder: PlayerId | null; count: number };
   targetGloryPoints: number;
+  /** Raggio della tavola: il renderer e i bot lo usano per la topologia giusta. */
+  boardRadius: number;
+  /** Calamità attiva nel giro (null = nessuna in corso). */
+  calamity: CalamityCard | null;
+  /** Calamità ancora nel mazzo; null in modalità standard (per distinguere le due). */
+  calamitiesLeft: number | null;
 }

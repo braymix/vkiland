@@ -1,10 +1,77 @@
 /** Traduzione degli eventi del motore in righe del diario di bordo. */
-import type { GameEvent, GameState, ResourceCount } from '@vikiland/engine';
-import { RESOURCES, totalResources } from '@vikiland/engine';
-import { it, t } from '../i18n/it';
+import type { GameEvent, ResourceCount } from '@vikiland/engine';
+import { BOARD_RADIUS, RESOURCES, getTopology, nextInt, seedRng, totalResources } from '@vikiland/engine';
+import { it, t } from '../i18n';
+import { calamityDesc, calamityName } from './calamityText';
 
-function nameOf(state: GameState, pid: number): string {
+/** Basta il nome dei giocatori: lo soddisfano sia GameState sia PlayerView. */
+export interface NamedPlayers {
+  players: readonly { name: string }[];
+}
+
+function nameOf(state: NamedPlayers, pid: number): string {
   return state.players[pid]?.name ?? `Giocatore ${pid}`;
+}
+
+/** Pezzi minimi per capire chi è rimasto bloccato dal Drago. */
+export interface PiecesForComplaints {
+  players: readonly { name: string; villages: string[]; strongholds: string[] }[];
+  turnNumber: number;
+}
+
+/**
+ * EASTER EGG: i bot si lamentano quando il Drago finisce sui loro edifici
+ * (come al tavolo vero). La frase è scelta in modo DETERMINISTICO da
+ * esagono+giocatore+turno: online tutti i client mostrano la stessa battuta.
+ * Chi ha mosso il Drago non si lamenta mai di sé stesso.
+ */
+export function dragonComplaints(
+  event: Extract<GameEvent, { type: 'dragoMosso' }>,
+  state: PiecesForComplaints,
+  botIds: ReadonlySet<number>,
+  radius: number = BOARD_RADIUS
+): string[] {
+  const vertices = getTopology(radius).hexVertices[event.hex] ?? [];
+  const lines: string[] = [];
+  state.players.forEach((p, pid) => {
+    if (!botIds.has(pid) || pid === event.player) return;
+    const blocked =
+      p.villages.some((v) => vertices.includes(v)) ||
+      p.strongholds.some((v) => vertices.includes(v));
+    if (!blocked) return;
+    const rng = seedRng(`lamento:${event.hex}:${pid}:${state.turnNumber}`);
+    const [idx] = nextInt(rng, it.lamentiDrago.length);
+    lines.push(t(it.log.lamentoDrago, { nome: p.name, frase: it.lamentiDrago[idx]! }));
+  });
+  return lines;
+}
+
+/** Righe di diario per il tiro dell'ordine di partenza (a inizio partita). */
+export function describeStartingOrder(view: {
+  players: readonly { name: string }[];
+  startingRolls: { player: number; dice: [number, number] }[][];
+  turnOrder: number[];
+}): string[] {
+  const lines: string[] = [];
+  view.startingRolls.forEach((round, i) => {
+    const righe = round
+      .map((r) =>
+        t(it.log.ordineTiro, {
+          nome: nameOf(view, r.player),
+          d1: r.dice[0],
+          d2: r.dice[1],
+          tot: r.dice[0] + r.dice[1],
+        })
+      )
+      .join(' · ');
+    lines.push(t(i === 0 ? it.log.ordineTitolo : it.log.ordineSpareggio, { righe }));
+  });
+  lines.push(
+    t(it.log.ordineFinale, {
+      ordine: view.turnOrder.map((pid) => nameOf(view, pid)).join(' → '),
+    })
+  );
+  return lines;
 }
 
 function listResources(rc: ResourceCount): string {
@@ -15,10 +82,12 @@ function listResources(rc: ResourceCount): string {
   return parts.join(', ');
 }
 
-export function describeEvent(e: GameEvent, state: GameState): string | null {
+export function describeEvent(e: GameEvent, state: NamedPlayers): string | null {
   switch (e.type) {
     case 'turnoIniziato':
       return t(it.log.turnoIniziato, { n: e.turnNumber, nome: nameOf(state, e.player) });
+    case 'calamitaRivelata':
+      return t(it.log.calamita, { nome: calamityName(e.card), desc: calamityDesc(e.card) });
     case 'dadiTirati':
       return t(it.log.dadiTirati, {
         nome: nameOf(state, e.player),

@@ -5,6 +5,8 @@
  */
 import type { Action, ApplyResult, GameEvent } from './actions';
 import { getTopology } from './board/topology';
+import { revealCalamity } from './calamities';
+import { dragonPhaseAfterSeven, rollTimePhase } from './calamityRules';
 import { BUILD_COSTS, HAND_LIMIT, PIECE_LIMITS, RESOURCES } from './constants';
 import { cloneState } from './game';
 import { recomputeFuria } from './largestArmy';
@@ -12,10 +14,48 @@ import { recomputeGrandeVia } from './longestRoad';
 import { produceForSetupVillage, produceResources } from './production';
 import { flattenResources, totalResources, zeroResources } from './resources';
 import { nextInt, rollDie } from './rng';
-import { bankTradeRatio, legalRoadEdges } from './rules';
+import { effectiveBankRatio, legalRoadEdges } from './rules';
 import { gloryPoints, scoreBreakdown } from './scoring';
 import type { GameState, PlayerId, ResourceCount, SagaCard } from './types';
 import { isLegal } from './validate';
+
+/**
+ * Inizio turno condiviso (fine setup e `fineTurno`): annuncia il turno e, se è
+ * un NUOVO GIRO in modalità Calamità (torna a `turnOrder[0]`), rivela la carta.
+ * Se la carta apre una fase interattiva (scarto/guadagno/strade) ci si ferma lì;
+ * altrimenti si va alla fase di tiro (preRoll, o spostamento Drago se imposto).
+ */
+function beginTurn(state: GameState, events: GameEvent[]): void {
+  events.push({
+    type: 'turnoIniziato',
+    player: state.currentPlayer,
+    turnNumber: state.turnNumber,
+  });
+  if (state.calamities && state.currentPlayer === state.turnOrder[0]) {
+    if (revealCalamity(state, events)) return; // fase interattiva prima del tiro
+  }
+  state.phase = rollTimePhase(state);
+}
+
+/** Avanza la fase `calamityRoads` dopo un sentiero gratis; a coda vuota si va al tiro. */
+function advanceCalamityRoads(state: GameState): void {
+  if (state.phase.type !== 'calamityRoads') return;
+  const radius = state.config.boardRadius;
+  const canPlace = (pid: PlayerId): boolean =>
+    state.players[pid]!.roads.length < PIECE_LIMITS.sentiero &&
+    legalRoadEdges(state, pid, radius).length > 0;
+
+  const current = state.phase.queue[0]!;
+  const remaining = state.phase.remaining - 1;
+  // Il piazzatore finisce quando esaurisce i 2 sentieri, i pezzi o gli spazi liberi.
+  if (remaining > 0 && canPlace(current)) {
+    state.phase = { type: 'calamityRoads', queue: state.phase.queue, remaining };
+    return;
+  }
+  let rest = state.phase.queue.slice(1);
+  while (rest.length > 0 && !canPlace(rest[0]!)) rest = rest.slice(1);
+  state.phase = rest.length > 0 ? { type: 'calamityRoads', queue: rest, remaining: 2 } : rollTimePhase(state);
+}
 
 /** Paga un costo: dal giocatore alla banca. */
 function payCost(state: GameState, player: PlayerId, cost: ResourceCount): void {
@@ -46,7 +86,7 @@ function afterDragonPhase(state: GameState): void {
 
 /** Avversari derubabili sull'esagono del Drago: edificio adiacente e ≥1 carta. */
 function stealCandidates(state: GameState, mover: PlayerId): PlayerId[] {
-  const topo = getTopology();
+  const topo = getTopology(state.config.boardRadius);
   const verts = new Set(topo.hexVertices[state.board.dragonHex]!);
   const out: PlayerId[] = [];
   for (const p of state.players) {
@@ -59,7 +99,7 @@ function stealCandidates(state: GameState, mover: PlayerId): PlayerId[] {
 }
 
 /** Dopo lo spostamento del Drago: si passa al furto oppure si prosegue. */
-function resolveDragonArrival(state: GameState, cause: 'sette' | 'berserker'): void {
+function resolveDragonArrival(state: GameState, cause: 'sette' | 'berserker' | 'calamita'): void {
   const candidates = stealCandidates(state, state.currentPlayer);
   if (candidates.length === 0) {
     afterDragonPhase(state);
@@ -123,11 +163,11 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       });
       state.setupIndex += 1;
       if (state.setupIndex >= state.setupOrder.length) {
-        // Setup completato: comincia la partita vera.
-        state.currentPlayer = 0;
+        // Setup completato: comincia chi ha vinto il tiro per l'ordine (1° giro:
+        // in modalità Calamità qui si rivela la prima carta).
+        state.currentPlayer = state.turnOrder[0]!;
         state.turnNumber = 1;
-        state.phase = { type: 'preRoll' };
-        events.push({ type: 'turnoIniziato', player: 0, turnNumber: 1 });
+        beginTurn(state, events);
       } else {
         state.currentPlayer = state.setupOrder[state.setupIndex]!;
         state.phase = { type: 'setup', expecting: 'villaggio', lastVillage: null };
@@ -155,7 +195,7 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
         state.phase =
           Object.keys(mustDiscard).length > 0
             ? { type: 'discard', mustDiscard }
-            : { type: 'moveDragon', cause: 'sette' };
+            : dragonPhaseAfterSeven(state);
       } else {
         produceResources(state, total, events);
         state.phase = { type: 'main' };
@@ -179,13 +219,21 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
         state.phase =
           Object.keys(remaining).length > 0
             ? { type: 'discard', mustDiscard: remaining }
-            : { type: 'moveDragon', cause: 'sette' };
+            : dragonPhaseAfterSeven(state);
+      } else if (state.phase.type === 'calamityDiscard') {
+        // Scarto imposto da una calamità: quando tutti hanno scartato, si tira.
+        const remaining = { ...state.phase.mustDiscard };
+        delete remaining[me.id];
+        state.phase =
+          Object.keys(remaining).length > 0
+            ? { type: 'calamityDiscard', mustDiscard: remaining }
+            : rollTimePhase(state);
       }
       break;
     }
     case 'muoviDrago': {
       const cause = state.phase.type === 'moveDragon' ? state.phase.cause : 'sette';
-      state.board = { ...state.board, dragonHex: action.hex };
+      state.board = { ...state.board, dragonHex: action.hex, dragonMovedBy: me.id };
       events.push({ type: 'dragoMosso', player: me.id, hex: action.hex, cause });
       resolveDragonArrival(state, cause);
       break;
@@ -254,7 +302,7 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
 
     // ----------------------------------------------------------- scambi
     case 'scambioBanca': {
-      const ratio = bankTradeRatio(state, me.id, action.give);
+      const ratio = effectiveBankRatio(state, me.id, action.give, state.config.boardRadius);
       me.resources[action.give] -= ratio;
       state.bank[action.give] += ratio;
       state.bank[action.receive] -= 1;
@@ -346,7 +394,7 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       const remaining = Math.min(2, PIECE_LIMITS.sentiero - me.roads.length);
       state.phase = { type: 'freeRoads', remaining };
       // Se non c'è nessun piazzamento legale la carta si esaurisce subito.
-      if (legalRoadEdges(state, me.id).length === 0) state.phase = { type: 'main' };
+      if (legalRoadEdges(state, me.id, state.config.boardRadius).length === 0) state.phase = { type: 'main' };
       break;
     }
     case 'piazzaSentieroGratis': {
@@ -361,11 +409,13 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       recomputeGrandeVia(state, events);
       if (state.phase.type === 'freeRoads') {
         const remaining = state.phase.remaining - 1;
-        if (remaining <= 0 || legalRoadEdges(state, me.id).length === 0) {
+        if (remaining <= 0 || legalRoadEdges(state, me.id, state.config.boardRadius).length === 0) {
           state.phase = { type: 'main' };
         } else {
           state.phase = { type: 'freeRoads', remaining };
         }
+      } else if (state.phase.type === 'calamityRoads') {
+        advanceCalamityRoads(state);
       }
       break;
     }
@@ -401,6 +451,30 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       break;
     }
 
+    // ----------------------------------------------------------- Calamità
+    case 'guadagnaCalamita': {
+      // Guadagno "a scelta" (dalla banca) imposto da una calamità istantanea.
+      for (const r of RESOURCES) {
+        me.resources[r] += action.resources[r];
+        state.bank[r] -= action.resources[r];
+      }
+      if (totalResources(action.resources) > 0) {
+        events.push({
+          type: 'risorseProdotte',
+          gains: [{ player: me.id, resources: { ...action.resources } }],
+        });
+      }
+      if (state.phase.type === 'calamityGain') {
+        const remaining = { ...state.phase.mustGain };
+        delete remaining[me.id];
+        state.phase =
+          Object.keys(remaining).length > 0
+            ? { type: 'calamityGain', mustGain: remaining }
+            : rollTimePhase(state);
+      }
+      break;
+    }
+
     // ----------------------------------------------------------- fine turno
     case 'fineTurno': {
       // Le carte comprate diventano giocabili dal prossimo turno.
@@ -408,14 +482,12 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       me.sagaCardsBoughtThisTurn = [];
       state.devCardPlayedThisTurn = false;
       state.rolledThisTurn = false;
-      state.currentPlayer = (state.currentPlayer + 1) % state.players.length;
+      // Si avanza lungo l'ordine deciso dai dadi, non per id.
+      const orderIdx = state.turnOrder.indexOf(state.currentPlayer);
+      state.currentPlayer = state.turnOrder[(orderIdx + 1) % state.turnOrder.length]!;
       state.turnNumber += 1;
-      state.phase = { type: 'preRoll' };
-      events.push({
-        type: 'turnoIniziato',
-        player: state.currentPlayer,
-        turnNumber: state.turnNumber,
-      });
+      // Nuovo giro ⇒ eventuale rivelazione della calamità (dentro beginTurn).
+      beginTurn(state, events);
       break;
     }
   }

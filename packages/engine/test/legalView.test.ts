@@ -27,7 +27,7 @@ describe('contratto getLegalActions ↔ isLegal (fuzz)', () => {
                 player: m.player,
                 resources: greedyDiscard(s, m.player, m.amount),
               });
-            } else if (m.type !== 'proponiScambioDescr') {
+            } else if (m.type !== 'proponiScambioDescr' && m.type !== 'guadagnaDescr') {
               concrete.push(m);
             }
           }

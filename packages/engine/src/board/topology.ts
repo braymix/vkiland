@@ -9,6 +9,7 @@
 import {
   type AxialCoord,
   allBoardHexes,
+  BOARD_RADIUS,
   edgeId,
   hexEdgeIds,
   hexKey,
@@ -46,12 +47,14 @@ export interface BoardTopology {
   coastalRing: readonly string[];
 }
 
-let cached: BoardTopology | null = null;
+/** Una topologia per RAGGIO (piccola/grande): immutabile, memoizzata a modulo. */
+const cache = new Map<number, BoardTopology>();
 
-export function getTopology(): BoardTopology {
-  if (cached) return cached;
+export function getTopology(radius: number = BOARD_RADIUS): BoardTopology {
+  const hit = cache.get(radius);
+  if (hit) return hit;
 
-  const land = allBoardHexes();
+  const land = allBoardHexes(radius);
   const hexKeys = land.map(hexKey);
 
   const vertexSet = new Set<string>();
@@ -75,7 +78,7 @@ export function getTopology(): BoardTopology {
   const vertexLandHexes: Record<string, string[]> = {};
   for (const v of vertices) {
     vertexLandHexes[v] = parseVertexId(v)
-      .filter(isOnBoard)
+      .filter((c) => isOnBoard(c, radius))
       .map(hexKey);
   }
 
@@ -113,7 +116,7 @@ export function getTopology(): BoardTopology {
   // Spigoli costieri: esattamente 1 esagono di terra.
   const coastal = edges.filter((e) => {
     const [a, b] = parseEdgeId(e);
-    return Number(isOnBoard(a)) + Number(isOnBoard(b)) === 1;
+    return Number(isOnBoard(a, radius)) + Number(isOnBoard(b, radius)) === 1;
   });
 
   // Ordina la costa percorrendola: in ogni vertice costiero si incontrano
@@ -139,7 +142,7 @@ export function getTopology(): BoardTopology {
     prevVertex = nextVertex;
   }
 
-  cached = {
+  const topo: BoardTopology = {
     hexKeys,
     vertices,
     edges,
@@ -151,5 +154,6 @@ export function getTopology(): BoardTopology {
     vertexNeighbors,
     coastalRing: ring,
   };
-  return cached;
+  cache.set(radius, topo);
+  return topo;
 }

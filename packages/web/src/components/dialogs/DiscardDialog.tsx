@@ -1,7 +1,7 @@
 /** Scarto obbligatorio dopo un 7: selezione con contatore {x}/{n}. */
 import { useState } from 'react';
 import { totalResources, zeroResources, type Action, type PlayerView } from '@vikiland/engine';
-import { it, t } from '../../i18n/it';
+import { it, t } from '../../i18n';
 import { Dialog, ResourceStepper } from './Dialog';
 
 interface Props {

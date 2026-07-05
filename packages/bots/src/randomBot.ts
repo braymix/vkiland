@@ -26,6 +26,20 @@ export function buildGreedyDiscard(hand: ResourceCount, amount: number): Resourc
   return out;
 }
 
+/** Guadagno "a scelta" di una calamità: prende `amount` dai materiali più capienti in banca. */
+export function buildGreedyGain(bank: ResourceCount, amount: number): ResourceCount {
+  const out = zeroResources();
+  const left = { ...bank };
+  for (let i = 0; i < amount; i++) {
+    let best: Resource = RESOURCES[0]!;
+    for (const r of RESOURCES) if (left[r] > left[best]) best = r;
+    if (left[best] <= 0) break; // banca esaurita
+    out[best] += 1;
+    left[best] -= 1;
+  }
+  return out;
+}
+
 export function createRandomBot(): Bot {
   return {
     name: 'random',
@@ -37,6 +51,12 @@ export function createRandomBot(): Bot {
             type: 'scarta',
             player: m.player,
             resources: buildGreedyDiscard(input.view.me!.resources, m.amount),
+          });
+        } else if (m.type === 'guadagnaDescr') {
+          concrete.push({
+            type: 'guadagnaCalamita',
+            player: m.player,
+            resources: buildGreedyGain(input.view.bank, m.amount),
           });
         } else if (m.type !== 'proponiScambioDescr') {
           concrete.push(m);

@@ -131,6 +131,19 @@ button {
     'hand'
     'log';
 }
+/* Modalità Calamità: si inserisce una riga «banner» sotto l'HUD, così la carta
+   attiva sta subito in alto (senza questa variante il banner non ha area e il
+   grid lo relega in fondo). La riga esiste SOLO in modalità calamità: le partite
+   standard non si prendono un gap vuoto. */
+.game-layout--calamity {
+  grid-template-areas:
+    'hud'
+    'banner'
+    'board'
+    'actions'
+    'hand'
+    'log';
+}
 @media (min-width: 900px) {
   .game-layout {
     grid-template-columns: 320px 1fr;
@@ -141,9 +154,18 @@ button {
       'actions actions';
     align-items: start;
   }
+  .game-layout--calamity {
+    grid-template-areas:
+      'hud board'
+      'banner board'
+      'hand board'
+      'log board'
+      'actions actions';
+  }
 }
 
 .area-hud { grid-area: hud; }
+.area-banner { grid-area: banner; }
 .area-board { grid-area: board; }
 .area-actions { grid-area: actions; }
 .area-hand { grid-area: hand; }
@@ -154,11 +176,20 @@ button {
   display: flex;
   justify-content: center;
   align-items: center;
+  /* Lo zoom trasforma il canvas: la cornice lo ritaglia e ospita il bottone 1× */
+  position: relative;
+  overflow: hidden;
 }
 .board-canvas {
   image-rendering: pixelated;
-  touch-action: manipulation;
+  touch-action: none; /* pinch/trascinamento gestiti dal gioco, non dal browser */
   max-width: 100%;
+}
+.board-zoom-reset {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 1;
 }
 
 /* Strip giocatori */
@@ -283,9 +314,335 @@ button {
   flex-wrap: wrap;
 }
 
+/* Righe dati della gestione account */
+.account-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 9px;
+  padding: 3px 0;
+  border-bottom: 1px solid rgba(170, 182, 194, 0.15);
+}
+
+/* Sezione «Configurazione» espandibile del setup */
+.config-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px;
+  border: 2px solid var(--bg-deep);
+  background: rgba(22, 32, 43, 0.45);
+}
+
+/* Picker dei colori del clan (setup) */
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 264px;
+  padding: 6px 0 8px 4px;
+}
+.color-swatch {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 2px solid var(--bg-deep);
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: inherit;
+  font-size: 10px;
+  line-height: 1;
+}
+.color-swatch--active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-dark);
+}
+
+/* La classifica scorre in orizzontale sugli schermi stretti */
+.victory-table-wrap {
+  overflow-x: auto;
+}
+.victory-table-wrap table {
+  min-width: 470px;
+}
+
+/* Barra in basso a sinistra nelle partite online (sotto i dialoghi):
+   «Esci dalla partita» per tutti + «Termina partita» solo per l'host. */
+.game-exit-bar {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  opacity: 0.9;
+}
+
+/* Vittoria: coriandoli + vincitore in grande */
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  pointer-events: none;
+  z-index: 0;
+}
+.victory-backdrop {
+  flex-direction: column;
+  background: rgba(10, 14, 19, 0.88);
+}
+.victory-stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-height: 100dvh;
+  overflow-y: auto;
+  padding: 12px 0;
+}
+.victory-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  padding: 8px 0 2px;
+}
+.victory-stars {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.victory-stars img {
+  animation: victory-bob 1.2s ease-in-out infinite;
+}
+.victory-stars img:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.victory-stars img:nth-child(3) {
+  animation-delay: 0.4s;
+}
+.victory-name {
+  font-size: clamp(22px, 9vw, 52px);
+  letter-spacing: 2px;
+  animation: victory-pop 0.7s cubic-bezier(0.2, 1.6, 0.4, 1) backwards;
+  text-shadow:
+    3px 3px 0 #16202b,
+    6px 6px 0 rgba(0, 0, 0, 0.4);
+}
+.victory-sub {
+  font-size: clamp(11px, 3.4vw, 16px);
+  color: var(--accent);
+  animation:
+    victory-rise 0.5s 0.45s backwards,
+    victory-glow 1.6s 0.95s ease-in-out infinite;
+}
+.victory-card {
+  animation: victory-rise 0.6s 0.85s backwards;
+}
+@keyframes victory-pop {
+  0% { transform: scale(0); }
+  100% { transform: scale(1); }
+}
+@keyframes victory-rise {
+  from { opacity: 0; transform: translateY(26px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes victory-glow {
+  0%, 100% { text-shadow: 0 0 0 rgba(231, 185, 76, 0); }
+  50% { text-shadow: 0 0 14px rgba(231, 185, 76, 0.85); }
+}
+@keyframes victory-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .victory-name,
+  .victory-sub,
+  .victory-card,
+  .victory-stars img {
+    animation: none;
+  }
+}
+
+/* Tutorial («Libro delle Saghe») */
+.tutorial-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 85;
+  display: flex;
+  justify-content: center;
+  padding: 12px;
+}
+.tutorial-box {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tutorial-chips {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  flex: 0 0 auto;
+  padding-bottom: 4px;
+}
+.tutorial-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tutorial-title {
+  color: var(--accent);
+  font-size: 12px;
+}
+.tutorial-h {
+  color: var(--accent);
+  font-size: 10px;
+  margin-top: 4px;
+}
+.tutorial-p {
+  font-size: 9px;
+  line-height: 1.9;
+}
+.tutorial-list {
+  font-size: 9px;
+  line-height: 1.9;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.tutorial-tip {
+  border: 2px solid var(--accent-dark);
+  background: rgba(231, 185, 76, 0.07);
+  color: var(--accent);
+  padding: 8px;
+  font-size: 9px;
+  line-height: 1.8;
+}
+.tutorial-cost {
+  display: grid;
+  grid-template-columns: 90px auto 1fr;
+  gap: 8px;
+  align-items: center;
+  font-size: 9px;
+}
+.tutorial-cost-label {
+  font-weight: bold;
+}
+.tutorial-cost-note {
+  font-size: 8px;
+  color: var(--ink-dim);
+  line-height: 1.6;
+}
+.tutorial-resrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 8px;
+}
+.tutorial-resrow-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.tutorial-saga {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  align-items: start;
+  font-size: 9px;
+}
+.tutorial-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+/* Timer di turno (partite online) */
+.turn-timer {
+  text-align: center;
+  font-size: 10px;
+  padding: 2px 0;
+}
+
+/* Mappa a schermo intero: interattiva, chiudibile con ESC o X */
+.fullscreen-map-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 14, 19, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 80;
+  padding: 12px;
+}
+.fullscreen-map {
+  position: relative;
+  width: 100%;
+  max-width: 100vw;
+  height: 100%;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.fullscreen-map .board-wrap {
+  width: 90vmin;
+  height: 90vmin;
+  border: none;
+  background: transparent;
+}
+.fullscreen-map-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 20px;
+  color: var(--ink);
+  background: rgba(29, 39, 51, 0.8);
+  border: 1px solid var(--ink-dim);
+  cursor: pointer;
+  z-index: 1;
+}
+.fullscreen-map-close:hover {
+  background: rgba(29, 39, 51, 1);
+}
+
+/* Hot-seat: copre TUTTO (sfondo opaco) finché il prossimo umano non conferma */
+.handoff-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  z-index: 90;
+  padding: 16px;
+}
+
 /* Menu */
 .menu-title {
-  font-size: 30px;
+  font-size: 24px;
   color: var(--accent);
   text-shadow: 3px 3px 0 #5a3c10, 6px 6px 0 #16202b;
   letter-spacing: 2px;
@@ -374,4 +731,1041 @@ label.check {
   justify-content: center;
   font-size: 12px;
   box-shadow: 0 0 0 3px #222, inset -3px -3px 0 0 #c9c2af;
+}
+
+/* Popup a tutto schermo del tiro di dadi: compare e svanisce da solo.
+   Non cattura i click (sotto al 7 si apre subito il dialogo di scarto). */
+.roll-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 82; /* sopra mappa (80) e dialoghi (50), sotto tutorial (85) e handoff (90) */
+  background: radial-gradient(circle at 50% 45%, rgba(10, 14, 19, 0.78) 0%, rgba(10, 14, 19, 0.45) 100%);
+  animation: roll-fade 1300ms ease-in-out both; /* durata accordata con SHOW_MS */
+}
+.roll-pop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  animation: roll-pop 260ms cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+.roll-dice {
+  font-size: clamp(14px, 4vmin, 24px);
+  color: var(--ink-dim);
+  text-shadow: 2px 2px 0 #000;
+}
+.roll-total {
+  font-size: clamp(64px, 26vmin, 150px);
+  line-height: 1;
+  color: var(--accent);
+  text-shadow:
+    6px 6px 0 #000,
+    -6px 6px 0 #000,
+    6px -6px 0 #000,
+    -6px -6px 0 #000,
+    0 0 22px rgba(231, 185, 76, 0.55);
+}
+/* Il 7: rosso, grave, col Drago che si sveglia. */
+.roll-overlay--grave {
+  background: radial-gradient(circle at 50% 45%, rgba(58, 8, 8, 0.85) 0%, rgba(20, 4, 4, 0.55) 100%);
+  animation-name: roll-fade-grave;
+  animation-duration: 1900ms; /* durata accordata con SHOW_GRAVE_MS */
+}
+.roll-overlay--grave .roll-total {
+  color: var(--danger);
+  text-shadow:
+    6px 6px 0 #000,
+    -6px 6px 0 #000,
+    6px -6px 0 #000,
+    -6px -6px 0 #000,
+    0 0 28px rgba(217, 83, 79, 0.8);
+  animation: roll-shake 360ms steps(2) 4;
+}
+.roll-grave-label {
+  font-size: clamp(11px, 3vmin, 18px);
+  color: var(--danger);
+  text-shadow: 2px 2px 0 #000;
+  animation: roll-grave-blink 480ms steps(1) infinite;
+}
+@keyframes roll-fade {
+  0% { opacity: 0; }
+  12% { opacity: 1; }
+  72% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes roll-fade-grave {
+  0% { opacity: 0; }
+  8% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes roll-pop {
+  0% { transform: scale(0.2); }
+  100% { transform: scale(1); }
+}
+@keyframes roll-shake {
+  0% { transform: translate(-5px, 0); }
+  50% { transform: translate(5px, 2px); }
+  100% { transform: translate(-3px, -2px); }
+}
+@keyframes roll-grave-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Niente movimento: il popup appare fermo e lo toglie il timer JS. */
+  .roll-overlay,
+  .roll-overlay--grave,
+  .roll-pop,
+  .roll-overlay--grave .roll-total,
+  .roll-grave-label {
+    animation: none;
+  }
+}
+
+/* ===== Fine partita: bottoni extra, mappa finale e statistiche ===== */
+.victory-extra-buttons {
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* Cruscotto statistiche: overlay a tutto schermo, scrollabile. */
+.stats-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 86; /* sopra mappa finale (80) e schermata di vittoria */
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+.stats-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border-bottom: var(--px) solid var(--bg-panel);
+  flex: 0 0 auto;
+}
+.stats-head h2 {
+  margin: 0;
+  font-size: 12px;
+  color: var(--accent);
+}
+.stats-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 14px;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Cartoline riassuntive */
+.stats-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.stat-card {
+  flex: 1 1 70px;
+  min-width: 70px;
+  background: var(--bg-panel);
+  border: var(--px) solid var(--bg-deep);
+  padding: 8px 6px;
+  text-align: center;
+}
+.stat-card-big {
+  font-size: 20px;
+  color: var(--accent);
+  line-height: 1.2;
+}
+.stat-card-big--danger {
+  color: var(--danger);
+}
+.stat-card-label {
+  font-size: 7px;
+  color: var(--ink-dim);
+  margin-top: 4px;
+}
+
+/* Sezioni */
+.stats-section {
+  margin-top: 20px;
+}
+.stats-section-title {
+  font-size: 10px;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+.stats-section-sub,
+.stats-empty {
+  font-size: 8px;
+  color: var(--ink-dim);
+  margin-bottom: 10px;
+}
+
+/* Istogramma dei dadi */
+.dice-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 150px;
+}
+.dice-col {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  gap: 3px;
+}
+.dice-count {
+  font-size: 7px;
+  color: var(--ink-dim);
+}
+.dice-track {
+  position: relative;
+  width: 78%;
+  height: 110px;
+  background: var(--bg-deep);
+}
+.dice-bar {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background: var(--accent);
+  transition: height 600ms ease-out;
+}
+.dice-bar--hot {
+  background: #b03a2e;
+}
+.dice-bar--seven {
+  background: var(--danger);
+}
+.dice-bar--lucky {
+  box-shadow: 0 0 0 2px var(--ink), 0 0 10px rgba(231, 185, 76, 0.7);
+}
+/* Ticca del valore ATTESO (linea chiara orizzontale). */
+.dice-exp {
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  height: 2px;
+  background: var(--ink);
+  opacity: 0.8;
+}
+.dice-num {
+  font-size: 8px;
+  color: var(--ink);
+}
+.dice-legend {
+  font-size: 7px;
+  color: var(--ink-dim);
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dice-legend-exp {
+  display: inline-block;
+  width: 16px;
+  height: 2px;
+  background: var(--ink);
+}
+
+/* Confronto tra clan: barre orizzontali */
+.cmp-group {
+  margin-bottom: 12px;
+}
+.cmp-label {
+  font-size: 8px;
+  color: var(--ink-dim);
+  margin-bottom: 3px;
+}
+.cmp-row {
+  display: grid;
+  grid-template-columns: 64px 1fr 22px;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+.cmp-name {
+  font-size: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cmp-track {
+  position: relative;
+  height: 11px;
+  background: var(--bg-deep);
+}
+.cmp-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  min-width: 0;
+  transition: width 600ms ease-out;
+}
+.cmp-val {
+  font-size: 8px;
+  color: var(--ink);
+  text-align: right;
+}
+
+/* Albo dei primati */
+.primati {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+.primato {
+  background: var(--bg-panel);
+  border: var(--px) solid var(--bg-deep);
+  padding: 8px;
+}
+.primato-title {
+  font-size: 8px;
+  color: var(--accent);
+}
+.primato-name {
+  font-size: 9px;
+  margin: 5px 0 3px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.primato-name--empty {
+  color: var(--ink-dim);
+}
+.primato-sub {
+  font-size: 7px;
+  color: var(--ink-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dice-bar,
+  .cmp-bar {
+    transition: none;
+  }
+}
+
+/* Selettore lingua (menu principale): picker a tendina con bandierina */
+.lang-picker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+.lang-flag {
+  font-size: 18px;
+  line-height: 1;
+}
+.lang-select {
+  cursor: pointer;
+  padding: 6px 8px;
+}
+
+/* Russo: Press Start 2P non ha il cirillico → font pixel con cirillico (Handjet).
+   Handjet ha una griglia di "dot" fitta e sottile: per renderlo leggibile come
+   il tratto pieno di Press Start 2P lo usiamo in GRASSETTO (700), più grande e
+   con un po' di respiro tra lettere e righe. Le intestazioni hanno di default
+   font-weight: normal → qui le forziamo a 700 (il 400 non è nemmeno caricato). */
+html[data-lang='ru'] body,
+html[data-lang='ru'] button,
+html[data-lang='ru'] input,
+html[data-lang='ru'] textarea,
+html[data-lang='ru'] select,
+html[data-lang='ru'] h1,
+html[data-lang='ru'] h2,
+html[data-lang='ru'] h3 {
+  font-family: 'Handjet', 'Press Start 2P', monospace;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+html[data-lang='ru'] {
+  font-size: 13px;
+  line-height: 1.7;
+}
+html[data-lang='ru'] body {
+  font-size: 13px;
+}
+/* Testo dei bottoni e dei pannelli: un filo più grande, così i "dot" si leggono. */
+html[data-lang='ru'] .pxbtn {
+  font-size: 12px;
+}
+html[data-lang='ru'] .pxbtn--small {
+  font-size: 10px;
+}
+html[data-lang='ru'] .menu-sub {
+  font-size: 12px;
+}
+/* Il logo «VIKING-ISLAND» è latino: resta nel font principale a peso pieno. */
+html[data-lang='ru'] .menu-title {
+  font-family: 'Press Start 2P', monospace;
+  font-weight: normal;
+  letter-spacing: normal;
+}
+
+/* === Demo guidata (tour interattivo passo-passo) === */
+/* Pulsante «a parte», angolo in alto a destra del menu. */
+.menu-demo-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+}
+
+.demo-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 86;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+}
+.demo-screen > * {
+  width: 100%;
+  max-width: 600px;
+}
+
+.demo-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.demo-title {
+  color: var(--accent);
+  font-size: 12px;
+  flex: 0 0 auto;
+}
+.demo-tabs {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.demo-tab {
+  font-family: inherit;
+  font-size: 8px;
+  line-height: 1.4;
+  padding: 5px 7px;
+  color: var(--ink-dim);
+  background: var(--bg-panel);
+  border: 2px solid var(--bg-deep);
+  cursor: pointer;
+}
+.demo-tab--on {
+  color: var(--accent);
+  border-color: var(--accent-dark);
+}
+
+.demo-stage {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 0;
+}
+.demo-board {
+  width: 100%;
+  max-width: 420px;
+}
+
+.demo-card {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+.demo-card-title {
+  color: var(--accent);
+  font-size: 11px;
+}
+.demo-card-body {
+  font-size: 9px;
+  line-height: 1.9;
+}
+
+.demo-progress {
+  flex: 0 0 auto;
+  height: 8px;
+  background: var(--bg-deep);
+  border: 2px solid var(--bg-deep);
+}
+.demo-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.25s ease;
+}
+
+.demo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+.demo-nav-mid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.demo-step-count {
+  font-size: 8px;
+  color: var(--ink-dim);
+}
+.demo-skip {
+  flex: 0 0 auto;
+  opacity: 0.85;
+}
+
+/* Contenuti extra dentro la card */
+.demo-youclan {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9px;
+}
+.demo-swatch {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--bg-deep);
+  flex: 0 0 auto;
+  image-rendering: pixelated;
+}
+.demo-dice {
+  font-size: 11px;
+  color: var(--accent);
+  text-align: center;
+  padding: 4px;
+}
+.demo-gain {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9px;
+  flex-wrap: wrap;
+}
+.demo-gain-icons,
+.demo-cost-icons {
+  display: inline-flex;
+  gap: 3px;
+}
+.demo-costs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.demo-cost {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 8px;
+  align-items: center;
+  font-size: 9px;
+}
+.demo-cost-label {
+  font-weight: bold;
+}
+.demo-cost-note {
+  font-size: 8px;
+  color: var(--ink-dim);
+  line-height: 1.6;
+}
+.demo-sagalist {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.demo-saga {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  align-items: start;
+  font-size: 9px;
+}
+.demo-resrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 8px;
+}
+.demo-resrow-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+/* Finte schermate dell'online (illustrative, non interattive) */
+.demo-mock {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  background: var(--bg-panel);
+  border: 2px solid var(--bg-deep);
+  font-size: 9px;
+  min-height: 150px;
+}
+.demo-net-row {
+  display: flex;
+  gap: 14px;
+}
+.demo-device,
+.demo-server {
+  font-size: 26px;
+}
+.demo-server {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.demo-server span {
+  font-size: 8px;
+  color: var(--ink-dim);
+}
+.demo-net-link {
+  font-size: 18px;
+  color: var(--accent);
+}
+.demo-hourglass {
+  font-size: 38px;
+}
+.demo-status {
+  padding: 5px 8px;
+  border: 2px solid var(--bg-deep);
+  text-align: center;
+}
+.demo-status--wake {
+  color: #e8a33d;
+}
+.demo-status--ok {
+  color: #6fcf6f;
+}
+.demo-status-arrow {
+  font-size: 8px;
+  color: var(--ink-dim);
+}
+.demo-mock-form {
+  align-items: stretch;
+}
+.demo-mock-form label {
+  font-size: 8px;
+  color: var(--ink-dim);
+}
+.demo-input {
+  background: var(--bg-deep);
+  border: 2px solid var(--bg-deep);
+  padding: 6px;
+  font-size: 9px;
+}
+.demo-noemail {
+  color: var(--ink-dim);
+  text-decoration: line-through;
+  font-size: 8px;
+}
+.demo-fakebtn {
+  margin-top: 4px;
+  text-align: center;
+  background: var(--accent);
+  color: var(--bg-deep);
+  padding: 7px;
+  font-size: 9px;
+  border-bottom: 3px solid var(--accent-dark);
+}
+.demo-mock-code {
+  flex-direction: row;
+  align-items: stretch;
+  gap: 8px;
+}
+.demo-code-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-deep);
+  padding: 10px;
+  border: 2px solid var(--bg-deep);
+}
+.demo-code {
+  font-size: 16px;
+  color: var(--accent);
+  letter-spacing: 2px;
+}
+.demo-code--empty {
+  color: var(--ink-dim);
+}
+.demo-code-or {
+  align-self: center;
+  color: var(--ink-dim);
+}
+.demo-mock-lobby {
+  align-items: stretch;
+}
+.demo-lobby-slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-deep);
+  padding: 7px;
+  border: 2px solid var(--bg-deep);
+}
+.demo-lobby-slot--add {
+  color: var(--ink-dim);
+  justify-content: center;
+}
+.demo-tag {
+  margin-left: auto;
+  font-size: 7px;
+  color: var(--ink-dim);
+  border: 1px solid var(--ink-dim);
+  padding: 1px 4px;
+}
+.demo-mock-play {
+  align-items: stretch;
+}
+.demo-play-line {
+  color: var(--accent);
+}
+.demo-play-log {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 8px;
+  color: var(--ink-dim);
+}
+.demo-timer {
+  text-align: center;
+  font-size: 8px;
+  color: var(--ink-dim);
+}
+.demo-mock-fine .demo-fine-flag {
+  font-size: 52px;
+}
+.demo-fine-cta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.demo-fine-cta .pxbtn {
+  flex: 1;
+}
+
+/* Russo: testi un filo più grandi anche nella demo */
+html[data-lang='ru'] .demo-card-body,
+html[data-lang='ru'] .demo-cost,
+html[data-lang='ru'] .demo-saga {
+  font-size: 11px;
+}
+
+/* === Popup di benvenuto del Breve tutorial (coriandoli + applausi) === */
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  background: rgba(10, 14, 19, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.welcome-confetti {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 96;
+}
+.welcome-card {
+  position: relative;
+  z-index: 97;
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 16px;
+  text-align: center;
+  box-shadow:
+    0 0 0 4px var(--accent-dark),
+    0 0 32px rgba(231, 185, 76, 0.35);
+  animation: welcomePop 0.32s cubic-bezier(0.2, 1.3, 0.4, 1) both;
+}
+.welcome-title {
+  color: var(--accent);
+  font-size: 14px;
+  line-height: 1.8;
+  text-transform: uppercase;
+}
+.welcome-claps {
+  display: flex;
+  gap: 4px;
+  font-size: 26px;
+}
+.welcome-claps span {
+  animation: clapWave 0.9s ease-in-out infinite;
+}
+@keyframes clapWave {
+  0%, 100% { transform: translateY(0) rotate(-6deg); }
+  50% { transform: translateY(-6px) rotate(6deg); }
+}
+@keyframes welcomePop {
+  0% { transform: scale(0.7); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .welcome-claps span { animation: none; }
+  .welcome-card { animation: none; }
+}
+/* Russo: titolo del benvenuto un filo più piccolo per starci in larghezza */
+html[data-lang='ru'] .welcome-title {
+  font-size: 12px;
+}
+
+/* Pastiglia «colore personalizzato» nel selettore: arcobaleno + input nascosto */
+.color-swatch--custom {
+  position: relative;
+  overflow: hidden;
+  background: conic-gradient(from 0deg, #e74c3c, #f1c40f, #2ecc71, #3498db, #9b59b6, #e74c3c);
+}
+.color-swatch--custom input[type='color'] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* === Pannello «Costruzioni»: pezzi ancora disponibili === */
+.build-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.build-row {
+  display: grid;
+  grid-template-columns: 36px 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-deep);
+  border: 2px solid var(--bg-deep);
+  padding: 6px 8px;
+}
+.build-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 32px;
+}
+.build-icon img {
+  image-rendering: pixelated;
+  height: 28px;
+  width: auto;
+}
+.build-road {
+  display: inline-block;
+  width: 26px;
+  height: 8px;
+  border: 2px solid var(--bg-deep);
+}
+.build-name {
+  font-size: 10px;
+}
+.build-count {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.15;
+}
+.build-count b {
+  font-size: 14px;
+  color: var(--accent);
+}
+.build-count .build-sub {
+  font-size: 7px;
+  color: var(--ink-dim);
+}
+.build-count .build-zero {
+  color: var(--danger);
+}
+.build-frac {
+  font-size: 9px;
+  color: var(--ink-dim);
+  min-width: 34px;
+  text-align: right;
+}
+
+/* Riconoscimenti: link discreto nel menu + popup con l'autore */
+.credits-link {
+  margin-top: 12px;
+  font-family: inherit;
+  font-size: 8px;
+  cursor: pointer;
+  color: var(--ink-dim);
+  background: none;
+  border: 0;
+  letter-spacing: 0.5px;
+  user-select: none;
+}
+.credits-link:hover {
+  color: var(--accent);
+}
+.credits-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 4px 0;
+}
+.credits-logo {
+  font-size: 34px;
+  line-height: 1;
+}
+.credits-made {
+  font-size: 9px;
+  color: var(--ink-dim);
+}
+.credits-name {
+  font-size: 14px;
+  color: var(--accent);
+}
+.credits-invite {
+  font-size: 9px;
+  line-height: 1.9;
+  max-width: 300px;
+}
+.credits-mail {
+  display: inline-block;
+  font-size: 9px;
+  color: var(--accent);
+  background: var(--bg-deep);
+  border: 2px solid var(--accent-dark);
+  padding: 8px 10px;
+  text-decoration: none;
+  word-break: break-all;
+}
+.credits-mail:hover {
+  background: var(--accent);
+  color: var(--bg-deep);
+}
+.credits-thanks {
+  font-size: 8px;
+  color: var(--ink-dim);
+}
+
+/* «Annulla» l'ultimo piazzamento: un filo evidenziato per distinguerlo */
+.undo-btn {
+  box-shadow:
+    0 0 0 var(--px) var(--bg-deep),
+    inset 0 calc(-1 * var(--px)) 0 0 var(--accent-dark);
+  color: var(--accent);
+}
+
+/* === Inventario (skin: sul dispositivo, o sull'account se loggato online) === */
+.inv-mode {
+  font-size: 8px;
+  color: var(--ink-dim);
+  text-align: center;
+  max-width: 360px;
+  line-height: 1.7;
+}
+.inv-section {
+  font-size: 11px;
+  color: var(--accent);
+  margin-top: 4px;
+}
+.inv-info {
+  font-size: 8px;
+  color: var(--ink-dim);
+  line-height: 1.7;
+}
+.skin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+}
+.skin-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  min-height: 112px;
+  padding: 10px 6px 8px;
+  cursor: pointer;
+  background: var(--bg-deep);
+  border: 2px solid var(--bg-deep);
+  color: var(--ink);
+  font-family: inherit;
+}
+.skin-card img {
+  image-rendering: pixelated;
+  max-width: 100%;
+  margin: auto 0;
+}
+.skin-card--on {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-dark);
+}
+.skin-name {
+  font-size: 7px;
+  line-height: 1.5;
+  text-align: center;
+}
+.skin-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 7px;
+  color: #2b2008;
+  background: var(--accent);
+  padding: 1px 4px;
+}
+/* Feedback di salvataggio: riservato in layout, visibile solo quando serve */
+.inv-saved {
+  font-size: 8px;
+  color: var(--ok);
+  text-align: right;
+  min-height: 12px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.inv-saved[data-visible='true'] {
+  opacity: 1;
 }

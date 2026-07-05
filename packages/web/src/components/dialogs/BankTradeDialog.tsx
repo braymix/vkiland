@@ -3,11 +3,12 @@ import { useState } from 'react';
 import {
   RESOURCES,
   bankTradeRatio,
+  calamityBankFloorForCard,
   type Action,
   type PlayerView,
   type Resource,
 } from '@vikiland/engine';
-import { it, t } from '../../i18n/it';
+import { it, t } from '../../i18n';
 import { ResIcon } from '../icons';
 import { Dialog } from './Dialog';
 
@@ -21,8 +22,16 @@ export function BankTradeDialog({ view, onSubmit, onClose }: Props) {
   const me = view.me!;
   const [give, setGive] = useState<Resource | null>(null);
   const [receive, setReceive] = useState<Resource | null>(null);
-  const ratio = give ? bankTradeRatio(view, me.id, give) : null;
-  const canGive = (r: Resource) => me.resources[r] >= bankTradeRatio(view, me.id, r);
+  // Rapporto EFFETTIVO: approdi + eventuale sconto della calamità del giro
+  // (es. Mercato d'oro = 2:1 per tutti). Senza questo la UI resterebbe a 4:1
+  // e bloccherebbe scambi in realtà legali.
+  const effectiveRatio = (r: Resource) =>
+    Math.min(
+      bankTradeRatio(view, me.id, r, view.boardRadius),
+      calamityBankFloorForCard(view.calamity, r)
+    );
+  const ratio = give ? effectiveRatio(give) : null;
+  const canGive = (r: Resource) => me.resources[r] >= effectiveRatio(r);
   const valid =
     give !== null &&
     receive !== null &&

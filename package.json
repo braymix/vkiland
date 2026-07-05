@@ -5,6 +5,7 @@
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev": "pnpm --filter @vikiland/web dev",
+    "server": "pnpm --filter @vikiland/server dev",
     "build": "pnpm --filter @vikiland/web build",
     "preview": "pnpm --filter @vikiland/web preview",
     "test": "pnpm -r test",

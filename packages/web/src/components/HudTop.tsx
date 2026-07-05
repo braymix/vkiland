@@ -1,7 +1,8 @@
 /** Testata di gioco: dadi, messaggio di fase e strip dei giocatori. */
+import { useEffect, useState } from 'react';
 import type { PlayerView } from '@vikiland/engine';
-import { PLAYER_COLORS } from '../render/sprites/palettes';
-import { it, t } from '../i18n/it';
+import { shadesFor } from '../render/sprites/palettes';
+import { it, t } from '../i18n';
 import { UiIcon } from './icons';
 
 function phaseMessage(view: PlayerView): string {
@@ -28,6 +29,16 @@ function phaseMessage(view: PlayerView): string {
       return t(it.faseFurto, { nome });
     case 'freeRoads':
       return t(it.faseSentieriGratis, { nome, n: view.phase.remaining });
+    case 'calamityDiscard': {
+      const names = Object.keys(view.phase.mustDiscard)
+        .map((pid) => view.players[Number(pid)]?.name ?? '')
+        .join(', ');
+      const n = Object.values(view.phase.mustDiscard)[0] ?? 0;
+      return t(it.faseScarto, { nome: names, n });
+    }
+    case 'calamityGain':
+    case 'calamityRoads':
+      return it.calamita.titolo;
     case 'main':
       return t(it.faseMain, { nome });
     case 'gameOver':
@@ -35,7 +46,35 @@ function phaseMessage(view: PlayerView): string {
   }
 }
 
-export function HudTop({ view }: { view: PlayerView }) {
+/** Conto alla rovescia del timer di turno (partite online). */
+function TurnTimerBadge({ deadline }: { deadline: number }) {
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setTick((x) => x + 1), 500);
+    return () => clearInterval(timer);
+  }, []);
+  const sec = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+  return (
+    <span
+      className="turn-timer"
+      style={{ color: sec <= 10 ? 'var(--danger)' : 'var(--ink-dim)', whiteSpace: 'nowrap' }}
+    >
+      ⏳{sec}s
+    </span>
+  );
+}
+
+export function HudTop({
+  view,
+  onOpenCosts,
+  onOpenMap,
+  turnDeadline = null,
+}: {
+  view: PlayerView;
+  onOpenCosts: () => void;
+  onOpenMap: () => void;
+  turnDeadline?: number | null;
+}) {
   return (
     <div className="area-hud pixel-frame">
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'space-between' }}>
@@ -46,10 +85,28 @@ export function HudTop({ view }: { view: PlayerView }) {
         <div className="phase-banner" style={{ flex: 1 }}>
           {phaseMessage(view)}
         </div>
+        {turnDeadline !== null && <TurnTimerBadge deadline={turnDeadline} />}
+        <button
+          className="pxbtn pxbtn--ghost pxbtn--small"
+          onClick={onOpenMap}
+          title="Mappa a schermo intero"
+          aria-label="Mappa"
+        >
+          🗺
+        </button>
+        <button
+          className="pxbtn pxbtn--ghost pxbtn--small"
+          onClick={onOpenCosts}
+          title={it.bugiardino}
+          aria-label={it.bugiardino}
+        >
+          ?
+        </button>
       </div>
       <div>
-        {view.players.map((p) => {
-          const colors = PLAYER_COLORS[p.color];
+        {/* Strip nell'ORDINE DI GIOCO deciso dai dadi, non per posto. */}
+        {view.turnOrder.map((pid) => view.players[pid]!).map((p) => {
+          const colors = shadesFor(p.color);
           const isCurrent = p.id === view.currentPlayer;
           const pg =
             view.me && p.id === view.me.id ? view.me.gloryPointsTotal : p.gloryPointsPublic;
