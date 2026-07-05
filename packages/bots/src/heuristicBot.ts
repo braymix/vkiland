@@ -72,6 +72,43 @@ function discardProtectingGoal(
   return out;
 }
 
+/**
+ * Guadagno "a scelta" di una calamità: prima colma il fabbisogno dell'obiettivo
+ * corrente (ciò che manca al `goalCost`), poi riempie col materiale più capiente
+ * in banca. Ogni scelta è limitata da ciò che la banca ha davvero.
+ */
+function gainTowardGoal(
+  hand: ResourceCount,
+  goalCost: ResourceCount,
+  bank: ResourceCount,
+  amount: number
+): ResourceCount {
+  const out = zeroResources();
+  const left = { ...bank };
+  const need: ResourceCount = zeroResources();
+  for (const r of RESOURCES) need[r] = Math.max(0, goalCost[r] - hand[r]);
+  let taken = 0;
+  // 1) verso l'obiettivo
+  for (const r of RESOURCES) {
+    while (taken < amount && need[r] > 0 && left[r] > 0) {
+      out[r] += 1;
+      left[r] -= 1;
+      need[r] -= 1;
+      taken += 1;
+    }
+  }
+  // 2) riempimento col materiale più abbondante disponibile
+  while (taken < amount) {
+    let best: Resource | null = null;
+    for (const r of RESOURCES) if (left[r] > 0 && (best === null || left[r] > left[best])) best = r;
+    if (best === null) break; // banca vuota
+    out[best] += 1;
+    left[best] -= 1;
+    taken += 1;
+  }
+  return out;
+}
+
 /** Il Drago è su un esagono che produce per me? */
 function dragonHurtsMe(view: PlayerView, me: number): boolean {
   const { perPlayer } = dragonDamage(view, view.board.dragonHex);
@@ -173,6 +210,7 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
               m.type !== 'proponiScambioDescr' &&
               m.type !== 'scambioBanca' &&
               m.type !== 'scartaDescr' &&
+              m.type !== 'guadagnaDescr' &&
               m.type !== 'rispondiScambio'
           ) as Action[];
           if (harmless.length > 0) {
@@ -198,7 +236,7 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
         );
       }
 
-      // --- Scarto sul 7 ---
+      // --- Scarto sul 7 o imposto da una calamità (stesso descrittore) ---
       const discard = input.legalActions.find((m) => m.type === 'scartaDescr');
       if (discard && discard.type === 'scartaDescr') {
         const spots = legalVillageVertices(view, player, view.boardRadius);
@@ -210,6 +248,18 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
             totalResources(my.resources) > 0
               ? discardProtectingGoal(my.resources, cost, discard.amount)
               : buildGreedyDiscard(my.resources, discard.amount),
+        };
+      }
+
+      // --- Guadagno "a scelta" di una calamità: si punta all'obiettivo corrente ---
+      const gain = input.legalActions.find((m) => m.type === 'guadagnaDescr');
+      if (gain && gain.type === 'guadagnaDescr') {
+        const spots = legalVillageVertices(view, player, view.boardRadius);
+        const { cost } = currentGoal(view, player, BUILD_COSTS, spots.length > 0);
+        return {
+          type: 'guadagnaCalamita',
+          player,
+          resources: gainTowardGoal(my.resources, cost, view.bank, gain.amount),
         };
       }
 
@@ -472,7 +522,10 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
 
       // Difesa estrema: prima mossa concreta disponibile.
       const fallback = input.legalActions.find(
-        (m) => m.type !== 'proponiScambioDescr' && m.type !== 'scartaDescr'
+        (m) =>
+          m.type !== 'proponiScambioDescr' &&
+          m.type !== 'scartaDescr' &&
+          m.type !== 'guadagnaDescr'
       );
       if (!fallback) throw new Error('heuristicBot: nessuna mossa disponibile');
       void topo;

@@ -71,4 +71,21 @@ describe('simulazioni di partite complete', () => {
       expect(winner).not.toBeNull();
     }
   }, 120_000);
+
+  it('MODALITÀ CALAMITÀ: i bot giocano partite complete senza mosse illegali', () => {
+    for (let i = 0; i < 12; i++) {
+      const { winner, steps } = runBotGame(
+        `sim-cal-${i}`,
+        [
+          createHeuristicBot('normale'),
+          createHeuristicBot('facile'),
+          createRandomBot(),
+        ],
+        8000,
+        undefined,
+        true // ← calamità attive
+      );
+      expect(winner, `partita calamità ${i} non conclusa (${steps} passi)`).not.toBeNull();
+    }
+  }, 120_000);
 });
