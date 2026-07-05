@@ -4,6 +4,20 @@
 
 ## Stato attuale
 
+**MODALITÀ CALAMITÀ** ✅ — nuova modalità opzionale (single player, hot-seat e
+online): a inizio partita si sceglie «Partita standard» o «Con calamità». Un
+mazzo di 38 carte, una rivelata all'inizio di ogni giro e valida SOLO per quel
+giro (finito il mazzo si torna normali). Due famiglie: persistenti (produzione
+doppia/bloccata per materiale, scambi 3:1 e 2:1, niente Saga, Drago fermo o
+«prima del tiro», bufera=niente sentieri, assedio=niente roccaforti, mare in
+tempesta=niente banca, mercato d'oro=banca 2:1, abbondanza=tutto doppio) e
+istantanee interattive (chi ha più/meno punti scarta/guadagna, scarto metà o
+fino a 7, +2 di un materiale o +1 di tutti, strade gratis a chi ne ha meno,
+doni di Carte Saga, razzia). Tutto deterministico dal seed (replay-abile);
+partite standard invariate byte-per-byte. Engine puro con 19 test dedicati +
+40 partite complete casuali; bot che giocano le calamità senza mosse illegali;
+banner in partita e nomi/descrizioni nelle 8 lingue.
+
 **FASE 3 COMPLETATA E COLLAUDATA IN PRODUZIONE** ✅ — multiplayer ONLINE:
 server autoritativo (Fastify + Socket.io, stesso engine = anti-cheat),
 account email+password, lobby con codici invito a 6 caratteri, bot lato
