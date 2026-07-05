@@ -178,7 +178,7 @@ export const nl: Strings = {
   serveUnUmano: 'Je hebt minstens één menselijke Viking nodig',
 
   // Nieuw spel (één flow: lokaal + online in één weergave)
-  stessoDevice: 'Zelfde apparaat',
+  stessoDevice: 'Lokaal',
   nuovaPartitaHintLocale:
     'Geef de telefoon om de beurt door. Elke plek kan Jij of een Bot zijn.',
   nuovaPartitaHintOnline:

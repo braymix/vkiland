@@ -184,7 +184,7 @@ export const it = {
   serveUnUmano: 'Serve almeno un vichingo umano',
 
   // Nuova partita (flusso unico ridisegnato: locale + online in una vista)
-  stessoDevice: 'Stesso device',
+  stessoDevice: 'Locale',
   nuovaPartitaHintLocale:
     'Passi il telefono tra i giocatori a turno. Ogni posto può essere Tu o un Bot.',
   nuovaPartitaHintOnline:

@@ -178,7 +178,7 @@ export const es: Strings = {
   serveUnUmano: 'Hace falta al menos un vikingo humano',
 
   // Nueva partida (flujo único: local + online en una vista)
-  stessoDevice: 'Mismo dispositivo',
+  stessoDevice: 'Local',
   nuovaPartitaHintLocale:
     'Pasa el teléfono entre los jugadores por turnos. Cada asiento puede ser Tú o un Bot.',
   nuovaPartitaHintOnline:
