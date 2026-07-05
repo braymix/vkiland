@@ -35,6 +35,7 @@ export {
   DRAGON_SKIN_IDS,
   STRONGHOLD_SKIN_IDS,
   BANK_PER_RESOURCE,
+  CALAMITY_DECK_COMPOSITION,
   pipWeight,
   type Buildable,
 } from './constants';
@@ -58,8 +59,20 @@ export {
   legalRoadEdges,
   legalVillageVertices,
   bankTradeRatio,
+  effectiveBankRatio,
   canPlaySagaCard,
 } from './rules';
+// Modalità Calamità: query pure sulla calamità attiva (bot e UI).
+export {
+  activeCalamity,
+  materialMultiplier,
+  calamityBankFloor,
+  calamityBlocksBankTrade,
+  calamityBlocksRoad,
+  calamityBlocksStronghold,
+  calamityBlocksSaga,
+  calamityDragonFrozen,
+} from './calamityRules';
 export { longestRoadLength } from './longestRoad';
 export { scoreBreakdown, gloryPoints, countHiddenHeroes } from './scoring';
 export { seedRng, nextU32, nextInt, rollDie, shuffle, type RngState } from './rng';

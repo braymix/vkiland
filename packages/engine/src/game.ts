@@ -2,19 +2,30 @@
 import { generateBoard } from './board/generate';
 import {
   boardSpecForPlayers,
+  CALAMITY_DECK_COMPOSITION,
   DEFAULT_TARGET_GLORY,
   MAX_PLAYERS,
   MIN_PLAYERS,
   SAGA_DECK_COMPOSITION,
 } from './constants';
 import { rollDie, seedRng, shuffle } from './rng';
-import type { GameConfig, GameState, Phase, PlayerConfig, PlayerId, PlayerState } from './types';
+import type {
+  CalamityState,
+  GameConfig,
+  GameState,
+  Phase,
+  PlayerConfig,
+  PlayerId,
+  PlayerState,
+} from './types';
 
 export interface NewGameOptions {
   seed: string;
   players: PlayerConfig[];
   avoidAdjacent68?: boolean;
   targetGloryPoints?: number;
+  /** Modalità Calamità: una carta per giro. Default false (partita standard). */
+  calamities?: boolean;
 }
 
 export function createGame(options: NewGameOptions): GameState {
@@ -39,6 +50,7 @@ export function createGame(options: NewGameOptions): GameState {
     avoidAdjacent68: options.avoidAdjacent68 ?? true,
     targetGloryPoints: options.targetGloryPoints ?? DEFAULT_TARGET_GLORY,
     boardRadius: spec.radius,
+    calamities: options.calamities ?? false,
   };
 
   let rng = seedRng(seed);
@@ -46,6 +58,15 @@ export function createGame(options: NewGameOptions): GameState {
   rng = rngAfterBoard;
   const [sagaDeck, rngAfterDeck] = shuffle(rng, SAGA_DECK_COMPOSITION);
   rng = rngAfterDeck;
+
+  // Il mazzo Calamità consuma il PRNG solo se la modalità è attiva: così le
+  // partite standard restano identiche byte-per-byte a prima (stesso seed → stessa tavola/dadi).
+  let calamities: CalamityState | undefined;
+  if (config.calamities) {
+    const [deck, rngAfterCal] = shuffle(rng, CALAMITY_DECK_COMPOSITION);
+    rng = rngAfterCal;
+    calamities = { deck, current: null };
+  }
 
   // La tavola non cambia mai dopo la creazione (solo dragonHex si muove):
   // congelandola possiamo condividerla tra i cloni dello stato senza rischi.
@@ -128,15 +149,22 @@ export function createGame(options: NewGameOptions): GameState {
     tradeCounter: 0,
     longestRoad: { holder: null, length: 0 },
     largestArmy: { holder: null, count: 0 },
+    ...(calamities ? { calamities } : {}),
   };
 }
 
-function clonePhase(phase: Phase): Phase {
+export function clonePhase(phase: Phase): Phase {
   switch (phase.type) {
     case 'discard':
       return { type: 'discard', mustDiscard: { ...phase.mustDiscard } };
     case 'steal':
       return { type: 'steal', candidates: [...phase.candidates], cause: phase.cause };
+    case 'calamityDiscard':
+      return { type: 'calamityDiscard', mustDiscard: { ...phase.mustDiscard } };
+    case 'calamityGain':
+      return { type: 'calamityGain', mustGain: { ...phase.mustGain } };
+    case 'calamityRoads':
+      return { type: 'calamityRoads', queue: [...phase.queue], remaining: phase.remaining };
     default:
       return { ...phase };
   }
@@ -179,5 +207,9 @@ export function cloneState(s: GameState): GameState {
       : null,
     longestRoad: { ...s.longestRoad },
     largestArmy: { ...s.largestArmy },
+    // Le carte calamità sono immutabili: si clona l'array, non le carte.
+    ...(s.calamities
+      ? { calamities: { deck: [...s.calamities.deck], current: s.calamities.current } }
+      : {}),
   };
 }

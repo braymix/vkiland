@@ -4,6 +4,7 @@
  */
 import { BOARD_RADIUS } from './board/coords';
 import { getTopology } from './board/topology';
+import { calamityBankFloor, calamityBlocksSaga } from './calamityRules';
 import { PIECE_LIMITS } from './constants';
 import type { EdgeId, GameState, PiecesView, PlayerId, Resource, TradeRatioView, VertexId } from './types';
 
@@ -112,7 +113,7 @@ export function legalVillageVertices(
   return [...candidates].filter((v) => vertexFreeWithDistance(state, v, radius));
 }
 
-/** Rapporto di scambio con la banca per una data risorsa (4, 3 o 2). */
+/** Rapporto di scambio con la banca per una data risorsa da approdi/banca (4, 3 o 2). */
 export function bankTradeRatio(
   state: TradeRatioView,
   player: PlayerId,
@@ -132,6 +133,21 @@ export function bankTradeRatio(
   return ratio;
 }
 
+/**
+ * Rapporto di scambio EFFETTIVO: come `bankTradeRatio`, ma con l'eventuale
+ * "sconto" della calamità del giro (3:1, 2:1 su un materiale, 2:1 per tutti).
+ * Serve GameState perché legge la calamità attiva; i bot possono continuare a
+ * stimare con `bankTradeRatio` sulla vista (l'engine rivalida comunque).
+ */
+export function effectiveBankRatio(
+  state: GameState,
+  player: PlayerId,
+  give: Resource,
+  radius: number = BOARD_RADIUS
+): number {
+  return Math.min(bankTradeRatio(state, player, give, radius), calamityBankFloor(state, give));
+}
+
 /** Il giocatore può giocare una carta Saga (non Eroi) in questo momento del turno? */
 export function canPlaySagaCard(
   state: GameState,
@@ -141,6 +157,7 @@ export function canPlaySagaCard(
   if (player !== state.currentPlayer) return false;
   if (state.devCardPlayedThisTurn) return false;
   if (state.pendingTrade !== null) return false;
+  if (calamityBlocksSaga(state)) return false; // calamità "niente Saga" per questo giro
   const me = state.players[player]!;
   if (!me.sagaCards.includes(card)) return false;
   // Il Berserker è giocabile anche prima del tiro; le altre solo in fase main.

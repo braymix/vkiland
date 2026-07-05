@@ -4,6 +4,8 @@
  * Bot e client remoti (Fase 3) ricevono solo questo.
  */
 import type { GameEvent } from './actions';
+import { activeCalamity } from './calamityRules';
+import { clonePhase } from './game';
 import { totalResources } from './resources';
 import { gloryPoints } from './scoring';
 import type { GameState, PlayerId, PlayerView, PublicPlayer } from './types';
@@ -52,12 +54,7 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
       : null,
     currentPlayer: state.currentPlayer,
     turnNumber: state.turnNumber,
-    phase:
-      state.phase.type === 'discard'
-        ? { type: 'discard', mustDiscard: { ...state.phase.mustDiscard } }
-        : state.phase.type === 'steal'
-          ? { type: 'steal', candidates: [...state.phase.candidates], cause: state.phase.cause }
-          : { ...state.phase },
+    phase: clonePhase(state.phase),
     dice: state.dice ? [state.dice[0], state.dice[1]] : null,
     rolledThisTurn: state.rolledThisTurn,
     devCardPlayedThisTurn: state.devCardPlayedThisTurn,
@@ -79,6 +76,8 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
     largestArmy: { ...state.largestArmy },
     targetGloryPoints: state.config.targetGloryPoints,
     boardRadius: state.config.boardRadius,
+    calamity: activeCalamity(state),
+    calamitiesLeft: state.calamities ? state.calamities.deck.length : null,
   };
 }
 

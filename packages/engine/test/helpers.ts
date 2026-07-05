@@ -139,6 +139,20 @@ export function greedyDiscard(state: GameState, pid: PlayerId, amount: number): 
   return out;
 }
 
+/** Guadagno calamità deterministico: prende `amount` dalle risorse più capienti in banca. */
+export function greedyGain(state: GameState, amount: number): ResourceCount {
+  const out = zeroResources();
+  const bank = { ...state.bank };
+  for (let i = 0; i < amount; i++) {
+    let best: Resource = RESOURCES[0]!;
+    for (const r of RESOURCES) if (bank[r] > bank[best]) best = r;
+    if (bank[best] <= 0) break;
+    out[best] += 1;
+    bank[best] -= 1;
+  }
+  return out;
+}
+
 export interface PlayoutResult {
   state: GameState;
   actions: Action[];
@@ -151,7 +165,7 @@ export interface PlayoutResult {
  */
 export function randomPlayout(
   seed: string,
-  opts: { nPlayers?: number; maxActions?: number } = {}
+  opts: { nPlayers?: number; maxActions?: number; calamities?: boolean } = {}
 ): PlayoutResult {
   const maxActions = opts.maxActions ?? 5000;
   let rng = seedRng(`playout:${seed}`);
@@ -161,7 +175,11 @@ export function randomPlayout(
     rng = r;
     nPlayers = 2 + n;
   }
-  let state = createGame({ seed, players: makePlayers(nPlayers) });
+  let state = createGame({
+    seed,
+    players: makePlayers(nPlayers),
+    ...(opts.calamities ? { calamities: true } : {}),
+  });
   const actions: Action[] = [];
 
   while (state.phase.type !== 'gameOver' && actions.length < maxActions) {
@@ -174,6 +192,12 @@ export function randomPlayout(
           type: 'scarta',
           player: m.player,
           resources: greedyDiscard(state, m.player, m.amount),
+        });
+      } else if (m.type === 'guadagnaDescr') {
+        concrete.push({
+          type: 'guadagnaCalamita',
+          player: m.player,
+          resources: greedyGain(state, m.amount),
         });
       } else if (m.type === 'proponiScambioDescr') {
         continue; // gli scambi tra giocatori sono coperti dai test dedicati

@@ -1,6 +1,6 @@
 /** Costanti di gioco: il "mapping tematico" dei valori classici. */
 import { BOARD_RADIUS, BOARD_RADIUS_LARGE } from './board/coords';
-import type { PortKind, Resource, ResourceCount, SagaCard, TerrainType } from './types';
+import type { CalamityCard, PortKind, Resource, ResourceCount, SagaCard, TerrainType } from './types';
 
 export const RESOURCES: readonly Resource[] = ['legname', 'pietra', 'lana', 'orzo', 'ferro'];
 
@@ -129,6 +129,40 @@ export function boardSpecForPlayers(playerCount: number): BoardSpec {
  */
 export const DRAGON_SKIN_IDS = ['drago', 'navicella', 'trex', 'briganti'] as const;
 export const STRONGHOLD_SKIN_IDS = ['roccaforte', 'torre', 'castello'] as const;
+
+/**
+ * Mazzo CALAMITÀ (modalità opzionale): 38 carte, una per giro finché dura.
+ * Le carte "per materiale" hanno 5 varianti (una per risorsa); le altre sono
+ * pezzi unici. Composizione FISSA: al gioco viene mescolata col seed.
+ */
+export const CALAMITY_DECK_COMPOSITION: readonly CalamityCard[] = [
+  // Persistenti "per materiale" (5 ciascuna)
+  ...RESOURCES.map((resource): CalamityCard => ({ kind: 'materialeDoppio', resource })),
+  ...RESOURCES.map((resource): CalamityCard => ({ kind: 'materialeBloccato', resource })),
+  ...RESOURCES.map((resource): CalamityCard => ({ kind: 'scambioDue', resource })),
+  // Istantanea "per materiale" (5)
+  ...RESOURCES.map((resource): CalamityCard => ({ kind: 'tuttiPiu2', resource })),
+  // Persistenti uniche
+  { kind: 'dragoFermo' },
+  { kind: 'nienteSaga' },
+  { kind: 'dragoPrimaDelTiro' },
+  { kind: 'scambiTre' },
+  { kind: 'abbondanza' },
+  { kind: 'bufera' },
+  { kind: 'assedio' },
+  { kind: 'mareInTempesta' },
+  { kind: 'mercatoOro' },
+  // Istantanee uniche
+  { kind: 'leaderScartaTutto' },
+  { kind: 'tuttiScartanoMeta' },
+  { kind: 'ultimoPesca4' },
+  { kind: 'ultimoStrade2' },
+  { kind: 'scartaFino7' },
+  { kind: 'tuttiUnoDiTutto' },
+  { kind: 'donoDegliDei' },
+  { kind: 'bottino' },
+  { kind: 'razzia' },
+];
 
 /** Con più di 7 carte in mano, un 7 costringe a scartarne la metà. */
 export const HAND_LIMIT = 7;
