@@ -178,7 +178,7 @@ export const en: Strings = {
   serveUnUmano: 'You need at least one human Viking',
 
   // New game (unified flow: local + online in one view)
-  stessoDevice: 'Same device',
+  stessoDevice: 'Local',
   nuovaPartitaHintLocale:
     'Pass the phone between players on each turn. Every seat can be You or a Bot.',
   nuovaPartitaHintOnline:

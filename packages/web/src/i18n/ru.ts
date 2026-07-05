@@ -178,7 +178,7 @@ export const ru: Strings = {
   serveUnUmano: 'Нужен хотя бы один викинг-человек',
 
   // Новая игра (единый поток: локально + онлайн в одном экране)
-  stessoDevice: 'То же устройство',
+  stessoDevice: 'Локально',
   nuovaPartitaHintLocale:
     'Передавайте телефон игрокам по очереди. Каждое место — Вы или Бот.',
   nuovaPartitaHintOnline:

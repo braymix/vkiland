@@ -179,7 +179,7 @@ export const de: Strings = {
   serveUnUmano: 'Du brauchst mindestens einen menschlichen Wikinger',
 
   // Neues Spiel (einheitlicher Ablauf: lokal + online in einer Ansicht)
-  stessoDevice: 'Gleiches Gerät',
+  stessoDevice: 'Lokal',
   nuovaPartitaHintLocale:
     'Reicht das Telefon reihum weiter. Jeder Platz kann Du oder ein Bot sein.',
   nuovaPartitaHintOnline:

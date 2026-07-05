@@ -178,7 +178,7 @@ export const sr: Strings = {
   serveUnUmano: 'Potreban je bar jedan Viking čovek',
 
   // Nova partija (jedinstven tok: lokalno + onlajn u jednom prikazu)
-  stessoDevice: 'Isti uređaj',
+  stessoDevice: 'Lokalno',
   nuovaPartitaHintLocale:
     'Dodajete telefon igračima naizmenično. Svako mesto može biti Ti ili Bot.',
   nuovaPartitaHintOnline:

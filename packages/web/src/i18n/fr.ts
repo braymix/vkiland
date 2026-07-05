@@ -179,7 +179,7 @@ export const fr: Strings = {
   serveUnUmano: 'Il faut au moins un Viking humain',
 
   // Nouvelle partie (flux unique : local + en ligne dans une vue)
-  stessoDevice: 'Même appareil',
+  stessoDevice: 'Local',
   nuovaPartitaHintLocale:
     'Passez le téléphone entre les joueurs à tour de rôle. Chaque place peut être Toi ou un Bot.',
   nuovaPartitaHintOnline:

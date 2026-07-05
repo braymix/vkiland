@@ -1104,6 +1104,27 @@ html[data-lang='ru'] .menu-title {
   font-weight: normal;
   letter-spacing: normal;
 }
+/* Nuova partita + gestione: i "dot" di Handjet sotto i ~11px sono illeggibili,
+   quindi le etichette pixel piccole del flusso vanno ingrandite per il russo. */
+html[data-lang='ru'] .mode-seg__btn,
+html[data-lang='ru'] .rules-head,
+html[data-lang='ru'] .rules-edit,
+html[data-lang='ru'] .manage-title {
+  font-size: 12px;
+}
+html[data-lang='ru'] .seat-tag {
+  font-size: 10px;
+}
+html[data-lang='ru'] .seat-row--add {
+  font-size: 11px;
+}
+html[data-lang='ru'] .invite-label,
+html[data-lang='ru'] .newgame-or {
+  font-size: 10px;
+}
+html[data-lang='ru'] select {
+  font-size: 11px;
+}
 
 /* === Demo guidata (tour interattivo passo-passo) === */
 /* Pulsante «a parte», angolo in alto a destra del menu. */
