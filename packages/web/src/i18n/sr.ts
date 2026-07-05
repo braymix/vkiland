@@ -177,6 +177,29 @@ export const sr: Strings = {
   indietro: 'Nazad',
   serveUnUmano: 'Potreban je bar jedan Viking čovek',
 
+  // Nova partija (jedinstven tok: lokalno + onlajn u jednom prikazu)
+  stessoDevice: 'Lokalno',
+  nuovaPartitaHintLocale:
+    'Dodajete telefon igračima naizmenično. Svako mesto može biti Ti ili Bot.',
+  nuovaPartitaHintOnline:
+    'Podeli kod: prijatelji se priključuju izdaleka. Popuni slobodna mesta botovima.',
+  aggiungiPosto: '+ Dodaj mesto',
+  aggiungiBotPosto: '+ Dodaj bota',
+  ruoloTu: 'Ti',
+  ruoloAmico: 'Prijatelj',
+  regoleEtichetta: 'Pravila',
+  regoleClassica: 'Klasična',
+  regolePersonalizzate: 'Po meri',
+  modificaRegole: 'Izmeni',
+  altreRegole: 'Još',
+  avvia: 'Počni',
+  copia: 'Kopiraj',
+  copiato: 'Kopirano!',
+  gestionePartita: 'Upravljanje partijom',
+  riprendi: 'Nastavi',
+  esciLocaleTesto: 'Trenutna partija će biti izgubljena i vratićeš se u meni.',
+  statoOffline: 'odsutan',
+
   // Hot-seat (passing the device)
   passaDispositivo: 'Dodaj uređaj',
   toccaA: 'Na potezu je {nome}',

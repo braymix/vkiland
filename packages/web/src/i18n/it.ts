@@ -183,6 +183,29 @@ export const it = {
   indietro: 'Indietro',
   serveUnUmano: 'Serve almeno un vichingo umano',
 
+  // Nuova partita (flusso unico ridisegnato: locale + online in una vista)
+  stessoDevice: 'Locale',
+  nuovaPartitaHintLocale:
+    'Passi il telefono tra i giocatori a turno. Ogni posto può essere Tu o un Bot.',
+  nuovaPartitaHintOnline:
+    'Condividi il codice: gli amici entrano da lontano. Riempi i posti liberi con dei bot.',
+  aggiungiPosto: '+ Aggiungi posto',
+  aggiungiBotPosto: '+ Aggiungi bot',
+  ruoloTu: 'Tu',
+  ruoloAmico: 'Amico',
+  regoleEtichetta: 'Regole',
+  regoleClassica: 'Classica',
+  regolePersonalizzate: 'Su misura',
+  modificaRegole: 'Modifica',
+  altreRegole: 'Altro',
+  avvia: 'Avvia',
+  copia: 'Copia',
+  copiato: 'Copiato!',
+  gestionePartita: 'Gestione partita',
+  riprendi: 'Riprendi',
+  esciLocaleTesto: 'La partita in corso andrà persa e tornerai al menu.',
+  statoOffline: 'offline',
+
   // Hot-seat (passaggio del dispositivo)
   passaDispositivo: 'Passa il dispositivo',
   toccaA: 'Tocca a {nome}',

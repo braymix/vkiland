@@ -178,6 +178,29 @@ export const fr: Strings = {
   indietro: 'Retour',
   serveUnUmano: 'Il faut au moins un Viking humain',
 
+  // Nouvelle partie (flux unique : local + en ligne dans une vue)
+  stessoDevice: 'Local',
+  nuovaPartitaHintLocale:
+    'Passez le téléphone entre les joueurs à tour de rôle. Chaque place peut être Toi ou un Bot.',
+  nuovaPartitaHintOnline:
+    'Partage le code : les amis rejoignent de loin. Remplis les places libres avec des bots.',
+  aggiungiPosto: '+ Ajouter une place',
+  aggiungiBotPosto: '+ Ajouter un bot',
+  ruoloTu: 'Toi',
+  ruoloAmico: 'Ami',
+  regoleEtichetta: 'Règles',
+  regoleClassica: 'Classique',
+  regolePersonalizzate: 'Sur mesure',
+  modificaRegole: 'Modifier',
+  altreRegole: 'Plus',
+  avvia: 'Commencer',
+  copia: 'Copier',
+  copiato: 'Copié !',
+  gestionePartita: 'Gestion de la partie',
+  riprendi: 'Reprendre',
+  esciLocaleTesto: 'La partie en cours sera perdue et tu reviendras au menu.',
+  statoOffline: 'absent',
+
   // Hot-seat (passing the device)
   passaDispositivo: "Passe l'appareil",
   toccaA: 'Au tour de {nome}',

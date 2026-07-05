@@ -178,6 +178,29 @@ export const de: Strings = {
   indietro: 'Zurück',
   serveUnUmano: 'Du brauchst mindestens einen menschlichen Wikinger',
 
+  // Neues Spiel (einheitlicher Ablauf: lokal + online in einer Ansicht)
+  stessoDevice: 'Lokal',
+  nuovaPartitaHintLocale:
+    'Reicht das Telefon reihum weiter. Jeder Platz kann Du oder ein Bot sein.',
+  nuovaPartitaHintOnline:
+    'Teile den Code: Freunde treten aus der Ferne bei. Fülle freie Plätze mit Bots.',
+  aggiungiPosto: '+ Platz hinzufügen',
+  aggiungiBotPosto: '+ Bot hinzufügen',
+  ruoloTu: 'Du',
+  ruoloAmico: 'Freund',
+  regoleEtichetta: 'Regeln',
+  regoleClassica: 'Klassisch',
+  regolePersonalizzate: 'Angepasst',
+  modificaRegole: 'Bearbeiten',
+  altreRegole: 'Mehr',
+  avvia: 'Starten',
+  copia: 'Kopieren',
+  copiato: 'Kopiert!',
+  gestionePartita: 'Spielverwaltung',
+  riprendi: 'Fortsetzen',
+  esciLocaleTesto: 'Das laufende Spiel geht verloren und du kehrst zum Menü zurück.',
+  statoOffline: 'offline',
+
   // Hot-seat (passing the device)
   passaDispositivo: 'Gerät weitergeben',
   toccaA: '{nome} ist am Zug',
