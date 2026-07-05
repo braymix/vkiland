@@ -10,21 +10,39 @@ import { getActiveTheme, shadesFor, type ThemePalette } from './palettes';
 
 const cache = new Map<string, HTMLCanvasElement>();
 
+/** Firma stabile di una mappa di ritocchi, per la chiave di cache. */
+function overridesKey(overrides: Record<string, string>): string {
+  return Object.keys(overrides)
+    .sort()
+    .map((k) => `${k}:${overrides[k]}`)
+    .join(',');
+}
+
+/**
+ * Ritocchi di colore per-sprite: mappano una chiave semantica (es. `dragoOcchio`)
+ * a un esadecimale scelto dal giocatore. NON toccano le chiavi legate al colore
+ * del giocatore (quelle vincono sempre): personalizzano solo gli accenti neutri.
+ */
+export type ColorOverrides = Record<string, string> | null;
+
 function resolveColor(
   key: string,
   theme: ThemePalette,
-  playerColor: PlayerColor | null
+  playerColor: PlayerColor | null,
+  overrides: ColorOverrides
 ): string {
   // Con un colore giocatore: tingono di quel colore sia i pezzi (chiavi
   // `giocatore*`) sia il CORPO del Drago (chiavi `drago*`), così il Drago
   // prende il colore di chi l'ha spostato. Senza colore, il Drago resta
-  // viola (dalla palette del tema).
+  // viola (dalla palette del tema). Questi hanno la PRECEDENZA sui ritocchi:
+  // il colore del clan non è mai personalizzabile (serve a riconoscere il pezzo).
   if (playerColor !== null) {
     const s = shadesFor(playerColor);
     if (key === 'giocatoreMain' || key === 'dragoCorpo') return s.main;
     if (key === 'giocatoreDark' || key === 'dragoScuro') return s.dark;
     if (key === 'giocatoreLight' || key === 'dragoAla') return s.light;
   }
+  if (overrides && overrides[key]) return overrides[key]!;
   return theme.colors[key] ?? '#ff00ff'; // magenta = chiave mancante (debug)
 }
 
@@ -32,10 +50,12 @@ export function bakeSprite(
   id: string,
   def: SpriteDef,
   playerColor: PlayerColor | null = null,
-  pixelScale = 1
+  pixelScale = 1,
+  overrides: ColorOverrides = null
 ): HTMLCanvasElement {
   const theme = getActiveTheme();
-  const key = `${theme.id}|${id}|${playerColor ?? '-'}|${pixelScale}`;
+  const ov = overrides ? `|${overridesKey(overrides)}` : '';
+  const key = `${theme.id}|${id}|${playerColor ?? '-'}|${pixelScale}${ov}`;
   const hit = cache.get(key);
   if (hit) return hit;
 
@@ -52,7 +72,7 @@ export function bakeSprite(
       if (ch === '.') continue;
       const colorKey = def.map[ch];
       if (!colorKey) continue;
-      ctx.fillStyle = resolveColor(colorKey, theme, playerColor);
+      ctx.fillStyle = resolveColor(colorKey, theme, playerColor, overrides);
       ctx.fillRect(x * pixelScale, y * pixelScale, pixelScale, pixelScale);
     }
   }
@@ -75,12 +95,14 @@ export function spriteDataURL(
   id: string,
   def: SpriteDef,
   scale = 3,
-  playerColor: PlayerColor | null = null
+  playerColor: PlayerColor | null = null,
+  overrides: ColorOverrides = null
 ): string {
-  const key = `url|${getActiveTheme().id}|${id}|${scale}|${playerColor ?? '-'}`;
+  const ov = overrides ? `|${overridesKey(overrides)}` : '';
+  const key = `url|${getActiveTheme().id}|${id}|${scale}|${playerColor ?? '-'}${ov}`;
   const cached = urlCache.get(key);
   if (cached) return cached;
-  const base = bakeSprite(id, def, playerColor);
+  const base = bakeSprite(id, def, playerColor, 1, overrides);
   const canvas = document.createElement('canvas');
   canvas.width = base.width * scale;
   canvas.height = base.height * scale;

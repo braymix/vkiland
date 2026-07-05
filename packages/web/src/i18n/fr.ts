@@ -111,6 +111,11 @@ export const fr: Strings = {
   invRoccaInfo: 'Quel que soit l’aspect choisi, elle prend toujours la couleur de ton clan.',
   invSelezionato: 'Utilisé',
   invSalvato: 'Enregistré ✓',
+  invColori: 'Couleurs',
+  invColoreOcchi: 'Yeux',
+  invColoreFiamme: 'Flammes',
+  invColorePietra: 'Pierre',
+  invRipristina: 'Réinitialiser',
   skin: {
     drago: 'Dragon classique',
     navicella: 'Vaisseau spatial',

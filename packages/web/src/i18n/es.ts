@@ -110,6 +110,11 @@ export const es: Strings = {
   invRoccaInfo: 'Elijas el aspecto que elijas, siempre se tiñe del color de tu clan.',
   invSelezionato: 'En uso',
   invSalvato: 'Guardado ✓',
+  invColori: 'Colores',
+  invColoreOcchi: 'Ojos',
+  invColoreFiamme: 'Llamas',
+  invColorePietra: 'Piedra',
+  invRipristina: 'Restablecer',
   skin: {
     drago: 'Dragón clásico',
     navicella: 'Nave espacial',

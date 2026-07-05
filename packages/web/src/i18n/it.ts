@@ -116,6 +116,11 @@ export const it = {
   invRoccaInfo: 'Qualunque aspetto scegli, si tinge sempre del colore del tuo clan.',
   invSelezionato: 'In uso',
   invSalvato: 'Salvato ✓',
+  invColori: 'Colori',
+  invColoreOcchi: 'Occhi',
+  invColoreFiamme: 'Fiamme',
+  invColorePietra: 'Pietra',
+  invRipristina: 'Ripristina',
   skin: {
     drago: 'Drago classico',
     navicella: 'Navicella spaziale',

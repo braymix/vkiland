@@ -118,7 +118,22 @@ la propria skin (verificato anche in una partita locale reale). Test:
 tinta + collegamento fino a `LocalGameController`), `localCosmetics.test.ts`
 (round-trip, merge, id invalidi, degrado senza localStorage) e lobby (skin →
 vista di TUTTI online). i18n in 8 lingue (`inventario`, `inv*`, `skin.*`).
-**Breve tutorial** (pulsante «a parte» in alto a destra del menu, distinto dal
+**PERSONALIZZAZIONE DEI COLORI (accenti non-clan)**: oltre alla forma si
+ritoccano i colori che NON dipendono dal giocatore — **occhi e fiamme** del
+Drago (`dragonColors`), **pietra** della roccaforte (`strongholdColors`,
+tonalità scura derivata). Le parti «di riconoscimento» restano intatte: il
+corpo del Drago prende sempre il colore di chi lo ha mosso, le bandiere della
+roccaforte restano del colore del clan. Modello: campi opzionali in
+`PlayerCosmetics` (sempre passthrough opaco nell'engine); validazione unificata
+in `engine/cosmetics.ts` (`sanitizeCosmetics`: id skin noti + esadecimali
+`#rrggbb`), riusata IDENTICA da server (`POST /api/cosmetics`) e client
+(`localCosmetics`). Il renderer applica i ritocchi PER-SPRITE via il nuovo
+parametro `overrides` di `bakeSprite`/`spriteDataURL` (chiave di cache inclusa),
+senza mai toccare le chiavi del colore del clan (che hanno la precedenza).
+Inventario: selettori colore nativi con anteprima LIVE su tutte le skin e
+«Ripristina» per tornare al classico; il salvataggio del trascinamento è in
+debounce. Test: `sanitizeCosmetics` (engine) e round-trip colori (web
+`localCosmetics`). **Breve tutorial** (pulsante «a parte» in alto a destra del menu, distinto dal
 «Libro delle Saghe»): tour interattivo passo-passo in 21 schede. La prima metà
 mostra una PARTITA VERA che si svolge sulla tavola — istantanee DETERMINISTICHE
 dal motore (`game/demoScript.ts`, seme verificato dal test: tocca a te per

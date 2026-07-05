@@ -127,6 +127,11 @@ function mixTo([r, g, b]: [number, number, number], to: [number, number, number]
   return '#' + toHex2(r + (to[0] - r) * amt) + toHex2(g + (to[1] - g) * amt) + toHex2(b + (to[2] - b) * amt);
 }
 
+/** Versione più scura (verso il nero) di un colore: usata per bordi/ombre. */
+export function darken(color: string, amt = 0.4): string {
+  return mixTo(parseRgb(color), [0, 0, 0], amt);
+}
+
 /**
  * Da un colore qualunque (esadecimale) ricava le tre tonalità usate da pezzi e
  * UI: piena, scura (bordi/ombre) e chiara (luce). Sostituisce la vecchia mappa

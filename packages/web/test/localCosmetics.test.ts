@@ -46,6 +46,21 @@ describe('skin locali (device-bound, nessun account)', () => {
     expect(getLocalCosmetics()).toEqual({ dragon: 'navicella', stronghold: 'castello' });
   });
 
+  it('salva e rilegge i colori personalizzati (occhi/fiamme, pietra)', () => {
+    setLocalCosmetics({ dragon: 'drago', dragonColors: { eyes: '#00ff00', fire: '#ff00ff' } });
+    setLocalCosmetics({ strongholdColors: { stone: '#8899aa' } });
+    expect(getLocalCosmetics()).toEqual({
+      dragon: 'drago',
+      dragonColors: { eyes: '#00ff00', fire: '#ff00ff' },
+      strongholdColors: { stone: '#8899aa' },
+    });
+  });
+
+  it('scarta i colori mal formati e i contenitori vuoti', () => {
+    setLocalCosmetics({ dragonColors: { eyes: 'verde' as never }, strongholdColors: { stone: '#zzzzzz' as never } });
+    expect(getLocalCosmetics()).toEqual({});
+  });
+
   it('scarta id sconosciuti o scritti a mano (mai propagati al motore)', () => {
     setLocalCosmetics({ dragon: 'ufo-alieno' as never });
     expect(getLocalCosmetics()).toEqual({});

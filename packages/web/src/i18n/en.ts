@@ -110,6 +110,11 @@ export const en: Strings = {
   invRoccaInfo: 'Whatever look you pick, it is always tinted in your clan color.',
   invSelezionato: 'In use',
   invSalvato: 'Saved ✓',
+  invColori: 'Colors',
+  invColoreOcchi: 'Eyes',
+  invColoreFiamme: 'Flames',
+  invColorePietra: 'Stone',
+  invRipristina: 'Reset',
   skin: {
     drago: 'Classic Dragon',
     navicella: 'Spaceship',
