@@ -90,7 +90,10 @@ export const de: Strings = {
   account: 'Konto',
 
   inventario: 'Inventar',
-  invSottotitolo: 'Deine Skins, an dein Konto gebunden: im Spiel sehen sie alle.',
+  invSottotitolo: 'Deine Skins: alle, die mit dir spielen, sehen sie im Spiel.',
+  invModoLocale:
+    '📴 Auf diesem Gerät gespeichert (kein Konto) — melde dich über „Online“ an, um sie überallhin mitzunehmen.',
+  invModoAccount: '☁️ Auf deinem Konto gespeichert: sie folgen dir auf jedem Gerät.',
   invDrago: 'Dein Drache',
   invDragoInfo: 'Im Spiel nimmt er Aussehen UND Farbe dessen an, der ihn zuletzt bewegt hat.',
   invRocca: 'Deine Festungen',

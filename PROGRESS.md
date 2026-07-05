@@ -77,25 +77,33 @@ per rientrare («Online» → «Unisciti»); l'host mantiene in più «✕ Termi
 partita» (chiude per tutti). Lato server non serviva nulla: `lobby:leave` a
 partita iniziata marca il posto disconnesso e il rientro col codice era già
 supportato (coperto dai test lobby). Testi in 8 lingue (`esciPartita*`).
-**INVENTARIO (Fase 4 — cosmetici, primo pezzo vero)**: skin legate all'ACCOUNT
-per il Drago (classico, **navicella spaziale**, **T-Rex**, **briganti**) e per
-le roccaforti (classica, torre di guardia, castello). La LOGICA DEI COLORI resta
-ESATTA: le skin del Drago usano le stesse chiavi semantiche `drago*` (in gioco
-il pezzo prende aspetto E colore di chi lo ha spostato per ultimo; viola neutro
-se nessuno), quelle delle roccaforti le chiavi `giocatore*` (sempre tinte del
+**INVENTARIO (Fase 4 — cosmetici, primo pezzo vero)**: skin per il Drago
+(classico, **navicella spaziale**, **T-Rex**, **briganti**) e per le roccaforti
+(classica, torre di guardia, castello). La LOGICA DEI COLORI resta ESATTA: le
+skin del Drago usano le stesse chiavi semantiche `drago*` (in gioco il pezzo
+prende aspetto E colore di chi lo ha spostato per ultimo; viola neutro se
+nessuno), quelle delle roccaforti le chiavi `giocatore*` (sempre tinte del
 colore del clan). Architettura: `PlayerCosmetics` è un PASSTHROUGH opaco
 nell'engine (`PlayerConfig.cosmetics` → `PublicPlayer.cosmetics`, nessuna regola
 lo tocca; id validi in `DRAGON_SKIN_IDS`/`STRONGHOLD_SKIN_IDS`, vocabolario
 condiviso con il server); gli sprite vivono nel registro
 `render/sprites/cosmetics.ts` con ripiego sul classico per id ignoti (client
-vecchi/nuovi sempre compatibili). Server: `UserRecord.cosmetics` +
-`GET/POST /api/cosmetics` (validati), e all'avvio della partita la lobby legge
-le skin FRESCHE dall'account (`getCosmetics`) e le infila nei posti →
-`createGame`. Client: schermata «Inventario» (Online → 🎒) con anteprime e
-salvataggio immediato sull'account; il pannello «Costruzioni» mostra l'icona
-della roccaforte con la propria skin. Test: `cosmetics.test.ts` engine
-(passthrough), web (registro/matrici/chiavi di tinta) e lobby (skin → vista di
-TUTTI). i18n in 8 lingue (`inventario`, `inv*`, `skin.*`).
+vecchi/nuovi sempre compatibili). **Pulsante «🎒 Inventario» spostato nel MENU
+PRINCIPALE** (subito sopra «Negozio»): funziona SEMPRE, anche senza account —
+`game/localCosmetics.ts` salva le skin su QUESTO DISPOSITIVO (localStorage,
+stessa validazione degli id) e `SetupScreen` le applica ai posti umani di ogni
+nuova partita locale (i bot restano classici); se invece esiste già una
+sessione «Online» valida, l'inventario passa in automatico alla modalità
+account (`GET/POST /api/cosmetics`, così ti seguono su ogni dispositivo e le
+vedono gli altri online) — la UI mostra sempre quale delle due modalità è
+attiva. Server: `UserRecord.cosmetics` + endpoint dedicati; all'avvio online la
+lobby legge le skin FRESCHE dall'account (`getCosmetics`) e le infila nei posti
+→ `createGame`. Il pannello «Costruzioni» mostra l'icona della roccaforte con
+la propria skin (verificato anche in una partita locale reale). Test:
+`cosmetics.test.ts` engine (passthrough) e web (registro/matrici/chiavi di
+tinta + collegamento fino a `LocalGameController`), `localCosmetics.test.ts`
+(round-trip, merge, id invalidi, degrado senza localStorage) e lobby (skin →
+vista di TUTTI online). i18n in 8 lingue (`inventario`, `inv*`, `skin.*`).
 **Breve tutorial** (pulsante «a parte» in alto a destra del menu, distinto dal
 «Libro delle Saghe»): tour interattivo passo-passo in 21 schede. La prima metà
 mostra una PARTITA VERA che si svolge sulla tavola — istantanee DETERMINISTICHE

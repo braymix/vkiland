@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { DEFAULT_TARGET_GLORY, MAX_PLAYERS, type BotLevel, type PlayerColor } from '@vikiland/engine';
 import { it, t } from '../i18n';
 import type { GameSetup } from '../game/LocalGameController';
+import { getLocalCosmetics } from '../game/localCosmetics';
 import { FREE_PALETTE, shadesFor } from '../render/sprites/palettes';
 
 const BOT_NAMES = ['Astrid', 'Leif', 'Sigrid', 'Ragnhild', 'Olaf', 'Freya'];
@@ -73,6 +74,10 @@ export function SetupScreen({ onStart, onBack }: Props) {
   const humanCount = players.filter((p) => !p.isBot).length;
 
   const start = () => {
+    // Skin dell'inventario di QUESTO dispositivo (nessun account richiesto):
+    // si applicano ai posti umani, i bot restano sempre con l'aspetto classico.
+    const localCosmetics = getLocalCosmetics();
+    const hasCosmetics = Object.keys(localCosmetics).length > 0;
     onStart({
       seed: seed.trim() || `vikiland-${Date.now()}-${Math.floor(Math.random() * 1e6)}`,
       players: players.map((p, i) => ({
@@ -80,6 +85,7 @@ export function SetupScreen({ onStart, onBack }: Props) {
         color: p.color,
         isBot: p.isBot,
         botLevel: p.botLevel,
+        ...(!p.isBot && hasCosmetics ? { cosmetics: localCosmetics } : {}),
       })),
       avoidAdjacent68: avoid68,
       targetGloryPoints: targetPG,

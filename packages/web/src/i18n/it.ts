@@ -93,9 +93,12 @@ export const it = {
   // Gestione account
   account: 'Account',
 
-  // Inventario (skin legate all'account)
+  // Inventario (skin: sul dispositivo, o sull'account se hai fatto login online)
   inventario: 'Inventario',
-  invSottotitolo: 'Le tue skin, legate all’account: in partita le vedono tutti.',
+  invSottotitolo: 'Le tue skin: chi gioca con te le vede in partita.',
+  invModoLocale:
+    '📴 Salvate su questo dispositivo (nessun account) — vai su «Online» per portarle con te ovunque.',
+  invModoAccount: '☁️ Salvate sul tuo account: ti seguono su ogni dispositivo.',
   invDrago: 'Il tuo Drago',
   invDragoInfo: 'In gioco prende aspetto E colore di chi lo ha spostato per ultimo.',
   invRocca: 'Le tue roccaforti',

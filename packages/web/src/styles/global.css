@@ -1674,7 +1674,14 @@ html[data-lang='ru'] .welcome-title {
   color: var(--accent);
 }
 
-/* === Inventario (skin legate all'account) === */
+/* === Inventario (skin: sul dispositivo, o sull'account se loggato online) === */
+.inv-mode {
+  font-size: 8px;
+  color: var(--ink-dim);
+  text-align: center;
+  max-width: 360px;
+  line-height: 1.7;
+}
 .inv-section {
   font-size: 11px;
   color: var(--accent);

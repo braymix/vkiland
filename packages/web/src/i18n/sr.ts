@@ -90,7 +90,9 @@ export const sr: Strings = {
   account: 'Nalog',
 
   inventario: 'Inventar',
-  invSottotitolo: 'Tvoje skin-ove, vezane za nalog, u partiji vide svi.',
+  invSottotitolo: 'Tvoji skinovi: vidi ih svako ko igra sa tobom.',
+  invModoLocale: '📴 Sačuvano na ovom uređaju (bez naloga) — prijavi se preko „Online” da ih poneseš svuda.',
+  invModoAccount: '☁️ Sačuvano na tvom nalogu: prate te na svakom uređaju.',
   invDrago: 'Tvoj Zmaj',
   invDragoInfo: 'U igri poprima izgled I boju onoga ko ga je poslednji pomerio.',
   invRocca: 'Tvoja utvrđenja',

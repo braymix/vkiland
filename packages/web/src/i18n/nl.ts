@@ -90,7 +90,9 @@ export const nl: Strings = {
   account: 'Account',
 
   inventario: 'Inventaris',
-  invSottotitolo: 'Jouw skins, gekoppeld aan je account: iedereen ziet ze in het spel.',
+  invSottotitolo: 'Jouw skins: iedereen die met je speelt, ziet ze in het spel.',
+  invModoLocale: '📴 Opgeslagen op dit apparaat (geen account) — log in via „Online” om ze overal mee te nemen.',
+  invModoAccount: '☁️ Opgeslagen op je account: ze volgen je op elk apparaat.',
   invDrago: 'Jouw Draak',
   invDragoInfo: 'In het spel neemt hij het uiterlijk ÉN de kleur aan van wie hem het laatst verplaatste.',
   invRocca: 'Jouw burchten',

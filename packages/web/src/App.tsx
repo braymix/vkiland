@@ -4,6 +4,7 @@ import { useLang } from './i18n';
 import { LocalGameController, type GameSetup } from './game/LocalGameController';
 import { DemoScreen } from './screens/DemoScreen';
 import { GameScreen } from './screens/GameScreen';
+import { InventoryScreen } from './screens/InventoryScreen';
 import { MenuScreen } from './screens/MenuScreen';
 import { OnlineScreen } from './screens/OnlineScreen';
 import { SetupScreen } from './screens/SetupScreen';
@@ -15,7 +16,8 @@ type Route =
   | { screen: 'game'; setup: GameSetup; gameKey: number }
   | { screen: 'online' }
   | { screen: 'tutorial' }
-  | { screen: 'demo' };
+  | { screen: 'demo' }
+  | { screen: 'inventory' };
 
 export function App() {
   const [route, setRoute] = useState<Route>({ screen: 'menu' });
@@ -31,10 +33,13 @@ export function App() {
           onOnline={() => setRoute({ screen: 'online' })}
           onTutorial={() => setRoute({ screen: 'tutorial' })}
           onDemo={() => setRoute({ screen: 'demo' })}
+          onInventory={() => setRoute({ screen: 'inventory' })}
         />
       );
     case 'tutorial':
       return <TutorialScreen onClose={() => setRoute({ screen: 'menu' })} />;
+    case 'inventory':
+      return <InventoryScreen onBack={() => setRoute({ screen: 'menu' })} />;
     case 'demo':
       return (
         <DemoScreen

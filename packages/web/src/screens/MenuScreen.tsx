@@ -13,11 +13,13 @@ export function MenuScreen({
   onOnline,
   onTutorial,
   onDemo,
+  onInventory,
 }: {
   onNewGame: () => void;
   onOnline: () => void;
   onTutorial: () => void;
   onDemo: () => void;
+  onInventory: () => void;
 }) {
   const [memeOpen, setMemeOpen] = useState(false);
   const [creditsOpen, setCreditsOpen] = useState(false);
@@ -38,6 +40,11 @@ export function MenuScreen({
         </button>
         <button className="pxbtn pxbtn--ghost" onClick={onTutorial}>
           {it.comeSiGioca}
+        </button>
+        {/* Inventario: skin del Drago e delle roccaforti. Funziona anche senza
+            account (salvate sul dispositivo) — utilizzabile da subito in locale. */}
+        <button className="pxbtn pxbtn--ghost" onClick={onInventory}>
+          🎒 {it.inventario}
         </button>
         {/* PUNTO DI ESTENSIONE (Fase 4 — monetizzazione): negozio di skin/temi
             (cosmetici, mai pay-to-win) collegato agli entitlements del profilo. */}

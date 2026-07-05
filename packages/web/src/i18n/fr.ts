@@ -90,7 +90,10 @@ export const fr: Strings = {
   account: 'Compte',
 
   inventario: 'Inventaire',
-  invSottotitolo: 'Tes skins, liées à ton compte : tout le monde les voit en partie.',
+  invSottotitolo: 'Tes skins : tout le monde qui joue avec toi les voit en partie.',
+  invModoLocale:
+    '📴 Enregistrées sur cet appareil (sans compte) — connecte-toi depuis « Online » pour les emporter partout.',
+  invModoAccount: '☁️ Enregistrées sur ton compte : elles te suivent sur chaque appareil.',
   invDrago: 'Ton Dragon',
   invDragoInfo: 'En jeu il prend l’aspect ET la couleur du dernier joueur qui l’a déplacé.',
   invRocca: 'Tes forteresses',

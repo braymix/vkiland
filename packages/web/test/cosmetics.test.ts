@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { DRAGON_SKIN_IDS, STRONGHOLD_SKIN_IDS } from '@vikiland/engine';
 import { DRAGON_SKINS, STRONGHOLD_SKINS, dragonSkin, strongholdSkin } from '../src/render/sprites/cosmetics';
+import { LocalGameController, type GameSetup } from '../src/game/LocalGameController';
 
 describe('registro skin', () => {
   it('gli id del registro coincidono col vocabolario dell’engine (server compreso)', () => {
@@ -40,5 +41,26 @@ describe('registro skin', () => {
       const keys = new Set(Object.values(def.map));
       expect(keys.has('giocatoreMain'), `«${id}» senza colore del clan`).toBe(true);
     }
+  });
+});
+
+describe('skin in una partita LOCALE (single player, nessun account richiesto)', () => {
+  const setup: GameSetup = {
+    seed: 'cosmetics-local-1',
+    players: [
+      { name: 'Umano', color: '#c0392b', isBot: false, cosmetics: { dragon: 'trex', stronghold: 'castello' } },
+      { name: 'Bot', color: '#2e6fb7', isBot: true, botLevel: 'normale' },
+    ],
+    avoidAdjacent68: true,
+    targetGloryPoints: 10,
+  };
+
+  it('la skin del posto umano (letta dal dispositivo in SetupScreen) arriva nella vista', () => {
+    const c = new LocalGameController(setup);
+    const view = c.getSnapshot().view;
+    expect(view.players[0]!.cosmetics).toEqual({ dragon: 'trex', stronghold: 'castello' });
+    // Il bot non ha skin: resta con l'aspetto classico, come lato server.
+    expect(view.players[1]!.cosmetics).toBeUndefined();
+    c.dispose();
   });
 });
