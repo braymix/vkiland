@@ -177,6 +177,29 @@ export const en: Strings = {
   indietro: 'Back',
   serveUnUmano: 'You need at least one human Viking',
 
+  // New game (unified flow: local + online in one view)
+  stessoDevice: 'Same device',
+  nuovaPartitaHintLocale:
+    'Pass the phone between players on each turn. Every seat can be You or a Bot.',
+  nuovaPartitaHintOnline:
+    'Share the code: friends join from afar. Fill the empty seats with bots.',
+  aggiungiPosto: '+ Add seat',
+  aggiungiBotPosto: '+ Add bot',
+  ruoloTu: 'You',
+  ruoloAmico: 'Friend',
+  regoleEtichetta: 'Rules',
+  regoleClassica: 'Classic',
+  regolePersonalizzate: 'Custom',
+  modificaRegole: 'Edit',
+  altreRegole: 'More',
+  avvia: 'Start',
+  copia: 'Copy',
+  copiato: 'Copied!',
+  gestionePartita: 'Game management',
+  riprendi: 'Resume',
+  esciLocaleTesto: 'The current game will be lost and you will return to the menu.',
+  statoOffline: 'offline',
+
   // Hot-seat (passing the device)
   passaDispositivo: 'Pass the device',
   toccaA: "{nome}'s turn",

@@ -177,6 +177,29 @@ export const ru: Strings = {
   indietro: 'Назад',
   serveUnUmano: 'Нужен хотя бы один викинг-человек',
 
+  // Новая игра (единый поток: локально + онлайн в одном экране)
+  stessoDevice: 'То же устройство',
+  nuovaPartitaHintLocale:
+    'Передавайте телефон игрокам по очереди. Каждое место — Вы или Бот.',
+  nuovaPartitaHintOnline:
+    'Поделитесь кодом: друзья подключаются издалека. Заполните свободные места ботами.',
+  aggiungiPosto: '+ Добавить место',
+  aggiungiBotPosto: '+ Добавить бота',
+  ruoloTu: 'Вы',
+  ruoloAmico: 'Друг',
+  regoleEtichetta: 'Правила',
+  regoleClassica: 'Классика',
+  regolePersonalizzate: 'Свои',
+  modificaRegole: 'Изменить',
+  altreRegole: 'Ещё',
+  avvia: 'Начать',
+  copia: 'Копировать',
+  copiato: 'Скопировано!',
+  gestionePartita: 'Управление игрой',
+  riprendi: 'Продолжить',
+  esciLocaleTesto: 'Текущая игра будет потеряна, и вы вернётесь в меню.',
+  statoOffline: 'офлайн',
+
   // Hot-seat (passing the device)
   passaDispositivo: 'Передай устройство',
   toccaA: 'Ход {nome}',

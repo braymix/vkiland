@@ -68,11 +68,14 @@ export function HudTop({
   view,
   onOpenCosts,
   onOpenMap,
+  onOpenManage,
   turnDeadline = null,
 }: {
   view: PlayerView;
   onOpenCosts: () => void;
   onOpenMap: () => void;
+  /** Apre il pannello «Gestione partita» (☰). Assente = pulsante nascosto. */
+  onOpenManage?: (() => void) | undefined;
   turnDeadline?: number | null;
 }) {
   return (
@@ -102,6 +105,16 @@ export function HudTop({
         >
           ?
         </button>
+        {onOpenManage && (
+          <button
+            className="pxbtn pxbtn--ghost pxbtn--small"
+            onClick={onOpenManage}
+            title={it.gestionePartita}
+            aria-label={it.gestionePartita}
+          >
+            ☰
+          </button>
+        )}
       </div>
       <div>
         {/* Strip nell'ORDINE DI GIOCO deciso dai dadi, non per posto. */}

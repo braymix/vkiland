@@ -26,6 +26,7 @@ import {
 import { PassDeviceScreen } from './PassDeviceScreen';
 import { DiceRollOverlay } from '../components/DiceRollOverlay';
 import { FullscreenMap } from '../components/FullscreenMap';
+import { ManageSheet, type ManageInfo } from '../components/ManageSheet';
 import { TutorialScreen } from './TutorialScreen';
 import { VictoryScreen } from './VictoryScreen';
 
@@ -35,9 +36,14 @@ interface Props {
   onExit: () => void;
   /** null = rivincita non disponibile (partite online). */
   onRematch: (() => void) | null;
+  /**
+   * Contesto per il pannello «Gestione partita» (☰). Assente = pulsante e
+   * pannello nascosti (nessuna gestione in-partita, es. demo).
+   */
+  manage?: ManageInfo | null;
 }
 
-export function GameScreen({ makeController, onExit, onRematch }: Props) {
+export function GameScreen({ makeController, onExit, onRematch, manage = null }: Props) {
   const controllerRef = useRef<GameController | null>(null);
   if (controllerRef.current === null) {
     controllerRef.current = makeController();
@@ -58,6 +64,7 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
   const [mapFullscreen, setMapFullscreen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [logOpen, setLogOpen] = useState(false);
+  const [manageOpen, setManageOpen] = useState(false);
   const [openCalamityId, setOpenCalamityId] = useState<string | null>(null);
   const seenCalamityIds = useRef<Set<string>>(new Set());
 
@@ -196,11 +203,16 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
 
   return (
     <div className="screen">
-      <div className={`game-layout${view.calamity ? ' game-layout--calamity' : ''}`}>
+      <div
+        className={`game-layout${view.calamity ? ' game-layout--calamity' : ''}${
+          manageOpen ? ' game-layout--dimmed' : ''
+        }`}
+      >
         <HudTop
           view={view}
           onOpenCosts={() => setCostsOpen(true)}
           onOpenMap={() => setMapFullscreen(true)}
+          onOpenManage={manage ? () => setManageOpen(true) : undefined}
           turnDeadline={gameOver ? null : snap.turnDeadline}
         />
         {view.calamity && (
@@ -315,6 +327,9 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
           onPickHex={pickHex}
           onClose={() => setMapFullscreen(false)}
         />
+      )}
+      {manage && manageOpen && (
+        <ManageSheet manage={manage} onClose={() => setManageOpen(false)} />
       )}
       {/* Sopra mappa e dialoghi, ma sotto tutorial e passaggio di mano. */}
       <DiceRollOverlay roll={snap.lastRoll} />
