@@ -153,6 +153,8 @@ export const sr: Strings = {
   normale: 'Normalno',
   difficile: 'Teško',
   esperto: 'Ekspert',
+  difficolta: 'Odaberite težinu bota',
+  aggiungi: 'Dodaj',
   nome: 'Ime',
   aggiungiGiocatore: '+ Dodaj Vikinga',
   cambiaColore: 'Promeni boju',

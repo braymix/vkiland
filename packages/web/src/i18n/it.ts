@@ -159,6 +159,8 @@ export const it = {
   normale: 'Normale',
   difficile: 'Difficile',
   esperto: 'Esperto',
+  difficolta: 'Scegli difficoltà bot',
+  aggiungi: 'Aggiungi',
   nome: 'Nome',
   aggiungiGiocatore: '+ Aggiungi vichingo',
   cambiaColore: 'Cambia colore',

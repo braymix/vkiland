@@ -7,6 +7,7 @@ import { useGame } from '../game/useGame';
 import { ActionBar, type BuildMode } from '../components/ActionBar';
 import { BoardCanvas, type BoardTargets } from '../components/BoardCanvas';
 import { CalamityBanner } from '../components/CalamityBanner';
+import { CalamityRevealedModal } from '../components/CalamityRevealedModal';
 import { GameLog } from '../components/GameLog';
 import { HandPanel } from '../components/HandPanel';
 import { HudTop } from '../components/HudTop';
@@ -56,6 +57,8 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [mapFullscreen, setMapFullscreen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [logOpen, setLogOpen] = useState(false);
+  const [revealedCalamityId, setRevealedCalamityId] = useState<string | null>(null);
 
   const isMyTurn = view.currentPlayer === viewpoint;
 
@@ -71,6 +74,16 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
       setCostsOpen(false);
     }
   }, [handoff]);
+
+  // Rileva quando una nuova calamità viene rivelata: mostra il modal full-screen.
+  useEffect(() => {
+    if (view.calamity) {
+      const id = `${view.calamity.kind}-${view.calamitiesLeft}`;
+      if (id !== revealedCalamityId) {
+        setRevealedCalamityId(id);
+      }
+    }
+  }, [view.calamity, view.calamitiesLeft, revealedCalamityId]);
 
   // Errori asincroni dal server (online): mostrati come quelli sincroni.
   const remoteError = snap.remoteError;
@@ -224,8 +237,16 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
           onOpenCards={() => setCardsOpen(true)}
           onOpenBuildings={() => setBuildingsOpen(true)}
         />
-        <GameLog entries={snap.log} />
+        <GameLog entries={snap.log} open={logOpen} onToggle={() => setLogOpen(!logOpen)} />
       </div>
+
+      {revealedCalamityId !== null && view.calamity && view.calamitiesLeft !== null && (
+        <CalamityRevealedModal
+          card={view.calamity}
+          remaining={view.calamitiesLeft}
+          onClose={() => setRevealedCalamityId(null)}
+        />
+      )}
 
       {mustDiscard !== undefined && (
         <DiscardDialog view={view} amount={mustDiscard} onSubmit={dispatch} />

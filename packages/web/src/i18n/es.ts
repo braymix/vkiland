@@ -153,6 +153,8 @@ export const es: Strings = {
   normale: 'Normal',
   difficile: 'Difícil',
   esperto: 'Experto',
+  difficolta: 'Elige dificultad del bot',
+  aggiungi: 'Añadir',
   nome: 'Nombre',
   aggiungiGiocatore: '+ Añadir vikingo',
   cambiaColore: 'Cambiar color',

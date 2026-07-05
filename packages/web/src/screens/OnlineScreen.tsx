@@ -14,6 +14,7 @@ import { RemoteGameController } from '../online/RemoteGameController';
 import { FREE_PALETTE, shadesFor } from '../render/sprites/palettes';
 import { TUTORIAL_ONLINE_CHAPTER } from '../i18n/tutorial';
 import { Dialog } from '../components/dialogs/Dialog';
+import { AddBotDialog } from '../components/dialogs/AddBotDialog';
 import { GameScreen } from './GameScreen';
 import { TutorialScreen } from './TutorialScreen';
 
@@ -497,9 +498,9 @@ function LobbyRoom({
   onStart: () => void;
 }) {
   const isHost = lobby.hostUserId === myUserId;
-  const [botLevel, setBotLevel] = useState<BotLevel>('normale');
   // Posto col picker dei colori aperto (null = nessuno).
   const [pickerOpen, setPickerOpen] = useState<number | null>(null);
+  const [addBotDialogOpen, setAddBotDialogOpen] = useState(false);
   // Puoi cambiare il TUO colore; l'host può cambiare anche quello dei bot.
   const canRecolor = (slot: LobbyState['slots'][number]) =>
     slot.userId === myUserId || (isHost && slot.isBot);
@@ -587,17 +588,9 @@ function LobbyRoom({
           </div>
         ))}
         {isHost && lobby.slots.length < MAX_PLAYERS && (
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <select value={botLevel} onChange={(e) => setBotLevel(e.target.value as BotLevel)}>
-              <option value="facile">{it.facile}</option>
-              <option value="normale">{it.normale}</option>
-              <option value="difficile">{it.difficile}</option>
-              <option value="esperto">{it.esperto}</option>
-            </select>
-            <button className="pxbtn pxbtn--ghost pxbtn--small" onClick={() => onAddBot(botLevel)}>
-              {it.aggiungiBot}
-            </button>
-          </div>
+          <button className="pxbtn pxbtn--ghost pxbtn--small" onClick={() => setAddBotDialogOpen(true)}>
+            {it.aggiungiBot}
+          </button>
         )}
         {error && <div style={{ fontSize: 9, color: 'var(--danger)' }}>{error}</div>}
         {!isHost && <div style={{ fontSize: 9, color: 'var(--ink-dim)' }}>{it.inAttesaHost}</div>}
@@ -612,6 +605,15 @@ function LobbyRoom({
           </button>
         )}
       </div>
+      {addBotDialogOpen && (
+        <AddBotDialog
+          onAdd={(level) => {
+            onAddBot(level);
+            setAddBotDialogOpen(false);
+          }}
+          onCancel={() => setAddBotDialogOpen(false)}
+        />
+      )}
     </div>
   );
 }
