@@ -13,6 +13,7 @@ function twoHumans(seed: string): GameSetup {
     ],
     avoidAdjacent68: true,
     targetGloryPoints: 10,
+    calamities: false,
   };
 }
 

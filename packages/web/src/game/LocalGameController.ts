@@ -39,6 +39,8 @@ export interface GameSetup {
   players: PlayerConfig[];
   avoidAdjacent68: boolean;
   targetGloryPoints: number;
+  /** Modalità Calamità: una carta per giro (default false). */
+  calamities: boolean;
 }
 
 const BOT_DELAY_MIN = 450;

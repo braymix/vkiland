@@ -2,6 +2,7 @@
 import type { GameEvent, ResourceCount } from '@vikiland/engine';
 import { BOARD_RADIUS, RESOURCES, getTopology, nextInt, seedRng, totalResources } from '@vikiland/engine';
 import { it, t } from '../i18n';
+import { calamityDesc, calamityName } from './calamityText';
 
 /** Basta il nome dei giocatori: lo soddisfano sia GameState sia PlayerView. */
 export interface NamedPlayers {
@@ -85,6 +86,8 @@ export function describeEvent(e: GameEvent, state: NamedPlayers): string | null 
   switch (e.type) {
     case 'turnoIniziato':
       return t(it.log.turnoIniziato, { n: e.turnNumber, nome: nameOf(state, e.player) });
+    case 'calamitaRivelata':
+      return t(it.log.calamita, { nome: calamityName(e.card), desc: calamityDesc(e.card) });
     case 'dadiTirati':
       return t(it.log.dadiTirati, {
         nome: nameOf(state, e.player),

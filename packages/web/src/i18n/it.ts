@@ -2,7 +2,7 @@
  * TUTTE le stringhe della UI, centralizzate per la futura i18n.
  * `t(chiave, parametri)` interpola i segnaposto {nome}.
  */
-import type { PlayerColor, Resource, SagaCard, TerrainType } from '@vikiland/engine';
+import type { CalamityKind, PlayerColor, Resource, SagaCard, TerrainType } from '@vikiland/engine';
 
 export const it = {
   titolo: 'VIKING-ISLAND',
@@ -333,6 +333,68 @@ export const it = {
     tributo: 'Tutti gli avversari ti consegnano TUTTE le unità di una risorsa.',
   } satisfies Record<SagaCard, string>,
 
+  // --- Modalità Calamità ---
+  calamita: {
+    modalita: 'Modalità di gioco',
+    standard: 'Partita standard',
+    conCalamita: 'Con calamità',
+    spiega:
+      'Ogni giro una carta cambia le regole, solo per quel giro — buone e cattive, in ordine casuale. Quando il mazzo finisce, si torna alla normalità.',
+    titolo: 'Calamità del giro',
+    rimaste: '{n} nel mazzo',
+    guadagna: 'Calamità: guadagna {n} risorse',
+    strade: 'Calamità: piazza i tuoi sentieri gratis sulla mappa!',
+    attesa: 'Calamità in corso: attendi gli altri…',
+    nome: {
+      materialeDoppio: '{mat} in abbondanza',
+      materialeBloccato: 'Carestia di {mat}',
+      dragoFermo: 'Drago in letargo',
+      nienteSaga: 'Saghe dimenticate',
+      dragoPrimaDelTiro: 'Drago inquieto',
+      scambiTre: 'Rotte commerciali',
+      scambioDue: 'Mercato del {mat}',
+      abbondanza: 'Anno di abbondanza',
+      bufera: 'Bufera di neve',
+      assedio: 'Assedio',
+      mareInTempesta: 'Mare in tempesta',
+      mercatoOro: "Mercato d'oro",
+      leaderScartaTutto: 'Invidia degli dèi',
+      tuttiScartanoMeta: 'Grande gelo',
+      ultimoPesca4: 'Favore degli dèi',
+      ultimoStrade2: 'Vie del ritorno',
+      tuttiPiu2: 'Dono di {mat}',
+      scartaFino7: 'Magazzini colmi',
+      tuttiUnoDiTutto: 'Raccolto generoso',
+      donoDegliDei: 'Dono degli dèi',
+      bottino: 'Bottino del povero',
+      razzia: 'Razzia',
+    } satisfies Record<CalamityKind, string>,
+    desc: {
+      materialeDoppio: 'Questo giro il {mat} si prende doppio.',
+      materialeBloccato: 'Questo giro il {mat} non si prende.',
+      dragoFermo: 'Questo giro il Drago non si può spostare.',
+      nienteSaga: 'Questo giro non si giocano Carte Saga.',
+      dragoPrimaDelTiro: 'Questo giro, prima di tirare, si sposta il Drago.',
+      scambiTre: 'Questo giro tutti gli scambi con la banca sono 3:1.',
+      scambioDue: 'Questo giro gli scambi di {mat} con la banca sono 2:1.',
+      abbondanza: 'Questo giro TUTTI i materiali si prendono doppi.',
+      bufera: 'Questo giro non si costruiscono sentieri.',
+      assedio: 'Questo giro non si costruiscono roccaforti.',
+      mareInTempesta: 'Questo giro sono vietati gli scambi con la banca.',
+      mercatoOro: 'Questo giro tutti gli scambi con la banca sono 2:1.',
+      leaderScartaTutto: 'Chi ha più punti scarta TUTTE le risorse.',
+      tuttiScartanoMeta: 'Tutti scartano metà delle risorse.',
+      ultimoPesca4: 'Chi ha meno punti guadagna 4 risorse a scelta.',
+      ultimoStrade2: 'Chi ha meno strade ne piazza 2 gratis.',
+      tuttiPiu2: 'Tutti guadagnano 2 {mat}.',
+      scartaFino7: 'Chi ha più di 7 risorse scarta fino a 7.',
+      tuttiUnoDiTutto: 'Tutti guadagnano 1 di ogni materiale.',
+      donoDegliDei: 'Tutti pescano 1 Carta Saga.',
+      bottino: 'Chi ha meno punti pesca 1 Carta Saga.',
+      razzia: 'Chi ha più punti dà 1 risorsa a ciascun avversario.',
+    } satisfies Record<CalamityKind, string>,
+  },
+
   /**
    * EASTER EGG: lamentele dei bot quando il Drago li blocca — come al tavolo
    * vero, dove c'è sempre qualcuno che la prende sul personale.
@@ -362,6 +424,7 @@ export const it = {
     ordineTitolo: 'Tiro per l’ordine: {righe}',
     ordineFinale: 'Ordine di gioco: {ordine}',
     turnoIniziato: '— Turno {n}: tocca a {nome} —',
+    calamita: '⚡ Calamità — {nome}: {desc}',
     dadiTirati: '{nome} tira {d1}+{d2} = {tot}',
     risorseProdotte: '{nome} riceve {risorse}',
     penuriaBanca: 'Penuria in banca: {risorse} non distribuite',

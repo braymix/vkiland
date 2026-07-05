@@ -6,10 +6,12 @@ import type { GameController } from '../game/controller';
 import { useGame } from '../game/useGame';
 import { ActionBar, type BuildMode } from '../components/ActionBar';
 import { BoardCanvas, type BoardTargets } from '../components/BoardCanvas';
+import { CalamityBanner } from '../components/CalamityBanner';
 import { GameLog } from '../components/GameLog';
 import { HandPanel } from '../components/HandPanel';
 import { HudTop } from '../components/HudTop';
 import { BankTradeDialog } from '../components/dialogs/BankTradeDialog';
+import { CalamityGainDialog } from '../components/dialogs/CalamityGainDialog';
 import { CostsDialog } from '../components/dialogs/CostsDialog';
 import { DiscardDialog } from '../components/dialogs/DiscardDialog';
 import { SagaCardsDialog } from '../components/dialogs/SagaCardsDialog';
@@ -151,8 +153,18 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
   };
 
   // Dialoghi guidati dalla fase.
+  // Lo scarto vale sia sul 7 sia quando lo impone una calamità (stessa azione).
   const mustDiscard =
-    view.phase.type === 'discard' ? view.phase.mustDiscard[viewpoint] : undefined;
+    view.phase.type === 'discard' || view.phase.type === 'calamityDiscard'
+      ? view.phase.mustDiscard[viewpoint]
+      : undefined;
+  // Guadagno "a scelta" di una calamità: la quota (già limitata alla banca) viene
+  // dal descrittore di mossa legale del giocatore.
+  const gainMove = legalActions.find((m) => m.type === 'guadagnaDescr');
+  const gainAmount = gainMove && gainMove.type === 'guadagnaDescr' ? gainMove.amount : undefined;
+  // Calamità "strade gratis": tocca a me piazzarle sulla mappa?
+  const placingCalamityRoads =
+    view.phase.type === 'calamityRoads' && view.phase.queue[0] === viewpoint;
   const stealing = view.phase.type === 'steal' && isMyTurn;
   const offer = view.pendingTrade;
   const offerToMe =
@@ -174,6 +186,12 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
           onOpenMap={() => setMapFullscreen(true)}
           turnDeadline={gameOver ? null : snap.turnDeadline}
         />
+        <CalamityBanner view={view} />
+        {placingCalamityRoads && (
+          <div style={{ fontSize: 9, color: 'var(--accent)', textAlign: 'center' }}>
+            {it.calamita.strade}
+          </div>
+        )}
         <BoardCanvas
           view={view}
           targets={targets}
@@ -211,6 +229,9 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
 
       {mustDiscard !== undefined && (
         <DiscardDialog view={view} amount={mustDiscard} onSubmit={dispatch} />
+      )}
+      {gainAmount !== undefined && (
+        <CalamityGainDialog view={view} amount={gainAmount} onSubmit={dispatch} />
       )}
       {stealing && view.phase.type === 'steal' && (
         <StealDialog view={view} candidates={view.phase.candidates} onSubmit={dispatch} />

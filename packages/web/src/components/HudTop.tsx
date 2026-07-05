@@ -29,6 +29,16 @@ function phaseMessage(view: PlayerView): string {
       return t(it.faseFurto, { nome });
     case 'freeRoads':
       return t(it.faseSentieriGratis, { nome, n: view.phase.remaining });
+    case 'calamityDiscard': {
+      const names = Object.keys(view.phase.mustDiscard)
+        .map((pid) => view.players[Number(pid)]?.name ?? '')
+        .join(', ');
+      const n = Object.values(view.phase.mustDiscard)[0] ?? 0;
+      return t(it.faseScarto, { nome: names, n });
+    }
+    case 'calamityGain':
+    case 'calamityRoads':
+      return it.calamita.titolo;
     case 'main':
       return t(it.faseMain, { nome });
     case 'gameOver':

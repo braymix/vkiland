@@ -31,6 +31,8 @@ export function SetupScreen({ onStart, onBack, hasAccount, onGoOnline }: Props) 
   ]);
   const [seed, setSeed] = useState('');
   const [avoid68, setAvoid68] = useState(true);
+  /** Modalità di gioco: partita standard oppure con calamità. */
+  const [calamities, setCalamities] = useState(false);
   /** Sezione «Configurazione» espandibile (per ora: obiettivo di vittoria). */
   const [configOpen, setConfigOpen] = useState(false);
   const [targetPG, setTargetPG] = useState(DEFAULT_TARGET_GLORY);
@@ -92,6 +94,7 @@ export function SetupScreen({ onStart, onBack, hasAccount, onGoOnline }: Props) 
       })),
       avoidAdjacent68: avoid68,
       targetGloryPoints: targetPG,
+      calamities,
     });
   };
 
@@ -101,6 +104,38 @@ export function SetupScreen({ onStart, onBack, hasAccount, onGoOnline }: Props) 
       <div className="menu-sub" style={{ fontSize: 9, maxWidth: 340, textAlign: 'center' }}>
         {it.partitaClassicaInfo}
       </div>
+
+      {/* Scelta della modalità: partita standard oppure con calamità. */}
+      <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
+        <button
+          className={`pxbtn pxbtn--small ${calamities ? 'pxbtn--ghost' : ''}`}
+          onClick={() => setCalamities(false)}
+          aria-pressed={!calamities}
+        >
+          {it.calamita.standard}
+        </button>
+        <button
+          className={`pxbtn pxbtn--small ${calamities ? '' : 'pxbtn--ghost'}`}
+          onClick={() => setCalamities(true)}
+          aria-pressed={calamities}
+        >
+          ⚡ {it.calamita.conCalamita}
+        </button>
+      </div>
+      {calamities && (
+        <div
+          style={{
+            fontSize: 8,
+            color: 'var(--ink-dim)',
+            maxWidth: 320,
+            textAlign: 'center',
+            lineHeight: 1.6,
+          }}
+        >
+          {it.calamita.spiega}
+        </div>
+      )}
+
       <div className="setup-grid pixel-frame">
         {players.map((p, i) => (
           <div key={i}>
