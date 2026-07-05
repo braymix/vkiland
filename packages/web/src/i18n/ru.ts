@@ -110,6 +110,11 @@ export const ru: Strings = {
   invRoccaInfo: 'Какой бы облик ты ни выбрал, он всегда окрашен в цвет твоего клана.',
   invSelezionato: 'Выбрано',
   invSalvato: 'Сохранено ✓',
+  invColori: 'Цвета',
+  invColoreOcchi: 'Глаза',
+  invColoreFiamme: 'Пламя',
+  invColorePietra: 'Камень',
+  invRipristina: 'Сбросить',
   skin: {
     drago: 'Классический дракон',
     navicella: 'Космический корабль',

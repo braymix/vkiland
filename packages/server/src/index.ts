@@ -11,7 +11,7 @@ import { dirname, join } from 'node:path';
 import Fastify from 'fastify';
 import fastifyCors from '@fastify/cors';
 import { Server, type Socket } from 'socket.io';
-import { DRAGON_SKIN_IDS, STRONGHOLD_SKIN_IDS, type Action, type PlayerCosmetics } from '@vikiland/engine';
+import { sanitizeCosmetics, type Action } from '@vikiland/engine';
 import { AuthService } from './auth';
 import { LobbyManager } from './lobby';
 import { JsonFileStorage } from './storage';
@@ -118,22 +118,8 @@ function authedUser(header: string | undefined) {
 }
 
 // --- Inventario (skin legate all'account) -----------------------------------
-
-/** Tiene solo id validi; id assente/na = torna al classico. */
-function sanitizeCosmetics(raw: unknown): PlayerCosmetics {
-  const body = (raw ?? {}) as { dragon?: unknown; stronghold?: unknown };
-  const out: PlayerCosmetics = {};
-  if (typeof body.dragon === 'string' && (DRAGON_SKIN_IDS as readonly string[]).includes(body.dragon)) {
-    out.dragon = body.dragon;
-  }
-  if (
-    typeof body.stronghold === 'string' &&
-    (STRONGHOLD_SKIN_IDS as readonly string[]).includes(body.stronghold)
-  ) {
-    out.stronghold = body.stronghold;
-  }
-  return out;
-}
+// La validazione (id skin noti + colori esadecimali) vive nell'engine, così
+// server e client applicano ESATTAMENTE le stesse regole (vedi sanitizeCosmetics).
 
 app.get('/api/cosmetics', async (req, reply) => {
   const user = authedUser(req.headers.authorization);

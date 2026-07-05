@@ -40,7 +40,7 @@ import {
   VILLAGGIO,
   type SpriteDef,
 } from './sprites/defs';
-import { dragonSkin, strongholdSkin } from './sprites/cosmetics';
+import { dragonSkin, strongholdSkin, dragonOverrides, strongholdOverrides } from './sprites/cosmetics';
 import { getActiveTheme, shadesFor } from './sprites/palettes';
 
 export interface BoardUiState {
@@ -332,9 +332,16 @@ export function renderBoard(
     }
     for (const v of p.strongholds) {
       const pt = vertexPoint(v, radius);
-      // Skin dell'inventario del proprietario (classica se assente).
+      // Skin dell'inventario del proprietario (classica se assente) + ritocchi
+      // della pietra (le bandiere restano del colore del clan).
       const skin = strongholdSkin(p.cosmetics?.stronghold);
-      drawSpriteCentered(ctx, bakeSprite(`roccaforte-${skin.id}`, skin.def, p.color), pt.x, pt.y - 2);
+      const ov = strongholdOverrides(p.cosmetics?.strongholdColors);
+      drawSpriteCentered(
+        ctx,
+        bakeSprite(`roccaforte-${skin.id}`, skin.def, p.color, 1, ov),
+        pt.x,
+        pt.y - 2
+      );
     }
   }
 
@@ -345,7 +352,13 @@ export function renderBoard(
   const mover = moverId !== null ? view.players[moverId] : undefined;
   const dragonColor = mover?.color ?? null;
   const dSkin = dragonSkin(mover?.cosmetics?.dragon);
-  drawSpriteCentered(ctx, bakeSprite(`drago-${dSkin.id}`, dSkin.def, dragonColor), dragonCenter.x, dragonCenter.y + 2);
+  const dragonOv = dragonOverrides(mover?.cosmetics?.dragonColors);
+  drawSpriteCentered(
+    ctx,
+    bakeSprite(`drago-${dSkin.id}`, dSkin.def, dragonColor, 1, dragonOv),
+    dragonCenter.x,
+    dragonCenter.y + 2
+  );
 
   // Evidenziazioni delle mosse legali. I vertici degli approdi usano il
   // mirino VIOLA al posto del bianco: si vede subito quale piazzamento

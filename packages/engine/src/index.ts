@@ -15,6 +15,7 @@ export { applyAction } from './apply';
 export { isLegal } from './validate';
 export { getLegalActions } from './legal';
 export { getPlayerView, filterEventsForPlayer, type Viewer } from './view';
+export { sanitizeCosmetics } from './cosmetics';
 
 // Costanti e utilità riusate da bot e UI.
 export {

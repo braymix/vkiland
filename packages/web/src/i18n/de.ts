@@ -111,6 +111,11 @@ export const de: Strings = {
   invRoccaInfo: 'Egal welches Aussehen: Sie trägt immer die Farbe deines Clans.',
   invSelezionato: 'In Gebrauch',
   invSalvato: 'Gespeichert ✓',
+  invColori: 'Farben',
+  invColoreOcchi: 'Augen',
+  invColoreFiamme: 'Flammen',
+  invColorePietra: 'Stein',
+  invRipristina: 'Zurücksetzen',
   skin: {
     drago: 'Klassischer Drache',
     navicella: 'Raumschiff',

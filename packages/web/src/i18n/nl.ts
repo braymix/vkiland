@@ -110,6 +110,11 @@ export const nl: Strings = {
   invRoccaInfo: 'Welk uiterlijk je ook kiest, hij kleurt altijd in de kleur van je clan.',
   invSelezionato: 'In gebruik',
   invSalvato: 'Opgeslagen ✓',
+  invColori: 'Kleuren',
+  invColoreOcchi: 'Ogen',
+  invColoreFiamme: 'Vlammen',
+  invColorePietra: 'Steen',
+  invRipristina: 'Herstellen',
   skin: {
     drago: 'Klassieke Draak',
     navicella: 'Ruimteschip',

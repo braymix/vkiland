@@ -110,6 +110,11 @@ export const sr: Strings = {
   invRoccaInfo: 'Koji god izgled izabereš, uvek nosi boju tvog klana.',
   invSelezionato: 'U upotrebi',
   invSalvato: 'Sačuvano ✓',
+  invColori: 'Boje',
+  invColoreOcchi: 'Oči',
+  invColoreFiamme: 'Plamen',
+  invColorePietra: 'Kamen',
+  invRipristina: 'Poništi',
   skin: {
     drago: 'Klasični zmaj',
     navicella: 'Svemirski brod',
