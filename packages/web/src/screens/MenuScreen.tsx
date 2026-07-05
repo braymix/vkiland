@@ -1,4 +1,4 @@
-/** Schermata iniziale. */
+/** Schermata iniziale (dopo l'entrata): l'hub da cui si raggiunge tutto. */
 import { useState } from 'react';
 import { it } from '../i18n';
 import { Dialog } from '../components/dialogs/Dialog';
@@ -9,19 +9,20 @@ const AUTHOR = 'Michele Panarotto';
 const AUTHOR_EMAIL = 'michelepanarotto00@gmail.com';
 
 export function MenuScreen({
+  hasAccount,
   onNewGame,
-  onOnline,
-  onTutorial,
-  onDemo,
+  onLibro,
   onInventory,
+  onAccount,
+  onDemo,
 }: {
+  hasAccount: boolean;
   onNewGame: () => void;
-  onOnline: () => void;
-  onTutorial: () => void;
-  onDemo: () => void;
+  onLibro: () => void;
   onInventory: () => void;
+  onAccount: () => void;
+  onDemo: () => void;
 }) {
-  const [memeOpen, setMemeOpen] = useState(false);
   const [creditsOpen, setCreditsOpen] = useState(false);
   return (
     <div className="screen" style={{ justifyContent: 'center' }}>
@@ -32,19 +33,26 @@ export function MenuScreen({
       <h1 className="menu-title">{it.titolo}</h1>
       <div className="menu-sub">{it.sottotitolo}</div>
       <div className="menu-buttons">
-        <button className="pxbtn" onClick={() => setMemeOpen(true)}>
+        {/* Nuova partita: da qui la «partita classica» (offline vs bot) e,
+            con un account, anche l'online. Niente più popup scherzoso. */}
+        <button className="pxbtn" onClick={onNewGame}>
           {it.nuovaPartita}
         </button>
-        <button className="pxbtn pxbtn--ghost" onClick={onOnline}>
-          {it.multigiocatore}
-        </button>
-        <button className="pxbtn pxbtn--ghost" onClick={onTutorial}>
-          {it.comeSiGioca}
+        {/* «Come si gioca» rinominato: è il Libro delle Saghe (tutorial). */}
+        <button className="pxbtn pxbtn--ghost" onClick={onLibro}>
+          {it.libroSaghe}
         </button>
         {/* Inventario: skin del Drago e delle roccaforti. Funziona anche senza
             account (salvate sul dispositivo) — utilizzabile da subito in locale. */}
         <button className="pxbtn pxbtn--ghost" onClick={onInventory}>
           🎒 {it.inventario}
+        </button>
+        {/* Gestione account: se non hai un account porta all'entrata (accedi). */}
+        <button className="pxbtn pxbtn--ghost" onClick={onAccount}>
+          👤 {it.gestioneAccount}
+          {!hasAccount && (
+            <span style={{ color: 'var(--ink-dim)', fontSize: 8 }}> · {it.accedi}</span>
+          )}
         </button>
         {/* PUNTO DI ESTENSIONE (Fase 4 — monetizzazione): negozio di skin/temi
             (cosmetici, mai pay-to-win) collegato agli entitlements del profilo. */}
@@ -77,31 +85,6 @@ export function MenuScreen({
           <div className="dialog-buttons">
             <button className="pxbtn" onClick={() => setCreditsOpen(false)}>
               {it.chiudi}
-            </button>
-          </div>
-        </Dialog>
-      )}
-
-      {/* Popup scherzoso pre-partita. PUNTO DI ESTENSIONE (Fase 4): qui un
-          giorno andranno davvero ads/abbonamento — per ora è solo un meme. */}
-      {memeOpen && (
-        <Dialog title={it.memeTitolo}>
-          <p style={{ fontSize: 9, lineHeight: 1.9 }}>{it.memeTesto}</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <button className="pxbtn pxbtn--ghost" disabled>
-              {it.memePubblicita}
-            </button>
-            <button className="pxbtn pxbtn--ghost" disabled>
-              {it.memePro}
-            </button>
-            <button
-              className="pxbtn"
-              onClick={() => {
-                setMemeOpen(false);
-                onNewGame();
-              }}
-            >
-              {it.memeAvanti}
             </button>
           </div>
         </Dialog>

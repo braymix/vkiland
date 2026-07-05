@@ -10,7 +10,18 @@ export const sr: Strings = {
   multigiocatore: 'Onlajn',
   negozio: 'Prodavnica (uskoro)',
   comeSiGioca: 'Kako se igra',
-  crediti: 'Zahvalnice',
+
+  // Ulaz (prijava/registracija pri pokretanju) i nalog iz menija
+  entrataInvito:
+    'Prijavi se ili registruj da igraš onlajn — ili nastavi i igraj odmah lokalno.',
+  continuaSenzaAccount: 'Nastavi bez naloga',
+  gestioneAccount: 'Upravljanje nalogom',
+  partitaClassica: 'Klasična igra',
+  partitaClassicaInfo: 'Oflajn: ti (i prijatelji na ovom uređaju) protiv botova.',
+  giocaOnline: 'Igraj onlajn',
+  serveAccountOnline: 'Potreban je nalog za onlajn igru.',
+
+  crediti:'Zahvalnice',
   creditiFattoDa: 'Napravio',
   creditiInvito: 'Imaš savet ili si našao grešku? Slobodno mi piši — svaki povratni utisak je dobrodošao!',
   creditiGrazie: 'Hvala što si igrao Viking-Island!',

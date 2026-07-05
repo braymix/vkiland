@@ -13,6 +13,17 @@ export const it = {
   multigiocatore: 'Online',
   negozio: 'Negozio (in arrivo)',
   comeSiGioca: 'Come si gioca',
+
+  // Entrata (login/registrazione all'avvio) e account dal menu
+  entrataInvito:
+    'Accedi o registrati per giocare online — oppure continua e gioca subito in locale.',
+  continuaSenzaAccount: 'Continua senza account',
+  gestioneAccount: 'Gestione account',
+  partitaClassica: 'Partita classica',
+  partitaClassicaInfo: 'Offline: tu (e gli amici su questo dispositivo) contro i bot.',
+  giocaOnline: 'Gioca online',
+  serveAccountOnline: 'Serve un account per giocare online.',
+
   crediti: 'Riconoscimenti',
   creditiFattoDa: 'Fatto da',
   creditiInvito: 'Hai un consiglio o hai trovato un bug? Non esitare a scrivermi: ogni feedback è benvenuto!',

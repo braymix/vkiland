@@ -21,12 +21,14 @@ interface Props {
   session: OnlineSession;
   /** Sessione aggiornata (nuovo nome o nuovo token dopo cambio password). */
   onSessionUpdate: (s: OnlineSession) => void;
+  /** Esci dall'account: dimentica la sessione e torna all'entrata. */
+  onLogout: () => void;
   onBack: () => void;
 }
 
 type Panel = 'nome' | 'password' | 'email' | null;
 
-export function AccountScreen({ session, onSessionUpdate, onBack }: Props) {
+export function AccountScreen({ session, onSessionUpdate, onLogout, onBack }: Props) {
   const [profile, setProfile] = useState<AccountProfile | null>(null);
   const [panel, setPanel] = useState<Panel>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -198,9 +200,14 @@ export function AccountScreen({ session, onSessionUpdate, onBack }: Props) {
         {message && <div style={{ fontSize: 9, color: 'var(--ok)' }}>{message}</div>}
         {error && <div style={{ fontSize: 9, color: 'var(--danger)' }}>{error}</div>}
       </div>
-      <button className="pxbtn pxbtn--ghost" onClick={onBack}>
-        {it.indietro}
-      </button>
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+        <button className="pxbtn pxbtn--ghost" onClick={onBack}>
+          {it.indietro}
+        </button>
+        <button className="pxbtn pxbtn--danger" onClick={onLogout}>
+          {it.esciAccount}
+        </button>
+      </div>
 
       {eggOpen && (
         <Dialog title={it.emailEggTitolo}>

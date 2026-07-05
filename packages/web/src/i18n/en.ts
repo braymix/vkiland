@@ -10,6 +10,17 @@ export const en: Strings = {
   multigiocatore: 'Online',
   negozio: 'Shop (coming soon)',
   comeSiGioca: 'How to play',
+
+  // Entry (login/sign-up on launch) and account from the menu
+  entrataInvito:
+    'Log in or sign up to play online — or continue and play locally right away.',
+  continuaSenzaAccount: 'Continue without an account',
+  gestioneAccount: 'Account settings',
+  partitaClassica: 'Classic game',
+  partitaClassicaInfo: 'Offline: you (and friends on this device) against the bots.',
+  giocaOnline: 'Play online',
+  serveAccountOnline: 'You need an account to play online.',
+
   crediti: 'Credits',
   creditiFattoDa: 'Made by',
   creditiInvito: 'Got advice or found a bug? Don’t hesitate to write me — all feedback is welcome!',

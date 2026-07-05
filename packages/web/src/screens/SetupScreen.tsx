@@ -18,9 +18,12 @@ interface PlayerRow {
 interface Props {
   onStart: (setup: GameSetup) => void;
   onBack: () => void;
+  /** Con un account si può passare all'online; senza, i pulsanti sono spenti. */
+  hasAccount: boolean;
+  onGoOnline: () => void;
 }
 
-export function SetupScreen({ onStart, onBack }: Props) {
+export function SetupScreen({ onStart, onBack, hasAccount, onGoOnline }: Props) {
   const [players, setPlayers] = useState<PlayerRow[]>([
     { name: 'Bjorn', isBot: false, botLevel: 'normale', color: FREE_PALETTE[0]! },
     { name: 'Astrid', isBot: true, botLevel: 'normale', color: FREE_PALETTE[1]! },
@@ -94,7 +97,10 @@ export function SetupScreen({ onStart, onBack }: Props) {
 
   return (
     <div className="screen" style={{ justifyContent: 'center' }}>
-      <h2 style={{ color: 'var(--accent)', fontSize: 14 }}>{it.configuraPartita}</h2>
+      <h2 style={{ color: 'var(--accent)', fontSize: 14 }}>{it.partitaClassica}</h2>
+      <div className="menu-sub" style={{ fontSize: 9, maxWidth: 340, textAlign: 'center' }}>
+        {it.partitaClassicaInfo}
+      </div>
       <div className="setup-grid pixel-frame">
         {players.map((p, i) => (
           <div key={i}>
@@ -239,6 +245,31 @@ export function SetupScreen({ onStart, onBack }: Props) {
         </button>
         {humanCount === 0 && (
           <span style={{ fontSize: 9, color: 'var(--danger)' }}>{it.serveUnUmano}</span>
+        )}
+      </div>
+
+      {/* Multigiocatore online: la partita classica «diventa» online da qui.
+          Senza account i pulsanti restano disabilitati (una partita offline è
+          una partita normale, ma con soli bot). */}
+      <div
+        className="pixel-frame"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 8,
+          padding: 12,
+          maxWidth: 320,
+          alignItems: 'center',
+        }}
+      >
+        <div style={{ fontSize: 10, color: 'var(--accent)' }}>🌐 {it.multigiocatore}</div>
+        <button className="pxbtn pxbtn--ghost" onClick={onGoOnline} disabled={!hasAccount}>
+          {it.giocaOnline}
+        </button>
+        {!hasAccount && (
+          <div style={{ fontSize: 8, color: 'var(--ink-dim)', lineHeight: 1.6, textAlign: 'center' }}>
+            {it.serveAccountOnline}
+          </div>
         )}
       </div>
     </div>

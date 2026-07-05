@@ -10,6 +10,17 @@ export const fr: Strings = {
   multigiocatore: 'En ligne',
   negozio: 'Boutique (bientôt)',
   comeSiGioca: 'Comment jouer',
+
+  // Entrée (connexion/inscription au lancement) et compte depuis le menu
+  entrataInvito:
+    'Connecte-toi ou inscris-toi pour jouer en ligne — ou continue et joue tout de suite en local.',
+  continuaSenzaAccount: 'Continuer sans compte',
+  gestioneAccount: 'Gestion du compte',
+  partitaClassica: 'Partie classique',
+  partitaClassicaInfo: 'Hors ligne : toi (et tes amis sur cet appareil) contre les bots.',
+  giocaOnline: 'Jouer en ligne',
+  serveAccountOnline: 'Il faut un compte pour jouer en ligne.',
+
   crediti: 'Remerciements',
   creditiFattoDa: 'Réalisé par',
   creditiInvito: 'Un conseil ou un bug à signaler ? N’hésite pas à m’écrire : tout retour est le bienvenu !',

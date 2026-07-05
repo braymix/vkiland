@@ -10,7 +10,18 @@ export const ru: Strings = {
   multigiocatore: 'Онлайн',
   negozio: 'Магазин (скоро)',
   comeSiGioca: 'Как играть',
-  crediti: 'Благодарности',
+
+  // Вход (вход/регистрация при запуске) и аккаунт из меню
+  entrataInvito:
+    'Войди или зарегистрируйся, чтобы играть онлайн — или продолжи и сразу играй локально.',
+  continuaSenzaAccount: 'Продолжить без аккаунта',
+  gestioneAccount: 'Управление аккаунтом',
+  partitaClassica: 'Классическая игра',
+  partitaClassicaInfo: 'Офлайн: ты (и друзья на этом устройстве) против ботов.',
+  giocaOnline: 'Играть онлайн',
+  serveAccountOnline: 'Для игры онлайн нужен аккаунт.',
+
+  crediti:'Благодарности',
   creditiFattoDa: 'Сделал',
   creditiInvito: 'Есть совет или нашли баг? Не стесняйтесь писать — любой отзыв приветствуется!',
   creditiGrazie: 'Спасибо, что играли в Viking-Island!',

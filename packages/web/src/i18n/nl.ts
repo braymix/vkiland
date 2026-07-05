@@ -10,6 +10,17 @@ export const nl: Strings = {
   multigiocatore: 'Online',
   negozio: 'Winkel (binnenkort)',
   comeSiGioca: 'Hoe te spelen',
+
+  // Ingang (inloggen/registreren bij het opstarten) en account vanuit het menu
+  entrataInvito:
+    'Log in of registreer om online te spelen — of ga verder en speel meteen lokaal.',
+  continuaSenzaAccount: 'Doorgaan zonder account',
+  gestioneAccount: 'Accountbeheer',
+  partitaClassica: 'Klassiek spel',
+  partitaClassicaInfo: 'Offline: jij (en vrienden op dit apparaat) tegen de bots.',
+  giocaOnline: 'Online spelen',
+  serveAccountOnline: 'Je hebt een account nodig om online te spelen.',
+
   crediti: 'Credits',
   creditiFattoDa: 'Gemaakt door',
   creditiInvito: 'Heb je een tip of een bug gevonden? Schrijf me gerust — alle feedback is welkom!',

@@ -10,6 +10,17 @@ export const es: Strings = {
   multigiocatore: 'En línea',
   negozio: 'Tienda (próximamente)',
   comeSiGioca: 'Cómo se juega',
+
+  // Entrada (inicio de sesión/registro al abrir) y cuenta desde el menú
+  entrataInvito:
+    'Inicia sesión o regístrate para jugar en línea, o continúa y juega en local enseguida.',
+  continuaSenzaAccount: 'Continuar sin cuenta',
+  gestioneAccount: 'Gestión de la cuenta',
+  partitaClassica: 'Partida clásica',
+  partitaClassicaInfo: 'Sin conexión: tú (y amigos en este dispositivo) contra los bots.',
+  giocaOnline: 'Jugar en línea',
+  serveAccountOnline: 'Necesitas una cuenta para jugar en línea.',
+
   crediti: 'Créditos',
   creditiFattoDa: 'Hecho por',
   creditiInvito: '¿Tienes un consejo o has encontrado un error? No dudes en escribirme: ¡todo comentario es bienvenido!',
