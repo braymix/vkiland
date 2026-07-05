@@ -7,8 +7,11 @@
 # e rilancia il deploy del client: il form Online arriverà precompilato.
 #
 # Nota sul piano free: il servizio si addormenta dopo ~15 minuti di
-# inattività; la prima richiesta lo risveglia (attesa ~30-60s). I dati
-# (account/partite) sono su disco effimero: si azzerano a ogni deploy.
+# inattività; la prima richiesta lo risveglia (attesa ~30-60s). Il disco è
+# effimero, quindi per NON perdere account e partite a ogni deploy imposta
+# DATABASE_URL su un PostgreSQL gestito (es. filess.io — gratis): con quella
+# variabile il server persiste tutto sul database. Senza, ripiega sul file
+# JSON in DATA_DIR (che si azzera).
 
 services:
   - type: web
@@ -22,3 +25,11 @@ services:
     envVars:
       - key: DATA_DIR
         value: /tmp/vikiland-data
+      # Persistenza durevole: incolla la connection string PostgreSQL nella
+      # dashboard di Render (sync: false = segreto, non finisce nel repo).
+      # Formato:  postgresql://UTENTE:PASSWORD@HOST:PORTA/NOMEDB
+      - key: DATABASE_URL
+        sync: false
+      # Solo se l'host richiede TLS (errore SSL all'avvio): impostala a "true".
+      - key: DATABASE_SSL
+        sync: false

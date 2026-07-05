@@ -1,10 +1,10 @@
 /**
- * Persistenza su file JSON (sviluppo). L'interfaccia `Storage` è il punto di
- * sostituzione previsto per un DB vero (Drizzle: SQLite/PostgreSQL) senza
- * toccare il resto del server.
- *
- * PUNTO DI ESTENSIONE (Fase 4): qui si aggiungerà la tabella `entitlements`
- * (cosmetici/premium) accanto a utenti e partite.
+ * Persistenza: l'interfaccia `Storage` (sincrona) è il punto di sostituzione.
+ * Implementazioni disponibili:
+ *   - `JsonFileStorage` — file JSON su disco (sviluppo; effimero su Render free);
+ *   - `MemoryStorage`   — volatile, per i test;
+ *   - `PostgresStorage` (in `storagePg.ts`) — DB DUREVOLE via `DATABASE_URL`,
+ *     con cache in memoria + write-through così le letture restano sincrone.
  */
 import { mkdirSync, readFileSync, writeFileSync, appendFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
