@@ -58,7 +58,8 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
   const [mapFullscreen, setMapFullscreen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [logOpen, setLogOpen] = useState(false);
-  const [revealedCalamityId, setRevealedCalamityId] = useState<string | null>(null);
+  const [openCalamityId, setOpenCalamityId] = useState<string | null>(null);
+  const seenCalamityIds = useRef<Set<string>>(new Set());
 
   const isMyTurn = view.currentPlayer === viewpoint;
 
@@ -75,15 +76,18 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
     }
   }, [handoff]);
 
-  // Rileva quando una nuova calamità viene rivelata: mostra il modal full-screen.
+  // Rileva quando una nuova calamità viene rivelata: mostra il modal full-screen UNA
+  // SOLA VOLTA per carta. Il Set (non lo stato) traccia i "già visti": onClose non deve
+  // ritriggerare questo effect, altrimenti riaprirebbe subito lo stesso popup appena chiuso.
   useEffect(() => {
     if (view.calamity) {
       const id = `${view.calamity.kind}-${view.calamitiesLeft}`;
-      if (id !== revealedCalamityId) {
-        setRevealedCalamityId(id);
+      if (!seenCalamityIds.current.has(id)) {
+        seenCalamityIds.current.add(id);
+        setOpenCalamityId(id);
       }
     }
-  }, [view.calamity, view.calamitiesLeft, revealedCalamityId]);
+  }, [view.calamity, view.calamitiesLeft]);
 
   // Errori asincroni dal server (online): mostrati come quelli sincroni.
   const remoteError = snap.remoteError;
@@ -240,11 +244,11 @@ export function GameScreen({ makeController, onExit, onRematch }: Props) {
         <GameLog entries={snap.log} open={logOpen} onToggle={() => setLogOpen(!logOpen)} />
       </div>
 
-      {revealedCalamityId !== null && view.calamity && view.calamitiesLeft !== null && (
+      {openCalamityId !== null && view.calamity && view.calamitiesLeft !== null && (
         <CalamityRevealedModal
           card={view.calamity}
           remaining={view.calamitiesLeft}
-          onClose={() => setRevealedCalamityId(null)}
+          onClose={() => setOpenCalamityId(null)}
         />
       )}
 

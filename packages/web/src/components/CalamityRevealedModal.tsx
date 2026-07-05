@@ -1,5 +1,5 @@
 /** Calamità rivelata: modal full-screen con nome, descrizione, effetto. */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { CalamityCard } from '@vikiland/engine';
 import { it } from '../i18n';
 import { calamityDesc, calamityName } from '../game/calamityText';
@@ -14,13 +14,18 @@ export function CalamityRevealedModal({
   onClose: () => void;
 }) {
   const [visible, setVisible] = useState(true);
+  // onClose è una arrow function ricreata a ogni render del genitore: la teniamo in
+  // una ref così il timer sotto parte una volta sola al mount e non si resetta mai.
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setVisible(false);
-      setTimeout(onClose, 300);
+      setTimeout(() => onCloseRef.current(), 300);
     }, 3000);
     return () => clearTimeout(timer);
-  }, [onClose]);
+  }, []);
 
   if (!visible) return null;
 
@@ -42,7 +47,7 @@ export function CalamityRevealedModal({
       }}
       onClick={() => {
         setVisible(false);
-        setTimeout(onClose, 300);
+        setTimeout(() => onCloseRef.current(), 300);
       }}
     >
       <div
@@ -68,9 +73,16 @@ export function CalamityRevealedModal({
         <div style={{ fontSize: 11, color: 'var(--ink-dim)', marginTop: 16 }}>
           {remaining} {it.calamita.rimaste}
         </div>
-        <div style={{ fontSize: 9, color: 'var(--ink-dim)', marginTop: 8 }}>
-          ({it.calamita.attesa})
-        </div>
+        <button
+          className="pxbtn pxbtn--small"
+          style={{ marginTop: 16 }}
+          onClick={() => {
+            setVisible(false);
+            setTimeout(() => onCloseRef.current(), 300);
+          }}
+        >
+          {it.chiudi}
+        </button>
       </div>
 
       <style>{`
