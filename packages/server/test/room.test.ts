@@ -5,7 +5,7 @@ import type { GameUpdate, LobbyConfig } from '../src/protocol';
 import type { FinishedGameRecord } from '../src/storage';
 import { GameRoom, type Seat } from '../src/room';
 
-const CFG: LobbyConfig = { avoidAdjacent68: true, targetGloryPoints: 10, turnTimerSec: 0, isPublic: false };
+const CFG: LobbyConfig = { avoidAdjacent68: true, targetGloryPoints: 10, turnTimerSec: 0, isPublic: false, calamities: false };
 
 const bot = (name: string, color: PlayerColor = 'blu'): Seat => ({
   userId: null,

@@ -88,6 +88,7 @@ export class GameRoom {
       })),
       avoidAdjacent68: config.avoidAdjacent68,
       targetGloryPoints: config.targetGloryPoints,
+      calamities: config.calamities,
     });
     seats.forEach((s, i) => {
       if (s.isBot) this.bots.set(i, createBot(s.botLevel ?? 'normale'));

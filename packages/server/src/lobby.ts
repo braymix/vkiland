@@ -371,6 +371,7 @@ function sanitizeConfig(c: LobbyConfig): LobbyConfig {
     targetGloryPoints: clampInt(c.targetGloryPoints, 5, 20, 10),
     turnTimerSec: clampInt(c.turnTimerSec, 0, 600, 0),
     isPublic: Boolean(c.isPublic),
+    calamities: Boolean(c.calamities),
   };
 }
 

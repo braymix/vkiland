@@ -140,10 +140,9 @@ export function OnlineScreen({
               onBack();
             }}
             onOpenTutorial={() => setTutorialOpen(true)}
-            onCreate={(timerSec, isPublic, seed, targetGloryPoints, avoidAdjacent68) => {
-              const config = seed.trim()
-                ? { avoidAdjacent68, targetGloryPoints, turnTimerSec: timerSec, isPublic, seed }
-                : { avoidAdjacent68, targetGloryPoints, turnTimerSec: timerSec, isPublic };
+            onCreate={(timerSec, isPublic, seed, targetGloryPoints, avoidAdjacent68, calamities) => {
+              const base = { avoidAdjacent68, targetGloryPoints, turnTimerSec: timerSec, isPublic, calamities };
+              const config = seed.trim() ? { ...base, seed } : base;
               socketRef.current?.emit(
                 'lobby:create',
                 config,
@@ -275,7 +274,14 @@ function OnlineHome({
 }: {
   name: string;
   error: string | null;
-  onCreate: (timerSec: number, isPublic: boolean, seed: string, targetGloryPoints: number, avoidAdjacent68: boolean) => void;
+  onCreate: (
+    timerSec: number,
+    isPublic: boolean,
+    seed: string,
+    targetGloryPoints: number,
+    avoidAdjacent68: boolean,
+    calamities: boolean
+  ) => void;
   onJoin: (code: string) => void;
   onBack: () => void;
   onOpenTutorial: () => void;
@@ -292,6 +298,7 @@ function OnlineHome({
   const [seed, setSeed] = useState('');
   const [targetPG, setTargetPG] = useState(10);
   const [avoid68, setAvoid68] = useState(true);
+  const [calamities, setCalamities] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
   const bumpTarget = (delta: number) =>
     setTargetPG((n) => Math.max(5, Math.min(20, n + delta)));
@@ -328,7 +335,10 @@ function OnlineHome({
             <span style={{ fontSize: 8, color: 'var(--ink-dim)' }}>
               {timerSec === 0 ? it.nessunTimer : t(it.secondiAbbr, { n: timerSec })}
             </span>
-            <button className="pxbtn" onClick={() => onCreate(timerSec, isPublic, seed, targetPG, avoid68)}>
+            <button
+              className="pxbtn"
+              onClick={() => onCreate(timerSec, isPublic, seed, targetPG, avoid68, calamities)}
+            >
               {it.creaPartita}
             </button>
           </div>
@@ -391,6 +401,19 @@ function OnlineHome({
                 />
                 {it.evita68}
               </label>
+              <label className="check">
+                <input
+                  type="checkbox"
+                  checked={calamities}
+                  onChange={(e) => setCalamities(e.target.checked)}
+                />
+                ⚡ {it.calamita.conCalamita}
+              </label>
+              {calamities && (
+                <div style={{ fontSize: 8, color: 'var(--ink-dim)', lineHeight: 1.5 }}>
+                  {it.calamita.spiega}
+                </div>
+              )}
             </div>
           )}
           <label className="check" style={{ fontSize: 9 }}>

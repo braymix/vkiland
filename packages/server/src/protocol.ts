@@ -52,6 +52,8 @@ export interface LobbyConfig {
   turnTimerSec: number;
   /** true = elencata tra le partite pubbliche: chiunque può entrare senza codice. */
   isPublic: boolean;
+  /** Modalità Calamità: una carta per giro. */
+  calamities: boolean;
   /** Seme della mappa (opzionale: undefined = casuale). */
   seed?: string;
 }
