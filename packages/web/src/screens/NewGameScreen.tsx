@@ -12,13 +12,19 @@
  *   calamità, avvio, uscita e terminazione (dal pannello ☰ in partita).
  */
 import { useEffect, useRef, useState } from 'react';
-import { DEFAULT_TARGET_GLORY, MAX_PLAYERS, type BotLevel, type PlayerColor } from '@vikiland/engine';
+import {
+  DEFAULT_TARGET_GLORY,
+  MAX_PLAYERS,
+  type BotLevel,
+  type PlayerColor,
+  type PlayerCosmetics,
+} from '@vikiland/engine';
 import type { LobbyConfig, LobbyState, PublicLobbySummary } from '@vikiland/server/protocol';
 import { isApiError } from '@vikiland/server/protocol';
 import { it, t } from '../i18n';
 import type { GameSetup } from '../game/LocalGameController';
 import { getLocalCosmetics } from '../game/localCosmetics';
-import { connectSocket, type OnlineSession, type ServerSocket } from '../online/connection';
+import { apiGetCosmetics, connectSocket, type OnlineSession, type ServerSocket } from '../online/connection';
 import { RemoteGameController } from '../online/RemoteGameController';
 import { FREE_PALETTE, shadesFor } from '../render/sprites/palettes';
 import { TUTORIAL_ONLINE_CHAPTER } from '../i18n/tutorial';
@@ -76,12 +82,15 @@ export function NewGameScreen({
   const timerSec = Math.max(0, Math.min(600, Math.floor(Number(timerRaw) || 0)));
 
   // --- Posti locali (hot-seat) ---
-  const [seats, setSeats] = useState<LocalSeat[]>([
-    { name: 'Bjorn', isBot: false, botLevel: 'normale', color: FREE_PALETTE[0]! },
+  // Il posto umano parte col nickname dell'account loggato (se c'è), sempre
+  // modificabile; senza account resta il nome di default.
+  const [seats, setSeats] = useState<LocalSeat[]>(() => [
+    { name: session?.username ?? 'Bjorn', isBot: false, botLevel: 'normale', color: FREE_PALETTE[0]! },
     { name: 'Astrid', isBot: true, botLevel: 'normale', color: FREE_PALETTE[1]! },
     { name: 'Leif', isBot: true, botLevel: 'facile', color: FREE_PALETTE[2]! },
   ]);
   const [editSeat, setEditSeat] = useState<number | null>(null);
+  const [startingLocal, setStartingLocal] = useState(false);
 
   // --- Online: socket, lobby, partita ---
   const [busy, setBusy] = useState(false);
@@ -278,9 +287,19 @@ export function NewGameScreen({
     );
   };
 
-  const startLocal = () => {
-    const localCosmetics = getLocalCosmetics();
-    const hasCosmetics = Object.keys(localCosmetics).length > 0;
+  const startLocal = async () => {
+    if (startingLocal) return;
+    setStartingLocal(true);
+    // I cosmetici dell'account SOVRASCRIVONO sempre quelli locali: se sei
+    // loggato usiamo l'inventario FRESCO dal server (così le modifiche appena
+    // fatte si vedono subito), con ripiego sul dispositivo se irraggiungibile.
+    let cosmetics: PlayerCosmetics;
+    if (session) {
+      cosmetics = await apiGetCosmetics(session).catch(() => getLocalCosmetics());
+    } else {
+      cosmetics = getLocalCosmetics();
+    }
+    const hasCosmetics = Object.keys(cosmetics).length > 0;
     onStartLocal({
       seed: seed.trim() || `vikiland-${Date.now()}-${Math.floor(Math.random() * 1e6)}`,
       players: seats.map((s, i) => ({
@@ -288,7 +307,7 @@ export function NewGameScreen({
         color: s.color,
         isBot: s.isBot,
         botLevel: s.botLevel,
-        ...(!s.isBot && hasCosmetics ? { cosmetics: localCosmetics } : {}),
+        ...(!s.isBot && hasCosmetics ? { cosmetics } : {}),
       })),
       avoidAdjacent68: avoid68,
       targetGloryPoints: targetPG,
@@ -511,7 +530,11 @@ export function NewGameScreen({
             setIsPublic={() => {}}
           />
 
-          <button className="pxbtn newgame-start" onClick={startLocal} disabled={humanCount === 0}>
+          <button
+            className="pxbtn newgame-start"
+            onClick={() => void startLocal()}
+            disabled={humanCount === 0 || startingLocal}
+          >
             ▶ {it.avvia}
           </button>
           {humanCount === 0 && (
