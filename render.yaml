@@ -30,6 +30,7 @@ services:
       # Formato:  postgresql://UTENTE:PASSWORD@HOST:PORTA/NOMEDB
       - key: DATABASE_URL
         sync: false
-      # Solo se l'host richiede TLS (errore SSL all'avvio): impostala a "true".
+      # filess.io NON usa SSL: lasciala vuota. Impostala a "true" solo su host
+      # che RICHIEDONO TLS (es. Neon/Supabase).
       - key: DATABASE_SSL
         sync: false

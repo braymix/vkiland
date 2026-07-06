@@ -71,15 +71,24 @@ export class PostgresStorage implements Storage {
     };
     const Pool = mod.Pool ?? mod.default?.Pool;
     if (!Pool) throw new Error('Driver "pg" non disponibile');
+    const ssl = sslConfig();
     const pool = new Pool({
-      connectionString,
+      // Quando NON vogliamo SSL, ripuliamo la stringa da eventuali
+      // `sslmode`/`ssl`: alcuni host (filess.io) NON supportano SSL e un
+      // `sslmode=require` nell'URL manderebbe in crash l'avvio.
+      connectionString: ssl ? connectionString : stripSslParams(connectionString),
       // Poche connessioni: i free tier (filess.io) ne concedono un numero basso
       // e la cache in memoria fa sì che ci servano solo per le scritture/avvio.
       max: Number(process.env['DB_POOL_MAX'] ?? 3),
-      ssl: sslConfig(),
+      ssl,
     });
     const store = new PostgresStorage(pool);
-    await store.init();
+    try {
+      await store.init();
+    } catch (err) {
+      await pool.end().catch(() => {});
+      throw describeConnectError(err, ssl !== false);
+    }
     return store;
   }
 
@@ -230,7 +239,8 @@ export class PostgresStorage implements Storage {
 /**
  * Config SSL. Molti host gestiti (incl. alcuni free) espongono un certificato
  * self-signed: con `DATABASE_SSL=true` cifriamo la connessione senza verificare
- * la CA. Di default niente SSL (connessione diretta, come filess.io base).
+ * la CA. Di default niente SSL (connessione diretta, come filess.io — che NON
+ * supporta SSL). NB: `DATABASE_SSL=true` su filess.io fa fallire l'avvio.
  */
 function sslConfig(): false | { rejectUnauthorized: boolean } {
   const mode = (process.env['DATABASE_SSL'] ?? '').trim().toLowerCase();
@@ -238,4 +248,43 @@ function sslConfig(): false | { rejectUnauthorized: boolean } {
     return { rejectUnauthorized: false };
   }
   return false;
+}
+
+/**
+ * Rimuove i parametri `sslmode`/`ssl` dalla connection string: quando abbiamo
+ * deciso di NON usare SSL, un `sslmode=require` residuo nell'URL riabiliterebbe
+ * SSL alle spalle di `ssl:false` e su host senza SSL manderebbe in crash.
+ */
+export function stripSslParams(connectionString: string): string {
+  try {
+    const url = new URL(connectionString);
+    url.searchParams.delete('sslmode');
+    url.searchParams.delete('ssl');
+    return url.toString();
+  } catch {
+    // Non è un URL parsabile: rimozione best-effort dei parametri via regex.
+    return connectionString.replace(/([?&])(sslmode|ssl)=[^&]*/gi, '$1').replace(/[?&]$/, '');
+  }
+}
+
+/**
+ * Traduce un errore di connessione al primo avvio in un messaggio ATTIVABILE
+ * (la causa più comune è la configurazione SSL sbagliata su filess.io & co.).
+ */
+function describeConnectError(err: unknown, sslOn: boolean): Error {
+  const msg = err instanceof Error ? err.message : String(err);
+  if (/does not support SSL/i.test(msg) && sslOn) {
+    return new Error(
+      `Connessione al DB fallita: l'host non supporta SSL ma DATABASE_SSL è attivo. ` +
+        `Rimuovi DATABASE_SSL (o mettilo a "false") — filess.io non usa SSL. Dettaglio: ${msg}`
+    );
+  }
+  if (/(SSL|self.signed|certificate)/i.test(msg) && !sslOn) {
+    return new Error(
+      `Connessione al DB fallita per SSL: l'host lo richiede. Imposta DATABASE_SSL=true. Dettaglio: ${msg}`
+    );
+  }
+  return new Error(
+    `Connessione al DB fallita: controlla DATABASE_URL (utente/password/host/porta/nome DB). Dettaglio: ${msg}`
+  );
 }
