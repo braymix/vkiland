@@ -57,8 +57,16 @@ export class PostgresStorage implements Storage {
   private readonly sessions = new Map<string, SessionRecord>(); // per token
   /** Coda di scrittura: serializza le query e ne cattura gli errori. */
   private queue: Promise<unknown> = Promise.resolve();
+  /** Schema in cui vivono le tabelle (risolto in `init`, vedi `resolveSchema`). */
+  private schema = 'public';
 
   constructor(private readonly db: PgLike) {}
+
+  /** Nome tabella QUALIFICATO con lo schema: bypassa il `search_path`
+   *  (su filess.io è vuoto → "no schema has been selected"). */
+  private t(name: string): string {
+    return `"${this.schema}"."${name}"`;
+  }
 
   /**
    * Apre il pool verso PostgreSQL, crea le tabelle se mancano e carica i dati
@@ -93,8 +101,10 @@ export class PostgresStorage implements Storage {
   }
 
   async init(): Promise<void> {
+    this.schema = await this.resolveSchema();
+
     await this.db.query(`
-      CREATE TABLE IF NOT EXISTS users (
+      CREATE TABLE IF NOT EXISTS ${this.t('users')} (
         id TEXT PRIMARY KEY,
         username TEXT NOT NULL,
         password_hash TEXT NOT NULL,
@@ -102,13 +112,13 @@ export class PostgresStorage implements Storage {
         cosmetics JSONB
       )`);
     await this.db.query(`
-      CREATE TABLE IF NOT EXISTS sessions (
+      CREATE TABLE IF NOT EXISTS ${this.t('sessions')} (
         token TEXT PRIMARY KEY,
         user_id TEXT NOT NULL,
         created_at BIGINT NOT NULL
       )`);
     await this.db.query(`
-      CREATE TABLE IF NOT EXISTS finished_games (
+      CREATE TABLE IF NOT EXISTS ${this.t('finished_games')} (
         id BIGSERIAL PRIMARY KEY,
         code TEXT,
         seed TEXT NOT NULL,
@@ -119,16 +129,40 @@ export class PostgresStorage implements Storage {
         action_log JSONB NOT NULL
       )`);
 
-    const u = await this.db.query('SELECT * FROM users');
+    const u = await this.db.query(`SELECT * FROM ${this.t('users')}`);
     for (const row of u.rows) {
       const user = rowToUser(row as UserRow);
       this.users.set(user.id, user);
     }
-    const s = await this.db.query('SELECT * FROM sessions');
+    const s = await this.db.query(`SELECT * FROM ${this.t('sessions')}`);
     for (const row of s.rows) {
       const r = row as SessionRow;
       this.sessions.set(r.token, { token: r.token, userId: r.user_id, createdAt: Number(r.created_at) });
     }
+  }
+
+  /**
+   * Sceglie lo schema delle tabelle e si assicura che ESISTA. `DB_SCHEMA` lo
+   * forza; altrimenti usa `public` se c'è (host standard), sennò crea e usa uno
+   * schema dedicato `vikiland` — è il caso di filess.io, dove `public` non è
+   * disponibile per l'utente e il `search_path` è vuoto.
+   */
+  private async resolveSchema(): Promise<string> {
+    const explicit = (process.env['DB_SCHEMA'] ?? '').trim();
+    const wanted = explicit || ((await this.schemaExists('public')) ? 'public' : 'vikiland');
+    const schema = sanitizeIdent(wanted);
+    if (!(await this.schemaExists(schema))) {
+      await this.db.query(`CREATE SCHEMA IF NOT EXISTS "${schema}"`);
+    }
+    return schema;
+  }
+
+  private async schemaExists(name: string): Promise<boolean> {
+    const r = await this.db.query(
+      'SELECT 1 FROM information_schema.schemata WHERE schema_name = $1',
+      [name]
+    );
+    return r.rows.length > 0;
   }
 
   /** Accoda una scrittura sul DB, preservando l'ordine e loggando gli errori. */
@@ -182,7 +216,7 @@ export class PostgresStorage implements Storage {
     const cosmetics = user.cosmetics ? JSON.stringify(user.cosmetics) : null;
     this.enqueue(() =>
       this.db.query(
-        `INSERT INTO users (id, username, password_hash, created_at, cosmetics)
+        `INSERT INTO ${this.t('users')} (id, username, password_hash, created_at, cosmetics)
          VALUES ($1, $2, $3, $4, $5)
          ON CONFLICT (id) DO UPDATE SET
            username = EXCLUDED.username,
@@ -198,7 +232,7 @@ export class PostgresStorage implements Storage {
     this.sessions.set(session.token, session);
     this.enqueue(() =>
       this.db.query(
-        `INSERT INTO sessions (token, user_id, created_at) VALUES ($1, $2, $3)
+        `INSERT INTO ${this.t('sessions')} (token, user_id, created_at) VALUES ($1, $2, $3)
          ON CONFLICT (token) DO NOTHING`,
         [session.token, session.userId, session.createdAt]
       )
@@ -207,20 +241,20 @@ export class PostgresStorage implements Storage {
 
   deleteSession(token: string): void {
     this.sessions.delete(token);
-    this.enqueue(() => this.db.query('DELETE FROM sessions WHERE token = $1', [token]));
+    this.enqueue(() => this.db.query(`DELETE FROM ${this.t('sessions')} WHERE token = $1`, [token]));
   }
 
   deleteSessionsByUser(userId: string): void {
     for (const [token, s] of this.sessions) {
       if (s.userId === userId) this.sessions.delete(token);
     }
-    this.enqueue(() => this.db.query('DELETE FROM sessions WHERE user_id = $1', [userId]));
+    this.enqueue(() => this.db.query(`DELETE FROM ${this.t('sessions')} WHERE user_id = $1`, [userId]));
   }
 
   appendFinishedGame(game: FinishedGameRecord): void {
     this.enqueue(() =>
       this.db.query(
-        `INSERT INTO finished_games (code, seed, started_at, ended_at, players, winner_seat, action_log)
+        `INSERT INTO ${this.t('finished_games')} (code, seed, started_at, ended_at, players, winner_seat, action_log)
          VALUES ($1, $2, $3, $4, $5, $6, $7)`,
         [
           game.code,
@@ -255,6 +289,14 @@ function sslConfig(): false | { rejectUnauthorized: boolean } {
  * deciso di NON usare SSL, un `sslmode=require` residuo nell'URL riabiliterebbe
  * SSL alle spalle di `ssl:false` e su host senza SSL manderebbe in crash.
  */
+/** Valida un identificatore SQL (nome schema) per poterlo interpolare senza rischi. */
+export function sanitizeIdent(name: string): string {
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
+    throw new Error(`Nome schema DB non valido: "${name}" (ammessi lettere, cifre e underscore)`);
+  }
+  return name;
+}
+
 export function stripSslParams(connectionString: string): string {
   try {
     const url = new URL(connectionString);

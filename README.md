@@ -95,6 +95,12 @@ Senza `DATABASE_URL` il server continua a usare il file JSON in `DATA_DIR`
 solo per non andare in crash). Solo su host che *richiedono* TLS (es. Neon,
 Supabase) imposta `DATABASE_SSL=true`.
 
+**Schema:** non serve crearne uno a mano. Il server usa `public` se esiste,
+altrimenti si crea da solo uno schema dedicato `vikiland` (è il caso di
+filess.io, che all'utente non dà `public`: senza questo si otterrebbe l'errore
+*"no schema has been selected to create in"*). Per forzare uno schema preciso,
+imposta `DB_SCHEMA`.
+
 Come funziona: il server tiene i dati **in memoria** e li scrive sul database in
 background (write-through), ricaricandoli all'avvio. Così le letture restano
 istantanee e un'eventuale lentezza del DB non blocca il gioco.

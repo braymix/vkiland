@@ -21,8 +21,11 @@ class FakePg implements PgLike {
 
   query(text: string, params: readonly unknown[] = []): Promise<{ rows: unknown[] }> {
     this.calls.push({ text, params });
-    if (/select .* from users/i.test(text)) return Promise.resolve({ rows: this.seed.users ?? [] });
-    if (/select .* from sessions/i.test(text)) return Promise.resolve({ rows: this.seed.sessions ?? [] });
+    // schema_name lookup (resolveSchema): rispondiamo "non esiste" così il codice
+    // crea e usa lo schema dedicato — è il comportamento su un DB tipo filess.io.
+    if (/from information_schema\.schemata/i.test(text)) return Promise.resolve({ rows: [] });
+    if (/select \* from .*users/i.test(text)) return Promise.resolve({ rows: this.seed.users ?? [] });
+    if (/select \* from .*sessions/i.test(text)) return Promise.resolve({ rows: this.seed.sessions ?? [] });
     return Promise.resolve({ rows: [] });
   }
   end(): Promise<void> {
@@ -49,9 +52,12 @@ describe('PostgresStorage (write-through su memoria)', () => {
     const store = new PostgresStorage(fake);
     await store.init();
 
-    expect(fake.count(/create table if not exists users/i)).toBe(1);
-    expect(fake.count(/create table if not exists sessions/i)).toBe(1);
-    expect(fake.count(/create table if not exists finished_games/i)).toBe(1);
+    expect(fake.count(/create schema if not exists "vikiland"/i)).toBe(1); // public assente → schema dedicato
+    expect(fake.count(/create table[\s\S]*"users"/i)).toBe(1);
+    expect(fake.count(/create table[\s\S]*"sessions"/i)).toBe(1);
+    expect(fake.count(/create table[\s\S]*"finished_games"/i)).toBe(1);
+    // Le tabelle sono QUALIFICATE con lo schema (bypassa il search_path vuoto).
+    expect(fake.count(/"vikiland"\."users"/i)).toBeGreaterThan(0);
 
     // Letture dalla memoria (sincrone), incluso il JSONB dei cosmetici.
     expect(store.getUserById('u1')?.username).toBe('Ragnar');
@@ -75,8 +81,8 @@ describe('PostgresStorage (write-through su memoria)', () => {
 
     await store.flush();
     // Entrambe passano dall'upsert (INSERT ... ON CONFLICT DO UPDATE).
-    expect(fake.count(/insert into users[\s\S]*on conflict/i)).toBe(2);
-    const upsert = fake.last(/insert into users/i)!;
+    expect(fake.count(/insert into[\s\S]*"users"[\s\S]*on conflict/i)).toBe(2);
+    const upsert = fake.last(/insert into[\s\S]*"users"/i)!;
     expect(upsert.params[1]).toBe('Bjorn');
     expect(upsert.params[4]).toBe(JSON.stringify({ stronghold: 'torre' })); // cosmetics serializzati
   });
@@ -100,9 +106,9 @@ describe('PostgresStorage (write-through su memoria)', () => {
     expect(store.getSession('c')?.userId).toBe('u9'); // altro utente: resta
 
     await store.flush();
-    expect(fake.count(/insert into sessions/i)).toBe(3);
-    expect(fake.count(/delete from sessions where token/i)).toBe(1);
-    expect(fake.count(/delete from sessions where user_id/i)).toBe(1);
+    expect(fake.count(/insert into[\s\S]*"sessions"/i)).toBe(3);
+    expect(fake.count(/delete from[\s\S]*"sessions" where token/i)).toBe(1);
+    expect(fake.count(/delete from[\s\S]*"sessions" where user_id/i)).toBe(1);
   });
 
   it('appendFinishedGame accoda un insert in finished_games', async () => {
@@ -120,10 +126,41 @@ describe('PostgresStorage (write-through su memoria)', () => {
       actionLog: [],
     });
     await store.flush();
-    expect(fake.count(/insert into finished_games/i)).toBe(1);
-    const call = fake.last(/insert into finished_games/i)!;
+    expect(fake.count(/insert into[\s\S]*"finished_games"/i)).toBe(1);
+    const call = fake.last(/insert into[\s\S]*"finished_games"/i)!;
     expect(call.params[0]).toBe('ABCD');
     expect(call.params[4]).toBe(JSON.stringify([{ userId: 'u1', name: 'A', isBot: false }]));
+  });
+
+  it('usa lo schema public quando esiste (host standard) senza crearlo', async () => {
+    // FakePg che dichiara ESISTENTE ogni schema richiesto.
+    class WithPublic extends FakePg {
+      override query(text: string, params: readonly unknown[] = []): Promise<{ rows: unknown[] }> {
+        if (/from information_schema\.schemata/i.test(text)) {
+          this.calls.push({ text, params });
+          return Promise.resolve({ rows: [{ n: 1 }] });
+        }
+        return super.query(text, params);
+      }
+    }
+    const fake = new WithPublic();
+    await new PostgresStorage(fake).init();
+    expect(fake.count(/create schema/i)).toBe(0); // public c'è già: niente CREATE SCHEMA
+    expect(fake.count(/create table[\s\S]*"public"\."users"/i)).toBe(1);
+  });
+
+  it('DB_SCHEMA forza lo schema scelto', async () => {
+    const prev = process.env['DB_SCHEMA'];
+    process.env['DB_SCHEMA'] = 'giochi';
+    try {
+      const fake = new FakePg();
+      await new PostgresStorage(fake).init();
+      expect(fake.count(/create schema if not exists "giochi"/i)).toBe(1);
+      expect(fake.count(/"giochi"\."users"/i)).toBeGreaterThan(0);
+    } finally {
+      if (prev === undefined) delete process.env['DB_SCHEMA'];
+      else process.env['DB_SCHEMA'] = prev;
+    }
   });
 
   it('stripSslParams toglie sslmode/ssl per non riabilitare SSL su host senza SSL', () => {
