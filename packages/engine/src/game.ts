@@ -89,6 +89,7 @@ export function createGame(options: NewGameOptions): GameState {
     villages: [],
     strongholds: [],
     roads: [],
+    initialVillages: [],
   }));
 
   // L'ORDINE DI PARTENZA si decide coi dadi (deterministico dal seed): tutti
@@ -195,6 +196,7 @@ export function cloneState(s: GameState): GameState {
       villages: [...p.villages],
       strongholds: [...p.strongholds],
       roads: [...p.roads],
+      initialVillages: [...p.initialVillages],
     })),
     bank: { ...s.bank },
     sagaDeck: [...s.sagaDeck],

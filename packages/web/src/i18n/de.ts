@@ -425,7 +425,7 @@ export const de: Strings = {
   battaglia: {
     conBattaglia: 'Mit Schlacht',
     spiega:
-      'Wenn einer deiner Pfade das Haus oder die Festung eines Gegners erreicht, kannst du es angreifen und dafür 3 Schafe, 2 Eisen und 2 Holz zahlen: Das Haus wird zerstört, die Festung zum Haus herabgestuft. Kombinierbar mit Katastrophen.',
+      'Wenn einer deiner Pfade das Haus oder die Festung eines Gegners erreicht, kannst du es angreifen und dafür 3 Schafe, 2 Eisen und 2 Holz zahlen: Das Haus wird zerstört, die Festung zum Haus herabgestuft. Kombinierbar mit Katastrophen. Die beiden Starthäuser sind unzerstörbar, außer sie werden zu Festungen.',
     attacca: '⚔️ Angreifen',
     scegliBersaglio: 'Wähle das gegnerische Gebäude zum Angriff (3 Schafe, 2 Eisen, 2 Holz).',
   },

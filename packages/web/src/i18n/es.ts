@@ -424,7 +424,7 @@ export const es: Strings = {
   battaglia: {
     conBattaglia: 'Con batalla',
     spiega:
-      'Cuando uno de tus caminos alcanza la casa o la fortaleza de un rival, puedes atacarla pagando 3 ovejas, 2 hierro y 2 madera: la casa se destruye, la fortaleza baja a casa. Se combina con las calamidades.',
+      'Cuando uno de tus caminos alcanza la casa o la fortaleza de un rival, puedes atacarla pagando 3 ovejas, 2 hierro y 2 madera: la casa se destruye, la fortaleza baja a casa. Se combina con las calamidades. Las dos casas iniciales son indestructibles, salvo que se conviertan en fortalezas.',
     attacca: '⚔️ Atacar',
     scegliBersaglio: 'Elige el edificio rival a atacar (3 ovejas, 2 hierro, 2 madera).',
   },

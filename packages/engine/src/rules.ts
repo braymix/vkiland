@@ -114,26 +114,46 @@ export function legalVillageVertices(
 }
 
 /**
+ * Vista strutturale minima per la Battaglia: come `PiecesView`, ma include gli
+ * insediamenti iniziali (le "case indistruttibili"). La soddisfa `GameState`.
+ */
+export interface BattleView {
+  players: ReadonlyArray<{
+    id: PlayerId;
+    villages: VertexId[];
+    strongholds: VertexId[];
+    roads: EdgeId[];
+    initialVillages: VertexId[];
+  }>;
+}
+
+/**
  * Modalità Battaglia: gli edifici AVVERSARI che `player` ha "raggiunto" con una
- * propria strada, ossia i vertici occupati da una casetta/roccaforte nemica su
- * cui incide almeno un sentiero del giocatore. Sono i bersagli di un attacco.
+ * propria strada (un vertice nemico su cui incide un suo sentiero) E che sono
+ * attaccabili. Le due CASE INIZIALI di un clan sono indistruttibili finché
+ * restano casette: qui vengono escluse; una roccaforte è sempre un bersaglio
+ * valido (anche se sorge su un insediamento iniziale).
  */
 export function battleTargets(
-  state: PiecesView,
+  state: BattleView,
   player: PlayerId,
   radius: number = BOARD_RADIUS
 ): VertexId[] {
   const topo = getTopology(radius);
   const myRoads = new Set(state.players[player]!.roads);
   if (myRoads.size === 0) return [];
+  const reached = (v: VertexId): boolean => {
+    const edges = topo.vertexEdges[v];
+    return edges ? edges.some((e) => myRoads.has(e)) : false;
+  };
   const out: VertexId[] = [];
   for (const p of state.players) {
     if (p.id === player) continue;
-    for (const v of [...p.villages, ...p.strongholds]) {
-      const edges = topo.vertexEdges[v];
-      if (!edges) continue;
-      if (edges.some((e) => myRoads.has(e))) out.push(v);
-    }
+    const indistruttibili = new Set(p.initialVillages);
+    // Le roccaforti sono sempre attaccabili (declassate a casetta).
+    for (const v of p.strongholds) if (reached(v)) out.push(v);
+    // Le casette solo se NON sono un insediamento iniziale.
+    for (const v of p.villages) if (!indistruttibili.has(v) && reached(v)) out.push(v);
   }
   return out;
 }

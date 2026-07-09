@@ -179,6 +179,13 @@ export interface PlayerState {
   villages: VertexId[];
   strongholds: VertexId[];
   roads: EdgeId[];
+  /**
+   * I due insediamenti INIZIALI del clan (piazzati nel setup). In modalità
+   * Battaglia sono "case indistruttibili": non si possono distruggere finché
+   * restano casette. Se vengono promossi a roccaforte tornano attaccabili (e
+   * l'attacco li riporta a casetta, di nuovo indistruttibile).
+   */
+  initialVillages: VertexId[];
   // PUNTO DI ESTENSIONE: qui in Fase 4 verrà aggiunto un campo opzionale
   // `cosmetics` (id palette/skin scelti dal giocatore) che l'engine si limita
   // a trasportare senza interpretarlo.

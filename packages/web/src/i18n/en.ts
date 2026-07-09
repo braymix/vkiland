@@ -424,7 +424,7 @@ export const en: Strings = {
   battaglia: {
     conBattaglia: 'With battle',
     spiega:
-      'When one of your roads reaches an opponent’s house or stronghold, you can attack it by paying 3 sheep, 2 iron and 2 wood: the house is destroyed, the stronghold is downgraded to a house. Combines with calamities.',
+      'When one of your roads reaches an opponent’s house or stronghold, you can attack it by paying 3 sheep, 2 iron and 2 wood: the house is destroyed, the stronghold is downgraded to a house. Combines with calamities. The two starting houses are indestructible, unless they become strongholds.',
     attacca: '⚔️ Attack',
     scegliBersaglio: 'Pick the opponent building to attack (3 sheep, 2 iron, 2 wood).',
   },

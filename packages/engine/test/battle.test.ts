@@ -18,7 +18,10 @@ const topo = getTopology(2);
 const ATTACK_EDGE: EdgeId = topo.edges[0]!;
 const [TARGET_VERTEX, OTHER_VERTEX] = topo.edgeVertices[ATTACK_EDGE]!;
 
-function battleGame(kind: 'villaggio' | 'roccaforte'): GameState {
+function battleGame(
+  kind: 'villaggio' | 'roccaforte',
+  opts: { initial?: boolean } = {}
+): GameState {
   const base = newGame(2, 'battaglia-test');
   return mut(base, (s) => {
     s.config.battle = true;
@@ -26,10 +29,13 @@ function battleGame(kind: 'villaggio' | 'roccaforte'): GameState {
       p.villages = [];
       p.strongholds = [];
       p.roads = [];
+      p.initialVillages = [];
     }
     // Il giocatore 1 possiede l'edificio bersaglio; il giocatore 0 la strada.
     if (kind === 'roccaforte') s.players[1]!.strongholds = [TARGET_VERTEX];
     else s.players[1]!.villages = [TARGET_VERTEX];
+    // Marca il bersaglio come insediamento iniziale ("casa indistruttibile").
+    if (opts.initial) s.players[1]!.initialVillages = [TARGET_VERTEX];
     s.players[0]!.roads = [ATTACK_EDGE];
     s.currentPlayer = 0;
     s.rolledThisTurn = true;
@@ -93,6 +99,30 @@ describe('modalità Battaglia', () => {
     const attiva = give(battleGame('villaggio'), 0, ATTACK_COST);
     const move = getLegalActions(attiva, 0).find((m) => m.type === 'attaccaEdificio');
     expect(move).toEqual({ type: 'attaccaEdificio', player: 0, vertex: TARGET_VERTEX });
+  });
+
+  it('le due case iniziali sono indistruttibili finché restano casette', () => {
+    const s = give(battleGame('villaggio', { initial: true }), 0, ATTACK_COST);
+    // Non compare tra i bersagli né tra le mosse legali.
+    expect(battleTargets(s, 0)).toEqual([]);
+    expect(getLegalActions(s, 0).some((m) => m.type === 'attaccaEdificio')).toBe(false);
+    // E un attacco forzato viene bocciato con l’errore dedicato.
+    expectError(s, { type: 'attaccaEdificio', player: 0, vertex: TARGET_VERTEX }, 'CASA_INDISTRUTTIBILE');
+  });
+
+  it('una roccaforte su un insediamento iniziale è attaccabile e torna casa indistruttibile', () => {
+    let s = give(battleGame('roccaforte', { initial: true }), 0, ATTACK_COST);
+    // La roccaforte iniziale è un bersaglio valido.
+    expect(battleTargets(s, 0)).toEqual([TARGET_VERTEX]);
+    s = apply(s, { type: 'attaccaEdificio', player: 0, vertex: TARGET_VERTEX });
+    // Declassata a casetta, ma resta un insediamento iniziale.
+    expect(s.players[1]!.strongholds).not.toContain(TARGET_VERTEX);
+    expect(s.players[1]!.villages).toContain(TARGET_VERTEX);
+    expect(s.players[1]!.initialVillages).toContain(TARGET_VERTEX);
+    // Ora è di nuovo indistruttibile: un secondo attacco (con altre risorse) è bocciato.
+    const s2 = give(s, 0, ATTACK_COST);
+    expect(battleTargets(s2, 0)).toEqual([]);
+    expectError(s2, { type: 'attaccaEdificio', player: 0, vertex: TARGET_VERTEX }, 'CASA_INDISTRUTTIBILE');
   });
 
   it('non è un bersaglio l’edificio proprio nemmeno con una strada adiacente', () => {

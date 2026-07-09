@@ -424,7 +424,7 @@ export const nl: Strings = {
   battaglia: {
     conBattaglia: 'Met strijd',
     spiega:
-      'Als een van jouw wegen het huis of het bolwerk van een tegenstander bereikt, kun je het aanvallen door 3 schapen, 2 ijzer en 2 hout te betalen: het huis wordt verwoest, het bolwerk wordt gedegradeerd tot huis. Combineert met rampen.',
+      'Als een van jouw wegen het huis of het bolwerk van een tegenstander bereikt, kun je het aanvallen door 3 schapen, 2 ijzer en 2 hout te betalen: het huis wordt verwoest, het bolwerk wordt gedegradeerd tot huis. Combineert met rampen. De twee starthuizen zijn onverwoestbaar, tenzij ze bolwerken worden.',
     attacca: '⚔️ Aanvallen',
     scegliBersaglio: 'Kies het gebouw van de tegenstander om aan te vallen (3 schapen, 2 ijzer, 2 hout).',
   },
