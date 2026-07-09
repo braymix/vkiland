@@ -24,7 +24,12 @@ const TARGET: VertexId = topo.edgeVertices[ATTACK_EDGE]![0];
 // raggiungibile è TARGET; gli altri servono solo a fare punteggio nel conteggio.
 const FILLER = topo.vertices.filter((v) => v !== TARGET);
 
-function scenario(opts: { ownerStrongholds: number; ownerVillages: number; surplus: number }): GameState {
+function scenario(opts: {
+  ownerStrongholds: number;
+  ownerVillages: number;
+  surplus: number;
+  assaltoCard?: boolean;
+}): GameState {
   const s = createGame({
     seed: 'bot-battaglia',
     players: [
@@ -53,6 +58,7 @@ function scenario(opts: { ownerStrongholds: number; ownerVillages: number; surpl
   for (const r of RESOURCES) s.players[0]!.resources[r] = ATTACK_COST[r];
   s.players[0]!.resources.lana += opts.surplus;
   s.players[0]!.resources.ferro += opts.surplus;
+  if (opts.assaltoCard) s.players[0]!.sagaCards = ['assalto'];
   return s;
 }
 
@@ -85,6 +91,13 @@ describe('euristica di Battaglia dei bot', () => {
     const s = scenario({ ownerStrongholds: 1, ownerVillages: 0, surplus: 0 });
     const action = decide(s, 'normale');
     expect(action.type).not.toBe('attaccaEdificio');
+  });
+
+  it('preferisce la carta ASSALTO (gratis) all’attacco a pagamento', () => {
+    // Avversario prossimo alla vittoria + carta Assalto in mano: il bot la gioca.
+    const s = scenario({ ownerStrongholds: 4, ownerVillages: 1, surplus: 0, assaltoCard: true });
+    const action = decide(s, 'normale');
+    expect(action).toEqual({ type: 'giocaAssalto', player: 0, vertex: TARGET });
   });
 
   it('l’esperto colpisce il leader col surplus anche senza minaccia imminente', () => {

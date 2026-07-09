@@ -17,9 +17,11 @@ interface Props {
   legalActions: LegalMove[];
   onSubmit: (action: Action) => void;
   onClose: () => void;
+  /** Battaglia: gioca la carta ASSALTO scegliendo il bersaglio sulla mappa. */
+  onEnterAssalto: () => void;
 }
 
-export function SagaCardsDialog({ view, legalActions, onSubmit, onClose }: Props) {
+export function SagaCardsDialog({ view, legalActions, onSubmit, onClose, onEnterAssalto }: Props) {
   const me = view.me!;
   const [picking, setPicking] = useState<'banchetto' | 'tributo' | null>(null);
   const [banchettoPick, setBanchettoPick] = useState<Resource[]>([]);
@@ -34,6 +36,8 @@ export function SagaCardsDialog({ view, legalActions, onSubmit, onClose }: Props
         return legalActions.some((m) => m.type === 'giocaBanchetto');
       case 'tributo':
         return legalActions.some((m) => m.type === 'giocaTributo');
+      case 'assalto':
+        return legalActions.some((m) => m.type === 'giocaAssalto');
       default:
         return false;
     }
@@ -44,6 +48,8 @@ export function SagaCardsDialog({ view, legalActions, onSubmit, onClose }: Props
     else if (card === 'costruttoriDiSentieri') onSubmit({ type: 'giocaCostruttori', player: me.id });
     else if (card === 'banchetto') setPicking('banchetto');
     else if (card === 'tributo') setPicking('tributo');
+    // ASSALTO: si sceglie il bersaglio sulla mappa, quindi si chiude il dialogo.
+    else if (card === 'assalto') onEnterAssalto();
   };
 
   if (picking === 'banchetto') {

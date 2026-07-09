@@ -397,6 +397,11 @@ export const ICONA_SAGA: Record<string, SpriteDef> = {
     map: { O: 'dragoOcchio', o: 'spiga' },
     rows: ['.......', 'O..O..O', 'OO.O.OO', 'OOOOOOO', 'oooooo.'.padEnd(7, 'o'), '.......', '.......'],
   },
+  assalto: {
+    // spada (carta Assalto, modalità Battaglia)
+    map: { L: 'ferroLuce', F: 'ferroScuro', t: 'tronco' },
+    rows: ['...L...', '...L...', '...L...', '.FFtFF.', '...t...', '...t...', '...t...'],
+  },
 };
 
 /** Icone della UI (HUD): stella dei Punti Gloria, carte risorsa, pergamene. */

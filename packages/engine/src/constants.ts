@@ -73,6 +73,14 @@ export const SAGA_DECK_COMPOSITION: readonly SagaCard[] = [
 ];
 
 /**
+ * Carte in più mescolate nel mazzo Saga SOLO in modalità Battaglia: 3 ASSALTO.
+ * Tenute separate così le partite standard restano identiche (stesso mazzo).
+ */
+export const BATTLE_SAGA_EXTRA: readonly SagaCard[] = [
+  ...Array<SagaCard>(3).fill('assalto'),
+];
+
+/**
  * Posizioni degli approdi sull'anello costiero di 30 spigoli:
  * intervalli 3-4-3-3-4-3-3-4-3 → nessun approdo condivide vertici col successivo.
  */

@@ -343,6 +343,7 @@ export const en: Strings = {
     tundra: 'Frozen tundra',
   },
   cartaSaga: {
+    assalto: 'Assault',
     berserker: 'Berserker',
     sagaDegliEroi: 'Hero Saga',
     costruttoriDiSentieri: 'Path Builders',
@@ -410,6 +411,7 @@ export const en: Strings = {
   },
 
   descrizioneCarta: {
+    assalto: 'Freely attack an opponent building reached by one of your roads: destroys the house or downgrades the stronghold to a house.',
     berserker: 'Move the Dragon and steal 1 card. Counts toward Berserker Fury.',
     sagaDegliEroi: '1 secret Glory Point (counts right away).',
     costruttoriDiSentieri: 'Immediately place 2 free paths.',
@@ -422,9 +424,10 @@ export const en: Strings = {
    * table, where someone always takes it personally.
    */
   battaglia: {
+    assaltoScegli: 'Pick the opponent building to assault with the card.',
     conBattaglia: 'With battle',
     spiega:
-      'When one of your roads reaches an opponent’s house or stronghold, you can attack it by paying 3 sheep, 2 iron and 2 wood: the house is destroyed, the stronghold is downgraded to a house. Combines with calamities. The two starting houses are indestructible, unless they become strongholds.',
+      'When one of your roads reaches an opponent’s house or stronghold, you can attack it by paying 3 sheep, 2 iron and 2 wood: the house is destroyed, the stronghold is downgraded to a house. The two starting houses are indestructible, unless they become strongholds.',
     attacca: '⚔️ Attack',
     scegliBersaglio: 'Pick the opponent building to attack (3 sheep, 2 iron, 2 wood).',
   },

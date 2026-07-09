@@ -187,6 +187,12 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
           moves.push({ type: 'attaccaEdificio', player, vertex: v });
         }
       }
+      // Battaglia: la carta ASSALTO attacca gratis (stessi bersagli).
+      if (state.config.battle && canPlaySagaCard(state, player, 'assalto')) {
+        for (const v of battleTargets(state, player, radius)) {
+          moves.push({ type: 'giocaAssalto', player, vertex: v });
+        }
+      }
 
       // Scambi con banca/approdi (col rapporto scontato dalla calamità del giro,
       // salvo "mare in tempesta" che li vieta del tutto).
