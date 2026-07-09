@@ -7,7 +7,7 @@ import type { Action, ApplyResult, GameEvent } from './actions';
 import { getTopology } from './board/topology';
 import { revealCalamity } from './calamities';
 import { dragonPhaseAfterSeven, rollTimePhase } from './calamityRules';
-import { BUILD_COSTS, HAND_LIMIT, PIECE_LIMITS, RESOURCES } from './constants';
+import { ATTACK_COST, BUILD_COSTS, HAND_LIMIT, PIECE_LIMITS, RESOURCES } from './constants';
 import { cloneState } from './game';
 import { recomputeFuria } from './largestArmy';
 import { recomputeGrandeVia } from './longestRoad';
@@ -138,6 +138,8 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
     // ----------------------------------------------------------- setup
     case 'piazzaVillaggioIniziale': {
       me.villages.push(action.vertex);
+      // Insediamento iniziale: "casa indistruttibile" in modalità Battaglia.
+      me.initialVillages.push(action.vertex);
       events.push({
         type: 'costruito',
         player: me.id,
@@ -297,6 +299,41 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       const card = state.sagaDeck.pop() as SagaCard;
       me.sagaCardsBoughtThisTurn.push(card);
       events.push({ type: 'cartaSagaComprata', player: me.id, card });
+      break;
+    }
+
+    // ----------------------------------------------------------- battaglia
+    case 'attaccaEdificio': {
+      payCost(state, me.id, ATTACK_COST);
+      // Il proprietario è l'avversario che ha l'edificio su quel vertice.
+      const owner = state.players.find(
+        (p) => p.villages.includes(action.vertex) || p.strongholds.includes(action.vertex)
+      )!;
+      if (owner.strongholds.includes(action.vertex)) {
+        // Roccaforte: declassata a casetta (resta dell'avversario).
+        owner.strongholds = owner.strongholds.filter((v) => v !== action.vertex);
+        owner.villages.push(action.vertex);
+        events.push({
+          type: 'edificioAttaccato',
+          attacker: me.id,
+          owner: owner.id,
+          vertex: action.vertex,
+          esito: 'roccaforteDeclassata',
+        });
+      } else {
+        // Casetta: distrutta.
+        owner.villages = owner.villages.filter((v) => v !== action.vertex);
+        events.push({
+          type: 'edificioAttaccato',
+          attacker: me.id,
+          owner: owner.id,
+          vertex: action.vertex,
+          esito: 'casettaDistrutta',
+        });
+      }
+      // Distruggere una casetta libera un vertice: può RICONGIUNGERE una Grande
+      // Via (propria o altrui) prima spezzata da quell'edificio.
+      recomputeGrandeVia(state, events);
       break;
     }
 

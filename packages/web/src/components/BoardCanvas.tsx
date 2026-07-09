@@ -24,6 +24,8 @@ import {
 
 export interface BoardTargets {
   vertices?: VertexId[];
+  /** Vertici bersaglio di un attacco (modalità Battaglia): mirino rosso. */
+  attackVertices?: VertexId[];
   edges?: EdgeId[];
   hexes?: HexId[];
 }
@@ -71,6 +73,7 @@ export function BoardCanvas({ view, targets, onPickVertex, onPickEdge, onPickHex
     if (!canvas) return;
     renderBoard(canvas, view, {
       highlightVertices: targets.vertices,
+      highlightAttackVertices: targets.attackVertices,
       highlightEdges: targets.edges,
       highlightHexes: targets.hexes,
     });
@@ -215,8 +218,10 @@ export function BoardCanvas({ view, targets, onPickVertex, onPickEdge, onPickHex
     const y = ((clientY - rect.top) / rect.height) * h;
     const radius = view.boardRadius;
     // Priorità: vertici, poi spigoli, poi esagoni (dal bersaglio più piccolo).
-    if (targets.vertices?.length && onPickVertex) {
-      const v = nearestVertex(x, y, targets.vertices, radius);
+    // I bersagli d'attacco (edifici avversari) sono cliccabili come i vertici.
+    const clickableVertices = [...(targets.vertices ?? []), ...(targets.attackVertices ?? [])];
+    if (clickableVertices.length && onPickVertex) {
+      const v = nearestVertex(x, y, clickableVertices, radius);
       if (v) {
         onPickVertex(v);
         return;

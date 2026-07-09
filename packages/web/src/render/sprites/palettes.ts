@@ -68,6 +68,7 @@ export const CLASSIC_THEME: ThemePalette = {
     scafoScuro: '#4a3018',
     vela: '#e8e0c8',
     mirinoPorto: '#c473e8', // bersaglio sui vertici degli approdi (viola)
+    mirinoAttacco: '#e74c3c', // bersaglio d'attacco (modalità Battaglia): rosso
     // generiche
     nero: '#1a1612',
     bianco: '#f5f1e6',
@@ -125,6 +126,11 @@ function parseRgb(hex: string): [number, number, number] {
 
 function mixTo([r, g, b]: [number, number, number], to: [number, number, number], amt: number): string {
   return '#' + toHex2(r + (to[0] - r) * amt) + toHex2(g + (to[1] - g) * amt) + toHex2(b + (to[2] - b) * amt);
+}
+
+/** Versione più scura (verso il nero) di un colore: usata per bordi/ombre. */
+export function darken(color: string, amt = 0.4): string {
+  return mixTo(parseRgb(color), [0, 0, 0], amt);
 }
 
 /**

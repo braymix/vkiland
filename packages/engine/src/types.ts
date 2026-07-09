@@ -100,6 +100,28 @@ export interface Board {
 export type BotLevel = 'facile' | 'normale' | 'difficile' | 'esperto';
 
 /**
+ * Colori personalizzati del Drago che NON dipendono dal colore del giocatore:
+ * il corpo prende sempre il colore di chi l'ha mosso, questi sono gli accenti
+ * (esadecimali `#rrggbb`). Assenti ⇒ i colori classici del tema.
+ */
+export interface DragonColors {
+  /** Occhi del Drago. */
+  eyes?: string;
+  /** Fiamme/soffio del Drago. */
+  fire?: string;
+}
+
+/**
+ * Colori personalizzati della roccaforte che NON sono le bandiere del clan:
+ * le bandiere restano tinte del colore del giocatore (per riconoscerlo), questi
+ * accenti (esadecimali `#rrggbb`) riguardano la pietra. Assenti ⇒ colori classici.
+ */
+export interface StrongholdColors {
+  /** Pietra della fortezza (la tonalità scura è derivata automaticamente). */
+  stone?: string;
+}
+
+/**
  * Cosmetici (skin) del giocatore: PASSTHROUGH opaco legato all'account.
  * Il motore non li interpreta mai — li trasporta solo fino alla vista, dove
  * il renderer sceglie gli sprite. Id sconosciuti ⇒ aspetto classico.
@@ -109,6 +131,10 @@ export interface PlayerCosmetics {
   dragon?: string;
   /** Aspetto delle roccaforti di questo giocatore. */
   stronghold?: string;
+  /** Ritocchi ai colori NON legati al giocatore del Drago (occhi, fiamme). */
+  dragonColors?: DragonColors;
+  /** Ritocchi ai colori NON legati alle bandiere della roccaforte (pietra). */
+  strongholdColors?: StrongholdColors;
 }
 
 export interface PlayerConfig {
@@ -130,6 +156,13 @@ export interface GameConfig {
   boardRadius: number;
   /** Modalità Calamità: una carta per giro. false = partita standard. */
   calamities: boolean;
+  /**
+   * Modalità Battaglia: se attiva, un clan che ha raggiunto con una propria
+   * strada la casetta/roccaforte di un avversario può pagare un costo per
+   * distruggere la casetta (o declassare la roccaforte a casetta). Si combina
+   * liberamente con le Calamità. false = partita standard.
+   */
+  battle: boolean;
 }
 
 export interface PlayerState {
@@ -146,6 +179,13 @@ export interface PlayerState {
   villages: VertexId[];
   strongholds: VertexId[];
   roads: EdgeId[];
+  /**
+   * I due insediamenti INIZIALI del clan (piazzati nel setup). In modalità
+   * Battaglia sono "case indistruttibili": non si possono distruggere finché
+   * restano casette. Se vengono promossi a roccaforte tornano attaccabili (e
+   * l'attacco li riporta a casetta, di nuovo indistruttibile).
+   */
+  initialVillages: VertexId[];
   // PUNTO DI ESTENSIONE: qui in Fase 4 verrà aggiunto un campo opzionale
   // `cosmetics` (id palette/skin scelti dal giocatore) che l'engine si limita
   // a trasportare senza interpretarlo.
@@ -327,4 +367,6 @@ export interface PlayerView {
   calamity: CalamityCard | null;
   /** Calamità ancora nel mazzo; null in modalità standard (per distinguere le due). */
   calamitiesLeft: number | null;
+  /** Modalità Battaglia attiva: la UI abilita l'azione di attacco. */
+  battle: boolean;
 }

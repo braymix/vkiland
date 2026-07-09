@@ -110,6 +110,11 @@ export const sr: Strings = {
   invRoccaInfo: 'Koji god izgled izabereš, uvek nosi boju tvog klana.',
   invSelezionato: 'U upotrebi',
   invSalvato: 'Sačuvano ✓',
+  invColori: 'Boje',
+  invColoreOcchi: 'Oči',
+  invColoreFiamme: 'Plamen',
+  invColorePietra: 'Kamen',
+  invRipristina: 'Poništi',
   skin: {
     drago: 'Klasični zmaj',
     navicella: 'Svemirski brod',
@@ -416,6 +421,14 @@ export const sr: Strings = {
    * EASTER EGG: bots griping when the Dragon blocks them — just like at a real
    * table, where someone always takes it personally.
    */
+  battaglia: {
+    conBattaglia: 'Sa bitkom',
+    spiega:
+      'Kada jedan od tvojih puteva dosegne kuću ili utvrđenje protivnika, možeš ga napasti plaćajući 3 ovce, 2 gvožđa i 2 drveta: kuća se ruši, utvrđenje se degradira u kuću. Kombinuje se sa nedaćama. Dve početne kuće su neuništive, osim ako ne postanu utvrđenja.',
+    attacca: '⚔️ Napadni',
+    scegliBersaglio: 'Izaberi protivničku građevinu za napad (3 ovce, 2 gvožđa, 2 drveta).',
+  },
+
   lamentiDrago: [
     'Ma daj, uvek ja?!',
     'Blokiraj nekog drugog, može?!',
@@ -465,6 +478,8 @@ export const sr: Strings = {
     grandeVia: 'Veliki put prelazi na {nome} ({n} puteva)',
     grandeViaNessuno: 'Veliki put više nikome ne pripada',
     furia: 'Bes Berserkera prelazi na {nome} ({n} berserkera)',
+    battagliaDistrutta: '⚔️ {attaccante} ruši kuću igrača {vittima}',
+    battagliaDeclassata: '⚔️ {attaccante} degradira utvrđenje igrača {vittima} u kuću',
     vittoria: '{nome} pobeđuje sa {n} poena slave!',
   },
 

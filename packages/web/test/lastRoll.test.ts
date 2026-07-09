@@ -14,6 +14,7 @@ function makeController(): LocalGameController {
     avoidAdjacent68: true,
     targetGloryPoints: 10,
     calamities: false,
+    battle: false,
   });
 }
 

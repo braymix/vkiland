@@ -51,66 +51,76 @@ export function ManageSheet({
     setTimeout(() => setCopied(false), 1500);
   };
 
+  // Mentre una conferma è aperta si nasconde la tendina: il dialog (.dialog-backdrop,
+  // z-50) sta SOTTO la sheet (z-60), quindi lasciandole entrambe la sheet coprirebbe
+  // i pulsanti del popup (bug: non si riusciva a confermare l'uscita). Nascosta la
+  // sheet, il popup resta solo e centrato; «Annulla» la fa riapparire.
+  const confirming = leaveOpen || terminateOpen;
+
   return (
     <>
-      <div className="manage-scrim" onClick={onClose} aria-hidden="true" />
-      <div className="manage-sheet" role="dialog" aria-label={it.gestionePartita}>
-        <button className="manage-handle" onClick={onClose} aria-label={it.chiudi} />
-        <h2 className="manage-title">{it.gestionePartita}</h2>
+      {!confirming && (
+        <>
+          <div className="manage-scrim" onClick={onClose} aria-hidden="true" />
+          <div className="manage-sheet" role="dialog" aria-label={it.gestionePartita}>
+            <button className="manage-handle" onClick={onClose} aria-label={it.chiudi} />
+            <h2 className="manage-title">{it.gestionePartita}</h2>
 
-        {manage.online && manage.code && (
-          <div className="invite-card">
-            <span className="invite-label">{it.codiceInvito}</span>
-            <span className="invite-code">{manage.code}</span>
-            <button className="pxbtn pxbtn--small" onClick={copyCode}>
-              {copied ? it.copiato : it.copia}
-            </button>
-          </div>
-        )}
+            {manage.online && manage.code && (
+              <div className="invite-card">
+                <span className="invite-label">{it.codiceInvito}</span>
+                <span className="invite-code">{manage.code}</span>
+                <button className="pxbtn pxbtn--small" onClick={copyCode}>
+                  {copied ? it.copiato : it.copia}
+                </button>
+              </div>
+            )}
 
-        <div className="manage-players">
-          {manage.players.map((p, i) => (
-            <div key={i} className="manage-player">
-              <span className="player-chip" style={{ background: shadesFor(p.color).main }} />
-              <span className="manage-player-name">
-                {p.name}
-                {p.isBot && <span style={{ color: 'var(--ink-dim)' }}> (bot)</span>}
-                {p.isHost && <span style={{ color: 'var(--accent)' }}> ({it.hostTag})</span>}
-              </span>
-              {manage.online && !p.isBot && (
-                <span
-                  className="conn-dot"
-                  style={{ background: p.connected ? 'var(--ok)' : 'var(--danger)' }}
-                  title={p.connected ? it.hostTag : it.statoOffline}
-                />
-              )}
-              {manage.online && !p.isBot && !p.connected && (
-                <span style={{ fontSize: 8, color: 'var(--danger)' }}>{it.statoOffline}</span>
+            <div className="manage-players">
+              {manage.players.map((p, i) => (
+                <div key={i} className="manage-player">
+                  <span className="player-chip" style={{ background: shadesFor(p.color).main }} />
+                  <span className="manage-player-name">
+                    {p.name}
+                    {p.isBot && <span style={{ color: 'var(--ink-dim)' }}> (bot)</span>}
+                    {p.isHost && <span style={{ color: 'var(--accent)' }}> ({it.hostTag})</span>}
+                  </span>
+                  {manage.online && !p.isBot && (
+                    <span
+                      className="conn-dot"
+                      style={{ background: p.connected ? 'var(--ok)' : 'var(--danger)' }}
+                      title={p.connected ? it.hostTag : it.statoOffline}
+                    />
+                  )}
+                  {manage.online && !p.isBot && !p.connected && (
+                    <span style={{ fontSize: 8, color: 'var(--danger)' }}>{it.statoOffline}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="manage-actions">
+              <button className="pxbtn pxbtn--ghost pxbtn--small" onClick={onClose}>
+                ↩ {it.riprendi}
+              </button>
+              <button
+                className="pxbtn pxbtn--ghost pxbtn--small"
+                onClick={() => setLeaveOpen(true)}
+              >
+                ⇠ {it.esciPartita}
+              </button>
+              {manage.onTerminate && (
+                <button
+                  className="pxbtn pxbtn--danger pxbtn--small"
+                  onClick={() => setTerminateOpen(true)}
+                >
+                  ✕ {it.terminaPartita}
+                </button>
               )}
             </div>
-          ))}
-        </div>
-
-        <div className="manage-actions">
-          <button className="pxbtn pxbtn--ghost pxbtn--small" onClick={onClose}>
-            ↩ {it.riprendi}
-          </button>
-          <button
-            className="pxbtn pxbtn--ghost pxbtn--small"
-            onClick={() => setLeaveOpen(true)}
-          >
-            ⇠ {it.esciPartita}
-          </button>
-          {manage.onTerminate && (
-            <button
-              className="pxbtn pxbtn--danger pxbtn--small"
-              onClick={() => setTerminateOpen(true)}
-            >
-              ✕ {it.terminaPartita}
-            </button>
-          )}
-        </div>
-      </div>
+          </div>
+        </>
+      )}
 
       {leaveOpen && (
         <Dialog title={it.esciPartitaTitolo}>

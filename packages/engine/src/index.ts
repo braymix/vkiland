@@ -15,11 +15,13 @@ export { applyAction } from './apply';
 export { isLegal } from './validate';
 export { getLegalActions } from './legal';
 export { getPlayerView, filterEventsForPlayer, type Viewer } from './view';
+export { sanitizeCosmetics } from './cosmetics';
 
 // Costanti e utilità riusate da bot e UI.
 export {
   RESOURCES,
   BUILD_COSTS,
+  ATTACK_COST,
   PIECE_LIMITS,
   SAGA_DECK_COMPOSITION,
   HAND_LIMIT,
@@ -58,6 +60,7 @@ export {
   canPlaceRoad,
   legalRoadEdges,
   legalVillageVertices,
+  battleTargets,
   bankTradeRatio,
   effectiveBankRatio,
   canPlaySagaCard,

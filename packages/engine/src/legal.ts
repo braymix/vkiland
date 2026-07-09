@@ -13,9 +13,10 @@ import {
   calamityBlocksStronghold,
   calamityDragonFrozen,
 } from './calamityRules';
-import { BUILD_COSTS, PIECE_LIMITS, RESOURCES } from './constants';
+import { ATTACK_COST, BUILD_COSTS, PIECE_LIMITS, RESOURCES } from './constants';
 import { hasAtLeast, totalResources } from './resources';
 import {
+  battleTargets,
   canPlaySagaCard,
   effectiveBankRatio,
   legalRoadEdges,
@@ -178,6 +179,13 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
       }
       if (state.sagaDeck.length > 0 && hasAtLeast(me.resources, BUILD_COSTS.cartaSaga)) {
         moves.push({ type: 'compraCartaSaga', player });
+      }
+
+      // Battaglia: attacca gli edifici avversari raggiunti dalle proprie strade.
+      if (state.config.battle && hasAtLeast(me.resources, ATTACK_COST)) {
+        for (const v of battleTargets(state, player, radius)) {
+          moves.push({ type: 'attaccaEdificio', player, vertex: v });
+        }
       }
 
       // Scambi con banca/approdi (col rapporto scontato dalla calamità del giro,

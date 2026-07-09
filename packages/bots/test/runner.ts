@@ -23,7 +23,8 @@ export function runBotGame(
   bots: Bot[],
   maxSteps = 8000,
   onAction?: (type: string) => void,
-  calamities = false
+  calamities = false,
+  battle = false
 ): GameRunResult {
   let state = createGame({
     seed,
@@ -33,6 +34,7 @@ export function runBotGame(
       isBot: true,
     })),
     ...(calamities ? { calamities: true } : {}),
+    ...(battle ? { battle: true } : {}),
   });
 
   let steps = 0;

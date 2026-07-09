@@ -110,6 +110,11 @@ export const nl: Strings = {
   invRoccaInfo: 'Welk uiterlijk je ook kiest, hij kleurt altijd in de kleur van je clan.',
   invSelezionato: 'In gebruik',
   invSalvato: 'Opgeslagen ✓',
+  invColori: 'Kleuren',
+  invColoreOcchi: 'Ogen',
+  invColoreFiamme: 'Vlammen',
+  invColorePietra: 'Steen',
+  invRipristina: 'Herstellen',
   skin: {
     drago: 'Klassieke Draak',
     navicella: 'Ruimteschip',
@@ -416,6 +421,14 @@ export const nl: Strings = {
    * EASTER EGG: bots die mopperen als de Draak hen blokkeert — net als aan een
    * echte tafel, waar iemand het altijd persoonlijk opvat.
    */
+  battaglia: {
+    conBattaglia: 'Met strijd',
+    spiega:
+      'Als een van jouw wegen het huis of het bolwerk van een tegenstander bereikt, kun je het aanvallen door 3 schapen, 2 ijzer en 2 hout te betalen: het huis wordt verwoest, het bolwerk wordt gedegradeerd tot huis. Combineert met rampen. De twee starthuizen zijn onverwoestbaar, tenzij ze bolwerken worden.',
+    attacca: '⚔️ Aanvallen',
+    scegliBersaglio: 'Kies het gebouw van de tegenstander om aan te vallen (3 schapen, 2 ijzer, 2 hout).',
+  },
+
   lamentiDrago: [
     'Oh kom op, altijd ik?!',
     'Blokkeer iemand anders, wil je?!',
@@ -465,6 +478,8 @@ export const nl: Strings = {
     grandeVia: 'De Grote Weg gaat naar {nome} ({n} paden)',
     grandeViaNessuno: 'De Grote Weg is van niemand meer',
     furia: 'De Razernij der Berserkers gaat naar {nome} ({n} berserkers)',
+    battagliaDistrutta: '⚔️ {attaccante} verwoest een huis van {vittima}',
+    battagliaDeclassata: '⚔️ {attaccante} degradeert een bolwerk van {vittima} tot huis',
     vittoria: '{nome} wint met {n} Roempunten!',
   },
 

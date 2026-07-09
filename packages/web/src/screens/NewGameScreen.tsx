@@ -12,13 +12,19 @@
  *   calamità, avvio, uscita e terminazione (dal pannello ☰ in partita).
  */
 import { useEffect, useRef, useState } from 'react';
-import { DEFAULT_TARGET_GLORY, MAX_PLAYERS, type BotLevel, type PlayerColor } from '@vikiland/engine';
+import {
+  DEFAULT_TARGET_GLORY,
+  MAX_PLAYERS,
+  type BotLevel,
+  type PlayerColor,
+  type PlayerCosmetics,
+} from '@vikiland/engine';
 import type { LobbyConfig, LobbyState, PublicLobbySummary } from '@vikiland/server/protocol';
 import { isApiError } from '@vikiland/server/protocol';
 import { it, t } from '../i18n';
 import type { GameSetup } from '../game/LocalGameController';
 import { getLocalCosmetics } from '../game/localCosmetics';
-import { connectSocket, type OnlineSession, type ServerSocket } from '../online/connection';
+import { apiGetCosmetics, connectSocket, type OnlineSession, type ServerSocket } from '../online/connection';
 import { RemoteGameController } from '../online/RemoteGameController';
 import { FREE_PALETTE, shadesFor } from '../render/sprites/palettes';
 import { TUTORIAL_ONLINE_CHAPTER } from '../i18n/tutorial';
@@ -67,6 +73,7 @@ export function NewGameScreen({
   // --- Regole (condivise fra i due flussi; l'online le sincronizza col server) ---
   const [targetPG, setTargetPG] = useState(DEFAULT_TARGET_GLORY);
   const [calamities, setCalamities] = useState(false);
+  const [battle, setBattle] = useState(false);
   const [avoid68, setAvoid68] = useState(true);
   const [seed, setSeed] = useState('');
   const [timerRaw, setTimerRaw] = useState('');
@@ -76,12 +83,15 @@ export function NewGameScreen({
   const timerSec = Math.max(0, Math.min(600, Math.floor(Number(timerRaw) || 0)));
 
   // --- Posti locali (hot-seat) ---
-  const [seats, setSeats] = useState<LocalSeat[]>([
-    { name: 'Bjorn', isBot: false, botLevel: 'normale', color: FREE_PALETTE[0]! },
+  // Il posto umano parte col nickname dell'account loggato (se c'è), sempre
+  // modificabile; senza account resta il nome di default.
+  const [seats, setSeats] = useState<LocalSeat[]>(() => [
+    { name: session?.username ?? 'Bjorn', isBot: false, botLevel: 'normale', color: FREE_PALETTE[0]! },
     { name: 'Astrid', isBot: true, botLevel: 'normale', color: FREE_PALETTE[1]! },
     { name: 'Leif', isBot: true, botLevel: 'facile', color: FREE_PALETTE[2]! },
   ]);
   const [editSeat, setEditSeat] = useState<number | null>(null);
+  const [startingLocal, setStartingLocal] = useState(false);
 
   // --- Online: socket, lobby, partita ---
   const [busy, setBusy] = useState(false);
@@ -194,6 +204,7 @@ export function NewGameScreen({
     setTargetPG(lobby.config.targetGloryPoints);
     setAvoid68(lobby.config.avoidAdjacent68);
     setCalamities(lobby.config.calamities);
+    setBattle(lobby.config.battle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lobby?.code]);
 
@@ -206,6 +217,7 @@ export function NewGameScreen({
       turnTimerSec: change.turnTimerSec ?? timerSec,
       isPublic: change.isPublic ?? isPublic,
       calamities: change.calamities ?? calamities,
+      battle: change.battle ?? battle,
       ...((change.seed ?? seed).trim() ? { seed: (change.seed ?? seed).trim() } : {}),
     };
     socketRef.current?.emit('lobby:updateConfig', next, (res) => {
@@ -220,6 +232,7 @@ export function NewGameScreen({
     turnTimerSec: timerSec,
     isPublic,
     calamities,
+    battle,
     ...(seed.trim() ? { seed: seed.trim() } : {}),
   });
 
@@ -278,9 +291,19 @@ export function NewGameScreen({
     );
   };
 
-  const startLocal = () => {
-    const localCosmetics = getLocalCosmetics();
-    const hasCosmetics = Object.keys(localCosmetics).length > 0;
+  const startLocal = async () => {
+    if (startingLocal) return;
+    setStartingLocal(true);
+    // I cosmetici dell'account SOVRASCRIVONO sempre quelli locali: se sei
+    // loggato usiamo l'inventario FRESCO dal server (così le modifiche appena
+    // fatte si vedono subito), con ripiego sul dispositivo se irraggiungibile.
+    let cosmetics: PlayerCosmetics;
+    if (session) {
+      cosmetics = await apiGetCosmetics(session).catch(() => getLocalCosmetics());
+    } else {
+      cosmetics = getLocalCosmetics();
+    }
+    const hasCosmetics = Object.keys(cosmetics).length > 0;
     onStartLocal({
       seed: seed.trim() || `vikiland-${Date.now()}-${Math.floor(Math.random() * 1e6)}`,
       players: seats.map((s, i) => ({
@@ -288,11 +311,12 @@ export function NewGameScreen({
         color: s.color,
         isBot: s.isBot,
         botLevel: s.botLevel,
-        ...(!s.isBot && hasCosmetics ? { cosmetics: localCosmetics } : {}),
+        ...(!s.isBot && hasCosmetics ? { cosmetics } : {}),
       })),
       avoidAdjacent68: avoid68,
       targetGloryPoints: targetPG,
       calamities,
+      battle,
     });
   };
 
@@ -339,6 +363,7 @@ export function NewGameScreen({
   const rulesAreClassic =
     targetPG === DEFAULT_TARGET_GLORY &&
     !calamities &&
+    !battle &&
     avoid68 &&
     !seed.trim() &&
     (mode === 'locale' || (timerSec === 0 && !isPublic));
@@ -498,6 +523,8 @@ export function NewGameScreen({
             bumpTarget={bumpTarget}
             calamities={calamities}
             setCalamities={(v) => setCalamities(v)}
+            battle={battle}
+            setBattle={(v) => setBattle(v)}
             avoid68={avoid68}
             setAvoid68={(v) => setAvoid68(v)}
             seed={seed}
@@ -511,7 +538,11 @@ export function NewGameScreen({
             setIsPublic={() => {}}
           />
 
-          <button className="pxbtn newgame-start" onClick={startLocal} disabled={humanCount === 0}>
+          <button
+            className="pxbtn newgame-start"
+            onClick={() => void startLocal()}
+            disabled={humanCount === 0 || startingLocal}
+          >
             ▶ {it.avvia}
           </button>
           {humanCount === 0 && (
@@ -677,6 +708,11 @@ export function NewGameScreen({
               setCalamities(v);
               patch({ calamities: v });
             }}
+            battle={battle}
+            setBattle={(v) => {
+              setBattle(v);
+              patch({ battle: v });
+            }}
             avoid68={avoid68}
             setAvoid68={(v) => {
               setAvoid68(v);
@@ -770,6 +806,8 @@ interface RulesPresetProps {
   bumpTarget: (delta: number) => void;
   calamities: boolean;
   setCalamities: (v: boolean) => void;
+  battle: boolean;
+  setBattle: (v: boolean) => void;
   avoid68: boolean;
   setAvoid68: (v: boolean) => void;
   seed: string;
@@ -847,6 +885,21 @@ function RulesPreset(p: RulesPresetProps) {
           {p.calamities && (
             <div style={{ fontSize: 8, color: 'var(--ink-dim)', lineHeight: 1.5 }}>
               {it.calamita.spiega}
+            </div>
+          )}
+
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={p.battle}
+              disabled={!p.editable}
+              onChange={(e) => p.setBattle(e.target.checked)}
+            />
+            ⚔️ {it.battaglia.conBattaglia}
+          </label>
+          {p.battle && (
+            <div style={{ fontSize: 8, color: 'var(--ink-dim)', lineHeight: 1.5 }}>
+              {it.battaglia.spiega}
             </div>
           )}
 

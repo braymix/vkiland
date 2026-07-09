@@ -118,7 +118,22 @@ la propria skin (verificato anche in una partita locale reale). Test:
 tinta + collegamento fino a `LocalGameController`), `localCosmetics.test.ts`
 (round-trip, merge, id invalidi, degrado senza localStorage) e lobby (skin →
 vista di TUTTI online). i18n in 8 lingue (`inventario`, `inv*`, `skin.*`).
-**Breve tutorial** (pulsante «a parte» in alto a destra del menu, distinto dal
+**PERSONALIZZAZIONE DEI COLORI (accenti non-clan)**: oltre alla forma si
+ritoccano i colori che NON dipendono dal giocatore — **occhi e fiamme** del
+Drago (`dragonColors`), **pietra** della roccaforte (`strongholdColors`,
+tonalità scura derivata). Le parti «di riconoscimento» restano intatte: il
+corpo del Drago prende sempre il colore di chi lo ha mosso, le bandiere della
+roccaforte restano del colore del clan. Modello: campi opzionali in
+`PlayerCosmetics` (sempre passthrough opaco nell'engine); validazione unificata
+in `engine/cosmetics.ts` (`sanitizeCosmetics`: id skin noti + esadecimali
+`#rrggbb`), riusata IDENTICA da server (`POST /api/cosmetics`) e client
+(`localCosmetics`). Il renderer applica i ritocchi PER-SPRITE via il nuovo
+parametro `overrides` di `bakeSprite`/`spriteDataURL` (chiave di cache inclusa),
+senza mai toccare le chiavi del colore del clan (che hanno la precedenza).
+Inventario: selettori colore nativi con anteprima LIVE su tutte le skin e
+«Ripristina» per tornare al classico; il salvataggio del trascinamento è in
+debounce. Test: `sanitizeCosmetics` (engine) e round-trip colori (web
+`localCosmetics`). **Breve tutorial** (pulsante «a parte» in alto a destra del menu, distinto dal
 «Libro delle Saghe»): tour interattivo passo-passo in 21 schede. La prima metà
 mostra una PARTITA VERA che si svolge sulla tavola — istantanee DETERMINISTICHE
 dal motore (`game/demoScript.ts`, seme verificato dal test: tocca a te per
@@ -179,8 +194,17 @@ vichinghi e mostra l'avviso «Campo piccolo/grande». Test: `largeBoard.test.ts`
 - ✅ `packages/server`: Fastify (REST `/api/register|login|logout|me`) +
      Socket.io con handshake autenticato dal token di sessione
 - ✅ Account: hash scrypt (`node:crypto`, zero dipendenze native), sessioni
-     token, storage JSON dietro interfaccia `Storage` (swap previsto a
-     Drizzle SQLite/PostgreSQL + argon2id, formati versionati)
+     token, storage dietro interfaccia `Storage` (sincrona)
+- ✅ **Persistenza durevole su PostgreSQL** (`storagePg.ts`, es. filess.io):
+     attiva con `DATABASE_URL`, altrimenti ripiego sul file JSON. Strategia
+     cache in memoria + **write-through**: carica utenti/sessioni all'avvio,
+     letture sincrone dalla memoria (interfaccia `Storage` invariata → auth e
+     lobby non toccati), scritture propagate al DB in background e in ordine,
+     con log degli errori (un singhiozzo del DB non blocca il gioco). Tabelle
+     create da sole al primo avvio; partite finite append-only (JSONB).
+     `DATABASE_SSL=true` per host TLS. Verificato end-to-end su un PostgreSQL
+     reale (dati sopravvivono a riconnessione/deploy) + test con DB finto
+     (`storagePg.test.ts`)
 - ✅ Lobby: codici invito a 6 caratteri non ambigui, posti umani/bot gestiti
      dall'host, espulsione, chiusura, riconnessione (il posto resta legato
      all'utente a partita iniziata); colore del clan scelto nella lobby

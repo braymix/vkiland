@@ -28,6 +28,8 @@ export type Action =
   | { type: 'costruisciVillaggio'; player: PlayerId; vertex: VertexId }
   | { type: 'costruisciRoccaforte'; player: PlayerId; vertex: VertexId }
   | { type: 'compraCartaSaga'; player: PlayerId }
+  // --- Battaglia (modalità opzionale): attacca l'edificio avversario raggiunto ---
+  | { type: 'attaccaEdificio'; player: PlayerId; vertex: VertexId }
   // --- Scambi ---
   | { type: 'scambioBanca'; player: PlayerId; give: Resource; receive: Resource }
   | {
@@ -94,6 +96,17 @@ export type GameEvent =
       kind: 'sentiero' | 'villaggio' | 'roccaforte';
       position: string;
       gratis: boolean;
+    }
+  | {
+      /**
+       * Battaglia: un edificio avversario è stato attaccato. `esito` distingue
+       * la roccaforte (declassata a casetta) dalla casetta (distrutta).
+       */
+      type: 'edificioAttaccato';
+      attacker: PlayerId;
+      owner: PlayerId;
+      vertex: VertexId;
+      esito: 'roccaforteDeclassata' | 'casettaDistrutta';
     }
   | { type: 'cartaSagaComprata'; player: PlayerId; card: SagaCard | null }
   | { type: 'cartaSagaGiocata'; player: PlayerId; card: SagaCard }

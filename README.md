@@ -63,6 +63,48 @@ docker run -p 8787:8787 -v vikiland-data:/data vikiland-server
 (`PORT`, `HOST` e `DATA_DIR` sono configurabili via ambiente; i dati di
 account/partite vivono nel volume `/data`.)
 
+## Persistenza durevole (PostgreSQL / filess.io)
+
+Sul free di Render il disco è **effimero**: account e partite si azzerano a
+ogni deploy. Per renderli **permanenti** basta puntare il server a un database
+PostgreSQL gestito. [filess.io](https://filess.io) ne offre uno gratis:
+
+1. **Crea il database** — su [filess.io](https://filess.io) registrati →
+   *Create Database* → scegli **PostgreSQL**. A creazione avvenuta apri il
+   database: nella scheda *Connection* trovi **Host, Port, Database name,
+   Username, Password**.
+2. **Componi la connection string** in questo formato:
+
+   ```
+   postgresql://UTENTE:PASSWORD@HOST:PORTA/NOMEDB
+   ```
+
+   (usa esattamente i valori del passo 1; se la password ha caratteri strani
+   vanno codificati per URL).
+3. **Collegala al server** — imposta la variabile d'ambiente `DATABASE_URL` con
+   quella stringa (su Render: *Environment → Add Environment Variable*; in
+   locale: `DATABASE_URL=... pnpm server`). Riavvia: nei log comparirà
+   `[storage] PostgreSQL: dati persistenti`. Il server crea da solo le tabelle
+   al primo avvio — non devi eseguire nessuna migrazione a mano.
+
+Senza `DATABASE_URL` il server continua a usare il file JSON in `DATA_DIR`
+(comodo in sviluppo).
+
+**SSL:** filess.io **non** usa SSL, quindi lascia `DATABASE_SSL` non impostata
+(e se la tua `DATABASE_URL` contiene `?sslmode=require`, il server lo ignora da
+solo per non andare in crash). Solo su host che *richiedono* TLS (es. Neon,
+Supabase) imposta `DATABASE_SSL=true`.
+
+**Schema:** non serve crearne uno a mano. Il server usa `public` se esiste,
+altrimenti si crea da solo uno schema dedicato `vikiland` (è il caso di
+filess.io, che all'utente non dà `public`: senza questo si otterrebbe l'errore
+*"no schema has been selected to create in"*). Per forzare uno schema preciso,
+imposta `DB_SCHEMA`.
+
+Come funziona: il server tiene i dati **in memoria** e li scrive sul database in
+background (write-through), ricaricandoli all'avvio. Così le letture restano
+istantanee e un'eventuale lentezza del DB non blocca il gioco.
+
 ## Stato del progetto
 
 Vedi [PROGRESS.md](./PROGRESS.md) per la roadmap e lo stato di avanzamento.

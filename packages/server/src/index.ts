@@ -11,18 +11,36 @@ import { dirname, join } from 'node:path';
 import Fastify from 'fastify';
 import fastifyCors from '@fastify/cors';
 import { Server, type Socket } from 'socket.io';
-import { DRAGON_SKIN_IDS, STRONGHOLD_SKIN_IDS, type Action, type PlayerCosmetics } from '@vikiland/engine';
+import { sanitizeCosmetics, type Action } from '@vikiland/engine';
 import { AuthService } from './auth';
 import { LobbyManager } from './lobby';
-import { JsonFileStorage } from './storage';
+import { JsonFileStorage, type Storage } from './storage';
 import { isApiError, type ClientToServerEvents, type LoginRequest, type RegisterRequest, type ServerToClientEvents } from './protocol';
 
 const PORT = Number(process.env['PORT'] ?? 8787);
 const HOST = process.env['HOST'] ?? '0.0.0.0';
 const DATA_DIR =
   process.env['DATA_DIR'] ?? join(dirname(fileURLToPath(import.meta.url)), '..', 'data');
+const DATABASE_URL = process.env['DATABASE_URL'];
 
-const storage = new JsonFileStorage(DATA_DIR);
+// Con DATABASE_URL usiamo PostgreSQL (dati DUREVOLI, es. filess.io): resiste ai
+// deploy e ai dischi effimeri. Senza, ripiego sul file JSON locale (sviluppo).
+let storage: Storage;
+if (DATABASE_URL) {
+  const { PostgresStorage } = await import('./storagePg');
+  try {
+    storage = await PostgresStorage.connect(DATABASE_URL);
+    console.log('[storage] PostgreSQL: dati persistenti');
+  } catch (err) {
+    // Messaggio pulito e attivabile invece di uno stack trace grezzo: quasi
+    // sempre è DATABASE_URL o DATABASE_SSL da correggere nelle variabili.
+    console.error(`[storage] ${err instanceof Error ? err.message : String(err)}`);
+    process.exit(1);
+  }
+} else {
+  storage = new JsonFileStorage(DATA_DIR);
+  console.log(`[storage] file JSON in ${DATA_DIR} (effimero: imposta DATABASE_URL per la persistenza)`);
+}
 const auth = new AuthService(storage);
 
 const app = Fastify({ logger: { level: 'warn' } });
@@ -118,22 +136,8 @@ function authedUser(header: string | undefined) {
 }
 
 // --- Inventario (skin legate all'account) -----------------------------------
-
-/** Tiene solo id validi; id assente/na = torna al classico. */
-function sanitizeCosmetics(raw: unknown): PlayerCosmetics {
-  const body = (raw ?? {}) as { dragon?: unknown; stronghold?: unknown };
-  const out: PlayerCosmetics = {};
-  if (typeof body.dragon === 'string' && (DRAGON_SKIN_IDS as readonly string[]).includes(body.dragon)) {
-    out.dragon = body.dragon;
-  }
-  if (
-    typeof body.stronghold === 'string' &&
-    (STRONGHOLD_SKIN_IDS as readonly string[]).includes(body.stronghold)
-  ) {
-    out.stronghold = body.stronghold;
-  }
-  return out;
-}
+// La validazione (id skin noti + colori esadecimali) vive nell'engine, così
+// server e client applicano ESATTAMENTE le stesse regole (vedi sanitizeCosmetics).
 
 app.get('/api/cosmetics', async (req, reply) => {
   const user = authedUser(req.headers.authorization);

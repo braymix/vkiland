@@ -9,6 +9,7 @@
  * motore: ogni azione restituita è legale per costruzione.
  */
 import {
+  ATTACK_COST,
   BUILD_COSTS,
   GRANDE_VIA_MIN,
   RESOURCES,
@@ -131,6 +132,12 @@ interface LevelCfg {
   cardBuyMargin: number;
   /** Carte avversarie minime per giocare il Tributo. */
   tributeThreshold: number;
+  /**
+   * Modalità Battaglia: attacca un avversario a ≤ N Punti Gloria pubblici dalla
+   * vittoria (0 = mai). Da 3 in su il bot fa anche attacchi opportunistici al
+   * leader col surplus.
+   */
+  attackWithin: number;
 }
 
 const LEVELS: Record<BotLevel, LevelCfg> = {
@@ -142,6 +149,7 @@ const LEVELS: Record<BotLevel, LevelCfg> = {
     bankTrades: false,
     cardBuyMargin: 3,
     tributeThreshold: 6,
+    attackWithin: 0,
   },
   normale: {
     epsilon: 0,
@@ -151,6 +159,7 @@ const LEVELS: Record<BotLevel, LevelCfg> = {
     bankTrades: true,
     cardBuyMargin: 3,
     tributeThreshold: 6,
+    attackWithin: 2,
   },
   difficile: {
     epsilon: 0,
@@ -160,6 +169,7 @@ const LEVELS: Record<BotLevel, LevelCfg> = {
     bankTrades: true,
     cardBuyMargin: 2,
     tributeThreshold: 5,
+    attackWithin: 3,
   },
   esperto: {
     epsilon: 0,
@@ -169,6 +179,7 @@ const LEVELS: Record<BotLevel, LevelCfg> = {
     bankTrades: true,
     cardBuyMargin: 2,
     tributeThreshold: 4,
+    attackWithin: 4,
   },
 };
 
@@ -180,6 +191,83 @@ function nearVictory(view: PlayerView, margin: number): Set<number> {
     if (p.gloryPointsPublic >= view.targetGloryPoints - margin) out.add(p.id);
   }
   return out;
+}
+
+/**
+ * Modalità Battaglia: sceglie il miglior edificio avversario da attaccare (o
+ * null se non conviene). `defensiveOnly` limita ai bersagli di un avversario
+ * PROSSIMO alla vittoria — disattivarlo ha priorità sulle proprie costruzioni;
+ * fuori difesa è un attacco opportunistico, fatto solo col surplus (senza
+ * sacrificare il costo dell'obiettivo corrente). Le mosse `attaccaEdificio`
+ * esistono solo a Battaglia attiva, con bersaglio raggiunto e costo disponibile:
+ * fuori modalità questa funzione esce subito a mani vuote.
+ */
+function chooseAttack(
+  input: BotInput,
+  view: PlayerView,
+  player: number,
+  cfg: LevelCfg,
+  defensiveOnly: boolean
+): Action | null {
+  if (cfg.attackWithin <= 0) return null;
+  const attacks = bucket(input, 'attaccaEdificio');
+  if (attacks.length === 0) return null;
+  const my = view.me!;
+
+  const scored = attacks
+    .map((m) => {
+      let owner = -1;
+      let stronghold = false;
+      for (const p of view.players) {
+        if (p.id === player) continue;
+        if (p.strongholds.includes(m.vertex)) {
+          owner = p.id;
+          stronghold = true;
+          break;
+        }
+        if (p.villages.includes(m.vertex)) {
+          owner = p.id;
+          break;
+        }
+      }
+      const ownerPG = owner >= 0 ? view.players[owner]!.gloryPointsPublic : -1;
+      return {
+        m,
+        owner,
+        ownerPG,
+        stronghold,
+        pips: vertexTotalPips(view, m.vertex),
+        imminent: ownerPG >= view.targetGloryPoints - 1,
+        threat: ownerPG >= view.targetGloryPoints - cfg.attackWithin,
+      };
+    })
+    .filter((x) => x.owner >= 0);
+
+  let pool = scored.filter((x) => x.threat);
+  if (defensiveOnly) {
+    // In difesa colpisco solo chi sta per vincere.
+    pool = pool.filter((x) => x.imminent);
+  } else if (pool.length === 0 && cfg.attackWithin >= 3) {
+    // Livelli alti, senza minacce vicine: attacco opportunistico al leader.
+    const leader = leaderId(view, player);
+    if (leader !== null) pool = scored.filter((x) => x.owner === leader);
+  }
+  if (pool.length === 0) return null;
+
+  // Prudenza: se nessun bersaglio è imminente, attacca solo col surplus (qualche
+  // carta oltre al costo dell'attacco), per non restare a mani vuote.
+  if (!pool.some((x) => x.imminent) && totalResources(my.resources) - totalOf(ATTACK_COST) < 3) {
+    return null;
+  }
+
+  // Migliore: prima chi è più avanti, poi le roccaforti, poi i vertici più ricchi.
+  pool.sort(
+    (a, b) =>
+      b.ownerPG - a.ownerPG ||
+      Number(b.stronghold) - Number(a.stronghold) ||
+      b.pips - a.pips
+  );
+  return pool[0]!.m;
 }
 
 export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
@@ -364,6 +452,10 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
       const { goal, cost } = currentGoal(view, player, BUILD_COSTS, spots.length > 0);
       const need = deficit(my.resources, cost);
 
+      // Battaglia: fermare chi sta per vincere viene prima delle proprie costruzioni.
+      const defend = chooseAttack(input, view, player, cfg, true);
+      if (defend) return defend;
+
       const strongholds = bucket(input, 'costruisciRoccaforte');
       if (strongholds.length > 0) {
         return strongholds.reduce((a, b) =>
@@ -410,6 +502,10 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
           if (bestLen > longestRoadLength(view, player)) return best;
         }
       }
+
+      // --- Battaglia: attacco opportunistico col surplus (dopo le proprie costruzioni) ---
+      const attack = chooseAttack(input, view, player, cfg, false);
+      if (attack) return attack;
 
       // --- Carte Saga ---
       const buyCard = input.legalActions.find((m) => m.type === 'compraCartaSaga');

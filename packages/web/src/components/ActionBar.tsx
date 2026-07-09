@@ -2,7 +2,7 @@
 import type { LegalMove, PlayerView } from '@vikiland/engine';
 import { it } from '../i18n';
 
-export type BuildMode = 'sentiero' | 'villaggio' | 'roccaforte' | null;
+export type BuildMode = 'sentiero' | 'villaggio' | 'roccaforte' | 'attacca' | null;
 
 interface Props {
   view: PlayerView;
@@ -56,6 +56,7 @@ export function ActionBar(props: Props) {
         {buildButton('sentiero', it.sentiero, has('costruisciSentiero'))}
         {buildButton('villaggio', it.villaggio, has('costruisciVillaggio'))}
         {buildButton('roccaforte', it.roccaforte, has('costruisciRoccaforte'))}
+        {view.battle && buildButton('attacca', it.battaglia.attacca, has('attaccaEdificio'))}
         <button
           className="pxbtn pxbtn--ghost"
           disabled={!has('compraCartaSaga')}
@@ -105,6 +106,11 @@ export function ActionBar(props: Props) {
           </button>
         )}
       </div>
+      {!props.errorText && mode === 'attacca' && (
+        <div className="phase-banner" style={{ color: 'var(--danger)' }}>
+          {it.battaglia.scegliBersaglio}
+        </div>
+      )}
       {props.errorText && (
         <div className="phase-banner" style={{ color: 'var(--danger)' }}>
           {props.errorText}

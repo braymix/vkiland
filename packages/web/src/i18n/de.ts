@@ -111,6 +111,11 @@ export const de: Strings = {
   invRoccaInfo: 'Egal welches Aussehen: Sie trägt immer die Farbe deines Clans.',
   invSelezionato: 'In Gebrauch',
   invSalvato: 'Gespeichert ✓',
+  invColori: 'Farben',
+  invColoreOcchi: 'Augen',
+  invColoreFiamme: 'Flammen',
+  invColorePietra: 'Stein',
+  invRipristina: 'Zurücksetzen',
   skin: {
     drago: 'Klassischer Drache',
     navicella: 'Raumschiff',
@@ -417,6 +422,14 @@ export const de: Strings = {
    * EASTER EGG: bots griping when the Dragon blocks them — just like at a real
    * table, where someone always takes it personally.
    */
+  battaglia: {
+    conBattaglia: 'Mit Schlacht',
+    spiega:
+      'Wenn einer deiner Pfade das Haus oder die Festung eines Gegners erreicht, kannst du es angreifen und dafür 3 Schafe, 2 Eisen und 2 Holz zahlen: Das Haus wird zerstört, die Festung zum Haus herabgestuft. Kombinierbar mit Katastrophen. Die beiden Starthäuser sind unzerstörbar, außer sie werden zu Festungen.',
+    attacca: '⚔️ Angreifen',
+    scegliBersaglio: 'Wähle das gegnerische Gebäude zum Angriff (3 Schafe, 2 Eisen, 2 Holz).',
+  },
+
   lamentiDrago: [
     'Ach komm, immer ich?!',
     'Blockier doch mal jemand anderen!',
@@ -466,6 +479,8 @@ export const de: Strings = {
     grandeVia: 'Die Große Straße geht an {nome} ({n} Pfade)',
     grandeViaNessuno: 'Die Große Straße gehört niemandem mehr',
     furia: 'Die Berserkerwut geht an {nome} ({n} Berserker)',
+    battagliaDistrutta: '⚔️ {attaccante} zerstört ein Haus von {vittima}',
+    battagliaDeclassata: '⚔️ {attaccante} stuft eine Festung von {vittima} zum Haus herab',
     vittoria: '{nome} gewinnt mit {n} Ruhmespunkten!',
   },
 

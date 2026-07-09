@@ -111,6 +111,11 @@ export const fr: Strings = {
   invRoccaInfo: 'Quel que soit l’aspect choisi, elle prend toujours la couleur de ton clan.',
   invSelezionato: 'Utilisé',
   invSalvato: 'Enregistré ✓',
+  invColori: 'Couleurs',
+  invColoreOcchi: 'Yeux',
+  invColoreFiamme: 'Flammes',
+  invColorePietra: 'Pierre',
+  invRipristina: 'Réinitialiser',
   skin: {
     drago: 'Dragon classique',
     navicella: 'Vaisseau spatial',
@@ -417,6 +422,14 @@ export const fr: Strings = {
    * EASTER EGG: bots griping when the Dragon blocks them — just like at a real
    * table, where someone always takes it personally.
    */
+  battaglia: {
+    conBattaglia: 'Avec bataille',
+    spiega:
+      'Quand un de tes chemins atteint la maison ou la forteresse d’un adversaire, tu peux l’attaquer en payant 3 moutons, 2 fer et 2 bois : la maison est détruite, la forteresse est rétrogradée en maison. Se combine avec les calamités. Les deux maisons de départ sont indestructibles, sauf si elles deviennent des forteresses.',
+    attacca: '⚔️ Attaquer',
+    scegliBersaglio: 'Choisis le bâtiment adverse à attaquer (3 moutons, 2 fer, 2 bois).',
+  },
+
   lamentiDrago: [
     'Oh non, toujours moi ?!',
     "Bloque quelqu'un d'autre, non ?!",
@@ -466,6 +479,8 @@ export const fr: Strings = {
     grandeVia: 'La Grande Voie passe à {nome} ({n} chemins)',
     grandeViaNessuno: "La Grande Voie n'appartient plus à personne",
     furia: 'La Fureur des Berserkers passe à {nome} ({n} berserkers)',
+    battagliaDistrutta: '⚔️ {attaccante} détruit une maison de {vittima}',
+    battagliaDeclassata: '⚔️ {attaccante} rétrograde une forteresse de {vittima} en maison',
     vittoria: '{nome} gagne avec {n} Points de Gloire !',
   },
 

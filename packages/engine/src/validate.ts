@@ -13,7 +13,7 @@ import {
   calamityBlocksStronghold,
   calamityDragonFrozen,
 } from './calamityRules';
-import { BUILD_COSTS, PIECE_LIMITS, RESOURCES } from './constants';
+import { ATTACK_COST, BUILD_COSTS, PIECE_LIMITS, RESOURCES } from './constants';
 import {
   hasAtLeast,
   isValidResourceCount,
@@ -76,6 +76,16 @@ const ERR = {
   calamitaDrago: err('CALAMITA_DRAGO', 'Una calamità tiene fermo il Drago in questo giro.'),
   nienteDaGuadagnare: err('NIENTE_DA_GUADAGNARE', 'Non hai un guadagno da riscuotere.'),
   guadagnoErrato: err('GUADAGNO_ERRATO', 'La selezione di risorse da guadagnare non è valida.'),
+  // --- Battaglia ---
+  battagliaSpenta: err('BATTAGLIA_SPENTA', 'La modalità Battaglia non è attiva in questa partita.'),
+  bersaglioNonRaggiunto: err(
+    'BERSAGLIO_NON_RAGGIUNTO',
+    'Nessun edificio avversario raggiunto da una tua strada su questo punto.'
+  ),
+  casaIndistruttibile: err(
+    'CASA_INDISTRUTTIBILE',
+    'Questa è una casa iniziale indistruttibile: puoi attaccarla solo se diventa una roccaforte.'
+  ),
 } as const;
 
 function isPlayerId(state: GameState, id: unknown): id is PlayerId {
@@ -201,6 +211,25 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (guard) return guard;
       if (state.sagaDeck.length === 0) return ERR.mazzoEsaurito;
       if (!hasAtLeast(me.resources, BUILD_COSTS.cartaSaga)) return ERR.risorseInsufficienti;
+      return null;
+    }
+
+    // ----------------------------------------------------------- battaglia
+    case 'attaccaEdificio': {
+      const guard = mainPhaseGuard(state, action.player);
+      if (guard) return guard;
+      if (!state.config.battle) return ERR.battagliaSpenta;
+      // Dev'essere un edificio AVVERSARIO, raggiunto da una mia strada.
+      const owner = buildingOwnerAt(state, action.vertex);
+      if (owner === null || owner === action.player) return ERR.bersaglioNonRaggiunto;
+      const reached = (topo.vertexEdges[action.vertex] ?? []).some((e) => me.roads.includes(e));
+      if (!reached) return ERR.bersaglioNonRaggiunto;
+      // Le due case iniziali sono indistruttibili finché restano casette.
+      const ownerP = state.players[owner]!;
+      const isStronghold = ownerP.strongholds.includes(action.vertex);
+      if (!isStronghold && ownerP.initialVillages.includes(action.vertex))
+        return ERR.casaIndistruttibile;
+      if (!hasAtLeast(me.resources, ATTACK_COST)) return ERR.risorseInsufficienti;
       return null;
     }
 
