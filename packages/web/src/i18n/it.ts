@@ -232,6 +232,7 @@ export const it = {
   villaggio: 'Villaggio',
   roccaforte: 'Roccaforte',
   compraCarta: 'Carta Saga',
+  attacco: 'Attacco',
   scambia: 'Scambia',
   scambiaBanca: 'Banca / Approdi',
   proponiScambio: 'Proponi ai giocatori',

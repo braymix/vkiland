@@ -226,6 +226,7 @@ export const ru: Strings = {
   villaggio: 'Деревня',
   roccaforte: 'Крепость',
   compraCarta: 'Карта саги',
+  attacco: 'Атака',
   scambia: 'Обмен',
   scambiaBanca: 'Банк / Пристани',
   proponiScambio: 'Предложить игрокам',

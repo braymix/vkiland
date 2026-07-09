@@ -227,6 +227,7 @@ export const fr: Strings = {
   villaggio: 'Village',
   roccaforte: 'Forteresse',
   compraCarta: 'Carte Saga',
+  attacco: 'Attaque',
   scambia: 'Échanger',
   scambiaBanca: 'Banque / Ports',
   proponiScambio: 'Proposer aux joueurs',

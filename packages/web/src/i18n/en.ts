@@ -226,6 +226,7 @@ export const en: Strings = {
   villaggio: 'Village',
   roccaforte: 'Stronghold',
   compraCarta: 'Saga Card',
+  attacco: 'Attack',
   scambia: 'Trade',
   scambiaBanca: 'Bank / Harbors',
   proponiScambio: 'Offer to players',
