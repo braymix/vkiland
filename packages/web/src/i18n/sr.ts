@@ -343,6 +343,7 @@ export const sr: Strings = {
     tundra: 'Zaleđena tundra',
   },
   cartaSaga: {
+    assalto: 'Juriš',
     berserker: 'Berserker',
     sagaDegliEroi: 'Saga o herojima',
     costruttoriDiSentieri: 'Graditelji puteva',
@@ -410,6 +411,7 @@ export const sr: Strings = {
   },
 
   descrizioneCarta: {
+    assalto: 'Besplatno napadni protivničku građevinu do koje dopire tvoj put: ruši kuću ili degradira utvrđenje u kuću.',
     berserker: 'Pomeri Zmaja i ukradi 1 kartu. Računa se za Bes Berserkera.',
     sagaDegliEroi: '1 tajni poen slave (računa se odmah).',
     costruttoriDiSentieri: 'Odmah postavi 2 besplatna puta.',
@@ -422,9 +424,10 @@ export const sr: Strings = {
    * table, where someone always takes it personally.
    */
   battaglia: {
+    assaltoScegli: 'Izaberi protivničku građevinu za juriš kartom.',
     conBattaglia: 'Sa bitkom',
     spiega:
-      'Kada jedan od tvojih puteva dosegne kuću ili utvrđenje protivnika, možeš ga napasti plaćajući 3 ovce, 2 gvožđa i 2 drveta: kuća se ruši, utvrđenje se degradira u kuću. Kombinuje se sa nedaćama. Dve početne kuće su neuništive, osim ako ne postanu utvrđenja.',
+      'Kada jedan od tvojih puteva dosegne kuću ili utvrđenje protivnika, možeš ga napasti plaćajući 3 ovce, 2 gvožđa i 2 drveta: kuća se ruši, utvrđenje se degradira u kuću. Dve početne kuće su neuništive, osim ako ne postanu utvrđenja.',
     attacca: '⚔️ Napadni',
     scegliBersaglio: 'Izaberi protivničku građevinu za napad (3 ovce, 2 gvožđa, 2 drveta).',
   },

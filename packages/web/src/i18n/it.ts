@@ -349,6 +349,7 @@ export const it = {
     tundra: 'Tundra ghiacciata',
   } satisfies Record<TerrainType, string>,
   cartaSaga: {
+    assalto: 'Assalto',
     berserker: 'Berserker',
     sagaDegliEroi: 'Saga degli Eroi',
     costruttoriDiSentieri: 'Costruttori di Sentieri',
@@ -356,6 +357,7 @@ export const it = {
     tributo: 'Tributo',
   } satisfies Record<SagaCard, string>,
   descrizioneCarta: {
+    assalto: 'Attacca gratis un edificio avversario raggiunto da una tua strada: distrugge la casetta o declassa la roccaforte a casetta.',
     berserker: 'Sposta il Drago e ruba 1 carta. Conta per la Furia dei Berserker.',
     sagaDegliEroi: '1 Punto Gloria segreto (conta da subito).',
     costruttoriDiSentieri: 'Piazza subito 2 sentieri gratuiti.',
@@ -427,9 +429,10 @@ export const it = {
 
   // --- Modalità Battaglia ---
   battaglia: {
+    assaltoScegli: 'Scegli l’edificio avversario da assaltare con la carta.',
     conBattaglia: 'Con battaglia',
     spiega:
-      'Quando una tua strada raggiunge la casetta o la roccaforte di un avversario, puoi attaccarla pagando 3 pecore, 2 ferro e 2 legno: la casetta viene distrutta, la roccaforte declassata a casetta. Si combina con le calamità. Le due case iniziali sono indistruttibili, a meno che non diventino roccaforti.',
+      'Quando una tua strada raggiunge la casetta o la roccaforte di un avversario, puoi attaccarla pagando 3 pecore, 2 ferro e 2 legno: la casetta viene distrutta, la roccaforte declassata a casetta. Le due case iniziali sono indistruttibili, a meno che non diventino roccaforti.',
     attacca: '⚔️ Attacca',
     scegliBersaglio: 'Scegli l’edificio avversario da attaccare (3 pecore, 2 ferro, 2 legno).',
   },

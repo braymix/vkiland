@@ -2,12 +2,21 @@ import { describe, expect, it } from 'vitest';
 import {
   ATTACK_COST,
   battleTargets,
+  createGame,
   getLegalActions,
   getTopology,
   type EdgeId,
   type GameState,
 } from '../src';
-import { apply, expectError, expectResourceInvariants, give, mut, newGame } from './helpers';
+import {
+  apply,
+  expectError,
+  expectResourceInvariants,
+  give,
+  makePlayers,
+  mut,
+  newGame,
+} from './helpers';
 
 /**
  * Scenario sintetico per la modalità Battaglia: il giocatore 0 ha una strada
@@ -123,6 +132,54 @@ describe('modalità Battaglia', () => {
     const s2 = give(s, 0, ATTACK_COST);
     expect(battleTargets(s2, 0)).toEqual([]);
     expectError(s2, { type: 'attaccaEdificio', player: 0, vertex: TARGET_VERTEX }, 'CASA_INDISTRUTTIBILE');
+  });
+
+  it('la carta ASSALTO distrugge gratis una casetta avversaria e si consuma', () => {
+    let s = mut(battleGame('villaggio'), (st) => {
+      st.players[0]!.sagaCards = ['assalto'];
+    });
+    // Nessuna risorsa: l'attacco con la carta è gratis.
+    const move = getLegalActions(s, 0).find((m) => m.type === 'giocaAssalto');
+    expect(move).toEqual({ type: 'giocaAssalto', player: 0, vertex: TARGET_VERTEX });
+    s = apply(s, { type: 'giocaAssalto', player: 0, vertex: TARGET_VERTEX });
+    expect(s.players[1]!.villages).not.toContain(TARGET_VERTEX);
+    expect(s.players[0]!.sagaCards).not.toContain('assalto');
+    expect(s.devCardPlayedThisTurn).toBe(true);
+    expectResourceInvariants(s);
+  });
+
+  it('la carta ASSALTO declassa una roccaforte avversaria', () => {
+    let s = mut(battleGame('roccaforte'), (st) => {
+      st.players[0]!.sagaCards = ['assalto'];
+    });
+    s = apply(s, { type: 'giocaAssalto', player: 0, vertex: TARGET_VERTEX });
+    expect(s.players[1]!.strongholds).not.toContain(TARGET_VERTEX);
+    expect(s.players[1]!.villages).toContain(TARGET_VERTEX);
+  });
+
+  it('la carta ASSALTO rispetta le case iniziali indistruttibili', () => {
+    const s = mut(battleGame('villaggio', { initial: true }), (st) => {
+      st.players[0]!.sagaCards = ['assalto'];
+    });
+    expect(getLegalActions(s, 0).some((m) => m.type === 'giocaAssalto')).toBe(false);
+    expectError(s, { type: 'giocaAssalto', player: 0, vertex: TARGET_VERTEX }, 'CASA_INDISTRUTTIBILE');
+  });
+
+  it('senza la carta ASSALTO in mano l’azione è rifiutata', () => {
+    const s = battleGame('villaggio'); // sagaCards vuoto
+    expectError(s, { type: 'giocaAssalto', player: 0, vertex: TARGET_VERTEX }, 'CARTA_NON_DISPONIBILE');
+  });
+
+  it('il mazzo Saga include 3 carte ASSALTO solo in Battaglia', () => {
+    const conBattaglia = createGame({
+      seed: 'mazzo-battaglia',
+      players: makePlayers(2),
+      battle: true,
+    });
+    const senzaBattaglia = createGame({ seed: 'mazzo-battaglia', players: makePlayers(2) });
+    expect(conBattaglia.sagaDeck.filter((c) => c === 'assalto')).toHaveLength(3);
+    expect(senzaBattaglia.sagaDeck.filter((c) => c === 'assalto')).toHaveLength(0);
+    expect(conBattaglia.sagaDeck.length).toBe(senzaBattaglia.sagaDeck.length + 3);
   });
 
   it('non è un bersaglio l’edificio proprio nemmeno con una strada adiacente', () => {

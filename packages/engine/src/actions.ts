@@ -48,6 +48,8 @@ export type Action =
   | { type: 'piazzaSentieroGratis'; player: PlayerId; edge: EdgeId }
   | { type: 'giocaBanchetto'; player: PlayerId; resources: [Resource, Resource] }
   | { type: 'giocaTributo'; player: PlayerId; resource: Resource }
+  // --- Battaglia: la carta ASSALTO attacca gratis l'edificio scelto ---
+  | { type: 'giocaAssalto'; player: PlayerId; vertex: VertexId }
   // --- Calamità: guadagno "a scelta" (fase calamityGain); scarti e strade
   //     riusano `scarta` e `piazzaSentieroGratis`. ---
   | { type: 'guadagnaCalamita'; player: PlayerId; resources: ResourceCount }

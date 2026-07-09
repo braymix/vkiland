@@ -343,6 +343,7 @@ export const es: Strings = {
     tundra: 'Tundra helada',
   },
   cartaSaga: {
+    assalto: 'Asalto',
     berserker: 'Berserker',
     sagaDegliEroi: 'Saga de los Héroes',
     costruttoriDiSentieri: 'Constructores de Caminos',
@@ -410,6 +411,7 @@ export const es: Strings = {
   },
 
   descrizioneCarta: {
+    assalto: 'Ataca gratis un edificio rival alcanzado por uno de tus caminos: destruye la casa o degrada la fortaleza a casa.',
     berserker: 'Mueve el Dragón y roba 1 carta. Cuenta para la Furia de los Berserkers.',
     sagaDegliEroi: '1 Punto de Gloria secreto (cuenta de inmediato).',
     costruttoriDiSentieri: 'Coloca de inmediato 2 caminos gratis.',
@@ -422,9 +424,10 @@ export const es: Strings = {
    * table, where someone always takes it personally.
    */
   battaglia: {
+    assaltoScegli: 'Elige el edificio rival a asaltar con la carta.',
     conBattaglia: 'Con batalla',
     spiega:
-      'Cuando uno de tus caminos alcanza la casa o la fortaleza de un rival, puedes atacarla pagando 3 ovejas, 2 hierro y 2 madera: la casa se destruye, la fortaleza baja a casa. Se combina con las calamidades. Las dos casas iniciales son indestructibles, salvo que se conviertan en fortalezas.',
+      'Cuando uno de tus caminos alcanza la casa o la fortaleza de un rival, puedes atacarla pagando 3 ovejas, 2 hierro y 2 madera: la casa se destruye, la fortaleza baja a casa. Las dos casas iniciales son indestructibles, salvo que se conviertan en fortalezas.',
     attacca: '⚔️ Atacar',
     scegliBersaglio: 'Elige el edificio rival a atacar (3 ovejas, 2 hierro, 2 madera).',
   },

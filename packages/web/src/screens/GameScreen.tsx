@@ -149,6 +149,9 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
         case 'attaccaEdificio':
           if (mode === 'attacca') attackVertices.push(m.vertex);
           break;
+        case 'giocaAssalto':
+          if (mode === 'assalto') attackVertices.push(m.vertex);
+          break;
       }
     }
     return { vertices, attackVertices, edges, hexes };
@@ -160,7 +163,8 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
         ((a.type === 'piazzaVillaggioIniziale' ||
           (a.type === 'costruisciVillaggio' && mode === 'villaggio') ||
           (a.type === 'costruisciRoccaforte' && mode === 'roccaforte') ||
-          (a.type === 'attaccaEdificio' && mode === 'attacca')) &&
+          (a.type === 'attaccaEdificio' && mode === 'attacca') ||
+          (a.type === 'giocaAssalto' && mode === 'assalto')) &&
           'vertex' in a &&
           a.vertex === v)
     );
@@ -298,6 +302,10 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
           legalActions={legalActions}
           onSubmit={dispatch}
           onClose={() => setCardsOpen(false)}
+          onEnterAssalto={() => {
+            setCardsOpen(false);
+            setMode('assalto');
+          }}
         />
       )}
       {buildingsOpen && <BuildingsDialog view={view} onClose={() => setBuildingsOpen(false)} />}

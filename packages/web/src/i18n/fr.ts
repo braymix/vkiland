@@ -344,6 +344,7 @@ export const fr: Strings = {
     tundra: 'Toundra gelée',
   },
   cartaSaga: {
+    assalto: 'Assaut',
     berserker: 'Berserker',
     sagaDegliEroi: 'Saga des Héros',
     costruttoriDiSentieri: 'Bâtisseurs de Chemins',
@@ -411,6 +412,7 @@ export const fr: Strings = {
   },
 
   descrizioneCarta: {
+    assalto: 'Attaque gratuitement un bâtiment adverse atteint par un de tes chemins : détruit la maison ou rétrograde la forteresse en maison.',
     berserker: 'Déplace le Dragon et vole 1 carte. Compte pour la Fureur des Berserkers.',
     sagaDegliEroi: '1 Point de Gloire secret (compte tout de suite).',
     costruttoriDiSentieri: 'Place aussitôt 2 chemins gratuits.',
@@ -423,9 +425,10 @@ export const fr: Strings = {
    * table, where someone always takes it personally.
    */
   battaglia: {
+    assaltoScegli: 'Choisis le bâtiment adverse à prendre d’assaut avec la carte.',
     conBattaglia: 'Avec bataille',
     spiega:
-      'Quand un de tes chemins atteint la maison ou la forteresse d’un adversaire, tu peux l’attaquer en payant 3 moutons, 2 fer et 2 bois : la maison est détruite, la forteresse est rétrogradée en maison. Se combine avec les calamités. Les deux maisons de départ sont indestructibles, sauf si elles deviennent des forteresses.',
+      'Quand un de tes chemins atteint la maison ou la forteresse d’un adversaire, tu peux l’attaquer en payant 3 moutons, 2 fer et 2 bois : la maison est détruite, la forteresse est rétrogradée en maison. Les deux maisons de départ sont indestructibles, sauf si elles deviennent des forteresses.',
     attacca: '⚔️ Attaquer',
     scegliBersaglio: 'Choisis le bâtiment adverse à attaquer (3 moutons, 2 fer, 2 bois).',
   },

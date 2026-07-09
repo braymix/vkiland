@@ -344,6 +344,7 @@ export const de: Strings = {
     tundra: 'Gefrorene Tundra',
   },
   cartaSaga: {
+    assalto: 'Angriff',
     berserker: 'Berserker',
     sagaDegliEroi: 'Heldensaga',
     costruttoriDiSentieri: 'Pfadbauer',
@@ -411,6 +412,7 @@ export const de: Strings = {
   },
 
   descrizioneCarta: {
+    assalto: 'Greife kostenlos ein gegnerisches Gebäude an, das einer deiner Pfade erreicht: zerstört das Haus oder stuft die Festung zum Haus herab.',
     berserker: 'Bewege den Drachen und stiehl 1 Karte. Zählt für die Berserkerwut.',
     sagaDegliEroi: '1 geheimer Ruhmespunkt (zählt sofort).',
     costruttoriDiSentieri: 'Platziere sofort 2 kostenlose Pfade.',
@@ -423,9 +425,10 @@ export const de: Strings = {
    * table, where someone always takes it personally.
    */
   battaglia: {
+    assaltoScegli: 'Wähle das gegnerische Gebäude für den Karten-Angriff.',
     conBattaglia: 'Mit Schlacht',
     spiega:
-      'Wenn einer deiner Pfade das Haus oder die Festung eines Gegners erreicht, kannst du es angreifen und dafür 3 Schafe, 2 Eisen und 2 Holz zahlen: Das Haus wird zerstört, die Festung zum Haus herabgestuft. Kombinierbar mit Katastrophen. Die beiden Starthäuser sind unzerstörbar, außer sie werden zu Festungen.',
+      'Wenn einer deiner Pfade das Haus oder die Festung eines Gegners erreicht, kannst du es angreifen und dafür 3 Schafe, 2 Eisen und 2 Holz zahlen: Das Haus wird zerstört, die Festung zum Haus herabgestuft. Die beiden Starthäuser sind unzerstörbar, außer sie werden zu Festungen.',
     attacca: '⚔️ Angreifen',
     scegliBersaglio: 'Wähle das gegnerische Gebäude zum Angriff (3 Schafe, 2 Eisen, 2 Holz).',
   },

@@ -57,6 +57,44 @@ function advanceCalamityRoads(state: GameState): void {
   state.phase = rest.length > 0 ? { type: 'calamityRoads', queue: rest, remaining: 2 } : rollTimePhase(state);
 }
 
+/**
+ * Battaglia: risolve un attacco su un edificio avversario (già validato). La
+ * roccaforte viene declassata a casetta, la casetta distrutta. Distruggere una
+ * casetta libera un vertice: può ricongiungere una Grande Via prima spezzata.
+ * Non tocca le risorse: il costo (risorse o carta) lo paga il chiamante.
+ */
+function resolveAttack(
+  state: GameState,
+  attacker: PlayerId,
+  vertex: string,
+  events: GameEvent[]
+): void {
+  const owner = state.players.find(
+    (p) => p.villages.includes(vertex) || p.strongholds.includes(vertex)
+  )!;
+  if (owner.strongholds.includes(vertex)) {
+    owner.strongholds = owner.strongholds.filter((v) => v !== vertex);
+    owner.villages.push(vertex);
+    events.push({
+      type: 'edificioAttaccato',
+      attacker,
+      owner: owner.id,
+      vertex,
+      esito: 'roccaforteDeclassata',
+    });
+  } else {
+    owner.villages = owner.villages.filter((v) => v !== vertex);
+    events.push({
+      type: 'edificioAttaccato',
+      attacker,
+      owner: owner.id,
+      vertex,
+      esito: 'casettaDistrutta',
+    });
+  }
+  recomputeGrandeVia(state, events);
+}
+
 /** Paga un costo: dal giocatore alla banca. */
 function payCost(state: GameState, player: PlayerId, cost: ResourceCount): void {
   const p = state.players[player]!;
@@ -305,35 +343,15 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
     // ----------------------------------------------------------- battaglia
     case 'attaccaEdificio': {
       payCost(state, me.id, ATTACK_COST);
-      // Il proprietario è l'avversario che ha l'edificio su quel vertice.
-      const owner = state.players.find(
-        (p) => p.villages.includes(action.vertex) || p.strongholds.includes(action.vertex)
-      )!;
-      if (owner.strongholds.includes(action.vertex)) {
-        // Roccaforte: declassata a casetta (resta dell'avversario).
-        owner.strongholds = owner.strongholds.filter((v) => v !== action.vertex);
-        owner.villages.push(action.vertex);
-        events.push({
-          type: 'edificioAttaccato',
-          attacker: me.id,
-          owner: owner.id,
-          vertex: action.vertex,
-          esito: 'roccaforteDeclassata',
-        });
-      } else {
-        // Casetta: distrutta.
-        owner.villages = owner.villages.filter((v) => v !== action.vertex);
-        events.push({
-          type: 'edificioAttaccato',
-          attacker: me.id,
-          owner: owner.id,
-          vertex: action.vertex,
-          esito: 'casettaDistrutta',
-        });
-      }
-      // Distruggere una casetta libera un vertice: può RICONGIUNGERE una Grande
-      // Via (propria o altrui) prima spezzata da quell'edificio.
-      recomputeGrandeVia(state, events);
+      resolveAttack(state, me.id, action.vertex, events);
+      break;
+    }
+    case 'giocaAssalto': {
+      // La carta ASSALTO è un attacco GRATIS: la carta stessa è il costo.
+      removeCard(me.sagaCards, 'assalto');
+      state.devCardPlayedThisTurn = true;
+      events.push({ type: 'cartaSagaGiocata', player: me.id, card: 'assalto' });
+      resolveAttack(state, me.id, action.vertex, events);
       break;
     }
 
