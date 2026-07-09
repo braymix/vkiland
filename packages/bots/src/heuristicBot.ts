@@ -193,28 +193,28 @@ function nearVictory(view: PlayerView, margin: number): Set<number> {
   return out;
 }
 
+type AttackMove = Extract<Action, { type: 'attaccaEdificio' | 'giocaAssalto' }>;
+
 /**
- * Modalità Battaglia: sceglie il miglior edificio avversario da attaccare (o
- * null se non conviene). `defensiveOnly` limita ai bersagli di un avversario
- * PROSSIMO alla vittoria — disattivarlo ha priorità sulle proprie costruzioni;
- * fuori difesa è un attacco opportunistico, fatto solo col surplus (senza
- * sacrificare il costo dell'obiettivo corrente). Le mosse `attaccaEdificio`
- * esistono solo a Battaglia attiva, con bersaglio raggiunto e costo disponibile:
- * fuori modalità questa funzione esce subito a mani vuote.
+ * Modalità Battaglia: sceglie il miglior edificio avversario da attaccare tra i
+ * `candidates` dati (o null se non conviene). `defensiveOnly` limita ai bersagli
+ * di un avversario PROSSIMO alla vittoria — disattivarlo ha priorità sulle
+ * proprie costruzioni. `free` = attacco con la carta ASSALTO (nessun costo in
+ * risorse): salta la prudenza sul surplus. Con `candidates` vuoto esce subito.
  */
 function chooseAttack(
-  input: BotInput,
   view: PlayerView,
   player: number,
   cfg: LevelCfg,
+  candidates: readonly AttackMove[],
+  free: boolean,
   defensiveOnly: boolean
 ): Action | null {
   if (cfg.attackWithin <= 0) return null;
-  const attacks = bucket(input, 'attaccaEdificio');
-  if (attacks.length === 0) return null;
+  if (candidates.length === 0) return null;
   const my = view.me!;
 
-  const scored = attacks
+  const scored = candidates
     .map((m) => {
       let owner = -1;
       let stronghold = false;
@@ -254,9 +254,9 @@ function chooseAttack(
   }
   if (pool.length === 0) return null;
 
-  // Prudenza: se nessun bersaglio è imminente, attacca solo col surplus (qualche
-  // carta oltre al costo dell'attacco), per non restare a mani vuote.
-  if (!pool.some((x) => x.imminent) && totalResources(my.resources) - totalOf(ATTACK_COST) < 3) {
+  // Prudenza: l'attacco a pagamento, se non imminente, si fa solo col surplus
+  // (qualche carta oltre al costo). L'attacco con la carta ASSALTO è gratis.
+  if (!free && !pool.some((x) => x.imminent) && totalResources(my.resources) - totalOf(ATTACK_COST) < 3) {
     return null;
   }
 
@@ -452,8 +452,13 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
       const { goal, cost } = currentGoal(view, player, BUILD_COSTS, spots.length > 0);
       const need = deficit(my.resources, cost);
 
-      // Battaglia: fermare chi sta per vincere viene prima delle proprie costruzioni.
-      const defend = chooseAttack(input, view, player, cfg, true);
+      // Battaglia: fermare chi sta per vincere viene prima delle proprie
+      // costruzioni. Si preferisce la carta ASSALTO (gratis) all'attacco a pagamento.
+      const assaultMoves = bucket(input, 'giocaAssalto');
+      const attackMoves = bucket(input, 'attaccaEdificio');
+      const defend =
+        chooseAttack(view, player, cfg, assaultMoves, true, true) ??
+        chooseAttack(view, player, cfg, attackMoves, false, true);
       if (defend) return defend;
 
       const strongholds = bucket(input, 'costruisciRoccaforte');
@@ -503,8 +508,11 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
         }
       }
 
-      // --- Battaglia: attacco opportunistico col surplus (dopo le proprie costruzioni) ---
-      const attack = chooseAttack(input, view, player, cfg, false);
+      // --- Battaglia: attacco opportunistico (dopo le proprie costruzioni).
+      //     Prima la carta ASSALTO (gratis), poi l'attacco a pagamento col surplus. ---
+      const attack =
+        chooseAttack(view, player, cfg, assaultMoves, true, false) ??
+        chooseAttack(view, player, cfg, attackMoves, false, false);
       if (attack) return attack;
 
       // --- Carte Saga ---

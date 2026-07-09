@@ -197,7 +197,7 @@ export function effectiveBankRatio(
 export function canPlaySagaCard(
   state: GameState,
   player: PlayerId,
-  card: 'berserker' | 'costruttoriDiSentieri' | 'banchetto' | 'tributo'
+  card: 'berserker' | 'costruttoriDiSentieri' | 'banchetto' | 'tributo' | 'assalto'
 ): boolean {
   if (player !== state.currentPlayer) return false;
   if (state.devCardPlayedThisTurn) return false;

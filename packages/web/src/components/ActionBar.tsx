@@ -2,7 +2,7 @@
 import type { LegalMove, PlayerView } from '@vikiland/engine';
 import { it } from '../i18n';
 
-export type BuildMode = 'sentiero' | 'villaggio' | 'roccaforte' | 'attacca' | null;
+export type BuildMode = 'sentiero' | 'villaggio' | 'roccaforte' | 'attacca' | 'assalto' | null;
 
 interface Props {
   view: PlayerView;
@@ -106,9 +106,9 @@ export function ActionBar(props: Props) {
           </button>
         )}
       </div>
-      {!props.errorText && mode === 'attacca' && (
+      {!props.errorText && (mode === 'attacca' || mode === 'assalto') && (
         <div className="phase-banner" style={{ color: 'var(--danger)' }}>
-          {it.battaglia.scegliBersaglio}
+          {mode === 'assalto' ? it.battaglia.assaltoScegli : it.battaglia.scegliBersaglio}
         </div>
       )}
       {props.errorText && (

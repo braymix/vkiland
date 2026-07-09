@@ -1,6 +1,7 @@
 /** Creazione della partita e clonazione dello stato. */
 import { generateBoard } from './board/generate';
 import {
+  BATTLE_SAGA_EXTRA,
   boardSpecForPlayers,
   CALAMITY_DECK_COMPOSITION,
   DEFAULT_TARGET_GLORY,
@@ -59,7 +60,12 @@ export function createGame(options: NewGameOptions): GameState {
   let rng = seedRng(seed);
   const [board, rngAfterBoard] = generateBoard(rng, config.avoidAdjacent68, spec);
   rng = rngAfterBoard;
-  const [sagaDeck, rngAfterDeck] = shuffle(rng, SAGA_DECK_COMPOSITION);
+  // In Battaglia il mazzo Saga include 3 carte ASSALTO in più; le partite
+  // standard restano identiche (stessa composizione, stesso consumo di PRNG).
+  const sagaComposition = config.battle
+    ? [...SAGA_DECK_COMPOSITION, ...BATTLE_SAGA_EXTRA]
+    : SAGA_DECK_COMPOSITION;
+  const [sagaDeck, rngAfterDeck] = shuffle(rng, sagaComposition);
   rng = rngAfterDeck;
 
   // Il mazzo Calamità consuma il PRNG solo se la modalità è attiva: così le

@@ -343,6 +343,7 @@ export const nl: Strings = {
     tundra: 'Bevroren toendra',
   },
   cartaSaga: {
+    assalto: 'Aanval',
     berserker: 'Berserker',
     sagaDegliEroi: 'Heldensaga',
     costruttoriDiSentieri: 'Padenbouwers',
@@ -410,6 +411,7 @@ export const nl: Strings = {
   },
 
   descrizioneCarta: {
+    assalto: 'Val gratis een gebouw van de tegenstander aan dat door een van je wegen is bereikt: verwoest het huis of degradeert het bolwerk tot huis.',
     berserker: 'Verplaats de Draak en steel 1 kaart. Telt mee voor de Razernij der Berserkers.',
     sagaDegliEroi: '1 geheim Roempunt (telt meteen mee).',
     costruttoriDiSentieri: 'Plaats meteen 2 gratis paden.',
@@ -422,9 +424,10 @@ export const nl: Strings = {
    * echte tafel, waar iemand het altijd persoonlijk opvat.
    */
   battaglia: {
+    assaltoScegli: 'Kies het gebouw van de tegenstander om met de kaart aan te vallen.',
     conBattaglia: 'Met strijd',
     spiega:
-      'Als een van jouw wegen het huis of het bolwerk van een tegenstander bereikt, kun je het aanvallen door 3 schapen, 2 ijzer en 2 hout te betalen: het huis wordt verwoest, het bolwerk wordt gedegradeerd tot huis. Combineert met rampen. De twee starthuizen zijn onverwoestbaar, tenzij ze bolwerken worden.',
+      'Als een van jouw wegen het huis of het bolwerk van een tegenstander bereikt, kun je het aanvallen door 3 schapen, 2 ijzer en 2 hout te betalen: het huis wordt verwoest, het bolwerk wordt gedegradeerd tot huis. De twee starthuizen zijn onverwoestbaar, tenzij ze bolwerken worden.',
     attacca: '⚔️ Aanvallen',
     scegliBersaglio: 'Kies het gebouw van de tegenstander om aan te vallen (3 schapen, 2 ijzer, 2 hout).',
   },

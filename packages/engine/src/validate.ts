@@ -92,6 +92,28 @@ function isPlayerId(state: GameState, id: unknown): id is PlayerId {
   return typeof id === 'number' && Number.isInteger(id) && id >= 0 && id < state.players.length;
 }
 
+/**
+ * Battaglia: controlla che `vertex` sia un bersaglio d'attacco valido per
+ * `player` (edificio avversario, raggiunto da una sua strada, non una casa
+ * iniziale indistruttibile). Condiviso da attacco a pagamento e carta Assalto.
+ */
+function attackTargetError(
+  state: GameState,
+  player: PlayerId,
+  vertex: string,
+  radius: number
+): ValidationError | null {
+  const owner = buildingOwnerAt(state, vertex);
+  if (owner === null || owner === player) return ERR.bersaglioNonRaggiunto;
+  const topo = getTopology(radius);
+  const reached = (topo.vertexEdges[vertex] ?? []).some((e) => state.players[player]!.roads.includes(e));
+  if (!reached) return ERR.bersaglioNonRaggiunto;
+  const ownerP = state.players[owner]!;
+  if (!ownerP.strongholds.includes(vertex) && ownerP.initialVillages.includes(vertex))
+    return ERR.casaIndistruttibile;
+  return null;
+}
+
 /** Guardia per le azioni della fase main del giocatore di turno, senza scambi pendenti. */
 function mainPhaseGuard(state: GameState, player: PlayerId): ValidationError | null {
   if (state.phase.type !== 'main') return ERR.faseErrata;
@@ -219,17 +241,20 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       const guard = mainPhaseGuard(state, action.player);
       if (guard) return guard;
       if (!state.config.battle) return ERR.battagliaSpenta;
-      // Dev'essere un edificio AVVERSARIO, raggiunto da una mia strada.
-      const owner = buildingOwnerAt(state, action.vertex);
-      if (owner === null || owner === action.player) return ERR.bersaglioNonRaggiunto;
-      const reached = (topo.vertexEdges[action.vertex] ?? []).some((e) => me.roads.includes(e));
-      if (!reached) return ERR.bersaglioNonRaggiunto;
-      // Le due case iniziali sono indistruttibili finché restano casette.
-      const ownerP = state.players[owner]!;
-      const isStronghold = ownerP.strongholds.includes(action.vertex);
-      if (!isStronghold && ownerP.initialVillages.includes(action.vertex))
-        return ERR.casaIndistruttibile;
+      const targetErr = attackTargetError(state, action.player, action.vertex, radius);
+      if (targetErr) return targetErr;
       if (!hasAtLeast(me.resources, ATTACK_COST)) return ERR.risorseInsufficienti;
+      return null;
+    }
+    case 'giocaAssalto': {
+      const guard = mainPhaseGuard(state, action.player);
+      if (guard) return guard;
+      if (!state.config.battle) return ERR.battagliaSpenta;
+      if (calamityBlocksSaga(state)) return ERR.calamitaSaga;
+      if (state.devCardPlayedThisTurn) return ERR.cartaGiaGiocata;
+      if (!me.sagaCards.includes('assalto')) return ERR.cartaNonDisponibile;
+      const targetErr = attackTargetError(state, action.player, action.vertex, radius);
+      if (targetErr) return targetErr;
       return null;
     }
 

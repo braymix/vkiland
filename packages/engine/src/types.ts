@@ -12,7 +12,13 @@ export type SagaCard =
   | 'sagaDegliEroi'
   | 'costruttoriDiSentieri'
   | 'banchetto'
-  | 'tributo';
+  | 'tributo'
+  /**
+   * ASSALTO (modalità Battaglia): 3 copie aggiunte al mazzo solo se la Battaglia
+   * è attiva. Giocarla vale come un attacco GRATIS (nessuna risorsa) a un
+   * edificio avversario raggiunto da una propria strada.
+   */
+  | 'assalto';
 
 /**
  * Carta CALAMITÀ (modalità opzionale). Una si rivela all'inizio di ogni giro
