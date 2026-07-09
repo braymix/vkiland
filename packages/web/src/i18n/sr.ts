@@ -226,6 +226,7 @@ export const sr: Strings = {
   villaggio: 'Selo',
   roccaforte: 'Utvrđenje',
   compraCarta: 'Karta Saga',
+  attacco: 'Napad',
   scambia: 'Razmeni',
   scambiaBanca: 'Banka / Pristaništa',
   proponiScambio: 'Ponudi igračima',

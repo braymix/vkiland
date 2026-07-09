@@ -226,6 +226,7 @@ export const es: Strings = {
   villaggio: 'Aldea',
   roccaforte: 'Fortaleza',
   compraCarta: 'Carta de Saga',
+  attacco: 'Ataque',
   scambia: 'Intercambiar',
   scambiaBanca: 'Banca / Puertos',
   proponiScambio: 'Proponer a los jugadores',

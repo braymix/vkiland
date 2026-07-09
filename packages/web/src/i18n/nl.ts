@@ -226,6 +226,7 @@ export const nl: Strings = {
   villaggio: 'Dorp',
   roccaforte: 'Burcht',
   compraCarta: 'Sagakaart',
+  attacco: 'Aanval',
   scambia: 'Ruilen',
   scambiaBanca: 'Bank / Havens',
   proponiScambio: 'Aanbieden aan spelers',

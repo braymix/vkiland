@@ -311,6 +311,7 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
       {buildingsOpen && <BuildingsDialog view={view} onClose={() => setBuildingsOpen(false)} />}
       {costsOpen && (
         <CostsDialog
+          view={view}
           targetGloryPoints={view.targetGloryPoints}
           onClose={() => setCostsOpen(false)}
           onOpenTutorial={() => {

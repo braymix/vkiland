@@ -1,5 +1,6 @@
 /** Bugiardino: costi di costruzione, Punti Gloria, bonus e regole rapide. */
 import {
+  ATTACK_COST,
   BONUS_GLORY,
   BUILD_COSTS,
   FURIA_MIN,
@@ -8,6 +9,7 @@ import {
   PIECE_LIMITS,
   flattenResources,
   type Buildable,
+  type PlayerView,
 } from '@vikiland/engine';
 import { it, t } from '../../i18n';
 import { ResIcon, UiIcon } from '../icons';
@@ -47,10 +49,12 @@ function GloryChip({ n }: { n: number }) {
 }
 
 export function CostsDialog({
+  view,
   targetGloryPoints,
   onClose,
   onOpenTutorial,
 }: {
+  view: PlayerView;
   targetGloryPoints: number;
   onClose: () => void;
   onOpenTutorial: () => void;
@@ -84,6 +88,18 @@ export function CostsDialog({
             <GloryChip n={row.glory} />
           </div>
         ))}
+
+        {view.battle && (
+          <div style={rowStyle}>
+            <span>{it.attacco}</span>
+            <span style={{ display: 'inline-flex', gap: 2, alignItems: 'center' }}>
+              {flattenResources(ATTACK_COST).map((r, i) => (
+                <ResIcon key={i} r={r} scale={2} />
+              ))}
+            </span>
+            <span />
+          </div>
+        )}
 
         <hr style={{ border: 'none', borderTop: '2px solid var(--ink-dim)', opacity: 0.4 }} />
 
