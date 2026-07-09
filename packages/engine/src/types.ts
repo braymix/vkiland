@@ -164,9 +164,10 @@ export interface GameConfig {
   calamities: boolean;
   /**
    * Modalità Battaglia: se attiva, un clan che ha raggiunto con una propria
-   * strada la casetta/roccaforte di un avversario può pagare un costo per
-   * distruggere la casetta (o declassare la roccaforte a casetta). Si combina
-   * liberamente con le Calamità. false = partita standard.
+   * strada la rete di un avversario può pagare per attaccarla. Due attacchi:
+   *  - PESANTE: distrugge una casetta o declassa una roccaforte a casetta;
+   *  - LEGGERO: spezza una strada avversaria all'estremità.
+   * false = partita standard.
    */
   battle: boolean;
 }

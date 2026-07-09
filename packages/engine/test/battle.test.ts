@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
-  ATTACK_COST,
+  ATTACK_COST_EDIFICIO,
+  ATTACK_COST_SENTIERO,
   battleTargets,
   createGame,
   getLegalActions,
   getTopology,
+  roadBattleTargets,
   type EdgeId,
   type GameState,
 } from '../src';
@@ -26,6 +28,12 @@ import {
 const topo = getTopology(2);
 const ATTACK_EDGE: EdgeId = topo.edges[0]!;
 const [TARGET_VERTEX, OTHER_VERTEX] = topo.edgeVertices[ATTACK_EDGE]!;
+// Strada nemica adiacente alla mia (condivide OTHER_VERTEX): bersaglio dell'attacco leggero.
+const ENEMY_EDGE: EdgeId = topo.vertexEdges[OTHER_VERTEX]!.find((e) => e !== ATTACK_EDGE)!;
+const ENEMY_VS = topo.edgeVertices[ENEMY_EDGE]!;
+const FAR_VERTEX = ENEMY_VS[0] === OTHER_VERTEX ? ENEMY_VS[1]! : ENEMY_VS[0]!;
+// Seconda strada nemica sull'estremo lontano: serve per "ancorare" entrambi i lati.
+const SECOND_ENEMY_EDGE: EdgeId = topo.vertexEdges[FAR_VERTEX]!.find((e) => e !== ENEMY_EDGE)!;
 
 function battleGame(
   kind: 'villaggio' | 'roccaforte',
@@ -60,20 +68,20 @@ describe('modalità Battaglia', () => {
     expect(battleTargets(s, 1)).toEqual([]);
   });
 
-  it('distrugge la casetta avversaria pagando 3 lana, 2 ferro, 2 legname', () => {
-    let s = give(battleGame('villaggio'), 0, ATTACK_COST);
+  it('distrugge la casetta avversaria pagando 2 legname, 1 pietra, 1 lana, 2 ferro', () => {
+    let s = give(battleGame('villaggio'), 0, ATTACK_COST_EDIFICIO);
     const bancaFerroPrima = s.bank.ferro;
     s = apply(s, { type: 'attaccaEdificio', player: 0, vertex: TARGET_VERTEX });
     expect(s.players[1]!.villages).not.toContain(TARGET_VERTEX);
     expect(s.players[1]!.villages).toHaveLength(0);
     // Il costo è tornato alla banca; le risorse del clan attaccante azzerate.
     expect(s.players[0]!.resources.ferro).toBe(0);
-    expect(s.bank.ferro).toBe(bancaFerroPrima + ATTACK_COST.ferro);
+    expect(s.bank.ferro).toBe(bancaFerroPrima + ATTACK_COST_EDIFICIO.ferro);
     expectResourceInvariants(s);
   });
 
   it('declassa la roccaforte avversaria a casetta (resta dell’avversario)', () => {
-    let s = give(battleGame('roccaforte'), 0, ATTACK_COST);
+    let s = give(battleGame('roccaforte'), 0, ATTACK_COST_EDIFICIO);
     s = apply(s, { type: 'attaccaEdificio', player: 0, vertex: TARGET_VERTEX });
     expect(s.players[1]!.strongholds).not.toContain(TARGET_VERTEX);
     expect(s.players[1]!.villages).toContain(TARGET_VERTEX);
@@ -86,32 +94,32 @@ describe('modalità Battaglia', () => {
 
   it('rifiuta l’attacco su un edificio non raggiunto da una propria strada', () => {
     // Sposto la strada del giocatore 0 lontano dal bersaglio.
-    const s = mut(give(battleGame('villaggio'), 0, ATTACK_COST), (st) => {
+    const s = mut(give(battleGame('villaggio'), 0, ATTACK_COST_EDIFICIO), (st) => {
       st.players[0]!.roads = [];
     });
     expectError(s, { type: 'attaccaEdificio', player: 0, vertex: TARGET_VERTEX }, 'BERSAGLIO_NON_RAGGIUNTO');
   });
 
   it('rifiuta l’attacco se la modalità Battaglia è spenta', () => {
-    const s = mut(give(battleGame('villaggio'), 0, ATTACK_COST), (st) => {
+    const s = mut(give(battleGame('villaggio'), 0, ATTACK_COST_EDIFICIO), (st) => {
       st.config.battle = false;
     });
     expectError(s, { type: 'attaccaEdificio', player: 0, vertex: TARGET_VERTEX }, 'BATTAGLIA_SPENTA');
   });
 
   it('a modalità spenta non compare tra le mosse legali; ad attiva sì', () => {
-    const spenta = mut(give(battleGame('villaggio'), 0, ATTACK_COST), (st) => {
+    const spenta = mut(give(battleGame('villaggio'), 0, ATTACK_COST_EDIFICIO), (st) => {
       st.config.battle = false;
     });
     expect(getLegalActions(spenta, 0).some((m) => m.type === 'attaccaEdificio')).toBe(false);
 
-    const attiva = give(battleGame('villaggio'), 0, ATTACK_COST);
+    const attiva = give(battleGame('villaggio'), 0, ATTACK_COST_EDIFICIO);
     const move = getLegalActions(attiva, 0).find((m) => m.type === 'attaccaEdificio');
     expect(move).toEqual({ type: 'attaccaEdificio', player: 0, vertex: TARGET_VERTEX });
   });
 
   it('le due case iniziali sono indistruttibili finché restano casette', () => {
-    const s = give(battleGame('villaggio', { initial: true }), 0, ATTACK_COST);
+    const s = give(battleGame('villaggio', { initial: true }), 0, ATTACK_COST_EDIFICIO);
     // Non compare tra i bersagli né tra le mosse legali.
     expect(battleTargets(s, 0)).toEqual([]);
     expect(getLegalActions(s, 0).some((m) => m.type === 'attaccaEdificio')).toBe(false);
@@ -120,7 +128,7 @@ describe('modalità Battaglia', () => {
   });
 
   it('una roccaforte su un insediamento iniziale è attaccabile e torna casa indistruttibile', () => {
-    let s = give(battleGame('roccaforte', { initial: true }), 0, ATTACK_COST);
+    let s = give(battleGame('roccaforte', { initial: true }), 0, ATTACK_COST_EDIFICIO);
     // La roccaforte iniziale è un bersaglio valido.
     expect(battleTargets(s, 0)).toEqual([TARGET_VERTEX]);
     s = apply(s, { type: 'attaccaEdificio', player: 0, vertex: TARGET_VERTEX });
@@ -129,7 +137,7 @@ describe('modalità Battaglia', () => {
     expect(s.players[1]!.villages).toContain(TARGET_VERTEX);
     expect(s.players[1]!.initialVillages).toContain(TARGET_VERTEX);
     // Ora è di nuovo indistruttibile: un secondo attacco (con altre risorse) è bocciato.
-    const s2 = give(s, 0, ATTACK_COST);
+    const s2 = give(s, 0, ATTACK_COST_EDIFICIO);
     expect(battleTargets(s2, 0)).toEqual([]);
     expectError(s2, { type: 'attaccaEdificio', player: 0, vertex: TARGET_VERTEX }, 'CASA_INDISTRUTTIBILE');
   });
@@ -195,5 +203,86 @@ describe('modalità Battaglia', () => {
     });
     expect(battleTargets(s, 0)).toEqual([]);
     void OTHER_VERTEX;
+  });
+});
+
+/**
+ * Attacco LEGGERO: il giocatore 0 ha una strada che tocca l'estremo di una
+ * strada del giocatore 1. Si può spezzare solo se la strada nemica è
+ * "all'estremità" (collegata su un solo lato).
+ */
+function roadBattleGame(opts: { protectBoth?: boolean } = {}): GameState {
+  const base = newGame(2, 'battaglia-strada');
+  return mut(base, (s) => {
+    s.config.battle = true;
+    for (const p of s.players) {
+      p.villages = [];
+      p.strongholds = [];
+      p.roads = [];
+      p.initialVillages = [];
+    }
+    s.players[0]!.roads = [ATTACK_EDGE];
+    s.players[1]!.roads = [ENEMY_EDGE];
+    if (opts.protectBoth) {
+      // Ancora entrambi gli estremi della strada nemica: edificio su OTHER_VERTEX
+      // e una seconda strada su FAR_VERTEX → non è più "all'estremità".
+      s.players[1]!.villages = [OTHER_VERTEX];
+      s.players[1]!.roads = [ENEMY_EDGE, SECOND_ENEMY_EDGE];
+    }
+    s.currentPlayer = 0;
+    s.rolledThisTurn = true;
+    s.phase = { type: 'main' };
+  });
+}
+
+describe('modalità Battaglia — attacco leggero (strade)', () => {
+  it('roadBattleTargets elenca la strada avversaria all’estremità raggiunta', () => {
+    const s = roadBattleGame();
+    expect(roadBattleTargets(s, 0)).toContain(ENEMY_EDGE);
+  });
+
+  it('spezza la strada avversaria pagando 2 legname, 2 ferro', () => {
+    let s = give(roadBattleGame(), 0, ATTACK_COST_SENTIERO);
+    const bancaFerroPrima = s.bank.ferro;
+    s = apply(s, { type: 'spezzaSentiero', player: 0, edge: ENEMY_EDGE });
+    expect(s.players[1]!.roads).not.toContain(ENEMY_EDGE);
+    expect(s.players[0]!.resources.ferro).toBe(0);
+    expect(s.players[0]!.resources.legname).toBe(0);
+    expect(s.bank.ferro).toBe(bancaFerroPrima + ATTACK_COST_SENTIERO.ferro);
+    expectResourceInvariants(s);
+  });
+
+  it('compare tra le mosse legali quando la Battaglia è attiva', () => {
+    const s = give(roadBattleGame(), 0, ATTACK_COST_SENTIERO);
+    const move = getLegalActions(s, 0).find((m) => m.type === 'spezzaSentiero');
+    expect(move).toEqual({ type: 'spezzaSentiero', player: 0, edge: ENEMY_EDGE });
+  });
+
+  it('rifiuta senza le risorse necessarie', () => {
+    const s = roadBattleGame();
+    expectError(s, { type: 'spezzaSentiero', player: 0, edge: ENEMY_EDGE }, 'RISORSE_INSUFFICIENTI');
+  });
+
+  it('non si può spezzare una strada collegata su entrambi i lati', () => {
+    const s = give(roadBattleGame({ protectBoth: true }), 0, ATTACK_COST_SENTIERO);
+    expect(roadBattleTargets(s, 0)).not.toContain(ENEMY_EDGE);
+    expect(getLegalActions(s, 0).some((m) => m.type === 'spezzaSentiero' && m.edge === ENEMY_EDGE)).toBe(
+      false
+    );
+    expectError(s, { type: 'spezzaSentiero', player: 0, edge: ENEMY_EDGE }, 'SENTIERO_PROTETTO');
+  });
+
+  it('rifiuta lo spezza se la strada non è raggiunta da una propria strada', () => {
+    const s = mut(give(roadBattleGame(), 0, ATTACK_COST_SENTIERO), (st) => {
+      st.players[0]!.roads = [];
+    });
+    expectError(s, { type: 'spezzaSentiero', player: 0, edge: ENEMY_EDGE }, 'SENTIERO_NON_RAGGIUNTO');
+  });
+
+  it('rifiuta lo spezza se la modalità Battaglia è spenta', () => {
+    const s = mut(give(roadBattleGame(), 0, ATTACK_COST_SENTIERO), (st) => {
+      st.config.battle = false;
+    });
+    expectError(s, { type: 'spezzaSentiero', player: 0, edge: ENEMY_EDGE }, 'BATTAGLIA_SPENTA');
   });
 });

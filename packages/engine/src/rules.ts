@@ -158,6 +158,70 @@ export function battleTargets(
   return out;
 }
 
+/**
+ * Un estremo `v` della strada `edge` è "ancorato" per il proprietario `owner`
+ * se lì c'è un suo edificio oppure un'ALTRA sua strada. Una strada ancorata su
+ * entrambi gli estremi è "interna" alla rete; se almeno un estremo è libero è
+ * una strada "all'estremità".
+ */
+function roadEndpointAnchored(
+  owner: { villages: VertexId[]; strongholds: VertexId[]; roads: EdgeId[] },
+  vertex: VertexId,
+  edge: EdgeId,
+  radius: number
+): boolean {
+  if (owner.villages.includes(vertex) || owner.strongholds.includes(vertex)) return true;
+  const topo = getTopology(radius);
+  return (topo.vertexEdges[vertex] ?? []).some((e) => e !== edge && owner.roads.includes(e));
+}
+
+/**
+ * Attacco LEGGERO: una strada avversaria è "spezzabile" se è collegata su UN
+ * SOLO lato alla rete del proprietario (almeno un estremo libero: una strada
+ * all'estremità). Le strade collegate su entrambi i lati NON si possono spezzare.
+ */
+export function roadIsBreakable(
+  owner: { villages: VertexId[]; strongholds: VertexId[]; roads: EdgeId[] },
+  edge: EdgeId,
+  radius: number = BOARD_RADIUS
+): boolean {
+  const topo = getTopology(radius);
+  const vs = topo.edgeVertices[edge];
+  if (!vs) return false;
+  const [v1, v2] = vs;
+  const a1 = roadEndpointAnchored(owner, v1, edge, radius);
+  const a2 = roadEndpointAnchored(owner, v2, edge, radius);
+  return !(a1 && a2);
+}
+
+/**
+ * Modalità Battaglia — attacco LEGGERO: le strade AVVERSARIE che `player` ha
+ * "raggiunto" con una propria strada (un estremo su cui incide un suo sentiero)
+ * E che sono spezzabili (all'estremità, collegate su un solo lato).
+ */
+export function roadBattleTargets(
+  state: BattleView,
+  player: PlayerId,
+  radius: number = BOARD_RADIUS
+): EdgeId[] {
+  const topo = getTopology(radius);
+  const myRoads = new Set(state.players[player]!.roads);
+  if (myRoads.size === 0) return [];
+  const reached = (edge: EdgeId): boolean => {
+    const vs = topo.edgeVertices[edge];
+    if (!vs) return false;
+    return vs.some((v) => (topo.vertexEdges[v] ?? []).some((e) => myRoads.has(e)));
+  };
+  const out: EdgeId[] = [];
+  for (const p of state.players) {
+    if (p.id === player) continue;
+    for (const e of p.roads) {
+      if (reached(e) && roadIsBreakable(p, e, radius)) out.push(e);
+    }
+  }
+  return out;
+}
+
 /** Rapporto di scambio con la banca per una data risorsa da approdi/banca (4, 3 o 2). */
 export function bankTradeRatio(
   state: TradeRatioView,

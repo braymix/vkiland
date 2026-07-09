@@ -53,11 +53,19 @@ export const BUILD_COSTS: Readonly<Record<Buildable, ResourceCount>> = {
 export const PIECE_LIMITS = { villaggio: 5, roccaforte: 4, sentiero: 15 } as const;
 
 /**
- * Modalità Battaglia: costo dell'azione di attacco a una casetta/roccaforte
- * avversaria (3 lana = "pecore", 2 ferro, 2 legname). Come le costruzioni, si
- * paga alla banca.
+ * Modalità Battaglia — ATTACCO PESANTE: costo per colpire una casetta o
+ * roccaforte avversaria (2 legname, 1 pietra, 1 lana, 2 ferro). La casetta
+ * viene distrutta, la roccaforte declassata a casetta. Come le costruzioni,
+ * si paga alla banca.
  */
-export const ATTACK_COST: ResourceCount = { legname: 2, pietra: 0, lana: 3, orzo: 0, ferro: 2 };
+export const ATTACK_COST_EDIFICIO: ResourceCount = { legname: 2, pietra: 1, lana: 1, orzo: 0, ferro: 2 };
+
+/**
+ * Modalità Battaglia — ATTACCO LEGGERO: costo per spezzare una strada
+ * avversaria (2 legname, 2 ferro). Si possono spezzare solo le strade
+ * all'estremità (non collegate su entrambi i lati). Si paga alla banca.
+ */
+export const ATTACK_COST_SENTIERO: ResourceCount = { legname: 2, pietra: 0, lana: 0, orzo: 0, ferro: 2 };
 
 export const BANK_PER_RESOURCE = 19;
 /** Banca più capiente sulla tavola grande (più caselle, più giocatori). */

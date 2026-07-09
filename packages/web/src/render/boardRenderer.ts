@@ -49,6 +49,8 @@ export interface BoardUiState {
   /** Bersagli d'attacco (edifici avversari raggiunti): mirino rosso. */
   highlightAttackVertices?: VertexId[] | undefined;
   highlightEdges?: EdgeId[] | undefined;
+  /** Bersagli d'attacco leggero (strade avversarie all'estremità): mirino rosso. */
+  highlightAttackEdges?: EdgeId[] | undefined;
   highlightHexes?: HexId[] | undefined;
 }
 
@@ -389,6 +391,16 @@ export function renderBoard(
   for (const e of ui.highlightEdges ?? []) {
     const [p1, p2] = edgeEndpoints(e, radius);
     drawSpriteCentered(ctx, marker, Math.round((p1.x + p2.x) / 2), Math.round((p1.y + p2.y) / 2));
+  }
+  // Bersagli d'attacco leggero: mirino rosso a metà della strada avversaria.
+  for (const e of ui.highlightAttackEdges ?? []) {
+    const [p1, p2] = edgeEndpoints(e, radius);
+    drawSpriteCentered(
+      ctx,
+      markerAttacco,
+      Math.round((p1.x + p2.x) / 2),
+      Math.round((p1.y + p2.y) / 2)
+    );
   }
   for (const h of ui.highlightHexes ?? []) {
     const c = hexCenterById(h, radius);

@@ -13,7 +13,7 @@ import {
   calamityBlocksStronghold,
   calamityDragonFrozen,
 } from './calamityRules';
-import { ATTACK_COST, BUILD_COSTS, PIECE_LIMITS, RESOURCES } from './constants';
+import { ATTACK_COST_EDIFICIO, ATTACK_COST_SENTIERO, BUILD_COSTS, PIECE_LIMITS, RESOURCES } from './constants';
 import { hasAtLeast, totalResources } from './resources';
 import {
   battleTargets,
@@ -21,6 +21,7 @@ import {
   effectiveBankRatio,
   legalRoadEdges,
   legalVillageVertices,
+  roadBattleTargets,
   vertexFreeWithDistance,
 } from './rules';
 import type { GameState, PlayerId, Resource } from './types';
@@ -181,10 +182,16 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
         moves.push({ type: 'compraCartaSaga', player });
       }
 
-      // Battaglia: attacca gli edifici avversari raggiunti dalle proprie strade.
-      if (state.config.battle && hasAtLeast(me.resources, ATTACK_COST)) {
+      // Battaglia — attacco pesante: colpisci gli edifici avversari raggiunti.
+      if (state.config.battle && hasAtLeast(me.resources, ATTACK_COST_EDIFICIO)) {
         for (const v of battleTargets(state, player, radius)) {
           moves.push({ type: 'attaccaEdificio', player, vertex: v });
+        }
+      }
+      // Battaglia — attacco leggero: spezza le strade avversarie all'estremità.
+      if (state.config.battle && hasAtLeast(me.resources, ATTACK_COST_SENTIERO)) {
+        for (const e of roadBattleTargets(state, player, radius)) {
+          moves.push({ type: 'spezzaSentiero', player, edge: e });
         }
       }
       // Battaglia: la carta ASSALTO attacca gratis (stessi bersagli).

@@ -13,7 +13,7 @@ import {
   calamityBlocksStronghold,
   calamityDragonFrozen,
 } from './calamityRules';
-import { ATTACK_COST, BUILD_COSTS, PIECE_LIMITS, RESOURCES } from './constants';
+import { ATTACK_COST_EDIFICIO, ATTACK_COST_SENTIERO, BUILD_COSTS, PIECE_LIMITS, RESOURCES } from './constants';
 import {
   hasAtLeast,
   isValidResourceCount,
@@ -24,6 +24,7 @@ import {
   buildingOwnerAt,
   effectiveBankRatio,
   roadConnects,
+  roadIsBreakable,
   roadOwnerAt,
   vertexFreeWithDistance,
 } from './rules';
@@ -86,6 +87,14 @@ const ERR = {
     'CASA_INDISTRUTTIBILE',
     'Questa è una casa iniziale indistruttibile: puoi attaccarla solo se diventa una roccaforte.'
   ),
+  sentieroNonRaggiunto: err(
+    'SENTIERO_NON_RAGGIUNTO',
+    'Nessuna strada avversaria raggiunta da una tua strada su questo punto.'
+  ),
+  sentieroProtetto: err(
+    'SENTIERO_PROTETTO',
+    'Questa strada è collegata su entrambi i lati: puoi spezzare solo quelle all’estremità.'
+  ),
 } as const;
 
 function isPlayerId(state: GameState, id: unknown): id is PlayerId {
@@ -111,6 +120,29 @@ function attackTargetError(
   const ownerP = state.players[owner]!;
   if (!ownerP.strongholds.includes(vertex) && ownerP.initialVillages.includes(vertex))
     return ERR.casaIndistruttibile;
+  return null;
+}
+
+/**
+ * Battaglia — attacco leggero: controlla che `edge` sia una strada avversaria
+ * valida da spezzare per `player` (raggiunta da una sua strada e collegata su
+ * un solo lato: all'estremità).
+ */
+function roadAttackTargetError(
+  state: GameState,
+  player: PlayerId,
+  edge: string,
+  radius: number
+): ValidationError | null {
+  const owner = roadOwnerAt(state, edge);
+  if (owner === null || owner === player) return ERR.sentieroNonRaggiunto;
+  const topo = getTopology(radius);
+  const vs = topo.edgeVertices[edge];
+  if (!vs) return ERR.sentieroNonRaggiunto;
+  const myRoads = state.players[player]!.roads;
+  const reached = vs.some((v) => (topo.vertexEdges[v] ?? []).some((e) => myRoads.includes(e)));
+  if (!reached) return ERR.sentieroNonRaggiunto;
+  if (!roadIsBreakable(state.players[owner]!, edge, radius)) return ERR.sentieroProtetto;
   return null;
 }
 
@@ -243,7 +275,16 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (!state.config.battle) return ERR.battagliaSpenta;
       const targetErr = attackTargetError(state, action.player, action.vertex, radius);
       if (targetErr) return targetErr;
-      if (!hasAtLeast(me.resources, ATTACK_COST)) return ERR.risorseInsufficienti;
+      if (!hasAtLeast(me.resources, ATTACK_COST_EDIFICIO)) return ERR.risorseInsufficienti;
+      return null;
+    }
+    case 'spezzaSentiero': {
+      const guard = mainPhaseGuard(state, action.player);
+      if (guard) return guard;
+      if (!state.config.battle) return ERR.battagliaSpenta;
+      const targetErr = roadAttackTargetError(state, action.player, action.edge, radius);
+      if (targetErr) return targetErr;
+      if (!hasAtLeast(me.resources, ATTACK_COST_SENTIERO)) return ERR.risorseInsufficienti;
       return null;
     }
     case 'giocaAssalto': {

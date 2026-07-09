@@ -21,7 +21,8 @@ export { sanitizeCosmetics } from './cosmetics';
 export {
   RESOURCES,
   BUILD_COSTS,
-  ATTACK_COST,
+  ATTACK_COST_EDIFICIO,
+  ATTACK_COST_SENTIERO,
   PIECE_LIMITS,
   SAGA_DECK_COMPOSITION,
   BATTLE_SAGA_EXTRA,
@@ -62,6 +63,8 @@ export {
   legalRoadEdges,
   legalVillageVertices,
   battleTargets,
+  roadBattleTargets,
+  roadIsBreakable,
   bankTradeRatio,
   effectiveBankRatio,
   canPlaySagaCard,

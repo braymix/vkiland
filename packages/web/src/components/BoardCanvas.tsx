@@ -27,6 +27,8 @@ export interface BoardTargets {
   /** Vertici bersaglio di un attacco (modalità Battaglia): mirino rosso. */
   attackVertices?: VertexId[];
   edges?: EdgeId[];
+  /** Spigoli bersaglio di un attacco leggero (strade avversarie): mirino rosso. */
+  attackEdges?: EdgeId[];
   hexes?: HexId[];
 }
 
@@ -75,6 +77,7 @@ export function BoardCanvas({ view, targets, onPickVertex, onPickEdge, onPickHex
       highlightVertices: targets.vertices,
       highlightAttackVertices: targets.attackVertices,
       highlightEdges: targets.edges,
+      highlightAttackEdges: targets.attackEdges,
       highlightHexes: targets.hexes,
     });
   }, [view, targets]);
@@ -227,8 +230,11 @@ export function BoardCanvas({ view, targets, onPickVertex, onPickEdge, onPickHex
         return;
       }
     }
-    if (targets.edges?.length && onPickEdge) {
-      const e = nearestEdge(x, y, targets.edges, radius);
+    // Gli spigoli di costruzione e quelli d'attacco (strade avversarie) sono
+    // entrambi cliccabili: il chiamante distingue l'azione dalla modalità.
+    const clickableEdges = [...(targets.edges ?? []), ...(targets.attackEdges ?? [])];
+    if (clickableEdges.length && onPickEdge) {
+      const e = nearestEdge(x, y, clickableEdges, radius);
       if (e) {
         onPickEdge(e);
         return;

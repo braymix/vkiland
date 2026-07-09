@@ -227,7 +227,6 @@ export const fr: Strings = {
   villaggio: 'Village',
   roccaforte: 'Forteresse',
   compraCarta: 'Carte Saga',
-  attacco: 'Attaque',
   scambia: 'Échanger',
   scambiaBanca: 'Banque / Ports',
   proponiScambio: 'Proposer aux joueurs',
@@ -429,9 +428,18 @@ export const fr: Strings = {
     assaltoScegli: 'Choisis le bâtiment adverse à prendre d’assaut avec la carte.',
     conBattaglia: 'Avec bataille',
     spiega:
-      'Quand un de tes chemins atteint la maison ou la forteresse d’un adversaire, tu peux l’attaquer en payant 3 moutons, 2 fer et 2 bois : la maison est détruite, la forteresse est rétrogradée en maison. Les deux maisons de départ sont indestructibles, sauf si elles deviennent des forteresses.',
+      'Quand un de tes chemins atteint le réseau d’un adversaire, tu peux l’attaquer de deux façons. ' +
+      'Attaque lourde (2 bois, 1 pierre, 1 mouton, 2 fer) : frappe une maison (détruite) ou une forteresse (rétrogradée en maison). ' +
+      'Attaque légère (2 bois, 2 fer) : casse un chemin adverse, mais seulement ceux au bout (reliés d’un seul côté). ' +
+      'Les deux maisons de départ sont indestructibles, sauf si elles deviennent des forteresses.',
     attacca: '⚔️ Attaquer',
-    scegliBersaglio: 'Choisis le bâtiment adverse à attaquer (3 moutons, 2 fer, 2 bois).',
+    scegliBersaglio: 'Choisis le bâtiment adverse à attaquer (2 bois, 1 pierre, 1 mouton, 2 fer).',
+    spezza: '🔨 Casser un chemin',
+    spezzaScegli: 'Choisis le chemin adverse à casser au bout (2 bois, 2 fer).',
+    pesante: 'Attaque lourde',
+    pesanteNota: 'maisons et forteresses',
+    leggero: 'Attaque légère',
+    leggeroNota: 'chemins au bout',
   },
 
   lamentiDrago: [
@@ -485,6 +493,7 @@ export const fr: Strings = {
     furia: 'La Fureur des Berserkers passe à {nome} ({n} berserkers)',
     battagliaDistrutta: '⚔️ {attaccante} détruit une maison de {vittima}',
     battagliaDeclassata: '⚔️ {attaccante} rétrograde une forteresse de {vittima} en maison',
+    sentieroSpezzato: '🔨 {attaccante} casse un chemin de {vittima}',
     vittoria: '{nome} gagne avec {n} Points de Gloire !',
   },
 
