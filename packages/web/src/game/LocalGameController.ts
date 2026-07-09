@@ -41,6 +41,8 @@ export interface GameSetup {
   targetGloryPoints: number;
   /** Modalità Calamità: una carta per giro (default false). */
   calamities: boolean;
+  /** Modalità Battaglia: attacchi agli edifici avversari (default false). */
+  battle: boolean;
 }
 
 const BOT_DELAY_MIN = 450;

@@ -78,6 +78,7 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
     boardRadius: state.config.boardRadius,
     calamity: activeCalamity(state),
     calamitiesLeft: state.calamities ? state.calamities.deck.length : null,
+    battle: state.config.battle,
   };
 }
 

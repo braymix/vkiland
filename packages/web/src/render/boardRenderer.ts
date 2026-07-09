@@ -46,6 +46,8 @@ import { getActiveTheme, shadesFor } from './sprites/palettes';
 export interface BoardUiState {
   /** Bersagli evidenziati (mosse legali della modalità attiva). */
   highlightVertices?: VertexId[] | undefined;
+  /** Bersagli d'attacco (edifici avversari raggiunti): mirino rosso. */
+  highlightAttackVertices?: VertexId[] | undefined;
   highlightEdges?: EdgeId[] | undefined;
   highlightHexes?: HexId[] | undefined;
 }
@@ -91,6 +93,12 @@ const MIRINO: SpriteDef = {
 /** Variante VIOLA del marcatore: vertici che danno diritto a un approdo. */
 const MIRINO_PORTO: SpriteDef = {
   map: { n: 'nero', b: 'mirinoPorto' },
+  rows: MIRINO.rows,
+};
+
+/** Variante ROSSA del marcatore: bersagli d'attacco (modalità Battaglia). */
+const MIRINO_ATTACCO: SpriteDef = {
+  map: { n: 'nero', b: 'mirinoAttacco' },
   rows: MIRINO.rows,
 };
 
@@ -365,12 +373,18 @@ export function renderBoard(
   // dà diritto allo scambio 3:1/2:1.
   const marker = bakeSprite('mirino', MIRINO);
   const markerPorto = bakeSprite('mirino-porto', MIRINO_PORTO);
+  const markerAttacco = bakeSprite('mirino-attacco', MIRINO_ATTACCO);
   const portVertices = new Set<string>(
     view.board.ports.flatMap((p) => topo.edgeVertices[p.edge] ?? [])
   );
   for (const v of ui.highlightVertices ?? []) {
     const pt = vertexPoint(v, radius);
     drawSpriteCentered(ctx, portVertices.has(v) ? markerPorto : marker, pt.x, pt.y);
+  }
+  // Bersagli d'attacco: mirino rosso sopra l'edificio avversario.
+  for (const v of ui.highlightAttackVertices ?? []) {
+    const pt = vertexPoint(v, radius);
+    drawSpriteCentered(ctx, markerAttacco, pt.x, pt.y);
   }
   for (const e of ui.highlightEdges ?? []) {
     const [p1, p2] = edgeEndpoints(e, radius);

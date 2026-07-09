@@ -26,6 +26,8 @@ export interface NewGameOptions {
   targetGloryPoints?: number;
   /** Modalità Calamità: una carta per giro. Default false (partita standard). */
   calamities?: boolean;
+  /** Modalità Battaglia: attacchi agli edifici avversari. Default false. */
+  battle?: boolean;
 }
 
 export function createGame(options: NewGameOptions): GameState {
@@ -51,6 +53,7 @@ export function createGame(options: NewGameOptions): GameState {
     targetGloryPoints: options.targetGloryPoints ?? DEFAULT_TARGET_GLORY,
     boardRadius: spec.radius,
     calamities: options.calamities ?? false,
+    battle: options.battle ?? false,
   };
 
   let rng = seedRng(seed);

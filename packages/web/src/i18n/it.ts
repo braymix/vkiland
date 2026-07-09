@@ -425,6 +425,15 @@ export const it = {
     } satisfies Record<CalamityKind, string>,
   },
 
+  // --- Modalità Battaglia ---
+  battaglia: {
+    conBattaglia: 'Con battaglia',
+    spiega:
+      'Quando una tua strada raggiunge la casetta o la roccaforte di un avversario, puoi attaccarla pagando 3 pecore, 2 ferro e 2 legno: la casetta viene distrutta, la roccaforte declassata a casetta. Si combina con le calamità.',
+    attacca: '⚔️ Attacca',
+    scegliBersaglio: 'Scegli l’edificio avversario da attaccare (3 pecore, 2 ferro, 2 legno).',
+  },
+
   /**
    * EASTER EGG: lamentele dei bot quando il Drago li blocca — come al tavolo
    * vero, dove c'è sempre qualcuno che la prende sul personale.
@@ -478,6 +487,8 @@ export const it = {
     grandeVia: 'La Grande Via passa a {nome} ({n} sentieri)',
     grandeViaNessuno: 'La Grande Via non appartiene più a nessuno',
     furia: 'La Furia dei Berserker passa a {nome} ({n} berserker)',
+    battagliaDistrutta: '⚔️ {attaccante} distrugge una casetta di {vittima}',
+    battagliaDeclassata: '⚔️ {attaccante} declassa una roccaforte di {vittima} a casetta',
     vittoria: '{nome} vince con {n} Punti Gloria!',
   },
 

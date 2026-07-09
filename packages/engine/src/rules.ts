@@ -113,6 +113,31 @@ export function legalVillageVertices(
   return [...candidates].filter((v) => vertexFreeWithDistance(state, v, radius));
 }
 
+/**
+ * Modalità Battaglia: gli edifici AVVERSARI che `player` ha "raggiunto" con una
+ * propria strada, ossia i vertici occupati da una casetta/roccaforte nemica su
+ * cui incide almeno un sentiero del giocatore. Sono i bersagli di un attacco.
+ */
+export function battleTargets(
+  state: PiecesView,
+  player: PlayerId,
+  radius: number = BOARD_RADIUS
+): VertexId[] {
+  const topo = getTopology(radius);
+  const myRoads = new Set(state.players[player]!.roads);
+  if (myRoads.size === 0) return [];
+  const out: VertexId[] = [];
+  for (const p of state.players) {
+    if (p.id === player) continue;
+    for (const v of [...p.villages, ...p.strongholds]) {
+      const edges = topo.vertexEdges[v];
+      if (!edges) continue;
+      if (edges.some((e) => myRoads.has(e))) out.push(v);
+    }
+  }
+  return out;
+}
+
 /** Rapporto di scambio con la banca per una data risorsa da approdi/banca (4, 3 o 2). */
 export function bankTradeRatio(
   state: TradeRatioView,

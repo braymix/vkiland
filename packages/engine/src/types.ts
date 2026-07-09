@@ -156,6 +156,13 @@ export interface GameConfig {
   boardRadius: number;
   /** Modalità Calamità: una carta per giro. false = partita standard. */
   calamities: boolean;
+  /**
+   * Modalità Battaglia: se attiva, un clan che ha raggiunto con una propria
+   * strada la casetta/roccaforte di un avversario può pagare un costo per
+   * distruggere la casetta (o declassare la roccaforte a casetta). Si combina
+   * liberamente con le Calamità. false = partita standard.
+   */
+  battle: boolean;
 }
 
 export interface PlayerState {
@@ -353,4 +360,6 @@ export interface PlayerView {
   calamity: CalamityCard | null;
   /** Calamità ancora nel mazzo; null in modalità standard (per distinguere le due). */
   calamitiesLeft: number | null;
+  /** Modalità Battaglia attiva: la UI abilita l'azione di attacco. */
+  battle: boolean;
 }

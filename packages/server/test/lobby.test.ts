@@ -4,7 +4,7 @@ import type { GameUpdate, LobbyState } from '../src/protocol';
 import { LobbyManager, type LobbyManagerCallbacks } from '../src/lobby';
 import { isApiError } from '../src/protocol';
 
-const CFG = { avoidAdjacent68: true, targetGloryPoints: 10, turnTimerSec: 0, isPublic: false, calamities: false };
+const CFG = { avoidAdjacent68: true, targetGloryPoints: 10, turnTimerSec: 0, isPublic: false, calamities: false, battle: false };
 
 interface Recorded {
   lobbyStates: LobbyState[];

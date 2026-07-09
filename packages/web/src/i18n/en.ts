@@ -421,6 +421,14 @@ export const en: Strings = {
    * EASTER EGG: bots griping when the Dragon blocks them — just like at a real
    * table, where someone always takes it personally.
    */
+  battaglia: {
+    conBattaglia: 'With battle',
+    spiega:
+      'When one of your roads reaches an opponent’s house or stronghold, you can attack it by paying 3 sheep, 2 iron and 2 wood: the house is destroyed, the stronghold is downgraded to a house. Combines with calamities.',
+    attacca: '⚔️ Attack',
+    scegliBersaglio: 'Pick the opponent building to attack (3 sheep, 2 iron, 2 wood).',
+  },
+
   lamentiDrago: [
     'Oh come on, always me?!',
     'Block someone else, will you?!',
@@ -470,6 +478,8 @@ export const en: Strings = {
     grandeVia: 'The Great Road passes to {nome} ({n} paths)',
     grandeViaNessuno: 'The Great Road no longer belongs to anyone',
     furia: 'Berserker Fury passes to {nome} ({n} berserkers)',
+    battagliaDistrutta: '⚔️ {attaccante} destroys a house of {vittima}',
+    battagliaDeclassata: '⚔️ {attaccante} downgrades a stronghold of {vittima} to a house',
     vittoria: '{nome} wins with {n} Glory Points!',
   },
 
