@@ -7,7 +7,14 @@ import type { Action, ApplyResult, GameEvent } from './actions';
 import { getTopology } from './board/topology';
 import { revealCalamity } from './calamities';
 import { dragonPhaseAfterSeven, rollTimePhase } from './calamityRules';
-import { ATTACK_COST, BUILD_COSTS, HAND_LIMIT, PIECE_LIMITS, RESOURCES } from './constants';
+import {
+  ATTACK_COST_EDIFICIO,
+  ATTACK_COST_SENTIERO,
+  BUILD_COSTS,
+  HAND_LIMIT,
+  PIECE_LIMITS,
+  RESOURCES,
+} from './constants';
 import { cloneState } from './game';
 import { recomputeFuria } from './largestArmy';
 import { recomputeGrandeVia } from './longestRoad';
@@ -92,6 +99,23 @@ function resolveAttack(
       esito: 'casettaDistrutta',
     });
   }
+  recomputeGrandeVia(state, events);
+}
+
+/**
+ * Battaglia — attacco leggero: rimuove una strada avversaria (già validata:
+ * all'estremità e raggiunta). Spezzare una strada può accorciare la Grande Via.
+ * Non tocca le risorse: il costo lo paga il chiamante.
+ */
+function resolveRoadAttack(
+  state: GameState,
+  attacker: PlayerId,
+  edge: string,
+  events: GameEvent[]
+): void {
+  const owner = state.players.find((p) => p.roads.includes(edge))!;
+  owner.roads = owner.roads.filter((e) => e !== edge);
+  events.push({ type: 'sentieroSpezzato', attacker, owner: owner.id, edge });
   recomputeGrandeVia(state, events);
 }
 
@@ -342,8 +366,13 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
 
     // ----------------------------------------------------------- battaglia
     case 'attaccaEdificio': {
-      payCost(state, me.id, ATTACK_COST);
+      payCost(state, me.id, ATTACK_COST_EDIFICIO);
       resolveAttack(state, me.id, action.vertex, events);
+      break;
+    }
+    case 'spezzaSentiero': {
+      payCost(state, me.id, ATTACK_COST_SENTIERO);
+      resolveRoadAttack(state, me.id, action.edge, events);
       break;
     }
     case 'giocaAssalto': {

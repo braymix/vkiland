@@ -124,6 +124,7 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
     const vertices: VertexId[] = [];
     const attackVertices: VertexId[] = [];
     const edges: EdgeId[] = [];
+    const attackEdges: EdgeId[] = [];
     const hexes: HexId[] = [];
     for (const m of legalActions) {
       switch (m.type) {
@@ -149,12 +150,15 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
         case 'attaccaEdificio':
           if (mode === 'attacca') attackVertices.push(m.vertex);
           break;
+        case 'spezzaSentiero':
+          if (mode === 'spezza') attackEdges.push(m.edge);
+          break;
         case 'giocaAssalto':
           if (mode === 'assalto') attackVertices.push(m.vertex);
           break;
       }
     }
-    return { vertices, attackVertices, edges, hexes };
+    return { vertices, attackVertices, edges, attackEdges, hexes };
   }, [legalActions, mode]);
 
   const pickVertex = (v: VertexId) => {
@@ -175,7 +179,8 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
       (a) =>
         (a.type === 'piazzaSentieroIniziale' ||
           a.type === 'piazzaSentieroGratis' ||
-          (a.type === 'costruisciSentiero' && mode === 'sentiero')) &&
+          (a.type === 'costruisciSentiero' && mode === 'sentiero') ||
+          (a.type === 'spezzaSentiero' && mode === 'spezza')) &&
         a.edge === e
     );
     if (m) dispatch(m as Action);

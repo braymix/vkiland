@@ -226,7 +226,6 @@ export const sr: Strings = {
   villaggio: 'Selo',
   roccaforte: 'Utvrđenje',
   compraCarta: 'Karta Saga',
-  attacco: 'Napad',
   scambia: 'Razmeni',
   scambiaBanca: 'Banka / Pristaništa',
   proponiScambio: 'Ponudi igračima',
@@ -428,9 +427,18 @@ export const sr: Strings = {
     assaltoScegli: 'Izaberi protivničku građevinu za juriš kartom.',
     conBattaglia: 'Sa bitkom',
     spiega:
-      'Kada jedan od tvojih puteva dosegne kuću ili utvrđenje protivnika, možeš ga napasti plaćajući 3 ovce, 2 gvožđa i 2 drveta: kuća se ruši, utvrđenje se degradira u kuću. Dve početne kuće su neuništive, osim ako ne postanu utvrđenja.',
+      'Kada jedan od tvojih puteva dosegne mrežu protivnika, možeš je napasti na dva načina. ' +
+      'Teški napad (2 drveta, 1 kamen, 1 ovca, 2 gvožđa): pogađa kuću (ruši se) ili utvrđenje (degradira u kuću). ' +
+      'Laki napad (2 drveta, 2 gvožđa): lomi protivnički put, ali samo one na kraju (spojene samo s jedne strane). ' +
+      'Dve početne kuće su neuništive, osim ako ne postanu utvrđenja.',
     attacca: '⚔️ Napadni',
-    scegliBersaglio: 'Izaberi protivničku građevinu za napad (3 ovce, 2 gvožđa, 2 drveta).',
+    scegliBersaglio: 'Izaberi protivničku građevinu za napad (2 drveta, 1 kamen, 1 ovca, 2 gvožđa).',
+    spezza: '🔨 Slomi put',
+    spezzaScegli: 'Izaberi protivnički put na kraju za lomljenje (2 drveta, 2 gvožđa).',
+    pesante: 'Teški napad',
+    pesanteNota: 'kuće i utvrđenja',
+    leggero: 'Laki napad',
+    leggeroNota: 'putevi na kraju',
   },
 
   lamentiDrago: [
@@ -484,6 +492,7 @@ export const sr: Strings = {
     furia: 'Bes Berserkera prelazi na {nome} ({n} berserkera)',
     battagliaDistrutta: '⚔️ {attaccante} ruši kuću igrača {vittima}',
     battagliaDeclassata: '⚔️ {attaccante} degradira utvrđenje igrača {vittima} u kuću',
+    sentieroSpezzato: '🔨 {attaccante} lomi put igrača {vittima}',
     vittoria: '{nome} pobeđuje sa {n} poena slave!',
   },
 

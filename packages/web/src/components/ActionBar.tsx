@@ -2,7 +2,14 @@
 import type { LegalMove, PlayerView } from '@vikiland/engine';
 import { it } from '../i18n';
 
-export type BuildMode = 'sentiero' | 'villaggio' | 'roccaforte' | 'attacca' | 'assalto' | null;
+export type BuildMode =
+  | 'sentiero'
+  | 'villaggio'
+  | 'roccaforte'
+  | 'attacca'
+  | 'spezza'
+  | 'assalto'
+  | null;
 
 interface Props {
   view: PlayerView;
@@ -57,6 +64,7 @@ export function ActionBar(props: Props) {
         {buildButton('villaggio', it.villaggio, has('costruisciVillaggio'))}
         {buildButton('roccaforte', it.roccaforte, has('costruisciRoccaforte'))}
         {view.battle && buildButton('attacca', it.battaglia.attacca, has('attaccaEdificio'))}
+        {view.battle && buildButton('spezza', it.battaglia.spezza, has('spezzaSentiero'))}
         <button
           className="pxbtn pxbtn--ghost"
           disabled={!has('compraCartaSaga')}
@@ -106,9 +114,13 @@ export function ActionBar(props: Props) {
           </button>
         )}
       </div>
-      {!props.errorText && (mode === 'attacca' || mode === 'assalto') && (
+      {!props.errorText && (mode === 'attacca' || mode === 'assalto' || mode === 'spezza') && (
         <div className="phase-banner" style={{ color: 'var(--danger)' }}>
-          {mode === 'assalto' ? it.battaglia.assaltoScegli : it.battaglia.scegliBersaglio}
+          {mode === 'assalto'
+            ? it.battaglia.assaltoScegli
+            : mode === 'spezza'
+              ? it.battaglia.spezzaScegli
+              : it.battaglia.scegliBersaglio}
         </div>
       )}
       {props.errorText && (

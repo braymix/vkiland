@@ -9,7 +9,8 @@
  * motore: ogni azione restituita è legale per costruzione.
  */
 import {
-  ATTACK_COST,
+  ATTACK_COST_EDIFICIO,
+  ATTACK_COST_SENTIERO,
   BUILD_COSTS,
   GRANDE_VIA_MIN,
   RESOURCES,
@@ -256,7 +257,7 @@ function chooseAttack(
 
   // Prudenza: l'attacco a pagamento, se non imminente, si fa solo col surplus
   // (qualche carta oltre al costo). L'attacco con la carta ASSALTO è gratis.
-  if (!free && !pool.some((x) => x.imminent) && totalResources(my.resources) - totalOf(ATTACK_COST) < 3) {
+  if (!free && !pool.some((x) => x.imminent) && totalResources(my.resources) - totalOf(ATTACK_COST_EDIFICIO) < 3) {
     return null;
   }
 
@@ -267,6 +268,65 @@ function chooseAttack(
       Number(b.stronghold) - Number(a.stronghold) ||
       b.pips - a.pips
   );
+  return pool[0]!.m;
+}
+
+type RoadBreakMove = Extract<Action, { type: 'spezzaSentiero' }>;
+
+/**
+ * Modalità Battaglia — attacco leggero: sceglie quale strada avversaria
+ * spezzare tra i `candidates` (o null se non conviene). Priorità: togliere La
+ * Grande Via a chi la detiene, poi ostacolare un avversario prossimo alla
+ * vittoria. È un'azione a pagamento: fuori dai casi urgenti si fa solo col
+ * surplus, come l'attacco pesante.
+ */
+function chooseRoadBreak(
+  view: PlayerView,
+  player: number,
+  cfg: LevelCfg,
+  candidates: readonly RoadBreakMove[]
+): Action | null {
+  if (cfg.attackWithin <= 0) return null;
+  if (candidates.length === 0) return null;
+  const my = view.me!;
+
+  const ownerOf = (edge: string): number => {
+    for (const p of view.players) {
+      if (p.id !== player && p.roads.includes(edge)) return p.id;
+    }
+    return -1;
+  };
+
+  const viaHolder = view.longestRoad.holder;
+  const scored = candidates
+    .map((m) => {
+      const owner = ownerOf(m.edge);
+      const ownerPG = owner >= 0 ? view.players[owner]!.gloryPointsPublic : -1;
+      return {
+        m,
+        owner,
+        ownerPG,
+        // Spezzare La Grande Via a chi la detiene vale molto (2 PG in ballo).
+        breaksVia: owner >= 0 && viaHolder === owner,
+        threat: ownerPG >= view.targetGloryPoints - cfg.attackWithin,
+        imminent: ownerPG >= view.targetGloryPoints - 1,
+      };
+    })
+    .filter((x) => x.owner >= 0);
+
+  // Interessa solo chi detiene La Grande Via o è entro la soglia di minaccia.
+  const pool = scored.filter((x) => x.breaksVia || x.threat);
+  if (pool.length === 0) return null;
+
+  // Prudenza: se non c'è urgenza (né Grande Via né minaccia imminente), si
+  // spezza solo col surplus oltre il costo.
+  const urgent = pool.some((x) => x.breaksVia || x.imminent);
+  if (!urgent && totalResources(my.resources) - totalOf(ATTACK_COST_SENTIERO) < 3) {
+    return null;
+  }
+
+  // Prima chi mi toglie La Grande Via, poi chi è più avanti in classifica.
+  pool.sort((a, b) => Number(b.breaksVia) - Number(a.breaksVia) || b.ownerPG - a.ownerPG);
   return pool[0]!.m;
 }
 
@@ -456,9 +516,11 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
       // costruzioni. Si preferisce la carta ASSALTO (gratis) all'attacco a pagamento.
       const assaultMoves = bucket(input, 'giocaAssalto');
       const attackMoves = bucket(input, 'attaccaEdificio');
+      const roadBreakMoves = bucket(input, 'spezzaSentiero');
       const defend =
         chooseAttack(view, player, cfg, assaultMoves, true, true) ??
-        chooseAttack(view, player, cfg, attackMoves, false, true);
+        chooseAttack(view, player, cfg, attackMoves, false, true) ??
+        chooseRoadBreak(view, player, cfg, roadBreakMoves);
       if (defend) return defend;
 
       const strongholds = bucket(input, 'costruisciRoccaforte');
@@ -474,6 +536,16 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
           placementScore(view, player, b.vertex) > placementScore(view, player, a.vertex) ? b : a
         );
       }
+
+      // --- Battaglia: attacco opportunistico dopo gli edifici (che valgono PG),
+      //     ma PRIMA di un semplice sentiero: colpire il leader vale più di una
+      //     strada che non fa punti. Prima la carta ASSALTO (gratis), poi
+      //     l'attacco pesante col surplus, infine lo spezza-strada. ---
+      const attack =
+        chooseAttack(view, player, cfg, assaultMoves, true, false) ??
+        chooseAttack(view, player, cfg, attackMoves, false, false) ??
+        chooseRoadBreak(view, player, cfg, roadBreakMoves);
+      if (attack) return attack;
 
       const roads = bucket(input, 'costruisciSentiero');
       if (roads.length > 0) {
@@ -507,13 +579,6 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
           if (bestLen > longestRoadLength(view, player)) return best;
         }
       }
-
-      // --- Battaglia: attacco opportunistico (dopo le proprie costruzioni).
-      //     Prima la carta ASSALTO (gratis), poi l'attacco a pagamento col surplus. ---
-      const attack =
-        chooseAttack(view, player, cfg, assaultMoves, true, false) ??
-        chooseAttack(view, player, cfg, attackMoves, false, false);
-      if (attack) return attack;
 
       // --- Carte Saga ---
       const buyCard = input.legalActions.find((m) => m.type === 'compraCartaSaga');

@@ -1,6 +1,7 @@
 /** Bugiardino: costi di costruzione, Punti Gloria, bonus e regole rapide. */
 import {
-  ATTACK_COST,
+  ATTACK_COST_EDIFICIO,
+  ATTACK_COST_SENTIERO,
   BONUS_GLORY,
   BUILD_COSTS,
   FURIA_MIN,
@@ -10,6 +11,7 @@ import {
   flattenResources,
   type Buildable,
   type PlayerView,
+  type ResourceCount,
 } from '@vikiland/engine';
 import { it, t } from '../../i18n';
 import { ResIcon, UiIcon } from '../icons';
@@ -33,6 +35,16 @@ function CostIcons({ kind }: { kind: Buildable }) {
   return (
     <span style={{ display: 'inline-flex', gap: 2, alignItems: 'center' }}>
       {flattenResources(BUILD_COSTS[kind]).map((r, i) => (
+        <ResIcon key={i} r={r} scale={2} />
+      ))}
+    </span>
+  );
+}
+
+function AttackCostIcons({ cost }: { cost: ResourceCount }) {
+  return (
+    <span style={{ display: 'inline-flex', gap: 2, alignItems: 'center' }}>
+      {flattenResources(cost).map((r, i) => (
         <ResIcon key={i} r={r} scale={2} />
       ))}
     </span>
@@ -89,16 +101,26 @@ export function CostsDialog({
           </div>
         ))}
 
+        {/* Costi d'attacco: solo in modalità Battaglia. */}
         {view.battle && (
-          <div style={rowStyle}>
-            <span>{it.attacco}</span>
-            <span style={{ display: 'inline-flex', gap: 2, alignItems: 'center' }}>
-              {flattenResources(ATTACK_COST).map((r, i) => (
-                <ResIcon key={i} r={r} scale={2} />
-              ))}
-            </span>
-            <span />
-          </div>
+          <>
+            <div style={rowStyle}>
+              <span>
+                {it.battaglia.pesante}
+                <span style={dimStyle}> · {it.battaglia.pesanteNota}</span>
+              </span>
+              <AttackCostIcons cost={ATTACK_COST_EDIFICIO} />
+              <span />
+            </div>
+            <div style={rowStyle}>
+              <span>
+                {it.battaglia.leggero}
+                <span style={dimStyle}> · {it.battaglia.leggeroNota}</span>
+              </span>
+              <AttackCostIcons cost={ATTACK_COST_SENTIERO} />
+              <span />
+            </div>
+          </>
         )}
 
         <hr style={{ border: 'none', borderTop: '2px solid var(--ink-dim)', opacity: 0.4 }} />

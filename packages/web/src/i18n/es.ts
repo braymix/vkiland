@@ -226,7 +226,6 @@ export const es: Strings = {
   villaggio: 'Aldea',
   roccaforte: 'Fortaleza',
   compraCarta: 'Carta de Saga',
-  attacco: 'Ataque',
   scambia: 'Intercambiar',
   scambiaBanca: 'Banca / Puertos',
   proponiScambio: 'Proponer a los jugadores',
@@ -428,9 +427,18 @@ export const es: Strings = {
     assaltoScegli: 'Elige el edificio rival a asaltar con la carta.',
     conBattaglia: 'Con batalla',
     spiega:
-      'Cuando uno de tus caminos alcanza la casa o la fortaleza de un rival, puedes atacarla pagando 3 ovejas, 2 hierro y 2 madera: la casa se destruye, la fortaleza baja a casa. Las dos casas iniciales son indestructibles, salvo que se conviertan en fortalezas.',
+      'Cuando uno de tus caminos alcanza la red de un rival puedes atacarla de dos formas. ' +
+      'Ataque pesado (2 madera, 1 piedra, 1 oveja, 2 hierro): golpea una casa (destruida) o una fortaleza (degradada a casa). ' +
+      'Ataque ligero (2 madera, 2 hierro): rompe un camino rival, pero solo los del extremo (conectados por un solo lado). ' +
+      'Las dos casas iniciales son indestructibles, salvo que se conviertan en fortalezas.',
     attacca: '⚔️ Atacar',
-    scegliBersaglio: 'Elige el edificio rival a atacar (3 ovejas, 2 hierro, 2 madera).',
+    scegliBersaglio: 'Elige el edificio rival a atacar (2 madera, 1 piedra, 1 oveja, 2 hierro).',
+    spezza: '🔨 Romper camino',
+    spezzaScegli: 'Elige el camino rival a romper en el extremo (2 madera, 2 hierro).',
+    pesante: 'Ataque pesado',
+    pesanteNota: 'casas y fortalezas',
+    leggero: 'Ataque ligero',
+    leggeroNota: 'caminos del extremo',
   },
 
   lamentiDrago: [
@@ -484,6 +492,7 @@ export const es: Strings = {
     furia: 'La Furia de los Berserkers pasa a {nome} ({n} berserkers)',
     battagliaDistrutta: '⚔️ {attaccante} destruye una casa de {vittima}',
     battagliaDeclassata: '⚔️ {attaccante} degrada una fortaleza de {vittima} a casa',
+    sentieroSpezzato: '🔨 {attaccante} rompe un camino de {vittima}',
     vittoria: '¡{nome} gana con {n} Puntos de Gloria!',
   },
 

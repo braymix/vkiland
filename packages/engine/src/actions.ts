@@ -28,8 +28,11 @@ export type Action =
   | { type: 'costruisciVillaggio'; player: PlayerId; vertex: VertexId }
   | { type: 'costruisciRoccaforte'; player: PlayerId; vertex: VertexId }
   | { type: 'compraCartaSaga'; player: PlayerId }
-  // --- Battaglia (modalità opzionale): attacca l'edificio avversario raggiunto ---
+  // --- Battaglia (modalità opzionale) ---
+  //   Attacco PESANTE: colpisci la casetta/roccaforte avversaria raggiunta.
   | { type: 'attaccaEdificio'; player: PlayerId; vertex: VertexId }
+  //   Attacco LEGGERO: spezza la strada avversaria all'estremità raggiunta.
+  | { type: 'spezzaSentiero'; player: PlayerId; edge: EdgeId }
   // --- Scambi ---
   | { type: 'scambioBanca'; player: PlayerId; give: Resource; receive: Resource }
   | {
@@ -109,6 +112,13 @@ export type GameEvent =
       owner: PlayerId;
       vertex: VertexId;
       esito: 'roccaforteDeclassata' | 'casettaDistrutta';
+    }
+  | {
+      /** Battaglia — attacco leggero: una strada avversaria è stata spezzata. */
+      type: 'sentieroSpezzato';
+      attacker: PlayerId;
+      owner: PlayerId;
+      edge: EdgeId;
     }
   | { type: 'cartaSagaComprata'; player: PlayerId; card: SagaCard | null }
   | { type: 'cartaSagaGiocata'; player: PlayerId; card: SagaCard }
