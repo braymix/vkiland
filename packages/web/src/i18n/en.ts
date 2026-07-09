@@ -427,9 +427,18 @@ export const en: Strings = {
     assaltoScegli: 'Pick the opponent building to assault with the card.',
     conBattaglia: 'With battle',
     spiega:
-      'When one of your roads reaches an opponent’s house or stronghold, you can attack it by paying 3 sheep, 2 iron and 2 wood: the house is destroyed, the stronghold is downgraded to a house. The two starting houses are indestructible, unless they become strongholds.',
+      'When one of your roads reaches an opponent’s network you can attack it in two ways. ' +
+      'Heavy attack (2 wood, 1 stone, 1 sheep, 2 iron): hit a house (destroyed) or a stronghold (downgraded to a house). ' +
+      'Light attack (2 wood, 2 iron): break an opponent road, but only the ones at the tip (connected on a single side). ' +
+      'The two starting houses are indestructible, unless they become strongholds.',
     attacca: '⚔️ Attack',
-    scegliBersaglio: 'Pick the opponent building to attack (3 sheep, 2 iron, 2 wood).',
+    scegliBersaglio: 'Pick the opponent building to attack (2 wood, 1 stone, 1 sheep, 2 iron).',
+    spezza: '🔨 Break road',
+    spezzaScegli: 'Pick the opponent road to break at the tip (2 wood, 2 iron).',
+    pesante: 'Heavy attack',
+    pesanteNota: 'houses and strongholds',
+    leggero: 'Light attack',
+    leggeroNota: 'roads at the tip',
   },
 
   lamentiDrago: [
@@ -483,6 +492,7 @@ export const en: Strings = {
     furia: 'Berserker Fury passes to {nome} ({n} berserkers)',
     battagliaDistrutta: '⚔️ {attaccante} destroys a house of {vittima}',
     battagliaDeclassata: '⚔️ {attaccante} downgrades a stronghold of {vittima} to a house',
+    sentieroSpezzato: '🔨 {attaccante} breaks a road of {vittima}',
     vittoria: '{nome} wins with {n} Glory Points!',
   },
 

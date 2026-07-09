@@ -133,6 +133,11 @@ export function describeEvent(e: GameEvent, state: NamedPlayers): string | null 
           : it.log.battagliaDistrutta,
         { attaccante: nameOf(state, e.attacker), vittima: nameOf(state, e.owner) }
       );
+    case 'sentieroSpezzato':
+      return t(it.log.sentieroSpezzato, {
+        attaccante: nameOf(state, e.attacker),
+        vittima: nameOf(state, e.owner),
+      });
     case 'cartaSagaComprata':
       return e.card
         ? t(it.log.cartaComprataNota, { nome: nameOf(state, e.player), carta: it.cartaSaga[e.card] })

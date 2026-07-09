@@ -432,9 +432,18 @@ export const it = {
     assaltoScegli: 'Scegli l’edificio avversario da assaltare con la carta.',
     conBattaglia: 'Con battaglia',
     spiega:
-      'Quando una tua strada raggiunge la casetta o la roccaforte di un avversario, puoi attaccarla pagando 3 pecore, 2 ferro e 2 legno: la casetta viene distrutta, la roccaforte declassata a casetta. Le due case iniziali sono indistruttibili, a meno che non diventino roccaforti.',
+      'Quando una tua strada raggiunge la rete di un avversario puoi attaccarla in due modi. ' +
+      'Attacco pesante (2 legno, 1 pietra, 1 pecora, 2 ferro): colpisci una casetta (distrutta) o una roccaforte (declassata a casetta). ' +
+      'Attacco leggero (2 legno, 2 ferro): spezzi una strada avversaria, ma solo quelle all’estremità (collegate su un solo lato). ' +
+      'Le due case iniziali sono indistruttibili, a meno che non diventino roccaforti.',
     attacca: '⚔️ Attacca',
-    scegliBersaglio: 'Scegli l’edificio avversario da attaccare (3 pecore, 2 ferro, 2 legno).',
+    scegliBersaglio: 'Scegli l’edificio avversario da attaccare (2 legno, 1 pietra, 1 pecora, 2 ferro).',
+    spezza: '🔨 Spezza strada',
+    spezzaScegli: 'Scegli la strada avversaria da spezzare all’estremità (2 legno, 2 ferro).',
+    pesante: 'Attacco pesante',
+    pesanteNota: 'casette e roccaforti',
+    leggero: 'Attacco leggero',
+    leggeroNota: 'strade all’estremità',
   },
 
   /**
@@ -492,6 +501,7 @@ export const it = {
     furia: 'La Furia dei Berserker passa a {nome} ({n} berserker)',
     battagliaDistrutta: '⚔️ {attaccante} distrugge una casetta di {vittima}',
     battagliaDeclassata: '⚔️ {attaccante} declassa una roccaforte di {vittima} a casetta',
+    sentieroSpezzato: '🔨 {attaccante} spezza una strada di {vittima}',
     vittoria: '{nome} vince con {n} Punti Gloria!',
   },
 

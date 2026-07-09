@@ -428,9 +428,18 @@ export const de: Strings = {
     assaltoScegli: 'Wähle das gegnerische Gebäude für den Karten-Angriff.',
     conBattaglia: 'Mit Schlacht',
     spiega:
-      'Wenn einer deiner Pfade das Haus oder die Festung eines Gegners erreicht, kannst du es angreifen und dafür 3 Schafe, 2 Eisen und 2 Holz zahlen: Das Haus wird zerstört, die Festung zum Haus herabgestuft. Die beiden Starthäuser sind unzerstörbar, außer sie werden zu Festungen.',
+      'Wenn einer deiner Pfade das Netz eines Gegners erreicht, kannst du es auf zwei Arten angreifen. ' +
+      'Schwerer Angriff (2 Holz, 1 Stein, 1 Schaf, 2 Eisen): trifft ein Haus (zerstört) oder eine Festung (zum Haus herabgestuft). ' +
+      'Leichter Angriff (2 Holz, 2 Eisen): zerbricht einen gegnerischen Pfad, aber nur die am Ende (nur an einer Seite verbunden). ' +
+      'Die beiden Starthäuser sind unzerstörbar, außer sie werden zu Festungen.',
     attacca: '⚔️ Angreifen',
-    scegliBersaglio: 'Wähle das gegnerische Gebäude zum Angriff (3 Schafe, 2 Eisen, 2 Holz).',
+    scegliBersaglio: 'Wähle das gegnerische Gebäude zum Angriff (2 Holz, 1 Stein, 1 Schaf, 2 Eisen).',
+    spezza: '🔨 Pfad zerbrechen',
+    spezzaScegli: 'Wähle den gegnerischen Pfad am Ende zum Zerbrechen (2 Holz, 2 Eisen).',
+    pesante: 'Schwerer Angriff',
+    pesanteNota: 'Häuser und Festungen',
+    leggero: 'Leichter Angriff',
+    leggeroNota: 'Pfade am Ende',
   },
 
   lamentiDrago: [
@@ -484,6 +493,7 @@ export const de: Strings = {
     furia: 'Die Berserkerwut geht an {nome} ({n} Berserker)',
     battagliaDistrutta: '⚔️ {attaccante} zerstört ein Haus von {vittima}',
     battagliaDeclassata: '⚔️ {attaccante} stuft eine Festung von {vittima} zum Haus herab',
+    sentieroSpezzato: '🔨 {attaccante} zerbricht einen Pfad von {vittima}',
     vittoria: '{nome} gewinnt mit {n} Ruhmespunkten!',
   },
 

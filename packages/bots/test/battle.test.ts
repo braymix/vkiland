@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  ATTACK_COST,
+  ATTACK_COST_EDIFICIO,
   RESOURCES,
   createGame,
   getLegalActions,
@@ -55,7 +55,7 @@ function scenario(opts: {
   owner.strongholds = [TARGET, ...FILLER.slice(0, opts.ownerStrongholds - 1)];
   owner.villages = FILLER.slice(opts.ownerStrongholds, opts.ownerStrongholds + opts.ownerVillages);
   // Risorse del bot: il costo d'attacco + eventuale surplus.
-  for (const r of RESOURCES) s.players[0]!.resources[r] = ATTACK_COST[r];
+  for (const r of RESOURCES) s.players[0]!.resources[r] = ATTACK_COST_EDIFICIO[r];
   s.players[0]!.resources.lana += opts.surplus;
   s.players[0]!.resources.ferro += opts.surplus;
   if (opts.assaltoCard) s.players[0]!.sagaCards = ['assalto'];

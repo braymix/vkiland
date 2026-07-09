@@ -427,9 +427,18 @@ export const nl: Strings = {
     assaltoScegli: 'Kies het gebouw van de tegenstander om met de kaart aan te vallen.',
     conBattaglia: 'Met strijd',
     spiega:
-      'Als een van jouw wegen het huis of het bolwerk van een tegenstander bereikt, kun je het aanvallen door 3 schapen, 2 ijzer en 2 hout te betalen: het huis wordt verwoest, het bolwerk wordt gedegradeerd tot huis. De twee starthuizen zijn onverwoestbaar, tenzij ze bolwerken worden.',
+      'Als een van jouw wegen het netwerk van een tegenstander bereikt, kun je het op twee manieren aanvallen. ' +
+      'Zware aanval (2 hout, 1 steen, 1 schaap, 2 ijzer): raakt een huis (verwoest) of een bolwerk (gedegradeerd tot huis). ' +
+      'Lichte aanval (2 hout, 2 ijzer): breekt een weg van de tegenstander, maar alleen die aan het uiteinde (aan één kant verbonden). ' +
+      'De twee starthuizen zijn onverwoestbaar, tenzij ze bolwerken worden.',
     attacca: '⚔️ Aanvallen',
-    scegliBersaglio: 'Kies het gebouw van de tegenstander om aan te vallen (3 schapen, 2 ijzer, 2 hout).',
+    scegliBersaglio: 'Kies het gebouw van de tegenstander om aan te vallen (2 hout, 1 steen, 1 schaap, 2 ijzer).',
+    spezza: '🔨 Weg breken',
+    spezzaScegli: 'Kies de weg van de tegenstander om aan het uiteinde te breken (2 hout, 2 ijzer).',
+    pesante: 'Zware aanval',
+    pesanteNota: 'huizen en bolwerken',
+    leggero: 'Lichte aanval',
+    leggeroNota: 'wegen aan het uiteinde',
   },
 
   lamentiDrago: [
@@ -483,6 +492,7 @@ export const nl: Strings = {
     furia: 'De Razernij der Berserkers gaat naar {nome} ({n} berserkers)',
     battagliaDistrutta: '⚔️ {attaccante} verwoest een huis van {vittima}',
     battagliaDeclassata: '⚔️ {attaccante} degradeert een bolwerk van {vittima} tot huis',
+    sentieroSpezzato: '🔨 {attaccante} breekt een weg van {vittima}',
     vittoria: '{nome} wint met {n} Roempunten!',
   },
 
