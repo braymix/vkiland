@@ -88,4 +88,41 @@ describe('simulazioni di partite complete', () => {
       expect(winner, `partita calamità ${i} non conclusa (${steps} passi)`).not.toBeNull();
     }
   }, 120_000);
+
+  it('MODALITÀ BATTAGLIA: i bot giocano partite complete senza mosse illegali', () => {
+    for (let i = 0; i < 12; i++) {
+      const { winner, steps } = runBotGame(
+        `sim-bat-${i}`,
+        [
+          createHeuristicBot('esperto'),
+          createHeuristicBot('difficile'),
+          createHeuristicBot('normale'),
+          createRandomBot(),
+        ],
+        8000,
+        undefined,
+        false,
+        true // ← modalità Battaglia attiva
+      );
+      expect(winner, `partita battaglia ${i} non conclusa (${steps} passi)`).not.toBeNull();
+    }
+  }, 120_000);
+
+  it('MODALITÀ BATTAGLIA + CALAMITÀ insieme: partite complete senza mosse illegali', () => {
+    for (let i = 0; i < 8; i++) {
+      const { winner, steps } = runBotGame(
+        `sim-bat-cal-${i}`,
+        [
+          createHeuristicBot('difficile'),
+          createHeuristicBot('normale'),
+          createRandomBot(),
+        ],
+        8000,
+        undefined,
+        true, // ← calamità
+        true // ← battaglia
+      );
+      expect(winner, `partita battaglia+calamità ${i} non conclusa (${steps} passi)`).not.toBeNull();
+    }
+  }, 120_000);
 });
