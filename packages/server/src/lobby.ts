@@ -387,6 +387,7 @@ function sanitizeConfig(c: LobbyConfig): LobbyConfig {
     turnTimerSec: clampInt(c.turnTimerSec, 0, 600, 0),
     isPublic: Boolean(c.isPublic),
     calamities: Boolean(c.calamities),
+    battle: Boolean(c.battle),
   };
   return c.seed?.trim() ? { ...base, seed: c.seed.trim() } : base;
 }

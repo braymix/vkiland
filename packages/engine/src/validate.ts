@@ -13,7 +13,7 @@ import {
   calamityBlocksStronghold,
   calamityDragonFrozen,
 } from './calamityRules';
-import { BUILD_COSTS, PIECE_LIMITS, RESOURCES } from './constants';
+import { ATTACK_COST, BUILD_COSTS, PIECE_LIMITS, RESOURCES } from './constants';
 import {
   hasAtLeast,
   isValidResourceCount,
@@ -21,6 +21,7 @@ import {
   totalResources,
 } from './resources';
 import {
+  battleTargets,
   buildingOwnerAt,
   effectiveBankRatio,
   roadConnects,
@@ -76,6 +77,12 @@ const ERR = {
   calamitaDrago: err('CALAMITA_DRAGO', 'Una calamità tiene fermo il Drago in questo giro.'),
   nienteDaGuadagnare: err('NIENTE_DA_GUADAGNARE', 'Non hai un guadagno da riscuotere.'),
   guadagnoErrato: err('GUADAGNO_ERRATO', 'La selezione di risorse da guadagnare non è valida.'),
+  // --- Battaglia ---
+  battagliaSpenta: err('BATTAGLIA_SPENTA', 'La modalità Battaglia non è attiva in questa partita.'),
+  bersaglioNonRaggiunto: err(
+    'BERSAGLIO_NON_RAGGIUNTO',
+    'Nessun edificio avversario raggiunto da una tua strada su questo punto.'
+  ),
 } as const;
 
 function isPlayerId(state: GameState, id: unknown): id is PlayerId {
@@ -201,6 +208,18 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (guard) return guard;
       if (state.sagaDeck.length === 0) return ERR.mazzoEsaurito;
       if (!hasAtLeast(me.resources, BUILD_COSTS.cartaSaga)) return ERR.risorseInsufficienti;
+      return null;
+    }
+
+    // ----------------------------------------------------------- battaglia
+    case 'attaccaEdificio': {
+      const guard = mainPhaseGuard(state, action.player);
+      if (guard) return guard;
+      if (!state.config.battle) return ERR.battagliaSpenta;
+      // Il bersaglio dev'essere un edificio avversario raggiunto da una mia strada.
+      if (!battleTargets(state, action.player, radius).includes(action.vertex))
+        return ERR.bersaglioNonRaggiunto;
+      if (!hasAtLeast(me.resources, ATTACK_COST)) return ERR.risorseInsufficienti;
       return null;
     }
 

@@ -73,6 +73,7 @@ export function NewGameScreen({
   // --- Regole (condivise fra i due flussi; l'online le sincronizza col server) ---
   const [targetPG, setTargetPG] = useState(DEFAULT_TARGET_GLORY);
   const [calamities, setCalamities] = useState(false);
+  const [battle, setBattle] = useState(false);
   const [avoid68, setAvoid68] = useState(true);
   const [seed, setSeed] = useState('');
   const [timerRaw, setTimerRaw] = useState('');
@@ -203,6 +204,7 @@ export function NewGameScreen({
     setTargetPG(lobby.config.targetGloryPoints);
     setAvoid68(lobby.config.avoidAdjacent68);
     setCalamities(lobby.config.calamities);
+    setBattle(lobby.config.battle);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lobby?.code]);
 
@@ -215,6 +217,7 @@ export function NewGameScreen({
       turnTimerSec: change.turnTimerSec ?? timerSec,
       isPublic: change.isPublic ?? isPublic,
       calamities: change.calamities ?? calamities,
+      battle: change.battle ?? battle,
       ...((change.seed ?? seed).trim() ? { seed: (change.seed ?? seed).trim() } : {}),
     };
     socketRef.current?.emit('lobby:updateConfig', next, (res) => {
@@ -229,6 +232,7 @@ export function NewGameScreen({
     turnTimerSec: timerSec,
     isPublic,
     calamities,
+    battle,
     ...(seed.trim() ? { seed: seed.trim() } : {}),
   });
 
@@ -312,6 +316,7 @@ export function NewGameScreen({
       avoidAdjacent68: avoid68,
       targetGloryPoints: targetPG,
       calamities,
+      battle,
     });
   };
 
@@ -358,6 +363,7 @@ export function NewGameScreen({
   const rulesAreClassic =
     targetPG === DEFAULT_TARGET_GLORY &&
     !calamities &&
+    !battle &&
     avoid68 &&
     !seed.trim() &&
     (mode === 'locale' || (timerSec === 0 && !isPublic));
@@ -517,6 +523,8 @@ export function NewGameScreen({
             bumpTarget={bumpTarget}
             calamities={calamities}
             setCalamities={(v) => setCalamities(v)}
+            battle={battle}
+            setBattle={(v) => setBattle(v)}
             avoid68={avoid68}
             setAvoid68={(v) => setAvoid68(v)}
             seed={seed}
@@ -700,6 +708,11 @@ export function NewGameScreen({
               setCalamities(v);
               patch({ calamities: v });
             }}
+            battle={battle}
+            setBattle={(v) => {
+              setBattle(v);
+              patch({ battle: v });
+            }}
             avoid68={avoid68}
             setAvoid68={(v) => {
               setAvoid68(v);
@@ -793,6 +806,8 @@ interface RulesPresetProps {
   bumpTarget: (delta: number) => void;
   calamities: boolean;
   setCalamities: (v: boolean) => void;
+  battle: boolean;
+  setBattle: (v: boolean) => void;
   avoid68: boolean;
   setAvoid68: (v: boolean) => void;
   seed: string;
@@ -870,6 +885,21 @@ function RulesPreset(p: RulesPresetProps) {
           {p.calamities && (
             <div style={{ fontSize: 8, color: 'var(--ink-dim)', lineHeight: 1.5 }}>
               {it.calamita.spiega}
+            </div>
+          )}
+
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={p.battle}
+              disabled={!p.editable}
+              onChange={(e) => p.setBattle(e.target.checked)}
+            />
+            ⚔️ {it.battaglia.conBattaglia}
+          </label>
+          {p.battle && (
+            <div style={{ fontSize: 8, color: 'var(--ink-dim)', lineHeight: 1.5 }}>
+              {it.battaglia.spiega}
             </div>
           )}
 

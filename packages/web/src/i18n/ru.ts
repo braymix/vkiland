@@ -421,6 +421,14 @@ export const ru: Strings = {
    * EASTER EGG: bots griping when the Dragon blocks them — just like at a real
    * table, where someone always takes it personally.
    */
+  battaglia: {
+    conBattaglia: 'С битвами',
+    spiega:
+      'Когда одна из ваших дорог достигает дома или крепости соперника, вы можете атаковать её, заплатив 3 овцы, 2 железа и 2 дерева: дом разрушается, крепость понижается до дома. Сочетается с бедствиями.',
+    attacca: '⚔️ Атаковать',
+    scegliBersaglio: 'Выберите вражеское строение для атаки (3 овцы, 2 железа, 2 дерева).',
+  },
+
   lamentiDrago: [
     'Да ну, опять я?!',
     'Блокируй кого-нибудь другого, а?!',
@@ -470,6 +478,8 @@ export const ru: Strings = {
     grandeVia: 'Великий путь переходит к {nome} ({n} троп)',
     grandeViaNessuno: 'Великий путь больше никому не принадлежит',
     furia: 'Ярость берсерков переходит к {nome} ({n} берсерков)',
+    battagliaDistrutta: '⚔️ {attaccante} разрушает дом игрока {vittima}',
+    battagliaDeclassata: '⚔️ {attaccante} понижает крепость игрока {vittima} до дома',
     vittoria: '{nome} побеждает с {n} Очками славы!',
   },
 

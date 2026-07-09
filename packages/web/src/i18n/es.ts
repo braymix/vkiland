@@ -421,6 +421,14 @@ export const es: Strings = {
    * EASTER EGG: bots griping when the Dragon blocks them — just like at a real
    * table, where someone always takes it personally.
    */
+  battaglia: {
+    conBattaglia: 'Con batalla',
+    spiega:
+      'Cuando uno de tus caminos alcanza la casa o la fortaleza de un rival, puedes atacarla pagando 3 ovejas, 2 hierro y 2 madera: la casa se destruye, la fortaleza baja a casa. Se combina con las calamidades.',
+    attacca: '⚔️ Atacar',
+    scegliBersaglio: 'Elige el edificio rival a atacar (3 ovejas, 2 hierro, 2 madera).',
+  },
+
   lamentiDrago: [
     '¿En serio, siempre yo?!',
     '¡Bloquea a otro, anda!',
@@ -470,6 +478,8 @@ export const es: Strings = {
     grandeVia: 'El Gran Camino pasa a {nome} ({n} caminos)',
     grandeViaNessuno: 'El Gran Camino ya no pertenece a nadie',
     furia: 'La Furia de los Berserkers pasa a {nome} ({n} berserkers)',
+    battagliaDistrutta: '⚔️ {attaccante} destruye una casa de {vittima}',
+    battagliaDeclassata: '⚔️ {attaccante} degrada una fortaleza de {vittima} a casa',
     vittoria: '¡{nome} gana con {n} Puntos de Gloria!',
   },
 

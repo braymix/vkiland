@@ -54,6 +54,8 @@ export interface LobbyConfig {
   isPublic: boolean;
   /** Modalità Calamità: una carta per giro. */
   calamities: boolean;
+  /** Modalità Battaglia: attacchi agli edifici avversari raggiunti. */
+  battle: boolean;
   /** Seme della mappa (opzionale: undefined = casuale). */
   seed?: string;
 }

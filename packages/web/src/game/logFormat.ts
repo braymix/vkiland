@@ -126,6 +126,13 @@ export function describeEvent(e: GameEvent, state: NamedPlayers): string | null 
           });
     case 'costruito':
       return t(it.log.costruito, { nome: nameOf(state, e.player), cosa: it[e.kind] });
+    case 'edificioAttaccato':
+      return t(
+        e.esito === 'roccaforteDeclassata'
+          ? it.log.battagliaDeclassata
+          : it.log.battagliaDistrutta,
+        { attaccante: nameOf(state, e.attacker), vittima: nameOf(state, e.owner) }
+      );
     case 'cartaSagaComprata':
       return e.card
         ? t(it.log.cartaComprataNota, { nome: nameOf(state, e.player), carta: it.cartaSaga[e.card] })

@@ -122,6 +122,7 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
   // Bersagli evidenziati sulla tavola, derivati dalle mosse legali dell'umano.
   const targets = useMemo((): BoardTargets => {
     const vertices: VertexId[] = [];
+    const attackVertices: VertexId[] = [];
     const edges: EdgeId[] = [];
     const hexes: HexId[] = [];
     for (const m of legalActions) {
@@ -145,9 +146,12 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
         case 'costruisciRoccaforte':
           if (mode === 'roccaforte') vertices.push(m.vertex);
           break;
+        case 'attaccaEdificio':
+          if (mode === 'attacca') attackVertices.push(m.vertex);
+          break;
       }
     }
-    return { vertices, edges, hexes };
+    return { vertices, attackVertices, edges, hexes };
   }, [legalActions, mode]);
 
   const pickVertex = (v: VertexId) => {
@@ -155,7 +159,8 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
       (a) =>
         ((a.type === 'piazzaVillaggioIniziale' ||
           (a.type === 'costruisciVillaggio' && mode === 'villaggio') ||
-          (a.type === 'costruisciRoccaforte' && mode === 'roccaforte')) &&
+          (a.type === 'costruisciRoccaforte' && mode === 'roccaforte') ||
+          (a.type === 'attaccaEdificio' && mode === 'attacca')) &&
           'vertex' in a &&
           a.vertex === v)
     );
