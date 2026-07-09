@@ -429,7 +429,7 @@ export const it = {
   battaglia: {
     conBattaglia: 'Con battaglia',
     spiega:
-      'Quando una tua strada raggiunge la casetta o la roccaforte di un avversario, puoi attaccarla pagando 3 pecore, 2 ferro e 2 legno: la casetta viene distrutta, la roccaforte declassata a casetta. Si combina con le calamità.',
+      'Quando una tua strada raggiunge la casetta o la roccaforte di un avversario, puoi attaccarla pagando 3 pecore, 2 ferro e 2 legno: la casetta viene distrutta, la roccaforte declassata a casetta. Si combina con le calamità. Le due case iniziali sono indistruttibili, a meno che non diventino roccaforti.',
     attacca: '⚔️ Attacca',
     scegliBersaglio: 'Scegli l’edificio avversario da attaccare (3 pecore, 2 ferro, 2 legno).',
   },

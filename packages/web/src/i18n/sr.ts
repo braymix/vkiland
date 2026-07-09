@@ -424,7 +424,7 @@ export const sr: Strings = {
   battaglia: {
     conBattaglia: 'Sa bitkom',
     spiega:
-      'Kada jedan od tvojih puteva dosegne kuću ili utvrđenje protivnika, možeš ga napasti plaćajući 3 ovce, 2 gvožđa i 2 drveta: kuća se ruši, utvrđenje se degradira u kuću. Kombinuje se sa nedaćama.',
+      'Kada jedan od tvojih puteva dosegne kuću ili utvrđenje protivnika, možeš ga napasti plaćajući 3 ovce, 2 gvožđa i 2 drveta: kuća se ruši, utvrđenje se degradira u kuću. Kombinuje se sa nedaćama. Dve početne kuće su neuništive, osim ako ne postanu utvrđenja.',
     attacca: '⚔️ Napadni',
     scegliBersaglio: 'Izaberi protivničku građevinu za napad (3 ovce, 2 gvožđa, 2 drveta).',
   },

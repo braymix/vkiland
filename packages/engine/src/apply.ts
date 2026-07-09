@@ -138,6 +138,8 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
     // ----------------------------------------------------------- setup
     case 'piazzaVillaggioIniziale': {
       me.villages.push(action.vertex);
+      // Insediamento iniziale: "casa indistruttibile" in modalità Battaglia.
+      me.initialVillages.push(action.vertex);
       events.push({
         type: 'costruito',
         player: me.id,

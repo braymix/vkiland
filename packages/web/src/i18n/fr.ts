@@ -425,7 +425,7 @@ export const fr: Strings = {
   battaglia: {
     conBattaglia: 'Avec bataille',
     spiega:
-      'Quand un de tes chemins atteint la maison ou la forteresse d’un adversaire, tu peux l’attaquer en payant 3 moutons, 2 fer et 2 bois : la maison est détruite, la forteresse est rétrogradée en maison. Se combine avec les calamités.',
+      'Quand un de tes chemins atteint la maison ou la forteresse d’un adversaire, tu peux l’attaquer en payant 3 moutons, 2 fer et 2 bois : la maison est détruite, la forteresse est rétrogradée en maison. Se combine avec les calamités. Les deux maisons de départ sont indestructibles, sauf si elles deviennent des forteresses.',
     attacca: '⚔️ Attaquer',
     scegliBersaglio: 'Choisis le bâtiment adverse à attaquer (3 moutons, 2 fer, 2 bois).',
   },
