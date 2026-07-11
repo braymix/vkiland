@@ -345,6 +345,8 @@ export const de: Strings = {
   },
   cartaSaga: {
     assalto: 'Angriff',
+    assaltoLeggero: 'Leichter Angriff',
+    cambiaCalamita: 'Schicksalswende',
     berserker: 'Berserker',
     sagaDegliEroi: 'Heldensaga',
     costruttoriDiSentieri: 'Pfadbauer',
@@ -412,7 +414,9 @@ export const de: Strings = {
   },
 
   descrizioneCarta: {
-    assalto: 'Greife kostenlos ein gegnerisches Gebäude an, das einer deiner Pfade erreicht: zerstört das Haus oder stuft die Festung zum Haus herab.',
+    assalto: 'Kostenloser schwerer Angriff: von einem deiner Pfade erreicht, zerstört das gegnerische Haus oder stuft die Festung zum Haus herab.',
+    assaltoLeggero: 'Kostenloser leichter Angriff: zerbricht einen gegnerischen Pfad am Ende, den einer deiner Pfade erreicht.',
+    cambiaCalamita: 'Ersetzt die Katastrophe der Runde durch die nächste dauerhafte Katastrophe im Stapel.',
     berserker: 'Bewege den Drachen und stiehl 1 Karte. Zählt für die Berserkerwut.',
     sagaDegliEroi: '1 geheimer Ruhmespunkt (zählt sofort).',
     costruttoriDiSentieri: 'Platziere sofort 2 kostenlose Pfade.',
@@ -426,6 +430,7 @@ export const de: Strings = {
    */
   battaglia: {
     assaltoScegli: 'Wähle das gegnerische Gebäude für den Karten-Angriff.',
+    assaltoLeggeroScegli: 'Wähle den gegnerischen Pfad, den die Karte zerbricht.',
     conBattaglia: 'Mit Schlacht',
     spiega:
       'Wenn einer deiner Pfade das Netz eines Gegners erreicht, kannst du es auf zwei Arten angreifen. ' +

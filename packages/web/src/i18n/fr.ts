@@ -345,6 +345,8 @@ export const fr: Strings = {
   },
   cartaSaga: {
     assalto: 'Assaut',
+    assaltoLeggero: 'Assaut Léger',
+    cambiaCalamita: 'Coup du Sort',
     berserker: 'Berserker',
     sagaDegliEroi: 'Saga des Héros',
     costruttoriDiSentieri: 'Bâtisseurs de Chemins',
@@ -412,7 +414,9 @@ export const fr: Strings = {
   },
 
   descrizioneCarta: {
-    assalto: 'Attaque gratuitement un bâtiment adverse atteint par un de tes chemins : détruit la maison ou rétrograde la forteresse en maison.',
+    assalto: 'Attaque lourde gratuite : atteint par un de tes chemins, détruit la maison adverse ou rétrograde la forteresse en maison.',
+    assaltoLeggero: 'Attaque légère gratuite : casse un chemin adverse au bout, atteint par un de tes chemins.',
+    cambiaCalamita: 'Remplace la calamité du tour par la prochaine calamité persistante de la pioche.',
     berserker: 'Déplace le Dragon et vole 1 carte. Compte pour la Fureur des Berserkers.',
     sagaDegliEroi: '1 Point de Gloire secret (compte tout de suite).',
     costruttoriDiSentieri: 'Place aussitôt 2 chemins gratuits.',
@@ -426,6 +430,7 @@ export const fr: Strings = {
    */
   battaglia: {
     assaltoScegli: 'Choisis le bâtiment adverse à prendre d’assaut avec la carte.',
+    assaltoLeggeroScegli: 'Choisis le chemin adverse à casser avec la carte.',
     conBattaglia: 'Avec bataille',
     spiega:
       'Quand un de tes chemins atteint le réseau d’un adversaire, tu peux l’attaquer de deux façons. ' +

@@ -53,6 +53,10 @@ export type Action =
   | { type: 'giocaTributo'; player: PlayerId; resource: Resource }
   // --- Battaglia: la carta ASSALTO attacca gratis l'edificio scelto ---
   | { type: 'giocaAssalto'; player: PlayerId; vertex: VertexId }
+  // --- Battaglia: la carta ASSALTO LEGGERO spezza gratis la strada scelta ---
+  | { type: 'giocaAssaltoLeggero'; player: PlayerId; edge: EdgeId }
+  // --- Calamità: la carta CAMBIA SORTE sostituisce la calamità del giro ---
+  | { type: 'giocaCambiaCalamita'; player: PlayerId }
   // --- Calamità: guadagno "a scelta" (fase calamityGain); scarti e strade
   //     riusano `scarta` e `piazzaSentieroGratis`. ---
   | { type: 'guadagnaCalamita'; player: PlayerId; resources: ResourceCount }

@@ -37,6 +37,46 @@ export function revealCalamity(state: GameState, events: GameEvent[]): boolean {
   return applyInstantCalamity(state, card, events);
 }
 
+/** Le calamità PERSISTENTI: cambiano le regole del giro (lette dalle query pure). */
+const PERSISTENT_CALAMITIES: ReadonlySet<CalamityCard['kind']> = new Set([
+  'materialeDoppio',
+  'materialeBloccato',
+  'dragoFermo',
+  'nienteSaga',
+  'dragoPrimaDelTiro',
+  'scambiTre',
+  'scambioDue',
+  'abbondanza',
+  'bufera',
+  'assedio',
+  'mareInTempesta',
+  'mercatoOro',
+]);
+
+/**
+ * Carta CAMBIA SORTE: sostituisce la calamità del giro con la prossima calamità
+ * PERSISTENTE del mazzo. Le carte istantanee incontrate vengono scartate (i
+ * loro effetti immediati NON si ri-attivano a metà giro: si applicano solo alla
+ * rivelazione). A mazzo esaurito il giro prosegue senza calamità. Emette
+ * l'evento `calamitaRivelata` così che UI e diario si aggiornino. Non apre mai
+ * una fase interattiva. Ritorna la nuova calamità (o null).
+ */
+export function changeCalamity(state: GameState, events: GameEvent[]): CalamityCard | null {
+  const c = state.calamities;
+  if (!c) return null;
+  c.current = null;
+  while (c.deck.length > 0) {
+    const card = c.deck.pop()!;
+    if (PERSISTENT_CALAMITIES.has(card.kind)) {
+      c.current = card;
+      events.push({ type: 'calamitaRivelata', card });
+      return card;
+    }
+    // Istantanea: scartata senza effetto (siamo a metà giro, non alla rivelazione).
+  }
+  return null; // mazzo esaurito: da qui il giro è normale
+}
+
 /** Applica una calamità ISTANTANEA; ritorna true se ha aperto una fase interattiva. */
 function applyInstantCalamity(state: GameState, card: CalamityCard, events: GameEvent[]): boolean {
   switch (card.kind) {

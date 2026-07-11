@@ -344,6 +344,8 @@ export const es: Strings = {
   },
   cartaSaga: {
     assalto: 'Asalto',
+    assaltoLeggero: 'Asalto Ligero',
+    cambiaCalamita: 'Giro del Destino',
     berserker: 'Berserker',
     sagaDegliEroi: 'Saga de los Héroes',
     costruttoriDiSentieri: 'Constructores de Caminos',
@@ -411,7 +413,9 @@ export const es: Strings = {
   },
 
   descrizioneCarta: {
-    assalto: 'Ataca gratis un edificio rival alcanzado por uno de tus caminos: destruye la casa o degrada la fortaleza a casa.',
+    assalto: 'Ataque pesado gratis: alcanzado por uno de tus caminos, destruye la casa rival o degrada la fortaleza a casa.',
+    assaltoLeggero: 'Ataque ligero gratis: rompe un camino rival del extremo alcanzado por uno de tus caminos.',
+    cambiaCalamita: 'Sustituye la calamidad de la ronda por la siguiente calamidad persistente del mazo.',
     berserker: 'Mueve el Dragón y roba 1 carta. Cuenta para la Furia de los Berserkers.',
     sagaDegliEroi: '1 Punto de Gloria secreto (cuenta de inmediato).',
     costruttoriDiSentieri: 'Coloca de inmediato 2 caminos gratis.',
@@ -425,6 +429,7 @@ export const es: Strings = {
    */
   battaglia: {
     assaltoScegli: 'Elige el edificio rival a asaltar con la carta.',
+    assaltoLeggeroScegli: 'Elige el camino rival a romper con la carta.',
     conBattaglia: 'Con batalla',
     spiega:
       'Cuando uno de tus caminos alcanza la red de un rival puedes atacarla de dos formas. ' +

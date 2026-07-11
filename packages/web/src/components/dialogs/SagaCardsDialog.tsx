@@ -17,11 +17,20 @@ interface Props {
   legalActions: LegalMove[];
   onSubmit: (action: Action) => void;
   onClose: () => void;
-  /** Battaglia: gioca la carta ASSALTO scegliendo il bersaglio sulla mappa. */
+  /** Battaglia: gioca la carta ASSALTO scegliendo l'edificio sulla mappa. */
   onEnterAssalto: () => void;
+  /** Battaglia: gioca la carta ASSALTO LEGGERO scegliendo la strada sulla mappa. */
+  onEnterAssaltoLeggero: () => void;
 }
 
-export function SagaCardsDialog({ view, legalActions, onSubmit, onClose, onEnterAssalto }: Props) {
+export function SagaCardsDialog({
+  view,
+  legalActions,
+  onSubmit,
+  onClose,
+  onEnterAssalto,
+  onEnterAssaltoLeggero,
+}: Props) {
   const me = view.me!;
   const [picking, setPicking] = useState<'banchetto' | 'tributo' | null>(null);
   const [banchettoPick, setBanchettoPick] = useState<Resource[]>([]);
@@ -38,6 +47,10 @@ export function SagaCardsDialog({ view, legalActions, onSubmit, onClose, onEnter
         return legalActions.some((m) => m.type === 'giocaTributo');
       case 'assalto':
         return legalActions.some((m) => m.type === 'giocaAssalto');
+      case 'assaltoLeggero':
+        return legalActions.some((m) => m.type === 'giocaAssaltoLeggero');
+      case 'cambiaCalamita':
+        return legalActions.some((m) => m.type === 'giocaCambiaCalamita');
       default:
         return false;
     }
@@ -48,8 +61,11 @@ export function SagaCardsDialog({ view, legalActions, onSubmit, onClose, onEnter
     else if (card === 'costruttoriDiSentieri') onSubmit({ type: 'giocaCostruttori', player: me.id });
     else if (card === 'banchetto') setPicking('banchetto');
     else if (card === 'tributo') setPicking('tributo');
-    // ASSALTO: si sceglie il bersaglio sulla mappa, quindi si chiude il dialogo.
+    // ASSALTO/ASSALTO LEGGERO: si sceglie il bersaglio sulla mappa, si chiude il dialogo.
     else if (card === 'assalto') onEnterAssalto();
+    else if (card === 'assaltoLeggero') onEnterAssaltoLeggero();
+    // CAMBIA SORTE: effetto immediato, nessun bersaglio.
+    else if (card === 'cambiaCalamita') onSubmit({ type: 'giocaCambiaCalamita', player: me.id });
   };
 
   if (picking === 'banchetto') {

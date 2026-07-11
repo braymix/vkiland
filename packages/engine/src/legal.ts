@@ -194,11 +194,25 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
           moves.push({ type: 'spezzaSentiero', player, edge: e });
         }
       }
-      // Battaglia: la carta ASSALTO attacca gratis (stessi bersagli).
+      // Battaglia: la carta ASSALTO attacca gratis (stessi bersagli pesanti).
       if (state.config.battle && canPlaySagaCard(state, player, 'assalto')) {
         for (const v of battleTargets(state, player, radius)) {
           moves.push({ type: 'giocaAssalto', player, vertex: v });
         }
+      }
+      // Battaglia: la carta ASSALTO LEGGERO spezza gratis (stesse strade).
+      if (state.config.battle && canPlaySagaCard(state, player, 'assaltoLeggero')) {
+        for (const e of roadBattleTargets(state, player, radius)) {
+          moves.push({ type: 'giocaAssaltoLeggero', player, edge: e });
+        }
+      }
+      // Calamità: la carta CAMBIA SORTE, solo se c'è una calamità in corso.
+      if (
+        canPlaySagaCard(state, player, 'cambiaCalamita') &&
+        state.calamities &&
+        state.calamities.current !== null
+      ) {
+        moves.push({ type: 'giocaCambiaCalamita', player });
       }
 
       // Scambi con banca/approdi (col rapporto scontato dalla calamità del giro,

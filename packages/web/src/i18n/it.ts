@@ -350,6 +350,8 @@ export const it = {
   } satisfies Record<TerrainType, string>,
   cartaSaga: {
     assalto: 'Assalto',
+    assaltoLeggero: 'Assalto Leggero',
+    cambiaCalamita: 'Cambia Sorte',
     berserker: 'Berserker',
     sagaDegliEroi: 'Saga degli Eroi',
     costruttoriDiSentieri: 'Costruttori di Sentieri',
@@ -357,7 +359,9 @@ export const it = {
     tributo: 'Tributo',
   } satisfies Record<SagaCard, string>,
   descrizioneCarta: {
-    assalto: 'Attacca gratis un edificio avversario raggiunto da una tua strada: distrugge la casetta o declassa la roccaforte a casetta.',
+    assalto: 'Attacco pesante gratis: raggiunta da una tua strada, distrugge la casetta avversaria o declassa la roccaforte a casetta.',
+    assaltoLeggero: 'Attacco leggero gratis: spezza una strada avversaria all’estremità raggiunta da una tua strada.',
+    cambiaCalamita: 'Sostituisce la calamità del giro con la prossima calamità persistente del mazzo.',
     berserker: 'Sposta il Drago e ruba 1 carta. Conta per la Furia dei Berserker.',
     sagaDegliEroi: '1 Punto Gloria segreto (conta da subito).',
     costruttoriDiSentieri: 'Piazza subito 2 sentieri gratuiti.',
@@ -430,6 +434,7 @@ export const it = {
   // --- Modalità Battaglia ---
   battaglia: {
     assaltoScegli: 'Scegli l’edificio avversario da assaltare con la carta.',
+    assaltoLeggeroScegli: 'Scegli la strada avversaria da spezzare con la carta.',
     conBattaglia: 'Con battaglia',
     spiega:
       'Quando una tua strada raggiunge la rete di un avversario puoi attaccarla in due modi. ' +
