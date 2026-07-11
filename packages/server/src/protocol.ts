@@ -147,6 +147,8 @@ export interface ClientToServerEvents {
   'game:action': (action: Action) => void;
   /** Richiesta esplicita dell'ultimo stato (es. dopo riconnessione). */
   'game:refresh': () => void;
+  /** Annulla l'ultimo piazzamento del giocatore. */
+  'game:undo': () => void;
 }
 
 export function isApiError(x: unknown): x is ApiError {

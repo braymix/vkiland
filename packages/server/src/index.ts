@@ -242,6 +242,7 @@ io.on('connection', (socket: AnySocket) => {
 
   socket.on('game:action', (action: Action) => lobbies.handleAction(userId, action));
   socket.on('game:refresh', () => lobbies.refreshGame(userId));
+  socket.on('game:undo', () => lobbies.handleUndo(userId));
 
   socket.on('disconnect', () => {
     const sockets = userSockets.get(userId);

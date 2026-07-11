@@ -45,6 +45,22 @@ export interface RoomOptions {
   botDelayMs?: [number, number];
 }
 
+/** Le azioni ANNULLABILI: solo i piazzamenti di costruzioni (setup incluso). */
+const UNDOABLE_BUILDS = new Set<Action['type']>([
+  'piazzaVillaggioIniziale',
+  'piazzaSentieroIniziale',
+  'costruisciSentiero',
+  'costruisciVillaggio',
+  'costruisciRoccaforte',
+  'piazzaSentieroGratis',
+]);
+
+/** Istantanea per annullare un piazzamento: stato PRIMA dell'azione. */
+interface UndoEntry {
+  state: GameState;
+  lastAction: Action;
+}
+
 export class GameRoom {
   readonly code: string;
   readonly seed: string;
@@ -62,6 +78,10 @@ export class GameRoom {
   private turnTimer: ReturnType<typeof setTimeout> | null = null;
   private finished = false;
   private disposed = false;
+  /** Stack di annullamenti per il giocatore corrente. */
+  private undoStack: UndoEntry[] = [];
+  /** Ultimo giocatore che ha piazzato una costruzione. */
+  private lastBuilderSeat: PlayerId | null = null;
 
   constructor(
     code: string,
@@ -125,8 +145,34 @@ export class GameRoom {
       this.callbacks.sendRejected(seat, res.error.message, this.generation);
       return;
     }
+    const isUndoable = UNDOABLE_BUILDS.has(action.type);
+    if (isUndoable) {
+      this.undoStack.push({ state: this.state, lastAction: action });
+      this.lastBuilderSeat = seat;
+    } else {
+      this.undoStack = [];
+    }
     this.actionLog.push(action);
     this.commit(res.state, res.events);
+  }
+
+  /** Annulla l'ultimo piazzamento del giocatore. */
+  handleUndo(seat: PlayerId): void {
+    if (this.disposed || this.finished) return;
+    if (this.lastBuilderSeat !== seat) {
+      this.callbacks.sendRejected(seat, 'Non hai costruzioni da annullare', this.generation);
+      return;
+    }
+    const entry = this.undoStack.pop();
+    if (!entry) {
+      this.callbacks.sendRejected(seat, 'Non hai costruzioni da annullare', this.generation);
+      return;
+    }
+    this.state = entry.state;
+    this.generation += 1;
+    this.armTurnTimer();
+    this.callbacks.sendUpdate(seat, this.buildUpdate(seat, []));
+    this.scheduleBots();
   }
 
   /** Rimanda l'ultimo stato a un posto (riconnessione / ingresso). */
