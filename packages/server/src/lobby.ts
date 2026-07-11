@@ -294,6 +294,13 @@ export class LobbyManager {
     lobby.room.handleAction(seat, action);
   }
 
+  handleUndo(userId: string): void {
+    const lobby = this.lobbyOfUser(userId);
+    const seat = lobby?.room?.seatOfUser(userId);
+    if (!lobby?.room || seat === null || seat === undefined) return;
+    lobby.room.handleUndo(seat);
+  }
+
   refreshGame(userId: string): void {
     const lobby = this.lobbyOfUser(userId);
     const seat = lobby?.room?.seatOfUser(userId);

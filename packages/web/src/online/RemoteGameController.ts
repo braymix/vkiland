@@ -6,12 +6,22 @@
  *   - i rifiuti (game:rejected) mostrati come errori non bloccanti.
  * Il dispatch inoltra l'azione come INTENZIONE; la conferma è l'update.
  */
-import type { Action, ValidationError } from '@vikiland/engine';
+import type { Action, PlayerId, ValidationError } from '@vikiland/engine';
 import type { GameUpdate } from '@vikiland/server/protocol';
 import type { GameController, GameSnapshot, LogEntry } from '../game/controller';
 import { describeEvent, describeStartingOrder, dragonComplaints } from '../game/logFormat';
 import { accumulateStats, emptyStats, type GameStats } from '../game/stats';
 import type { ServerSocket } from './connection';
+
+/** Le azioni ANNULLABILI: solo i piazzamenti di costruzioni (setup incluso). */
+const UNDOABLE_BUILDS = new Set<Action['type']>([
+  'piazzaVillaggioIniziale',
+  'piazzaSentieroIniziale',
+  'costruisciSentiero',
+  'costruisciVillaggio',
+  'costruisciRoccaforte',
+  'piazzaSentieroGratis',
+]);
 
 const MAX_LOG = 120;
 
@@ -25,6 +35,10 @@ export class RemoteGameController implements GameController {
   private rollCounter = 0;
   private stats: GameStats | null = null;
   private readonly socket: ServerSocket;
+  /** Se l'ultima azione del giocatore è una costruzione annullabile. */
+  private canUndoLast = false;
+  /** Giocatore corrente tracciato per rilevare cambio di turno. */
+  private lastCurrentPlayer: PlayerId | null = null;
   private readonly onUpdate = (u: GameUpdate): void => this.applyUpdate(u);
   private readonly onRejected = (r: { message: string }): void => {
     if (!this.snapshot) return;
@@ -59,6 +73,8 @@ export class RemoteGameController implements GameController {
 
   dispatch = (action: Action): ValidationError | null => {
     this.socket.emit('game:action', action);
+    // Traccia se questa è una costruzione annullabile.
+    this.canUndoLast = UNDOABLE_BUILDS.has(action.type);
     return null; // l'eventuale rifiuto arriva con game:rejected
   };
 
@@ -67,8 +83,7 @@ export class RemoteGameController implements GameController {
   };
 
   undo = (): void => {
-    // Online lo stato è autorevole sul server e gli altri hanno già visto la
-    // mossa in tempo reale: nessun annullamento (`canUndo` è sempre falso).
+    this.socket.emit('game:undo');
   };
 
   dispose = (): void => {
@@ -104,6 +119,11 @@ export class RemoteGameController implements GameController {
       }
     }
     if (this.log.length > MAX_LOG) this.log = this.log.slice(-MAX_LOG);
+    // Resetta canUndoLast quando il turno cambia (il giocatore corrente è diverso).
+    if (this.lastCurrentPlayer !== null && this.lastCurrentPlayer !== u.view.currentPlayer) {
+      this.canUndoLast = false;
+    }
+    this.lastCurrentPlayer = u.view.currentPlayer;
     this.snapshot = {
       view: u.view,
       viewpoint: u.seat,
@@ -117,7 +137,7 @@ export class RemoteGameController implements GameController {
       turnDeadline: u.turnDeadline,
       lastRoll: this.lastRoll,
       stats: this.stats,
-      canUndo: false,
+      canUndo: this.canUndoLast && u.view.phase.type !== 'gameOver',
     };
     this.emit();
   }
