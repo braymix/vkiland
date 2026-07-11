@@ -402,6 +402,16 @@ export const ICONA_SAGA: Record<string, SpriteDef> = {
     map: { L: 'ferroLuce', F: 'ferroScuro', t: 'tronco' },
     rows: ['...L...', '...L...', '...L...', '.FFtFF.', '...t...', '...t...', '...t...'],
   },
+  assaltoLeggero: {
+    // martello (carta Assalto Leggero: spezza strada)
+    map: { L: 'ferroLuce', F: 'ferroScuro', t: 'tronco' },
+    rows: ['.FFFF..', '.FLLF..', '.FFFF..', '..tt...', '..tt...', '..tt...', '..tt...'],
+  },
+  cambiaCalamita: {
+    // fulmine deviato (carta Cambia Sorte: cambia la calamità)
+    map: { L: 'ferroLuce', F: 'ferroScuro' },
+    rows: ['...LL..', '..LL...', '.LLF...', 'FFLLFF.', '...FLL.', '...LL..', '..LL...'],
+  },
 };
 
 /** Icone della UI (HUD): stella dei Punti Gloria, carte risorsa, pergamene. */

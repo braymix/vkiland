@@ -21,6 +21,7 @@ import { produceResources } from '../src/production';
 import {
   apply,
   autoSetup,
+  expectError,
   expectResourceInvariants,
   greedyDiscard,
   greedyGain,
@@ -494,4 +495,62 @@ describe('Calamità — partite complete casuali-legali', () => {
       expect(JSON.stringify(s)).toBe(JSON.stringify(state));
     }
   }, 120_000);
+});
+
+/** Stato in fase main, con calamità attiva e la carta CAMBIA SORTE in mano. */
+function cambiaSorteGame(
+  deck: CalamityCard[],
+  current: CalamityCard | null,
+  seed = 'cambia'
+): GameState {
+  return mut(calGame(2, seed), (s) => {
+    s.currentPlayer = 0;
+    s.rolledThisTurn = true;
+    s.phase = { type: 'main' };
+    s.players[0]!.sagaCards = ['cambiaCalamita'];
+    s.calamities = { deck, current };
+  });
+}
+
+describe('Carta Saga CAMBIA SORTE (modalità Calamità)', () => {
+  it('sostituisce la calamità del giro con la prossima persistente del mazzo', () => {
+    const s = cambiaSorteGame([{ kind: 'bufera' }], { kind: 'materialeBloccato', resource: 'ferro' });
+    const move = getLegalActions(s, 0).find((m) => m.type === 'giocaCambiaCalamita');
+    expect(move).toEqual({ type: 'giocaCambiaCalamita', player: 0 });
+    const after = apply(s, { type: 'giocaCambiaCalamita', player: 0 });
+    expect(after.calamities!.current).toEqual({ kind: 'bufera' });
+    expect(after.calamities!.deck).toHaveLength(0);
+    expect(after.players[0]!.sagaCards).not.toContain('cambiaCalamita');
+    expect(after.devCardPlayedThisTurn).toBe(true);
+  });
+
+  it('salta le calamità istantanee e prende la prossima persistente', () => {
+    // Si pesca dalla fine: prima l'istantanea (scartata), poi la persistente.
+    const s = cambiaSorteGame(
+      [{ kind: 'assedio' }, { kind: 'tuttiUnoDiTutto' }],
+      { kind: 'bufera' },
+      'cambia2'
+    );
+    const after = apply(s, { type: 'giocaCambiaCalamita', player: 0 });
+    expect(after.calamities!.current).toEqual({ kind: 'assedio' });
+    expect(after.calamities!.deck).toHaveLength(0);
+  });
+
+  it('a mazzo esaurito lascia il giro senza calamità', () => {
+    const s = cambiaSorteGame([], { kind: 'bufera' }, 'cambia3');
+    const after = apply(s, { type: 'giocaCambiaCalamita', player: 0 });
+    expect(after.calamities!.current).toBeNull();
+  });
+
+  it('senza una calamità in corso non è legale ed è rifiutata', () => {
+    const s = cambiaSorteGame([{ kind: 'bufera' }], null, 'cambia4');
+    expect(getLegalActions(s, 0).some((m) => m.type === 'giocaCambiaCalamita')).toBe(false);
+    expectError(s, { type: 'giocaCambiaCalamita', player: 0 }, 'NESSUNA_CALAMITA');
+  });
+
+  it('la calamità «niente Saga» impedisce anche CAMBIA SORTE', () => {
+    const s = cambiaSorteGame([{ kind: 'bufera' }], { kind: 'nienteSaga' }, 'cambia5');
+    expect(getLegalActions(s, 0).some((m) => m.type === 'giocaCambiaCalamita')).toBe(false);
+    expectError(s, { type: 'giocaCambiaCalamita', player: 0 }, 'CALAMITA_SAGA');
+  });
 });

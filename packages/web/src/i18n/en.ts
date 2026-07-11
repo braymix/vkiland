@@ -344,6 +344,8 @@ export const en: Strings = {
   },
   cartaSaga: {
     assalto: 'Assault',
+    assaltoLeggero: 'Light Assault',
+    cambiaCalamita: 'Turn of Fate',
     berserker: 'Berserker',
     sagaDegliEroi: 'Hero Saga',
     costruttoriDiSentieri: 'Path Builders',
@@ -411,7 +413,9 @@ export const en: Strings = {
   },
 
   descrizioneCarta: {
-    assalto: 'Freely attack an opponent building reached by one of your roads: destroys the house or downgrades the stronghold to a house.',
+    assalto: 'Free heavy attack: reached by one of your roads, destroys the opponent house or downgrades the stronghold to a house.',
+    assaltoLeggero: 'Free light attack: break an opponent road at the tip reached by one of your roads.',
+    cambiaCalamita: 'Replaces this round’s calamity with the next persistent calamity in the deck.',
     berserker: 'Move the Dragon and steal 1 card. Counts toward Berserker Fury.',
     sagaDegliEroi: '1 secret Glory Point (counts right away).',
     costruttoriDiSentieri: 'Immediately place 2 free paths.',
@@ -425,6 +429,7 @@ export const en: Strings = {
    */
   battaglia: {
     assaltoScegli: 'Pick the opponent building to assault with the card.',
+    assaltoLeggeroScegli: 'Pick the opponent road to break with the card.',
     conBattaglia: 'With battle',
     spiega:
       'When one of your roads reaches an opponent’s network you can attack it in two ways. ' +

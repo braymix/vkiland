@@ -184,6 +184,16 @@ const LEVELS: Record<BotLevel, LevelCfg> = {
   },
 };
 
+/**
+ * Calamità che BLOCCANO del tutto un'azione: valgono la giocata di CAMBIA SORTE
+ * (scommessa per sostituirle). Le altre persistenti sono tollerabili.
+ */
+const HARD_BLOCK_CALAMITIES: ReadonlySet<string> = new Set([
+  'bufera', // niente sentieri
+  'assedio', // niente roccaforti
+  'mareInTempesta', // niente scambi con la banca
+]);
+
 /** Giocatori pericolosamente vicini alla vittoria (PG pubblici). */
 function nearVictory(view: PlayerView, margin: number): Set<number> {
   const out = new Set<number>();
@@ -271,20 +281,21 @@ function chooseAttack(
   return pool[0]!.m;
 }
 
-type RoadBreakMove = Extract<Action, { type: 'spezzaSentiero' }>;
+type RoadBreakMove = Extract<Action, { type: 'spezzaSentiero' | 'giocaAssaltoLeggero' }>;
 
 /**
  * Modalità Battaglia — attacco leggero: sceglie quale strada avversaria
  * spezzare tra i `candidates` (o null se non conviene). Priorità: togliere La
  * Grande Via a chi la detiene, poi ostacolare un avversario prossimo alla
- * vittoria. È un'azione a pagamento: fuori dai casi urgenti si fa solo col
- * surplus, come l'attacco pesante.
+ * vittoria. `free` = con la carta ASSALTO LEGGERO (nessun costo): salta la
+ * prudenza sul surplus.
  */
 function chooseRoadBreak(
   view: PlayerView,
   player: number,
   cfg: LevelCfg,
-  candidates: readonly RoadBreakMove[]
+  candidates: readonly RoadBreakMove[],
+  free: boolean
 ): Action | null {
   if (cfg.attackWithin <= 0) return null;
   if (candidates.length === 0) return null;
@@ -318,10 +329,10 @@ function chooseRoadBreak(
   const pool = scored.filter((x) => x.breaksVia || x.threat);
   if (pool.length === 0) return null;
 
-  // Prudenza: se non c'è urgenza (né Grande Via né minaccia imminente), si
-  // spezza solo col surplus oltre il costo.
+  // Prudenza: l'attacco a pagamento, se non urgente, si fa solo col surplus.
+  // Con la carta ASSALTO LEGGERO (gratis) non c'è nulla da risparmiare.
   const urgent = pool.some((x) => x.breaksVia || x.imminent);
-  if (!urgent && totalResources(my.resources) - totalOf(ATTACK_COST_SENTIERO) < 3) {
+  if (!free && !urgent && totalResources(my.resources) - totalOf(ATTACK_COST_SENTIERO) < 3) {
     return null;
   }
 
@@ -517,11 +528,20 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
       const assaultMoves = bucket(input, 'giocaAssalto');
       const attackMoves = bucket(input, 'attaccaEdificio');
       const roadBreakMoves = bucket(input, 'spezzaSentiero');
+      const roadAssaultMoves = bucket(input, 'giocaAssaltoLeggero');
       const defend =
         chooseAttack(view, player, cfg, assaultMoves, true, true) ??
         chooseAttack(view, player, cfg, attackMoves, false, true) ??
-        chooseRoadBreak(view, player, cfg, roadBreakMoves);
+        chooseRoadBreak(view, player, cfg, roadAssaultMoves, true) ??
+        chooseRoadBreak(view, player, cfg, roadBreakMoves, false);
       if (defend) return defend;
+
+      // Calamità: se una calamità del giro blocca del tutto un'azione (sentieri,
+      // roccaforti o scambi), la carta CAMBIA SORTE la sostituisce con un'altra.
+      const changeFate = input.legalActions.find((m) => m.type === 'giocaCambiaCalamita');
+      if (changeFate && view.calamity && HARD_BLOCK_CALAMITIES.has(view.calamity.kind)) {
+        return changeFate as Action;
+      }
 
       const strongholds = bucket(input, 'costruisciRoccaforte');
       if (strongholds.length > 0) {
@@ -544,7 +564,8 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
       const attack =
         chooseAttack(view, player, cfg, assaultMoves, true, false) ??
         chooseAttack(view, player, cfg, attackMoves, false, false) ??
-        chooseRoadBreak(view, player, cfg, roadBreakMoves);
+        chooseRoadBreak(view, player, cfg, roadAssaultMoves, true) ??
+        chooseRoadBreak(view, player, cfg, roadBreakMoves, false);
       if (attack) return attack;
 
       const roads = bucket(input, 'costruisciSentiero');

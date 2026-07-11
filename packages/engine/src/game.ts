@@ -4,6 +4,7 @@ import {
   BATTLE_SAGA_EXTRA,
   boardSpecForPlayers,
   CALAMITY_DECK_COMPOSITION,
+  CALAMITY_SAGA_EXTRA,
   DEFAULT_TARGET_GLORY,
   MAX_PLAYERS,
   MIN_PLAYERS,
@@ -60,11 +61,12 @@ export function createGame(options: NewGameOptions): GameState {
   let rng = seedRng(seed);
   const [board, rngAfterBoard] = generateBoard(rng, config.avoidAdjacent68, spec);
   rng = rngAfterBoard;
-  // In Battaglia il mazzo Saga include 3 carte ASSALTO in più; le partite
-  // standard restano identiche (stessa composizione, stesso consumo di PRNG).
-  const sagaComposition = config.battle
-    ? [...SAGA_DECK_COMPOSITION, ...BATTLE_SAGA_EXTRA]
-    : SAGA_DECK_COMPOSITION;
+  // Battaglia e Calamità aggiungono le proprie carte extra al mazzo Saga; le
+  // partite standard restano identiche (stessa composizione, stesso consumo di
+  // PRNG). L'ordine delle aggiunte è fisso: prima Battaglia, poi Calamità.
+  const sagaComposition = [...SAGA_DECK_COMPOSITION];
+  if (config.battle) sagaComposition.push(...BATTLE_SAGA_EXTRA);
+  if (config.calamities) sagaComposition.push(...CALAMITY_SAGA_EXTRA);
   const [sagaDeck, rngAfterDeck] = shuffle(rng, sagaComposition);
   rng = rngAfterDeck;
 

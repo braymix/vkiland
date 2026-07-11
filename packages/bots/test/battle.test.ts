@@ -20,6 +20,9 @@ import { createHeuristicBot } from '../src';
 const topo = getTopology(2);
 const ATTACK_EDGE = topo.edges[0]!;
 const TARGET: VertexId = topo.edgeVertices[ATTACK_EDGE]![0];
+const REACHED_VERTEX: VertexId = topo.edgeVertices[ATTACK_EDGE]![1];
+// Strada avversaria adiacente alla mia (condivide REACHED_VERTEX): bersaglio dello spezza.
+const ENEMY_ROAD = topo.vertexEdges[REACHED_VERTEX]!.find((e) => e !== ATTACK_EDGE)!;
 // Vertici distinti (per gonfiare i PG dell'avversario): l'unico che dev'essere
 // raggiungibile è TARGET; gli altri servono solo a fare punteggio nel conteggio.
 const FILLER = topo.vertices.filter((v) => v !== TARGET);
@@ -105,5 +108,34 @@ describe('euristica di Battaglia dei bot', () => {
     const s = scenario({ ownerStrongholds: 3, ownerVillages: 0, surplus: 4 });
     const action = decide(s, 'esperto');
     expect(action).toEqual({ type: 'attaccaEdificio', player: 0, vertex: TARGET });
+  });
+
+  it('gioca la carta ASSALTO LEGGERO (gratis) per togliere La Grande Via all’avversario', () => {
+    const s = createGame({
+      seed: 'bot-strada',
+      players: [
+        { name: 'A', color: 'rosso', isBot: true },
+        { name: 'B', color: 'blu', isBot: true },
+      ],
+      battle: true,
+    });
+    s.turnOrder = [0, 1];
+    s.setupOrder = [0, 1, 1, 0];
+    s.currentPlayer = 0;
+    s.turnNumber = 1;
+    s.rolledThisTurn = true;
+    s.phase = { type: 'main' };
+    for (const p of s.players) {
+      p.villages = [];
+      p.strongholds = [];
+      p.roads = [];
+    }
+    s.players[0]!.roads = [ATTACK_EDGE];
+    s.players[1]!.roads = [ENEMY_ROAD];
+    s.players[0]!.sagaCards = ['assaltoLeggero'];
+    // L'avversario detiene La Grande Via: spezzargli la strada vale la giocata.
+    s.longestRoad = { holder: 1, length: 5 };
+    const action = decide(s, 'esperto');
+    expect(action).toEqual({ type: 'giocaAssaltoLeggero', player: 0, edge: ENEMY_ROAD });
   });
 });

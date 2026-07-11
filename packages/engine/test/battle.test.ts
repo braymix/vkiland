@@ -185,9 +185,33 @@ describe('modalità Battaglia', () => {
       battle: true,
     });
     const senzaBattaglia = createGame({ seed: 'mazzo-battaglia', players: makePlayers(2) });
-    expect(conBattaglia.sagaDeck.filter((c) => c === 'assalto')).toHaveLength(3);
+    // In Battaglia: 2 ASSALTO (pesante) + 3 ASSALTO LEGGERO = 5 carte in più.
+    expect(conBattaglia.sagaDeck.filter((c) => c === 'assalto')).toHaveLength(2);
+    expect(conBattaglia.sagaDeck.filter((c) => c === 'assaltoLeggero')).toHaveLength(3);
     expect(senzaBattaglia.sagaDeck.filter((c) => c === 'assalto')).toHaveLength(0);
-    expect(conBattaglia.sagaDeck.length).toBe(senzaBattaglia.sagaDeck.length + 3);
+    expect(senzaBattaglia.sagaDeck.filter((c) => c === 'assaltoLeggero')).toHaveLength(0);
+    expect(conBattaglia.sagaDeck.length).toBe(senzaBattaglia.sagaDeck.length + 5);
+  });
+
+  it('la carta ASSALTO LEGGERO spezza gratis una strada avversaria e si consuma', () => {
+    let s = mut(roadBattleGame(), (st) => {
+      st.players[0]!.sagaCards = ['assaltoLeggero'];
+    });
+    const move = getLegalActions(s, 0).find((m) => m.type === 'giocaAssaltoLeggero');
+    expect(move).toEqual({ type: 'giocaAssaltoLeggero', player: 0, edge: ENEMY_EDGE });
+    s = apply(s, { type: 'giocaAssaltoLeggero', player: 0, edge: ENEMY_EDGE });
+    expect(s.players[1]!.roads).not.toContain(ENEMY_EDGE);
+    expect(s.players[0]!.sagaCards).not.toContain('assaltoLeggero');
+    expect(s.devCardPlayedThisTurn).toBe(true);
+    expectResourceInvariants(s);
+  });
+
+  it('la carta ASSALTO LEGGERO rispetta le strade collegate su entrambi i lati', () => {
+    const s = mut(roadBattleGame({ protectBoth: true }), (st) => {
+      st.players[0]!.sagaCards = ['assaltoLeggero'];
+    });
+    expect(getLegalActions(s, 0).some((m) => m.type === 'giocaAssaltoLeggero')).toBe(false);
+    expectError(s, { type: 'giocaAssaltoLeggero', player: 0, edge: ENEMY_EDGE }, 'SENTIERO_PROTETTO');
   });
 
   it('non è un bersaglio l’edificio proprio nemmeno con una strada adiacente', () => {

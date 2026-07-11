@@ -81,11 +81,22 @@ export const SAGA_DECK_COMPOSITION: readonly SagaCard[] = [
 ];
 
 /**
- * Carte in più mescolate nel mazzo Saga SOLO in modalità Battaglia: 3 ASSALTO.
- * Tenute separate così le partite standard restano identiche (stesso mazzo).
+ * Carte in più mescolate nel mazzo Saga SOLO in modalità Battaglia: 2 ASSALTO
+ * (attacco pesante gratis) + 3 ASSALTO LEGGERO (spezza-strada gratis). Tenute
+ * separate così le partite standard restano identiche (stesso mazzo).
  */
 export const BATTLE_SAGA_EXTRA: readonly SagaCard[] = [
-  ...Array<SagaCard>(3).fill('assalto'),
+  ...Array<SagaCard>(2).fill('assalto'),
+  ...Array<SagaCard>(3).fill('assaltoLeggero'),
+];
+
+/**
+ * Carte in più mescolate nel mazzo Saga SOLO in modalità Calamità: 3 CAMBIA
+ * SORTE (sostituiscono la calamità del giro). Tenute separate così le partite
+ * standard restano identiche.
+ */
+export const CALAMITY_SAGA_EXTRA: readonly SagaCard[] = [
+  ...Array<SagaCard>(3).fill('cambiaCalamita'),
 ];
 
 /**

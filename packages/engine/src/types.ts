@@ -14,11 +14,24 @@ export type SagaCard =
   | 'banchetto'
   | 'tributo'
   /**
-   * ASSALTO (modalità Battaglia): 3 copie aggiunte al mazzo solo se la Battaglia
-   * è attiva. Giocarla vale come un attacco GRATIS (nessuna risorsa) a un
-   * edificio avversario raggiunto da una propria strada.
+   * ASSALTO (modalità Battaglia): 2 copie aggiunte al mazzo solo se la Battaglia
+   * è attiva. Giocarla vale come un attacco PESANTE GRATIS (nessuna risorsa) a
+   * un edificio avversario raggiunto da una propria strada.
    */
-  | 'assalto';
+  | 'assalto'
+  /**
+   * ASSALTO LEGGERO (modalità Battaglia): 3 copie aggiunte al mazzo solo se la
+   * Battaglia è attiva. Giocarla vale come un attacco LEGGERO GRATIS: spezza una
+   * strada avversaria all'estremità raggiunta da una propria strada.
+   */
+  | 'assaltoLeggero'
+  /**
+   * CAMBIA SORTE (modalità Calamità): 3 copie aggiunte al mazzo solo se le
+   * Calamità sono attive. Giocarla sostituisce la calamità del giro con la
+   * prossima calamità PERSISTENTE del mazzo (una scommessa: può andare meglio
+   * o peggio).
+   */
+  | 'cambiaCalamita';
 
 /**
  * Carta CALAMITÀ (modalità opzionale). Una si rivela all'inizio di ogni giro

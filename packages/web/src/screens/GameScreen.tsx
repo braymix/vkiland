@@ -156,6 +156,9 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
         case 'giocaAssalto':
           if (mode === 'assalto') attackVertices.push(m.vertex);
           break;
+        case 'giocaAssaltoLeggero':
+          if (mode === 'assaltoLeggero') attackEdges.push(m.edge);
+          break;
       }
     }
     return { vertices, attackVertices, edges, attackEdges, hexes };
@@ -180,7 +183,8 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
         (a.type === 'piazzaSentieroIniziale' ||
           a.type === 'piazzaSentieroGratis' ||
           (a.type === 'costruisciSentiero' && mode === 'sentiero') ||
-          (a.type === 'spezzaSentiero' && mode === 'spezza')) &&
+          (a.type === 'spezzaSentiero' && mode === 'spezza') ||
+          (a.type === 'giocaAssaltoLeggero' && mode === 'assaltoLeggero')) &&
         a.edge === e
     );
     if (m) dispatch(m as Action);
@@ -310,6 +314,10 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
           onEnterAssalto={() => {
             setCardsOpen(false);
             setMode('assalto');
+          }}
+          onEnterAssaltoLeggero={() => {
+            setCardsOpen(false);
+            setMode('assaltoLeggero');
           }}
         />
       )}

@@ -5,7 +5,7 @@
  */
 import type { Action, ApplyResult, GameEvent } from './actions';
 import { getTopology } from './board/topology';
-import { revealCalamity } from './calamities';
+import { changeCalamity, revealCalamity } from './calamities';
 import { dragonPhaseAfterSeven, rollTimePhase } from './calamityRules';
 import {
   ATTACK_COST_EDIFICIO,
@@ -376,11 +376,27 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       break;
     }
     case 'giocaAssalto': {
-      // La carta ASSALTO è un attacco GRATIS: la carta stessa è il costo.
+      // La carta ASSALTO è un attacco pesante GRATIS: la carta stessa è il costo.
       removeCard(me.sagaCards, 'assalto');
       state.devCardPlayedThisTurn = true;
       events.push({ type: 'cartaSagaGiocata', player: me.id, card: 'assalto' });
       resolveAttack(state, me.id, action.vertex, events);
+      break;
+    }
+    case 'giocaAssaltoLeggero': {
+      // La carta ASSALTO LEGGERO è uno spezza-strada GRATIS: la carta è il costo.
+      removeCard(me.sagaCards, 'assaltoLeggero');
+      state.devCardPlayedThisTurn = true;
+      events.push({ type: 'cartaSagaGiocata', player: me.id, card: 'assaltoLeggero' });
+      resolveRoadAttack(state, me.id, action.edge, events);
+      break;
+    }
+    case 'giocaCambiaCalamita': {
+      // Sostituisce la calamità del giro con la prossima persistente del mazzo.
+      removeCard(me.sagaCards, 'cambiaCalamita');
+      state.devCardPlayedThisTurn = true;
+      events.push({ type: 'cartaSagaGiocata', player: me.id, card: 'cambiaCalamita' });
+      changeCalamity(state, events);
       break;
     }
 
