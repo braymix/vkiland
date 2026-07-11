@@ -344,6 +344,8 @@ export const nl: Strings = {
   },
   cartaSaga: {
     assalto: 'Aanval',
+    assaltoLeggero: 'Lichte Aanval',
+    cambiaCalamita: 'Wending van het Lot',
     berserker: 'Berserker',
     sagaDegliEroi: 'Heldensaga',
     costruttoriDiSentieri: 'Padenbouwers',
@@ -411,7 +413,9 @@ export const nl: Strings = {
   },
 
   descrizioneCarta: {
-    assalto: 'Val gratis een gebouw van de tegenstander aan dat door een van je wegen is bereikt: verwoest het huis of degradeert het bolwerk tot huis.',
+    assalto: 'Gratis zware aanval: bereikt door een van je wegen, verwoest het huis van de tegenstander of degradeert het bolwerk tot huis.',
+    assaltoLeggero: 'Gratis lichte aanval: breekt een weg van de tegenstander aan het uiteinde, bereikt door een van je wegen.',
+    cambiaCalamita: 'Vervangt de ramp van de ronde door de volgende blijvende ramp in de stapel.',
     berserker: 'Verplaats de Draak en steel 1 kaart. Telt mee voor de Razernij der Berserkers.',
     sagaDegliEroi: '1 geheim Roempunt (telt meteen mee).',
     costruttoriDiSentieri: 'Plaats meteen 2 gratis paden.',
@@ -425,6 +429,7 @@ export const nl: Strings = {
    */
   battaglia: {
     assaltoScegli: 'Kies het gebouw van de tegenstander om met de kaart aan te vallen.',
+    assaltoLeggeroScegli: 'Kies de weg van de tegenstander om met de kaart te breken.',
     conBattaglia: 'Met strijd',
     spiega:
       'Als een van jouw wegen het netwerk van een tegenstander bereikt, kun je het op twee manieren aanvallen. ' +

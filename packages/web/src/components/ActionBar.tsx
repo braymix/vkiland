@@ -9,6 +9,7 @@ export type BuildMode =
   | 'attacca'
   | 'spezza'
   | 'assalto'
+  | 'assaltoLeggero'
   | null;
 
 interface Props {
@@ -114,15 +115,21 @@ export function ActionBar(props: Props) {
           </button>
         )}
       </div>
-      {!props.errorText && (mode === 'attacca' || mode === 'assalto' || mode === 'spezza') && (
-        <div className="phase-banner" style={{ color: 'var(--danger)' }}>
-          {mode === 'assalto'
-            ? it.battaglia.assaltoScegli
-            : mode === 'spezza'
-              ? it.battaglia.spezzaScegli
-              : it.battaglia.scegliBersaglio}
-        </div>
-      )}
+      {!props.errorText &&
+        (mode === 'attacca' ||
+          mode === 'assalto' ||
+          mode === 'spezza' ||
+          mode === 'assaltoLeggero') && (
+          <div className="phase-banner" style={{ color: 'var(--danger)' }}>
+            {mode === 'assalto'
+              ? it.battaglia.assaltoScegli
+              : mode === 'assaltoLeggero'
+                ? it.battaglia.assaltoLeggeroScegli
+                : mode === 'spezza'
+                  ? it.battaglia.spezzaScegli
+                  : it.battaglia.scegliBersaglio}
+          </div>
+        )}
       {props.errorText && (
         <div className="phase-banner" style={{ color: 'var(--danger)' }}>
           {props.errorText}

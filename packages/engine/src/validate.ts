@@ -95,6 +95,10 @@ const ERR = {
     'SENTIERO_PROTETTO',
     'Questa strada è collegata su entrambi i lati: puoi spezzare solo quelle all’estremità.'
   ),
+  nessunaCalamita: err(
+    'NESSUNA_CALAMITA',
+    'Non c’è nessuna calamità in corso da cambiare in questo giro.'
+  ),
 } as const;
 
 function isPlayerId(state: GameState, id: unknown): id is PlayerId {
@@ -296,6 +300,26 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (!me.sagaCards.includes('assalto')) return ERR.cartaNonDisponibile;
       const targetErr = attackTargetError(state, action.player, action.vertex, radius);
       if (targetErr) return targetErr;
+      return null;
+    }
+    case 'giocaAssaltoLeggero': {
+      const guard = mainPhaseGuard(state, action.player);
+      if (guard) return guard;
+      if (!state.config.battle) return ERR.battagliaSpenta;
+      if (calamityBlocksSaga(state)) return ERR.calamitaSaga;
+      if (state.devCardPlayedThisTurn) return ERR.cartaGiaGiocata;
+      if (!me.sagaCards.includes('assaltoLeggero')) return ERR.cartaNonDisponibile;
+      const targetErr = roadAttackTargetError(state, action.player, action.edge, radius);
+      if (targetErr) return targetErr;
+      return null;
+    }
+    case 'giocaCambiaCalamita': {
+      const guard = mainPhaseGuard(state, action.player);
+      if (guard) return guard;
+      if (calamityBlocksSaga(state)) return ERR.calamitaSaga;
+      if (state.devCardPlayedThisTurn) return ERR.cartaGiaGiocata;
+      if (!me.sagaCards.includes('cambiaCalamita')) return ERR.cartaNonDisponibile;
+      if (!state.calamities || state.calamities.current === null) return ERR.nessunaCalamita;
       return null;
     }
 

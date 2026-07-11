@@ -344,6 +344,8 @@ export const sr: Strings = {
   },
   cartaSaga: {
     assalto: 'Juriš',
+    assaltoLeggero: 'Laki juriš',
+    cambiaCalamita: 'Preokret sudbine',
     berserker: 'Berserker',
     sagaDegliEroi: 'Saga o herojima',
     costruttoriDiSentieri: 'Graditelji puteva',
@@ -411,7 +413,9 @@ export const sr: Strings = {
   },
 
   descrizioneCarta: {
-    assalto: 'Besplatno napadni protivničku građevinu do koje dopire tvoj put: ruši kuću ili degradira utvrđenje u kuću.',
+    assalto: 'Besplatni teški napad: do koje dopire tvoj put, ruši protivničku kuću ili degradira utvrđenje u kuću.',
+    assaltoLeggero: 'Besplatni laki napad: lomi protivnički put na kraju do kojeg dopire tvoj put.',
+    cambiaCalamita: 'Zamenjuje nesreću ovog kruga sledećom trajnom nesrećom iz špila.',
     berserker: 'Pomeri Zmaja i ukradi 1 kartu. Računa se za Bes Berserkera.',
     sagaDegliEroi: '1 tajni poen slave (računa se odmah).',
     costruttoriDiSentieri: 'Odmah postavi 2 besplatna puta.',
@@ -425,6 +429,7 @@ export const sr: Strings = {
    */
   battaglia: {
     assaltoScegli: 'Izaberi protivničku građevinu za juriš kartom.',
+    assaltoLeggeroScegli: 'Izaberi protivnički put za lomljenje kartom.',
     conBattaglia: 'Sa bitkom',
     spiega:
       'Kada jedan od tvojih puteva dosegne mrežu protivnika, možeš je napasti na dva načina. ' +
