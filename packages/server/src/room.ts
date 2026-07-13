@@ -110,6 +110,7 @@ export class GameRoom {
       targetGloryPoints: config.targetGloryPoints,
       calamities: config.calamities,
       battle: config.battle,
+      ...(config.boardSize ? { boardSize: config.boardSize } : {}),
     });
     seats.forEach((s, i) => {
       if (s.isBot) this.bots.set(i, createBot(s.botLevel ?? 'normale'));

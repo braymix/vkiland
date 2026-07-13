@@ -19,6 +19,7 @@ import {
   getLegalActions,
   getPlayerView,
   type Action,
+  type BoardSizeChoice,
   type GameEvent,
   type GameState,
   type PlayerConfig,
@@ -43,6 +44,8 @@ export interface GameSetup {
   calamities: boolean;
   /** Modalità Battaglia: attacchi agli edifici avversari (default false). */
   battle: boolean;
+  /** Tavola grande scelta esplicitamente; assente = consigliata dal numero di giocatori. */
+  boardSize?: BoardSizeChoice;
 }
 
 const BOT_DELAY_MIN = 450;

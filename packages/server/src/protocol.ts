@@ -7,6 +7,7 @@
  */
 import type {
   Action,
+  BoardSizeChoice,
   BotLevel,
   GameEvent,
   GameState,
@@ -56,6 +57,11 @@ export interface LobbyConfig {
   calamities: boolean;
   /** Modalità Battaglia: attacchi agli edifici avversari raggiunti. */
   battle: boolean;
+  /**
+   * Scelta esplicita della tavola grande ('grande' 29 caselle / 'gigante' 37);
+   * assente = tavola consigliata dal numero di giocatori (piccola per 2–4).
+   */
+  boardSize?: BoardSizeChoice;
   /** Seme della mappa (opzionale: undefined = casuale). */
   seed?: string;
 }

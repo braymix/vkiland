@@ -2,7 +2,7 @@
 import { SMALL_BOARD, type BoardSpec } from '../constants';
 import { shuffle, type RngState } from '../rng';
 import type { Board, Hex, Port } from '../types';
-import { allBoardHexes, hexKey, hexNeighbors } from './coords';
+import { boardHexes, hexKey, hexNeighbors } from './coords';
 import { getTopology } from './topology';
 
 function hasAdjacent68(hexes: readonly Hex[]): boolean {
@@ -22,13 +22,13 @@ export function generateBoard(
   avoidAdjacent68: boolean,
   spec: BoardSpec = SMALL_BOARD
 ): [Board, RngState] {
-  const topo = getTopology(spec.radius);
+  const topo = getTopology(spec.code);
   let rng = rngIn;
 
   // 1) Terreni mescolati sulle caselle della tavola (in ordine deterministico).
   const [terrains, rngAfterTerrains] = shuffle(rng, spec.terrainPool);
   rng = rngAfterTerrains;
-  const hexes: Hex[] = allBoardHexes(spec.radius).map((c, i) => ({
+  const hexes: Hex[] = boardHexes(spec.code).map((c, i) => ({
     id: hexKey(c),
     q: c.q,
     r: c.r,
