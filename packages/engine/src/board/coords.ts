@@ -31,8 +31,70 @@ export const HEX_DIRECTIONS: readonly AxialCoord[] = [
 
 /** Raggio della tavola PICCOLA (2–4 giocatori): esagono → 19 caselle (3-4-5-4-3). */
 export const BOARD_RADIUS = 2;
-/** Raggio della tavola GRANDE (5–6 giocatori): esagono → 37 caselle (4-5-6-7-6-5-4). */
+/** Raggio geometrico delle due tavole grandi (grande e gigante): esagono di base a 37 caselle. */
 export const BOARD_RADIUS_LARGE = 3;
+
+/**
+ * CODICE della tavola: identità usata come chiave della topologia e salvata in
+ * `config.boardRadius`. Per le tavole a esagono pieno il codice COINCIDE col
+ * raggio geometrico (retro-compatibile coi salvataggi: 2 = piccola, 3 = gigante);
+ * la tavola GRANDE è invece un esagono di raggio 3 "tagliato" (due lati in meno),
+ * quindi ha un codice dedicato che NON è un raggio geometrico.
+ *
+ *  - PICCOLA  (2)  esagono raggio 2 → 19 caselle          (2–4 giocatori)
+ *  - GRANDE   (5)  esagono raggio 3 SENZA le 2 righe di bordo (|r|=3) → 29 caselle (5–6)
+ *  - GIGANTE  (3)  esagono raggio 3 pieno → 37 caselle     (7–8 giocatori)
+ */
+export const BOARD_CODE_SMALL = 2;
+export const BOARD_CODE_GIGANTE = 3;
+export const BOARD_CODE_GRANDE = 5;
+
+interface BoardShape {
+  /** Raggio geometrico usato dal renderer per centrare le caselle. */
+  radius: number;
+  /** Le caselle di terra, in ordine deterministico. */
+  hexes: AxialCoord[];
+  /** Insieme delle chiavi delle caselle, per l'appartenenza (isHexOnBoardCode). */
+  set: Set<string>;
+}
+
+const boardShapeCache = new Map<number, BoardShape>();
+
+/** Descrittore geometrico della tavola dato il suo CODICE (memoizzato). */
+function boardShape(code: number = BOARD_RADIUS): BoardShape {
+  const hit = boardShapeCache.get(code);
+  if (hit) return hit;
+
+  let radius: number;
+  let hexes: AxialCoord[];
+  if (code === BOARD_CODE_GRANDE) {
+    // GRANDE = GIGANTE (raggio 3) con due lati in meno: via le righe di punta |r|=3.
+    radius = BOARD_RADIUS_LARGE;
+    hexes = allBoardHexes(BOARD_RADIUS_LARGE).filter((c) => Math.abs(c.r) < BOARD_RADIUS_LARGE);
+  } else {
+    // Tavole a esagono pieno: il codice è anche il raggio geometrico.
+    radius = code;
+    hexes = allBoardHexes(code);
+  }
+  const shape: BoardShape = { radius, hexes, set: new Set(hexes.map(hexKey)) };
+  boardShapeCache.set(code, shape);
+  return shape;
+}
+
+/** Raggio geometrico (per la resa in pixel) della tavola col dato codice. */
+export function boardGeomRadius(code: number = BOARD_RADIUS): number {
+  return boardShape(code).radius;
+}
+
+/** Le caselle di terra della tavola col dato codice, in ordine deterministico. */
+export function boardHexes(code: number = BOARD_RADIUS): AxialCoord[] {
+  return boardShape(code).hexes;
+}
+
+/** true se la casella appartiene alla tavola col dato codice (forma reale, anche tagliata). */
+export function isHexOnBoardCode(c: AxialCoord, code: number = BOARD_RADIUS): boolean {
+  return boardShape(code).set.has(hexKey(c));
+}
 
 export function hexKey(c: AxialCoord): string {
   return `${c.q},${c.r}`;

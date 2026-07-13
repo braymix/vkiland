@@ -165,13 +165,26 @@ export interface PlayerConfig {
   cosmetics?: PlayerCosmetics;
 }
 
+/**
+ * Scelta esplicita della dimensione della tavola grande:
+ *  - 'grande'  → 29 caselle (la gigante con due lati in meno), consigliata 5–6;
+ *  - 'gigante' → 37 caselle (esagono pieno), consigliata 7–8.
+ * Assente = tavola consigliata dal numero di giocatori (piccola per 2–4).
+ */
+export type BoardSizeChoice = 'grande' | 'gigante';
+
 export interface GameConfig {
   seed: string;
   players: PlayerConfig[];
   /** Se true, la generazione evita segnalini 6/8 su esagoni adiacenti. */
   avoidAdjacent68: boolean;
   targetGloryPoints: number;
-  /** Raggio della tavola (2 = piccola/2–4 giocatori, 3 = grande/5–6). */
+  /**
+   * CODICE della tavola (chiave della topologia): 2 = piccola (2–4), 3 = gigante
+   * (7–8, esagono pieno raggio 3), 5 = grande (5–6, la gigante con 2 lati in meno).
+   * Il nome resta `boardRadius` per compatibilità; per la piccola/gigante il
+   * codice coincide col raggio geometrico.
+   */
   boardRadius: number;
   /** Modalità Calamità: una carta per giro. false = partita standard. */
   calamities: boolean;
@@ -381,7 +394,7 @@ export interface PlayerView {
   longestRoad: { holder: PlayerId | null; length: number };
   largestArmy: { holder: PlayerId | null; count: number };
   targetGloryPoints: number;
-  /** Raggio della tavola: il renderer e i bot lo usano per la topologia giusta. */
+  /** CODICE della tavola: il renderer e i bot lo usano per la topologia (e la geometria) giusta. */
   boardRadius: number;
   /** Calamità attiva nel giro (null = nessuna in corso). */
   calamity: CalamityCard | null;

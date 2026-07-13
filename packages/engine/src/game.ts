@@ -2,16 +2,17 @@
 import { generateBoard } from './board/generate';
 import {
   BATTLE_SAGA_EXTRA,
-  boardSpecForPlayers,
   CALAMITY_DECK_COMPOSITION,
   CALAMITY_SAGA_EXTRA,
   DEFAULT_TARGET_GLORY,
   MAX_PLAYERS,
   MIN_PLAYERS,
+  resolveBoardSpec,
   SAGA_DECK_COMPOSITION,
 } from './constants';
 import { rollDie, seedRng, shuffle } from './rng';
 import type {
+  BoardSizeChoice,
   CalamityState,
   GameConfig,
   GameState,
@@ -30,6 +31,8 @@ export interface NewGameOptions {
   calamities?: boolean;
   /** Modalità Battaglia: attacchi agli edifici avversari. Default false. */
   battle?: boolean;
+  /** Scelta esplicita della tavola grande; assente = consigliata dal numero di giocatori. */
+  boardSize?: BoardSizeChoice;
 }
 
 export function createGame(options: NewGameOptions): GameState {
@@ -45,15 +48,16 @@ export function createGame(options: NewGameOptions): GameState {
     throw new Error('createGame: i colori dei giocatori devono essere tutti diversi');
   }
 
-  // La taglia della tavola dipende dal numero di giocatori: 2–4 piccola, 5–6 grande.
-  const spec = boardSpecForPlayers(players.length);
+  // La taglia della tavola: scelta esplicita se presente, altrimenti la
+  // consigliata dal numero di giocatori (2–4 piccola, 5–6 grande, 7–8 gigante).
+  const spec = resolveBoardSpec(players.length, options.boardSize);
 
   const config: GameConfig = {
     seed,
     players: players.map((p) => ({ ...p })),
     avoidAdjacent68: options.avoidAdjacent68 ?? true,
     targetGloryPoints: options.targetGloryPoints ?? DEFAULT_TARGET_GLORY,
-    boardRadius: spec.radius,
+    boardRadius: spec.code,
     calamities: options.calamities ?? false,
     battle: options.battle ?? false,
   };

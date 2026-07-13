@@ -15,6 +15,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   DEFAULT_TARGET_GLORY,
   MAX_PLAYERS,
+  type BoardSizeChoice,
   type BotLevel,
   type PlayerColor,
   type PlayerCosmetics,
@@ -60,6 +61,10 @@ interface Props {
 const botLevelLabel = (l: BotLevel) =>
   l === 'facile' ? it.facile : l === 'normale' ? it.normale : l === 'difficile' ? it.difficile : it.esperto;
 
+/** Tavola CONSIGLIATA dal solo numero di giocatori: 5–6 grande, 7–8 gigante, altrimenti piccola. */
+const autoBoardSize = (count: number): BoardSizeChoice | null =>
+  count >= 7 ? 'gigante' : count >= 5 ? 'grande' : null;
+
 export function NewGameScreen({
   session,
   initialMode,
@@ -78,6 +83,11 @@ export function NewGameScreen({
   const [seed, setSeed] = useState('');
   const [timerRaw, setTimerRaw] = useState('');
   const [isPublic, setIsPublic] = useState(false);
+  // Tavola grande scelta: null = consigliata dal numero di giocatori (piccola
+  // per 2–4). `boardSizeTouched` blocca la prevalorizzazione automatica una
+  // volta che l'utente sceglie a mano.
+  const [boardSize, setBoardSize] = useState<BoardSizeChoice | null>(null);
+  const [boardSizeTouched, setBoardSizeTouched] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const timerSec = Math.max(0, Math.min(600, Math.floor(Number(timerRaw) || 0)));
@@ -110,6 +120,9 @@ export function NewGameScreen({
 
   const isHost = lobby === null || lobby.hostUserId === session?.userId;
   const editable = isHost && (lobby === null || !lobby.started);
+
+  // Numero di giocatori corrente: posti locali (hot-seat) o slot della lobby online.
+  const playerCount = mode === 'online' ? (lobby?.slots.length ?? seats.length) : seats.length;
 
   const showError = (message: string) => {
     setError(message);
@@ -205,11 +218,23 @@ export function NewGameScreen({
     setAvoid68(lobby.config.avoidAdjacent68);
     setCalamities(lobby.config.calamities);
     setBattle(lobby.config.battle);
+    // La scelta esplicita dell'host vince; se assente, la prevalorizzazione
+    // automatica resta attiva (boardSizeTouched = false).
+    setBoardSize(lobby.config.boardSize ?? autoBoardSize(lobby.slots.length));
+    setBoardSizeTouched(lobby.config.boardSize != null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lobby?.code]);
 
+  // Prevalorizzazione intelligente della tavola: finché l'utente non sceglie a
+  // mano (boardSizeTouched), la dimensione segue il numero di giocatori.
+  useEffect(() => {
+    if (!boardSizeTouched) setBoardSize(autoBoardSize(playerCount));
+  }, [playerCount, boardSizeTouched]);
+
   // --- Sincronizzazione config online ---
-  const patch = (change: Partial<LobbyConfig>) => {
+  // La dimensione tavola non è in `change` (può valere null = piccola): si passa
+  // a parte, con ripiego sullo stato corrente per gli altri patch.
+  const patch = (change: Partial<LobbyConfig>, boardSizeVal: BoardSizeChoice | null = boardSize) => {
     if (!lobby) return;
     const next: LobbyConfig = {
       avoidAdjacent68: change.avoidAdjacent68 ?? avoid68,
@@ -218,6 +243,7 @@ export function NewGameScreen({
       isPublic: change.isPublic ?? isPublic,
       calamities: change.calamities ?? calamities,
       battle: change.battle ?? battle,
+      ...(boardSizeVal ? { boardSize: boardSizeVal } : {}),
       ...((change.seed ?? seed).trim() ? { seed: (change.seed ?? seed).trim() } : {}),
     };
     socketRef.current?.emit('lobby:updateConfig', next, (res) => {
@@ -233,8 +259,18 @@ export function NewGameScreen({
     isPublic,
     calamities,
     battle,
+    ...(boardSize ? { boardSize } : {}),
     ...(seed.trim() ? { seed: seed.trim() } : {}),
   });
+
+  /** Sceglie la tavola grande; nulla scelta = piccola (solo 2–4). A ≥5 resta sempre una grande. */
+  const pickBoardSize = (choice: BoardSizeChoice) => {
+    setBoardSizeTouched(true);
+    const nextVal: BoardSizeChoice | null =
+      boardSize === choice ? (playerCount >= 5 ? choice : null) : choice;
+    setBoardSize(nextVal);
+    if (mode === 'online') patch({}, nextVal);
+  };
 
   // --- Azioni online ---
   const createLobby = () => {
@@ -317,6 +353,7 @@ export function NewGameScreen({
       targetGloryPoints: targetPG,
       calamities,
       battle,
+      ...(boardSize ? { boardSize } : {}),
     });
   };
 
@@ -529,6 +566,8 @@ export function NewGameScreen({
             setAvoid68={(v) => setAvoid68(v)}
             seed={seed}
             setSeed={(v) => setSeed(v)}
+            boardSize={boardSize}
+            onPickBoard={pickBoardSize}
             moreOpen={moreOpen}
             setMoreOpen={setMoreOpen}
             timerRaw={timerRaw}
@@ -721,6 +760,8 @@ export function NewGameScreen({
             seed={seed}
             setSeed={setSeed}
             commitSeed={() => patch({ seed: seed.trim() })}
+            boardSize={boardSize}
+            onPickBoard={pickBoardSize}
             moreOpen={moreOpen}
             setMoreOpen={setMoreOpen}
             timerRaw={timerRaw}
@@ -813,6 +854,9 @@ interface RulesPresetProps {
   seed: string;
   setSeed: (v: string) => void;
   commitSeed?: () => void;
+  /** Tavola grande scelta (null = piccola/consigliata dal numero di giocatori). */
+  boardSize: BoardSizeChoice | null;
+  onPickBoard: (choice: BoardSizeChoice) => void;
   moreOpen: boolean;
   setMoreOpen: (v: boolean) => void;
   timerRaw: string;
@@ -943,6 +987,34 @@ function RulesPreset(p: RulesPresetProps) {
                 onBlur={p.commitSeed}
                 style={{ width: '100%' }}
               />
+
+              {/* Dimensione tavola: due opzioni sia online sia offline. */}
+              <div style={{ fontSize: 9, color: 'var(--accent)' }}>{it.dimensioneTavola}</div>
+              <label className="check">
+                <input
+                  type="checkbox"
+                  checked={p.boardSize === 'grande'}
+                  disabled={!p.editable}
+                  onChange={() => p.onPickBoard('grande')}
+                />
+                {it.campoGrande}
+              </label>
+              <div style={{ fontSize: 8, color: 'var(--ink-dim)', lineHeight: 1.5 }}>
+                {it.campoGrandeSpiega}
+              </div>
+              <label className="check">
+                <input
+                  type="checkbox"
+                  checked={p.boardSize === 'gigante'}
+                  disabled={!p.editable}
+                  onChange={() => p.onPickBoard('gigante')}
+                />
+                {it.campoGigante}
+              </label>
+              <div style={{ fontSize: 8, color: 'var(--ink-dim)', lineHeight: 1.5 }}>
+                {it.campoGiganteSpiega}
+              </div>
+
               <label className="check">
                 <input
                   type="checkbox"
