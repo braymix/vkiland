@@ -1,10 +1,12 @@
 /** Schermata di partita: orchestrazione di tavola, pannelli e dialoghi. */
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { Action, EdgeId, HexId, VertexId } from '@vikiland/engine';
+import type { Action, EdgeId, HexId, PlayerId, VertexId } from '@vikiland/engine';
 import { it, t } from '../i18n';
 import type { GameController } from '../game/controller';
 import { useGame } from '../game/useGame';
 import { ActionBar, type BuildMode } from '../components/ActionBar';
+import { SpectatorBar } from '../components/SpectatorBar';
+import { Dialog } from '../components/dialogs/Dialog';
 import { BoardCanvas, type BoardTargets } from '../components/BoardCanvas';
 import { CalamityBanner } from '../components/CalamityBanner';
 import { CalamityRevealedModal } from '../components/CalamityRevealedModal';
@@ -69,6 +71,24 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
   const seenCalamityIds = useRef<Set<string>>(new Set());
 
   const isMyTurn = view.currentPlayer === viewpoint;
+  const isSpectator = snap.spectator ?? false;
+  const handRequest = snap.handRequest ?? null;
+
+  // Spettatore: posti a cui ho chiesto la mano, in attesa di risposta. Quando la
+  // mano compare (permesso concesso) il posto esce dallo stato "in attesa".
+  const [handPending, setHandPending] = useState<Set<PlayerId>>(() => new Set());
+  useEffect(() => {
+    setHandPending((prev) => {
+      if (prev.size === 0) return prev;
+      const next = new Set(prev);
+      for (const p of view.players) if (p.hand) next.delete(p.id);
+      return next.size === prev.size ? prev : next;
+    });
+  }, [view.players]);
+  const requestHand = (seat: PlayerId) => {
+    controller.requestHand?.(seat);
+    setHandPending((prev) => new Set(prev).add(seat));
+  };
 
   // Al passaggio di mano si chiude ogni dialogo locale: il prossimo giocatore
   // riparte da uno schermo pulito.
@@ -250,31 +270,37 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
           onPickEdge={pickEdge}
           onPickHex={pickHex}
         />
-        <ActionBar
-          view={view}
-          legalActions={legalActions}
-          isMyTurn={isMyTurn}
-          mode={mode}
-          setMode={setMode}
-          onRoll={() => dispatch({ type: 'tiraDadi', player: viewpoint })}
-          onEndTurn={() => dispatch({ type: 'fineTurno', player: viewpoint })}
-          onBuyCard={() => dispatch({ type: 'compraCartaSaga', player: viewpoint })}
-          onOpenBank={() => setBankOpen(true)}
-          onOpenPropose={() => setProposeOpen(true)}
-          onOpenCards={() => setCardsOpen(true)}
-          canUndo={snap.canUndo}
-          onUndo={() => {
-            setMode(null);
-            setError(null);
-            controller.undo();
-          }}
-          errorText={error}
-        />
-        <HandPanel
-          view={view}
-          onOpenCards={() => setCardsOpen(true)}
-          onOpenBuildings={() => setBuildingsOpen(true)}
-        />
+        {isSpectator ? (
+          <SpectatorBar view={view} pending={handPending} onRequestHand={requestHand} />
+        ) : (
+          <>
+            <ActionBar
+              view={view}
+              legalActions={legalActions}
+              isMyTurn={isMyTurn}
+              mode={mode}
+              setMode={setMode}
+              onRoll={() => dispatch({ type: 'tiraDadi', player: viewpoint })}
+              onEndTurn={() => dispatch({ type: 'fineTurno', player: viewpoint })}
+              onBuyCard={() => dispatch({ type: 'compraCartaSaga', player: viewpoint })}
+              onOpenBank={() => setBankOpen(true)}
+              onOpenPropose={() => setProposeOpen(true)}
+              onOpenCards={() => setCardsOpen(true)}
+              canUndo={snap.canUndo}
+              onUndo={() => {
+                setMode(null);
+                setError(null);
+                controller.undo();
+              }}
+              errorText={error}
+            />
+            <HandPanel
+              view={view}
+              onOpenCards={() => setCardsOpen(true)}
+              onOpenBuildings={() => setBuildingsOpen(true)}
+            />
+          </>
+        )}
         <GameLog entries={snap.log} open={logOpen} onToggle={() => setLogOpen(!logOpen)} />
       </div>
 
@@ -286,19 +312,43 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
         />
       )}
 
-      {mustDiscard !== undefined && (
+      {/* Nessun dialogo interattivo per gli spettatori: guardano soltanto. */}
+      {!isSpectator && mustDiscard !== undefined && (
         <DiscardDialog view={view} amount={mustDiscard} onSubmit={dispatch} />
       )}
-      {gainAmount !== undefined && (
+      {!isSpectator && gainAmount !== undefined && (
         <CalamityGainDialog view={view} amount={gainAmount} onSubmit={dispatch} />
       )}
-      {stealing && view.phase.type === 'steal' && (
+      {!isSpectator && stealing && view.phase.type === 'steal' && (
         <StealDialog view={view} candidates={view.phase.candidates} onSubmit={dispatch} />
       )}
-      {offerToMe && (
+      {!isSpectator && offerToMe && (
         <RespondTradeDialog view={view} canAccept={canAcceptOffer} onSubmit={dispatch} />
       )}
-      {offerMine && <ManageTradeDialog view={view} onSubmit={dispatch} />}
+      {!isSpectator && offerMine && <ManageTradeDialog view={view} onSubmit={dispatch} />}
+
+      {/* Popup di permesso: uno spettatore chiede di vedere la mia mano. */}
+      {handRequest && (
+        <Dialog title={it.spettatore.richiestaTitolo}>
+          <p style={{ fontSize: 9, lineHeight: 1.9 }}>
+            {t(it.spettatore.richiestaTesto, { nome: handRequest.spectatorName })}
+          </p>
+          <div className="dialog-buttons">
+            <button
+              className="pxbtn pxbtn--ghost"
+              onClick={() => controller.respondHand?.(handRequest.spectatorId, false)}
+            >
+              {it.spettatore.nega}
+            </button>
+            <button
+              className="pxbtn"
+              onClick={() => controller.respondHand?.(handRequest.spectatorId, true)}
+            >
+              {it.spettatore.permetti}
+            </button>
+          </div>
+        </Dialog>
+      )}
       {bankOpen && (
         <BankTradeDialog view={view} onSubmit={dispatch} onClose={() => setBankOpen(false)} />
       )}

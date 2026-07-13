@@ -96,6 +96,23 @@ export const sr: Strings = {
   postiNsuM: '{n}/{m} Vikinga',
   visibilitaPubblica: 'Javna',
   visibilitaPrivata: 'Privatna (samo na poziv)',
+  spettatore: {
+    guarda: 'Gledaj',
+    partiteInCorso: 'Partije u toku',
+    nessunaInCorso: 'Nema partija u toku za gledanje.',
+    giroN: 'Runda {n}',
+    spettatoriN: '{n} 👁',
+    staiGuardando: 'Gledaš',
+    smettiGuarda: 'Prestani da gledaš',
+    chiediMano: 'Vidi ruku',
+    manoNascosta: 'Ruka skrivena',
+    inAttesa: 'Čekanje…',
+    richiestaTitolo: 'Gledalac te posmatra',
+    richiestaTesto: '{nome} želi da vidi tvoju ruku. Dozvoliti?',
+    permetti: 'Dozvoli',
+    nega: 'Odbij',
+    spettatoreTag: 'Gledalac',
+  },
 
   // Account management
   account: 'Nalog',

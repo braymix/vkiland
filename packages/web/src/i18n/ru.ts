@@ -96,6 +96,23 @@ export const ru: Strings = {
   postiNsuM: '{n}/{m} викингов',
   visibilitaPubblica: 'Открытая',
   visibilitaPrivata: 'Закрытая (по приглашению)',
+  spettatore: {
+    guarda: 'Смотреть',
+    partiteInCorso: 'Идущие партии',
+    nessunaInCorso: 'Нет идущих партий для просмотра.',
+    giroN: 'Раунд {n}',
+    spettatoriN: '{n} 👁',
+    staiGuardando: 'Вы наблюдаете',
+    smettiGuarda: 'Перестать смотреть',
+    chiediMano: 'Показать руку',
+    manoNascosta: 'Рука скрыта',
+    inAttesa: 'Ожидание…',
+    richiestaTitolo: 'За вами наблюдает зритель',
+    richiestaTesto: '{nome} хочет увидеть вашу руку. Разрешить?',
+    permetti: 'Разрешить',
+    nega: 'Отклонить',
+    spettatoreTag: 'Зритель',
+  },
 
   // Account management
   account: 'Аккаунт',

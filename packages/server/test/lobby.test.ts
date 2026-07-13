@@ -11,10 +11,19 @@ interface Recorded {
   closed: { code: string; reason: string }[];
   removed: { userId: string; reason: string }[];
   updates: Map<string, GameUpdate[]>;
+  spectatorUpdates: Map<string, GameUpdate[]>;
+  handRequests: { userId: string; spectatorId: string; seat: number }[];
 }
 
 function makeManager(): { manager: LobbyManager; rec: Recorded } {
-  const rec: Recorded = { lobbyStates: [], closed: [], removed: [], updates: new Map() };
+  const rec: Recorded = {
+    lobbyStates: [],
+    closed: [],
+    removed: [],
+    updates: new Map(),
+    spectatorUpdates: new Map(),
+    handRequests: [],
+  };
   const callbacks: LobbyManagerCallbacks = {
     broadcastLobby: (s) => rec.lobbyStates.push(s),
     lobbyClosed: (code, reason) => rec.closed.push({ code, reason }),
@@ -29,6 +38,13 @@ function makeManager(): { manager: LobbyManager; rec: Recorded } {
     // Inventario finto: solo Bjorn ha skin salvate sull'account.
     getCosmetics: (userId) =>
       userId === 'u-bjorn' ? { dragon: 'navicella', stronghold: 'torre' } : undefined,
+    sendSpectatorUpdate: (userId, u) => {
+      const list = rec.spectatorUpdates.get(userId) ?? [];
+      list.push(u);
+      rec.spectatorUpdates.set(userId, list);
+    },
+    notifyHandRequest: (userId, req) =>
+      rec.handRequests.push({ userId, spectatorId: req.spectatorId, seat: req.seat }),
   };
   return { manager: new LobbyManager(callbacks, { botDelayMs: [0, 0] }), rec };
 }
@@ -278,5 +294,78 @@ describe('LobbyManager', () => {
     // A partita avviata la config è fissata: nemmeno l'host può più cambiarla.
     manager.start(bjorn.id);
     expect(isApiError(manager.updateConfig(bjorn.id, { ...CFG, calamities: false }))).toBe(true);
+  });
+
+  it('solo le partite PUBBLICHE in corso sono guardabili; non prima dell’avvio', () => {
+    const { manager } = makeManager();
+    const pub = manager.create(bjorn, { ...CFG, isPublic: true });
+    if (isApiError(pub)) throw new Error('create fallita');
+    manager.join(pub.code, astrid);
+
+    // Aperta (non avviata): non è ancora guardabile.
+    expect(manager.listWatchable()).toHaveLength(0);
+    expect(isApiError(manager.watch(pub.code, { id: 'u-spec', name: 'Occhio' }))).toBe(true);
+
+    // Avviata: compare tra le guardabili con giro e host giusti.
+    manager.start(bjorn.id);
+    const watchable = manager.listWatchable();
+    expect(watchable).toHaveLength(1);
+    expect(watchable[0]!.code).toBe(pub.code);
+    expect(watchable[0]!.hostName).toBe('Bjorn');
+    expect(watchable[0]!.turnNumber).toBeGreaterThanOrEqual(0);
+  });
+
+  it('la partita PRIVATA in corso non è in lista ma si guarda col codice', () => {
+    const { manager } = makeManager();
+    const priv = manager.create(bjorn, CFG); // privata
+    if (isApiError(priv)) throw new Error('create fallita');
+    manager.join(priv.code, astrid);
+    manager.start(bjorn.id);
+
+    expect(manager.listWatchable()).toHaveLength(0); // privata: mai in lista
+    const spec = { id: 'u-spec', name: 'Occhio' };
+    expect(isApiError(manager.watch(priv.code, spec))).toBe(false); // col codice sì
+    expect(manager.lobbyOfSpectator(spec.id)?.code).toBe(priv.code);
+    // Un codice inesistente resta un errore.
+    expect(isApiError(manager.watch('XXXXXX', { id: 'u-x', name: 'X' }))).toBe(true);
+  });
+
+  it('lo spettatore vede una mano solo dopo il permesso del giocatore', () => {
+    const { manager, rec } = makeManager();
+    const pub = manager.create(bjorn, { ...CFG, isPublic: true });
+    if (isApiError(pub)) throw new Error('create fallita');
+    manager.join(pub.code, astrid);
+    manager.start(bjorn.id);
+
+    const spec = { id: 'u-spec', name: 'Occhio' };
+    expect(isApiError(manager.watch(pub.code, spec))).toBe(false);
+    manager.refreshGame(spec.id);
+
+    // Vista da spettatore: niente mano propria, niente mosse, nessuna mano altrui.
+    const first = rec.spectatorUpdates.get(spec.id)!.at(-1)!;
+    expect(first.spectator).toBe(true);
+    expect(first.view.me).toBeNull();
+    expect(first.legalActions).toHaveLength(0);
+    expect(first.view.players.every((p) => p.hand === undefined)).toBe(true);
+
+    // Lo spettatore chiede la mano di Bjorn (posto 0): a Bjorn arriva la richiesta.
+    manager.requestHand(spec.id, 0);
+    expect(rec.handRequests).toHaveLength(1);
+    expect(rec.handRequests[0]!.userId).toBe(bjorn.id);
+    expect(rec.handRequests[0]!.spectatorId).toBe(spec.id);
+
+    // Bjorn nega: la mano resta nascosta.
+    manager.respondHand(bjorn.id, spec.id, false);
+    expect(rec.spectatorUpdates.get(spec.id)!.at(-1)!.view.players[0]!.hand).toBeUndefined();
+
+    // Bjorn permette: ora (e solo per lui) la mano è rivelata allo spettatore.
+    manager.respondHand(bjorn.id, spec.id, true);
+    const revealed = rec.spectatorUpdates.get(spec.id)!.at(-1)!;
+    expect(revealed.view.players[0]!.hand).toBeDefined();
+    expect(revealed.view.players[1]!.hand).toBeUndefined();
+
+    // Smette di guardare: non è più registrato come spettatore.
+    manager.stopWatch(spec.id);
+    expect(manager.lobbyOfSpectator(spec.id)).toBeNull();
   });
 });

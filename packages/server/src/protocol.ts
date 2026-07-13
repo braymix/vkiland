@@ -75,6 +75,40 @@ export interface PublicLobbySummary {
   turnTimerSec: number;
 }
 
+/**
+ * Riga della lista delle partite PUBBLICHE già in corso, che si possono solo
+ * GUARDARE (non entrare): compaiono sotto le partite pubbliche aperte.
+ */
+export interface WatchableGameSummary {
+  code: string;
+  hostName: string;
+  players: number;
+  /** Giro corrente della partita (per far capire "a che punto è"). */
+  turnNumber: number;
+  /** Quanti spettatori la stanno già guardando. */
+  spectators: number;
+}
+
+/** Esito dell'entrata come spettatore: la partita da guardare (o un errore). */
+export interface WatchResult {
+  code: string;
+  /** Stato della lobby/partita (posti, colori, host) per la UI dello spettatore. */
+  state: LobbyState;
+}
+
+/**
+ * Richiesta di uno spettatore di vedere la mano di un giocatore. Il server la
+ * recapita SOLO al giocatore bersaglio, che risponde col permesso (sì/no).
+ */
+export interface HandRequest {
+  /** Utente spettatore che ha chiesto (identità per rispondere in modo mirato). */
+  spectatorId: string;
+  /** Nome dello spettatore, per il popup del giocatore. */
+  spectatorName: string;
+  /** Posto del giocatore a cui si chiede il permesso (il suo). */
+  seat: PlayerId;
+}
+
 export interface LobbySlot {
   /** null per i bot. */
   userId: string | null;
@@ -104,8 +138,16 @@ export interface LobbyState {
 export interface GameUpdate {
   /** Vista filtrata del giocatore destinatario. */
   view: PlayerView;
-  /** Posto a sedere del destinatario. */
+  /**
+   * Posto a sedere del destinatario. Per uno SPETTATORE vale -1 (non è seduto):
+   * la UI lo riconosce da `spectator` e disabilita ogni azione.
+   */
   seat: PlayerId;
+  /**
+   * true = questo aggiornamento è per uno SPETTATORE (vista senza la propria
+   * mano, nessuna mossa legale; le mani altrui appaiono solo se rivelate).
+   */
+  spectator?: boolean;
   /** Mosse legali del destinatario (calcolate dal server). */
   legalActions: LegalMove[];
   /** Eventi dell'ultimo passo, filtrati per il destinatario (per il diario). */
@@ -133,6 +175,8 @@ export interface ServerToClientEvents {
   'lobby:closed': (e: ApiError) => void;
   'game:update': (u: GameUpdate) => void;
   'game:rejected': (r: ActionRejected) => void;
+  /** Uno spettatore chiede di vedere la tua mano: mostra il popup di permesso. */
+  'spectator:handRequest': (req: HandRequest) => void;
 }
 
 export interface ClientToServerEvents {
@@ -141,7 +185,16 @@ export interface ClientToServerEvents {
   'lobby:updateConfig': (config: LobbyConfig, cb: (res: LobbyState | ApiError) => void) => void;
   /** Lista delle partite pubbliche aperte (non iniziate, con posti liberi). */
   'lobby:list': (cb: (rooms: PublicLobbySummary[]) => void) => void;
+  /** Lista delle partite pubbliche IN CORSO, che si possono solo guardare. */
+  'lobby:listWatchable': (cb: (games: WatchableGameSummary[]) => void) => void;
   'lobby:join': (code: string, cb: (res: LobbyState | ApiError) => void) => void;
+  /**
+   * Entra come SPETTATORE in una partita in corso (pubblica, oppure privata se
+   * si conosce il codice). Non occupa un posto: si guarda soltanto.
+   */
+  'lobby:watch': (code: string, cb: (res: WatchResult | ApiError) => void) => void;
+  /** Smette di guardare la partita che si stava seguendo da spettatore. */
+  'lobby:stopWatch': () => void;
   'lobby:leave': () => void;
   'lobby:addBot': (level: BotLevel) => void;
   'lobby:removeSlot': (index: number) => void;
@@ -155,6 +208,10 @@ export interface ClientToServerEvents {
   'game:refresh': () => void;
   /** Annulla l'ultimo piazzamento del giocatore. */
   'game:undo': () => void;
+  /** Spettatore: chiede al giocatore seduto in `seat` di vedergli la mano. */
+  'spectator:requestHand': (seat: PlayerId) => void;
+  /** Giocatore: risponde alla richiesta di uno spettatore (permette o nega). */
+  'spectator:respondHand': (spectatorId: string, allow: boolean) => void;
 }
 
 export function isApiError(x: unknown): x is ApiError {
