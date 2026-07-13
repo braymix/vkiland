@@ -119,8 +119,9 @@ export class RemoteGameController implements GameController {
       }
     }
     if (this.log.length > MAX_LOG) this.log = this.log.slice(-MAX_LOG);
-    // Resetta canUndoLast quando il turno cambia (il giocatore corrente è diverso).
-    if (this.lastCurrentPlayer !== null && this.lastCurrentPlayer !== u.view.currentPlayer) {
+    // Resetta canUndoLast quando il turno cambia e NON è il turno del giocatore che guarda.
+    // Permette l'undo all'ultimo giocatore quando torna il suo turno.
+    if (this.lastCurrentPlayer !== null && this.lastCurrentPlayer !== u.view.currentPlayer && u.view.currentPlayer !== u.seat) {
       this.canUndoLast = false;
     }
     this.lastCurrentPlayer = u.view.currentPlayer;
