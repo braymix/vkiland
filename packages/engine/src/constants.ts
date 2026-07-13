@@ -50,19 +50,19 @@ export const TOKEN_POOL_GIGANTE: readonly number[] = [
 ];
 
 /**
- * 29 terreni della tavola GRANDE (5–6 giocatori): la gigante con due lati in
- * meno. 2 tundra (deserti) + 27 produttive.
+ * 30 terreni della tavola GRANDE (5–6 giocatori): la gigante con due lati
+ * adiacenti in meno. 2 tundra (deserti) + 28 produttive.
  */
 export const TERRAIN_POOL_GRANDE: readonly TerrainType[] = [
   ...Array<TerrainType>(6).fill('legname'),
-  ...Array<TerrainType>(5).fill('lana'),
+  ...Array<TerrainType>(6).fill('lana'),
   ...Array<TerrainType>(6).fill('orzo'),
   ...Array<TerrainType>(5).fill('pietra'),
   ...Array<TerrainType>(5).fill('ferro'),
   'tundra', 'tundra',
 ];
 
-/** 27 segnalini per le 27 caselle produttive della tavola grande (campana, 6/8 ×3). */
+/** 28 segnalini per le 28 caselle produttive della tavola grande (campana, 6/8 ×3). */
 export const TOKEN_POOL_GRANDE: readonly number[] = [
   2, 2,
   3, 3, 3,
@@ -72,7 +72,7 @@ export const TOKEN_POOL_GRANDE: readonly number[] = [
   8, 8, 8,
   9, 9, 9,
   10, 10, 10,
-  11, 11,
+  11, 11, 11,
   12, 12,
 ];
 
@@ -188,7 +188,7 @@ export const SMALL_BOARD: BoardSpec = {
   bankPerResource: BANK_PER_RESOURCE,
 };
 
-/** Tavola GRANDE (5–6 giocatori): la gigante con due lati in meno (29 caselle). */
+/** Tavola GRANDE (5–6 giocatori): la gigante con due lati adiacenti in meno (30 caselle). */
 export const GRANDE_BOARD: BoardSpec = {
   code: BOARD_CODE_GRANDE,
   terrainPool: TERRAIN_POOL_GRANDE,

@@ -67,19 +67,19 @@ describe('tavola piccola (4 giocatori) invariata', () => {
 });
 
 describe('tavola grande (6 giocatori)', () => {
-  it('29 caselle, 78 vertici/106 spigoli, banca 25, 10 approdi, 2 deserti', () => {
+  it('30 caselle, 80 vertici/109 spigoli, banca 25, 10 approdi, 2 deserti', () => {
     const g = createGame({ seed: 'grande-6', players: makePlayers(6) });
     expect(g.config.boardRadius).toBe(BOARD_CODE_GRANDE);
-    expect(g.board.hexes).toHaveLength(29);
+    expect(g.board.hexes).toHaveLength(30);
     expect(g.board.ports).toHaveLength(10);
     expect(g.bank.ferro).toBe(BANK_PER_RESOURCE_GRANDE);
     const topo = getTopology(BOARD_CODE_GRANDE);
-    expect(topo.vertices).toHaveLength(78);
-    expect(topo.edges).toHaveLength(106);
+    expect(topo.vertices).toHaveLength(80);
+    expect(topo.edges).toHaveLength(109);
     const tundra = g.board.hexes.filter((h) => h.terrain === 'tundra');
     expect(tundra).toHaveLength(2);
     expect(g.board.dragonHex).toBe(tundra[0]!.id);
-    expect(g.board.hexes.filter((h) => h.token !== null)).toHaveLength(27);
+    expect(g.board.hexes.filter((h) => h.token !== null)).toHaveLength(28);
     expect(tundra.every((h) => h.token === null)).toBe(true);
     expect(g.board.hexes.some((h) => h.token === 7)).toBe(false);
   });

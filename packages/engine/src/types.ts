@@ -167,7 +167,7 @@ export interface PlayerConfig {
 
 /**
  * Scelta esplicita della dimensione della tavola grande:
- *  - 'grande'  → 29 caselle (la gigante con due lati in meno), consigliata 5–6;
+ *  - 'grande'  → 30 caselle (la gigante con due lati adiacenti in meno), consigliata 5–6;
  *  - 'gigante' → 37 caselle (esagono pieno), consigliata 7–8.
  * Assente = tavola consigliata dal numero di giocatori (piccola per 2–4).
  */
