@@ -5,8 +5,17 @@
  */
 import { randomInt } from 'node:crypto';
 import { MAX_PLAYERS } from '@vikiland/engine';
-import type { Action, BotLevel, PlayerColor, PlayerCosmetics } from '@vikiland/engine';
-import type { ApiError, GameUpdate, LobbyConfig, LobbyState, PublicLobbySummary } from './protocol';
+import type { Action, BotLevel, PlayerColor, PlayerCosmetics, PlayerId } from '@vikiland/engine';
+import type {
+  ApiError,
+  GameUpdate,
+  HandRequest,
+  LobbyConfig,
+  LobbyState,
+  PublicLobbySummary,
+  WatchableGameSummary,
+  WatchResult,
+} from './protocol';
 import type { FinishedGameRecord } from './storage';
 import { GameRoom, type RoomOptions, type Seat } from './room';
 
@@ -71,6 +80,10 @@ export interface LobbyManagerCallbacks {
   gameFinished(record: FinishedGameRecord): void;
   /** Skin dell'account (lette FRESCHE all'avvio della partita); opzionale. */
   getCosmetics?(userId: string): PlayerCosmetics | undefined;
+  /** Recapita a uno spettatore la sua vista aggiornata (opzionale). */
+  sendSpectatorUpdate?(userId: string, update: GameUpdate): void;
+  /** Recapita a un giocatore la richiesta di uno spettatore di vedergli la mano. */
+  notifyHandRequest?(userId: string, req: HandRequest): void;
 }
 
 type Result = LobbyState | ApiError;
@@ -78,6 +91,10 @@ type Result = LobbyState | ApiError;
 export class LobbyManager {
   private readonly lobbies = new Map<string, Lobby>();
   private readonly userLobby = new Map<string, string>();
+  /** Spettatore → codice della partita che sta guardando. */
+  private readonly userSpectating = new Map<string, string>();
+  /** Spettatore → nome (per il popup di richiesta mano al giocatore). */
+  private readonly spectatorNames = new Map<string, string>();
 
   constructor(
     private readonly callbacks: LobbyManagerCallbacks,
@@ -269,6 +286,8 @@ export class LobbyManager {
           if (target) this.callbacks.sendRejected(target, message, generation);
         },
         onFinished: (record) => this.callbacks.gameFinished(record),
+        sendSpectatorUpdate: (specUserId, update) =>
+          this.callbacks.sendSpectatorUpdate?.(specUserId, update),
       },
       this.roomOptions
     );
@@ -304,10 +323,99 @@ export class LobbyManager {
   }
 
   refreshGame(userId: string): void {
+    // Prima come giocatore seduto; se non lo è, come eventuale spettatore.
     const lobby = this.lobbyOfUser(userId);
     const seat = lobby?.room?.seatOfUser(userId);
+    if (lobby?.room && seat !== null && seat !== undefined) {
+      lobby.room.refresh(seat);
+      return;
+    }
+    const watched = this.lobbyOfSpectator(userId);
+    if (watched?.room?.hasSpectator(userId)) watched.room.refreshSpectator(userId);
+  }
+
+  // -- spettatori --------------------------------------------------------------
+
+  /** Le partite PUBBLICHE in corso che si possono guardare (non entrare). */
+  listWatchable(): WatchableGameSummary[] {
+    const out: WatchableGameSummary[] = [];
+    for (const lobby of this.lobbies.values()) {
+      if (!lobby.started || !lobby.room || !lobby.config.isPublic) continue;
+      if (lobby.room.isFinished) continue;
+      out.push({
+        code: lobby.code,
+        hostName: lobby.slots.find((s) => s.userId === lobby.hostUserId)?.name ?? '?',
+        players: lobby.slots.length,
+        turnNumber: lobby.room.turnNumber,
+        spectators: this.spectatorsOf(lobby.code),
+      });
+    }
+    return out;
+  }
+
+  /**
+   * Entra come spettatore in una partita IN CORSO. Pubblica o privata: chi passa
+   * il codice ha il permesso di guardare. Non occupa un posto.
+   */
+  watch(codeRaw: string, user: LobbyUser): WatchResult | ApiError {
+    const code = codeRaw.trim().toUpperCase();
+    const lobby = this.lobbies.get(code);
+    if (!lobby) return { error: 'Codice non trovato' };
+    if (!lobby.started || !lobby.room) return { error: 'La partita non è ancora iniziata' };
+    // Chi è già SEDUTO in questa partita non è uno spettatore: torni al suo posto.
+    if (lobby.room.seatOfUser(user.id) !== null) {
+      return { error: 'Sei già un giocatore di questa partita' };
+    }
+    // Libera qualsiasi altra presenza (giocatore altrove o spettatore altrove).
+    if (this.userLobby.has(user.id)) this.leave(user.id);
+    if (this.userSpectating.has(user.id)) this.stopWatch(user.id);
+    this.userSpectating.set(user.id, code);
+    this.spectatorNames.set(user.id, user.name);
+    lobby.room.addSpectator(user.id);
+    return { code, state: this.toState(lobby) };
+  }
+
+  stopWatch(userId: string): void {
+    const code = this.userSpectating.get(userId);
+    if (!code) return;
+    this.userSpectating.delete(userId);
+    this.spectatorNames.delete(userId);
+    const lobby = this.lobbies.get(code);
+    lobby?.room?.removeSpectator(userId);
+    // Partita finita e rimasta senza pubblico né giocatori connessi → si libera.
+    if (lobby) this.collectIfAbandoned(lobby);
+  }
+
+  /** Uno spettatore chiede al giocatore in `seat` di vedergli la mano. */
+  requestHand(spectatorUserId: string, seat: PlayerId): void {
+    const lobby = this.lobbyOfSpectator(spectatorUserId);
+    if (!lobby?.room || !lobby.room.hasSpectator(spectatorUserId)) return;
+    const targetUserId = lobby.room.userIdOfSeat(seat);
+    if (!targetUserId) return; // posto vuoto o bot: niente da chiedere
+    this.callbacks.notifyHandRequest?.(targetUserId, {
+      spectatorId: spectatorUserId,
+      spectatorName: this.spectatorNames.get(spectatorUserId) ?? '?',
+      seat,
+    });
+  }
+
+  /** Il giocatore risponde: concede o nega la propria mano allo spettatore. */
+  respondHand(playerUserId: string, spectatorId: string, allow: boolean): void {
+    const lobby = this.lobbyOfUser(playerUserId);
+    const seat = lobby?.room?.seatOfUser(playerUserId);
     if (!lobby?.room || seat === null || seat === undefined) return;
-    lobby.room.refresh(seat);
+    lobby.room.setGrant(spectatorId, seat, allow);
+  }
+
+  lobbyOfSpectator(userId: string): Lobby | null {
+    const code = this.userSpectating.get(userId);
+    return code ? (this.lobbies.get(code) ?? null) : null;
+  }
+
+  private spectatorsOf(code: string): number {
+    let n = 0;
+    for (const c of this.userSpectating.values()) if (c === code) n++;
+    return n;
   }
 
   // -- presenza ----------------------------------------------------------------
@@ -365,6 +473,13 @@ export class LobbyManager {
     lobby.room?.dispose();
     for (const s of lobby.slots) {
       if (s.userId) this.userLobby.delete(s.userId);
+    }
+    // Sgancia anche gli spettatori di questa partita.
+    for (const [userId, code] of this.userSpectating) {
+      if (code === lobby.code) {
+        this.userSpectating.delete(userId);
+        this.spectatorNames.delete(userId);
+      }
     }
     this.lobbies.delete(lobby.code);
     this.callbacks.lobbyClosed(lobby.code, reason);

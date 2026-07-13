@@ -7,7 +7,7 @@
  * Il dispatch inoltra l'azione come INTENZIONE; la conferma è l'update.
  */
 import type { Action, PlayerId, ValidationError } from '@vikiland/engine';
-import type { GameUpdate } from '@vikiland/server/protocol';
+import type { GameUpdate, HandRequest } from '@vikiland/server/protocol';
 import type { GameController, GameSnapshot, LogEntry } from '../game/controller';
 import { describeEvent, describeStartingOrder, dragonComplaints } from '../game/logFormat';
 import { accumulateStats, emptyStats, type GameStats } from '../game/stats';
@@ -39,7 +39,16 @@ export class RemoteGameController implements GameController {
   private canUndoLast = false;
   /** Giocatore corrente tracciato per rilevare cambio di turno. */
   private lastCurrentPlayer: PlayerId | null = null;
+  /** Vero se questo client sta guardando la partita da spettatore. */
+  private spectator = false;
+  /** Richiesta pendente di uno spettatore che vuole vedere la mia mano. */
+  private handRequest: { spectatorId: string; spectatorName: string } | null = null;
   private readonly onUpdate = (u: GameUpdate): void => this.applyUpdate(u);
+  private readonly onHandRequest = (req: HandRequest): void => {
+    // Ultima richiesta vince: un solo popup alla volta.
+    this.handRequest = { spectatorId: req.spectatorId, spectatorName: req.spectatorName };
+    this.refreshSnapshot();
+  };
   private readonly onRejected = (r: { message: string }): void => {
     if (!this.snapshot) return;
     this.snapshot = {
@@ -53,6 +62,7 @@ export class RemoteGameController implements GameController {
     this.socket = socket;
     socket.on('game:update', this.onUpdate);
     socket.on('game:rejected', this.onRejected);
+    socket.on('spectator:handRequest', this.onHandRequest);
     socket.emit('game:refresh');
   }
 
@@ -86,15 +96,31 @@ export class RemoteGameController implements GameController {
     this.socket.emit('game:undo');
   };
 
+  /** Spettatore: chiede al giocatore in `seat` di vedergli la mano. */
+  requestHand = (seat: PlayerId): void => {
+    this.socket.emit('spectator:requestHand', seat);
+  };
+
+  /** Giocatore: risponde alla richiesta di uno spettatore e chiude il popup. */
+  respondHand = (spectatorId: string, allow: boolean): void => {
+    this.socket.emit('spectator:respondHand', spectatorId, allow);
+    if (this.handRequest?.spectatorId === spectatorId) {
+      this.handRequest = null;
+      this.refreshSnapshot();
+    }
+  };
+
   dispose = (): void => {
     this.socket.off('game:update', this.onUpdate);
     this.socket.off('game:rejected', this.onRejected);
+    this.socket.off('spectator:handRequest', this.onHandRequest);
     this.listeners.clear();
   };
 
   private applyUpdate(u: GameUpdate): void {
     // Scarta update arretrati (possibili dopo una riconnessione).
     if (this.snapshot && u.generation < this.snapshot.generation) return;
+    this.spectator = u.spectator ?? false;
     // Primo update: il diario si apre col tiro per l'ordine di partenza.
     if (this.snapshot === null && this.log.length === 0) {
       for (const text of describeStartingOrder(u.view)) {
@@ -139,7 +165,19 @@ export class RemoteGameController implements GameController {
       lastRoll: this.lastRoll,
       stats: this.stats,
       canUndo: this.canUndoLast && u.view.phase.type !== 'gameOver',
+      spectator: this.spectator,
+      handRequest: this.handRequest,
     };
+    this.emit();
+  }
+
+  /**
+   * Ricostruisce lo snapshot dopo un cambiamento fuori dagli update di gioco
+   * (arrivo/chiusura di una richiesta di mano), preservando la vista corrente.
+   */
+  private refreshSnapshot(): void {
+    if (!this.snapshot) return;
+    this.snapshot = { ...this.snapshot, spectator: this.spectator, handRequest: this.handRequest };
     this.emit();
   }
 

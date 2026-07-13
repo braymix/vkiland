@@ -96,6 +96,23 @@ export const nl: Strings = {
   postiNsuM: '{n}/{m} Vikingen',
   visibilitaPubblica: 'Openbaar',
   visibilitaPrivata: 'Privé (op uitnodiging)',
+  spettatore: {
+    guarda: 'Kijken',
+    partiteInCorso: 'Lopende partijen',
+    nessunaInCorso: 'Geen lopende partijen om te bekijken.',
+    giroN: 'Ronde {n}',
+    spettatoriN: '{n} 👁',
+    staiGuardando: 'Je kijkt mee',
+    smettiGuarda: 'Stoppen met kijken',
+    chiediMano: 'Bekijk de hand',
+    manoNascosta: 'Hand verborgen',
+    inAttesa: 'Wachten…',
+    richiestaTitolo: 'Een kijker observeert je',
+    richiestaTesto: '{nome} wil je hand zien. Toestaan?',
+    permetti: 'Toestaan',
+    nega: 'Weigeren',
+    spettatoreTag: 'Toeschouwer',
+  },
 
   // Accountbeheer
   account: 'Account',

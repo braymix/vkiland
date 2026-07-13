@@ -20,7 +20,12 @@ import {
   type PlayerColor,
   type PlayerCosmetics,
 } from '@vikiland/engine';
-import type { LobbyConfig, LobbyState, PublicLobbySummary } from '@vikiland/server/protocol';
+import type {
+  LobbyConfig,
+  LobbyState,
+  PublicLobbySummary,
+  WatchableGameSummary,
+} from '@vikiland/server/protocol';
 import { isApiError } from '@vikiland/server/protocol';
 import { it, t } from '../i18n';
 import type { GameSetup } from '../game/LocalGameController';
@@ -121,6 +126,9 @@ export function NewGameScreen({
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [joinCode, setJoinCode] = useState('');
   const [publicRooms, setPublicRooms] = useState<PublicLobbySummary[]>([]);
+  const [watchableRooms, setWatchableRooms] = useState<WatchableGameSummary[]>([]);
+  // true = si è entrati come SPETTATORE (guarda partita), non come giocatore.
+  const [spectating, setSpectating] = useState(false);
   const [pickerOnline, setPickerOnline] = useState<number | null>(null);
   const [addBotOpen, setAddBotOpen] = useState(false);
   const socketRef = useRef<ServerSocket | null>(null);
@@ -208,6 +216,7 @@ export function NewGameScreen({
     const refresh = () => {
       if (socketRef.current?.connected) {
         socketRef.current.emit('lobby:list', (rooms) => alive && setPublicRooms(rooms));
+        socketRef.current.emit('lobby:listWatchable', (games) => alive && setWatchableRooms(games));
       }
     };
     refresh();
@@ -291,13 +300,31 @@ export function NewGameScreen({
   };
   const joinLobby = (code: string) => {
     socketRef.current?.emit('lobby:join', code, (res) => {
-      if (isApiError(res)) return showError(res.error);
+      if (isApiError(res)) {
+        // Partita già in corso: con il codice puoi comunque GUARDARLA.
+        if (res.error === 'Partita già iniziata') return watchLobby(code);
+        return showError(res.error);
+      }
       setLobby(res);
       if (res.started) ensureController();
     });
   };
+  /** Entra come spettatore in una partita in corso (pubblica o via codice). */
+  const watchLobby = (code: string) => {
+    socketRef.current?.emit('lobby:watch', code, (res) => {
+      if (isApiError(res)) return showError(res.error);
+      setSpectating(true);
+      setLobby(res.state);
+      ensureController();
+    });
+  };
   const leaveLobby = () => {
-    socketRef.current?.emit('lobby:leave');
+    if (spectating) {
+      socketRef.current?.emit('lobby:stopWatch');
+      setSpectating(false);
+    } else {
+      socketRef.current?.emit('lobby:leave');
+    }
     controllerRef.current?.dispose();
     controllerRef.current = null;
     setLobby(null);
@@ -647,6 +674,32 @@ export function NewGameScreen({
                     </span>
                     <button className="pxbtn pxbtn--small" onClick={() => joinLobby(room.code)}>
                       {it.entra}
+                    </button>
+                  </div>
+                ))
+              )}
+
+              {/* Partite in corso: si possono solo GUARDARE (spettatore). */}
+              <div style={{ fontSize: 10, color: 'var(--accent)', marginTop: 8 }}>
+                {it.spettatore.partiteInCorso}
+              </div>
+              {watchableRooms.length === 0 ? (
+                <div style={{ fontSize: 8, color: 'var(--ink-dim)' }}>
+                  {it.spettatore.nessunaInCorso}
+                </div>
+              ) : (
+                watchableRooms.map((room) => (
+                  <div key={room.code} className="setup-player">
+                    <span style={{ flex: 1, fontSize: 9 }}>
+                      {room.hostName}
+                      <span style={{ color: 'var(--ink-dim)', fontSize: 8 }}>
+                        {' · '}
+                        {t(it.spettatore.giroN, { n: room.turnNumber })}
+                        {room.spectators > 0 ? ` · ${t(it.spettatore.spettatoriN, { n: room.spectators })}` : ''}
+                      </span>
+                    </span>
+                    <button className="pxbtn pxbtn--small" onClick={() => watchLobby(room.code)}>
+                      👁 {it.spettatore.guarda}
                     </button>
                   </div>
                 ))

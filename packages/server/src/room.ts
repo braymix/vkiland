@@ -38,6 +38,11 @@ export interface RoomCallbacks {
   sendUpdate(seat: PlayerId, update: GameUpdate): void;
   sendRejected(seat: PlayerId, message: string, generation: number): void;
   onFinished(record: FinishedGameRecord): void;
+  /**
+   * Recapita l'aggiornamento (vista da spettatore) all'utente che sta guardando.
+   * Facoltativo: assente nei test che non esercitano gli spettatori.
+   */
+  sendSpectatorUpdate?(userId: string, update: GameUpdate): void;
 }
 
 export interface RoomOptions {
@@ -82,6 +87,12 @@ export class GameRoom {
   private undoStack: UndoEntry[] = [];
   /** Ultimo giocatore che ha piazzato una costruzione. */
   private lastBuilderSeat: PlayerId | null = null;
+  /**
+   * Spettatori: userId → insieme dei posti che gli hanno RIVELATO la mano.
+   * Uno spettatore riceve la vista `'spettatore'` (senza mani), arricchita con
+   * le mani dei soli giocatori presenti in questo insieme.
+   */
+  private readonly spectators = new Map<string, Set<PlayerId>>();
 
   constructor(
     code: string,
@@ -121,6 +132,11 @@ export class GameRoom {
 
   get isFinished(): boolean {
     return this.finished;
+  }
+
+  /** Giro corrente della partita (per l'anteprima "a che punto è"). */
+  get turnNumber(): number {
+    return this.state.turnNumber;
   }
 
   seatOfUser(userId: string): PlayerId | null {
@@ -173,6 +189,7 @@ export class GameRoom {
     this.generation += 1;
     this.armTurnTimer();
     this.callbacks.sendUpdate(seat, this.buildUpdate(seat, []));
+    this.broadcastSpectators([]);
     this.scheduleBots();
   }
 
@@ -186,6 +203,43 @@ export class GameRoom {
     for (let seat = 0; seat < this.seats.length; seat++) {
       if (!this.seats[seat]!.isBot) this.refresh(seat);
     }
+  }
+
+  /** Utente umano seduto in `seat` (null per bot o posto inesistente). */
+  userIdOfSeat(seat: PlayerId): string | null {
+    return this.seats[seat]?.userId ?? null;
+  }
+
+  // -- spettatori -------------------------------------------------------------
+
+  hasSpectator(userId: string): boolean {
+    return this.spectators.has(userId);
+  }
+
+  /** Aggiunge uno spettatore e gli manda subito la vista corrente. */
+  addSpectator(userId: string): void {
+    if (this.disposed) return;
+    if (!this.spectators.has(userId)) this.spectators.set(userId, new Set());
+    this.refreshSpectator(userId);
+  }
+
+  removeSpectator(userId: string): void {
+    this.spectators.delete(userId);
+  }
+
+  /** Concede/revoca a uno spettatore la visione della mano del posto `seat`. */
+  setGrant(userId: string, seat: PlayerId, allow: boolean): void {
+    const granted = this.spectators.get(userId);
+    if (!granted) return;
+    if (allow) granted.add(seat);
+    else granted.delete(seat);
+    this.refreshSpectator(userId);
+  }
+
+  refreshSpectator(userId: string): void {
+    if (this.disposed) return;
+    if (!this.spectators.has(userId)) return;
+    this.callbacks.sendSpectatorUpdate?.(userId, this.buildSpectatorUpdate(userId, []));
   }
 
   dispose(): void {
@@ -205,6 +259,7 @@ export class GameRoom {
         this.callbacks.sendUpdate(seat, this.buildUpdate(seat, events));
       }
     }
+    this.broadcastSpectators(events);
     if (this.state.phase.type === 'gameOver' && !this.finished) {
       this.finished = true;
       if (this.turnTimer !== null) clearTimeout(this.turnTimer);
@@ -234,6 +289,44 @@ export class GameRoom {
       turnDeadline: this.turnDeadline,
       finalState: over ? this.state : null,
     };
+  }
+
+  /**
+   * Vista da SPETTATORE: nessuna mano propria (`me` è null), nessuna mossa
+   * legale; le mani altrui compaiono solo per i posti che hanno concesso il
+   * permesso a QUESTO spettatore.
+   */
+  private buildSpectatorUpdate(userId: string, events: GameEvent[]): GameUpdate {
+    const over = this.state.phase.type === 'gameOver';
+    const granted = this.spectators.get(userId) ?? new Set<PlayerId>();
+    const view = getPlayerView(this.state, 'spettatore');
+    for (const p of view.players) {
+      if (!granted.has(p.id)) continue;
+      const ps = this.state.players[p.id];
+      if (!ps) continue;
+      p.hand = {
+        resources: { ...ps.resources },
+        sagaCards: [...ps.sagaCards, ...ps.sagaCardsBoughtThisTurn],
+      };
+    }
+    return {
+      view,
+      seat: -1,
+      spectator: true,
+      legalActions: [],
+      events: filterEventsForPlayer(events, 'spettatore'),
+      generation: this.generation,
+      turnDeadline: this.turnDeadline,
+      finalState: over ? this.state : null,
+    };
+  }
+
+  /** Inoltra a TUTTI gli spettatori l'aggiornamento (mani rivelate incluse). */
+  private broadcastSpectators(events: GameEvent[]): void {
+    if (this.spectators.size === 0) return;
+    for (const userId of this.spectators.keys()) {
+      this.callbacks.sendSpectatorUpdate?.(userId, this.buildSpectatorUpdate(userId, events));
+    }
   }
 
   private nextBotActor(): PlayerId | null {

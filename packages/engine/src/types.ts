@@ -357,6 +357,13 @@ export interface PublicPlayer {
   gloryPointsPublic: number;
   /** Skin del giocatore (pubbliche: le vedono tutti sul tabellone). */
   cosmetics?: PlayerCosmetics;
+  /**
+   * Mano RIVELATA a uno spettatore: presente SOLO nella vista di uno spettatore
+   * e SOLO per i giocatori che gli hanno dato il permesso ("guarda partita").
+   * Mai presente nella vista di un giocatore normale (le mani altrui restano
+   * segrete). Assente = mano nascosta (si vedono solo i conteggi).
+   */
+  hand?: { resources: ResourceCount; sagaCards: SagaCard[] };
 }
 
 /** Vista completa di sé stessi. */

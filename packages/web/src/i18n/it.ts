@@ -101,6 +101,25 @@ export const it = {
   visibilitaPubblica: 'Pubblica',
   visibilitaPrivata: 'Privata (su invito)',
 
+  // Guarda partita (spettatore)
+  spettatore: {
+    guarda: 'Guarda',
+    partiteInCorso: 'Partite in corso',
+    nessunaInCorso: 'Nessuna partita in corso da guardare.',
+    giroN: 'Giro {n}',
+    spettatoriN: '{n} 👁',
+    staiGuardando: 'Stai guardando',
+    smettiGuarda: 'Smetti di guardare',
+    chiediMano: 'Vedi la mano',
+    manoNascosta: 'Mano nascosta',
+    inAttesa: 'In attesa…',
+    richiestaTitolo: 'Uno spettatore ti osserva',
+    richiestaTesto: '{nome} vuole vedere la tua mano. Permetti?',
+    permetti: 'Permetti',
+    nega: 'Nega',
+    spettatoreTag: 'Spettatore',
+  },
+
   // Gestione account
   account: 'Account',
 

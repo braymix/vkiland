@@ -47,6 +47,16 @@ export interface GameSnapshot {
    * è il turno del giocatore che guarda lo schermo.
    */
   canUndo: boolean;
+  /**
+   * true = si sta GUARDANDO la partita da spettatore (nessuna mano propria,
+   * nessuna azione). Assente/false nelle partite giocate normalmente.
+   */
+  spectator?: boolean;
+  /**
+   * Richiesta pendente di uno spettatore che vuole vedere la propria mano:
+   * il giocatore deve rispondere (permetti/nega). null/assente = nessuna.
+   */
+  handRequest?: { spectatorId: string; spectatorName: string } | null;
 }
 
 export interface GameController {
@@ -58,4 +68,8 @@ export interface GameController {
   undo(): void;
   confirmHandoff(): void;
   dispose(): void;
+  /** Spettatore: chiede al giocatore in `seat` di vedergli la mano (solo online). */
+  requestHand?(seat: PlayerId): void;
+  /** Giocatore: risponde alla richiesta di uno spettatore (solo online). */
+  respondHand?(spectatorId: string, allow: boolean): void;
 }

@@ -96,6 +96,23 @@ export const en: Strings = {
   postiNsuM: '{n}/{m} Vikings',
   visibilitaPubblica: 'Public',
   visibilitaPrivata: 'Private (invite only)',
+  spettatore: {
+    guarda: 'Watch',
+    partiteInCorso: 'Games in progress',
+    nessunaInCorso: 'No games in progress to watch.',
+    giroN: 'Round {n}',
+    spettatoriN: '{n} 👁',
+    staiGuardando: 'You are watching',
+    smettiGuarda: 'Stop watching',
+    chiediMano: 'See the hand',
+    manoNascosta: 'Hand hidden',
+    inAttesa: 'Waiting…',
+    richiestaTitolo: 'A spectator is watching you',
+    richiestaTesto: '{nome} wants to see your hand. Allow?',
+    permetti: 'Allow',
+    nega: 'Deny',
+    spettatoreTag: 'Spectator',
+  },
 
   // Account management
   account: 'Account',
