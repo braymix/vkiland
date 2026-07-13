@@ -42,7 +42,9 @@ export const BOARD_RADIUS_LARGE = 3;
  * quindi ha un codice dedicato che NON è un raggio geometrico.
  *
  *  - PICCOLA  (2)  esagono raggio 2 → 19 caselle          (2–4 giocatori)
- *  - GRANDE   (5)  esagono raggio 3 SENZA le 2 righe di bordo (|r|=3) → 29 caselle (5–6)
+ *  - GRANDE   (5)  esagono raggio 3 con DUE LATI ADIACENTI in meno
+ *                  (via il lato q=+3 e il lato r=-3, che condividono l'angolo
+ *                  (3,-3)) → 30 caselle                    (5–6 giocatori)
  *  - GIGANTE  (3)  esagono raggio 3 pieno → 37 caselle     (7–8 giocatori)
  */
 export const BOARD_CODE_SMALL = 2;
@@ -68,9 +70,12 @@ function boardShape(code: number = BOARD_RADIUS): BoardShape {
   let radius: number;
   let hexes: AxialCoord[];
   if (code === BOARD_CODE_GRANDE) {
-    // GRANDE = GIGANTE (raggio 3) con due lati in meno: via le righe di punta |r|=3.
+    // GRANDE = GIGANTE (raggio 3) con due lati ADIACENTI in meno: via il lato
+    // q=+3 e il lato r=-3 (attaccati, condividono l'angolo (3,-3)).
     radius = BOARD_RADIUS_LARGE;
-    hexes = allBoardHexes(BOARD_RADIUS_LARGE).filter((c) => Math.abs(c.r) < BOARD_RADIUS_LARGE);
+    hexes = allBoardHexes(BOARD_RADIUS_LARGE).filter(
+      (c) => c.q < BOARD_RADIUS_LARGE && c.r > -BOARD_RADIUS_LARGE
+    );
   } else {
     // Tavole a esagono pieno: il codice è anche il raggio geometrico.
     radius = code;
