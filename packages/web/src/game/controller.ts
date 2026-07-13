@@ -43,7 +43,8 @@ export interface GameSnapshot {
   /**
    * Si può annullare l'ULTIMO piazzamento di costruzione (sentiero/villaggio/
    * roccaforte, anche nel setup)? Vero solo se è stato l'umano che guarda lo
-   * schermo a piazzarlo e da allora nessun altro ha agito. Online è sempre falso.
+   * schermo a piazzarlo e da allora nessun altro ha agito. Online: possibile se
+   * è il turno del giocatore che guarda lo schermo.
    */
   canUndo: boolean;
 }

@@ -4,6 +4,7 @@
  * così la riconnessione ritrova il proprio posto.
  */
 import { randomInt } from 'node:crypto';
+import { MAX_PLAYERS } from '@vikiland/engine';
 import type { Action, BotLevel, PlayerColor, PlayerCosmetics } from '@vikiland/engine';
 import type { ApiError, GameUpdate, LobbyConfig, LobbyState, PublicLobbySummary } from './protocol';
 import type { FinishedGameRecord } from './storage';
@@ -12,7 +13,8 @@ import { GameRoom, type RoomOptions, type Seat } from './room';
 /** Senza caratteri ambigui (0/O, 1/I/L). */
 const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 const CODE_LEN = 6;
-const MAX_SLOTS = 6;
+/** Posti massimi in una lobby (allineato al motore: 2–8 giocatori). */
+const MAX_SLOTS = MAX_PLAYERS;
 const BOT_NAMES = ['Astrid', 'Leif', 'Sigrid', 'Ragnhild', 'Olaf', 'Freya'];
 /**
  * Ordine dei colori di DEFAULT del clan (palette libera: ognuno può poi
@@ -388,13 +390,15 @@ export class LobbyManager {
 }
 
 function sanitizeConfig(c: LobbyConfig): LobbyConfig {
-  const base = {
+  const base: LobbyConfig = {
     avoidAdjacent68: Boolean(c.avoidAdjacent68),
     targetGloryPoints: clampInt(c.targetGloryPoints, 5, 20, 10),
     turnTimerSec: clampInt(c.turnTimerSec, 0, 600, 0),
     isPublic: Boolean(c.isPublic),
     calamities: Boolean(c.calamities),
     battle: Boolean(c.battle),
+    // Solo 'grande' o 'gigante' sono valori validi; qualsiasi altro = consigliata.
+    ...(c.boardSize === 'grande' || c.boardSize === 'gigante' ? { boardSize: c.boardSize } : {}),
   };
   return c.seed?.trim() ? { ...base, seed: c.seed.trim() } : base;
 }

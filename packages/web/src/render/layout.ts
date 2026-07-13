@@ -2,17 +2,20 @@
  * Geometria della tavola in PIXEL LOGICI (risoluzione bassa, poi scalata
  * con image-rendering: pixelated) e hit-testing matematico.
  *
- * La tavola può avere due TAGLIE (raggio 2 = piccola/2–4 giocatori, raggio 3 =
- * grande/5–6): tutte le funzioni accettano il raggio (default 2). Il canvas
- * logico e l'origine crescono col raggio, così gli sprite restano della stessa
- * dimensione e la tavola più grande viene semplicemente rimpicciolita via CSS.
+ * La tavola ha un CODICE (2 = piccola/2–4, 5 = grande/5–6, 3 = gigante/7–8):
+ * tutte le funzioni lo accettano (default 2). Per la geometria in pixel conta
+ * il RAGGIO geometrico, ricavato dal codice con `boardGeomRadius` (grande e
+ * gigante condividono il raggio 3). Il canvas logico e l'origine crescono col
+ * raggio, così gli sprite restano della stessa dimensione e la tavola più
+ * grande viene semplicemente rimpicciolita via CSS.
  *
  * Modulo puro (niente DOM): è coperto da test in Vitest.
  */
 import {
   BOARD_RADIUS,
+  boardGeomRadius,
   getTopology,
-  isOnBoard,
+  isHexOnBoardCode,
   parseEdgeId,
   parseHexKey,
   parseVertexId,
@@ -37,13 +40,15 @@ export interface Point {
   y: number;
 }
 
-/** Dimensione del canvas logico per il raggio dato (R=2 → 320×280). */
-export function boardCanvasSize(radius: number = BOARD_RADIUS): { w: number; h: number } {
+/** Dimensione del canvas logico per la tavola col dato codice (R=2 → 320×280). */
+export function boardCanvasSize(code: number = BOARD_RADIUS): { w: number; h: number } {
+  const radius = boardGeomRadius(code);
   return { w: 2 * (HEX_W * radius + MARGIN_X), h: 2 * (ROW_STEP * radius + MARGIN_Y) };
 }
 
-/** Origine (centro) del canvas per il raggio dato. */
-function originFor(radius: number): Point {
+/** Origine (centro) del canvas per la tavola col dato codice. */
+function originFor(code: number): Point {
+  const radius = boardGeomRadius(code);
   return { x: HEX_W * radius + MARGIN_X, y: ROW_STEP * radius + MARGIN_Y };
 }
 
@@ -90,7 +95,7 @@ export function edgeMidpoint(edgeId: EdgeId, radius: number = BOARD_RADIUS): Poi
  */
 export function portAnchor(edgeId: EdgeId, radius: number = BOARD_RADIUS): Point {
   const [a, b] = parseEdgeId(edgeId);
-  const landFirst = isOnBoard(a, radius);
+  const landFirst = isHexOnBoardCode(a, radius);
   const land = hexCenter(landFirst ? a.q : b.q, landFirst ? a.r : b.r, radius);
   const sea = hexCenter(landFirst ? b.q : a.q, landFirst ? b.r : a.r, radius);
   return {
