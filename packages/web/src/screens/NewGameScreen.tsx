@@ -11,7 +11,7 @@
  *   host/bot/rimozione/colori/disconnessi, timer turno, pubblica/privata, seed,
  *   calamità, avvio, uscita e terminazione (dal pannello ☰ in partita).
  */
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import {
   DEFAULT_TARGET_GLORY,
   MAX_PLAYERS,
@@ -65,6 +65,17 @@ const botLevelLabel = (l: BotLevel) =>
 const autoBoardSize = (count: number): BoardSizeChoice | null =>
   count >= 7 ? 'gigante' : count >= 5 ? 'grande' : null;
 
+/** Intestazione di categoria dentro il pannello regole. */
+const CAT_STYLE: CSSProperties = {
+  fontSize: 9,
+  color: 'var(--accent)',
+  marginTop: 8,
+  textTransform: 'uppercase',
+  letterSpacing: 1,
+};
+/** Nota esplicativa sotto un check. */
+const NOTE_STYLE: CSSProperties = { fontSize: 8, color: 'var(--ink-dim)', lineHeight: 1.5 };
+
 export function NewGameScreen({
   session,
   initialMode,
@@ -89,7 +100,6 @@ export function NewGameScreen({
   const [boardSize, setBoardSize] = useState<BoardSizeChoice | null>(null);
   const [boardSizeTouched, setBoardSizeTouched] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
   const timerSec = Math.max(0, Math.min(600, Math.floor(Number(timerRaw) || 0)));
 
   // --- Posti locali (hot-seat) ---
@@ -568,8 +578,6 @@ export function NewGameScreen({
             setSeed={(v) => setSeed(v)}
             boardSize={boardSize}
             onPickBoard={pickBoardSize}
-            moreOpen={moreOpen}
-            setMoreOpen={setMoreOpen}
             timerRaw={timerRaw}
             setTimerRaw={setTimerRaw}
             commitTimer={() => {}}
@@ -762,8 +770,6 @@ export function NewGameScreen({
             commitSeed={() => patch({ seed: seed.trim() })}
             boardSize={boardSize}
             onPickBoard={pickBoardSize}
-            moreOpen={moreOpen}
-            setMoreOpen={setMoreOpen}
             timerRaw={timerRaw}
             setTimerRaw={setTimerRaw}
             commitTimer={() => patch({ turnTimerSec: timerSec })}
@@ -857,8 +863,6 @@ interface RulesPresetProps {
   /** Tavola grande scelta (null = piccola/consigliata dal numero di giocatori). */
   boardSize: BoardSizeChoice | null;
   onPickBoard: (choice: BoardSizeChoice) => void;
-  moreOpen: boolean;
-  setMoreOpen: (v: boolean) => void;
   timerRaw: string;
   setTimerRaw: (v: string) => void;
   commitTimer: () => void;
@@ -866,7 +870,7 @@ interface RulesPresetProps {
   setIsPublic: (v: boolean) => void;
 }
 
-/** Preset regole richiudibile: PG, calamità, (online) timer, e «Altro». */
+/** Preset regole richiudibile, in categorie: Punti vittoria, Modalità, Tavola, Online. */
 function RulesPreset(p: RulesPresetProps) {
   return (
     <div className="rules-preset pixel-frame">
@@ -917,6 +921,8 @@ function RulesPreset(p: RulesPresetProps) {
             </span>
           </div>
 
+          {/* Categoria: Modalità di gioco */}
+          <div style={CAT_STYLE}>{it.categoriaModalita}</div>
           <label className="check">
             <input
               type="checkbox"
@@ -926,12 +932,7 @@ function RulesPreset(p: RulesPresetProps) {
             />
             ⚡ {it.calamita.conCalamita}
           </label>
-          {p.calamities && (
-            <div style={{ fontSize: 8, color: 'var(--ink-dim)', lineHeight: 1.5 }}>
-              {it.calamita.spiega}
-            </div>
-          )}
-
+          {p.calamities && <div style={NOTE_STYLE}>{it.calamita.spiega}</div>}
           <label className="check">
             <input
               type="checkbox"
@@ -941,101 +942,82 @@ function RulesPreset(p: RulesPresetProps) {
             />
             ⚔️ {it.battaglia.conBattaglia}
           </label>
-          {p.battle && (
-            <div style={{ fontSize: 8, color: 'var(--ink-dim)', lineHeight: 1.5 }}>
-              {it.battaglia.spiega}
-            </div>
-          )}
+          {p.battle && <div style={NOTE_STYLE}>{it.battaglia.spiega}</div>}
 
+          {/* Categoria: Tavola (dimensione + mappa) */}
+          <div style={CAT_STYLE}>{it.categoriaTavola}</div>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={p.boardSize === 'grande'}
+              disabled={!p.editable}
+              onChange={() => p.onPickBoard('grande')}
+            />
+            {it.campoGrande}
+          </label>
+          <div style={NOTE_STYLE}>{it.campoGrandeSpiega}</div>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={p.boardSize === 'gigante'}
+              disabled={!p.editable}
+              onChange={() => p.onPickBoard('gigante')}
+            />
+            {it.campoGigante}
+          </label>
+          <div style={NOTE_STYLE}>{it.campoGiganteSpiega}</div>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={p.avoid68}
+              disabled={!p.editable}
+              onChange={(e) => p.setAvoid68(e.target.checked)}
+            />
+            {it.evita68}
+          </label>
+          <input
+            type="text"
+            placeholder={it.seedOpzionale}
+            value={p.seed}
+            disabled={!p.editable}
+            onChange={(e) => p.setSeed(e.target.value)}
+            onBlur={p.commitSeed}
+            style={{ width: '100%' }}
+          />
+
+          {/* Categoria: Online (solo multigiocatore) */}
           {p.online && (
-            <div className="stepper-row">
-              <span style={{ fontSize: 9 }}>{it.timerTurno}</span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  min={0}
-                  max={600}
-                  step={5}
-                  placeholder="0"
-                  value={p.timerRaw}
-                  disabled={!p.editable}
-                  onChange={(e) => p.setTimerRaw(e.target.value)}
-                  onBlur={p.commitTimer}
-                  style={{ width: 70 }}
-                />
-                <span style={{ fontSize: 8, color: 'var(--ink-dim)' }}>{it.secondiAbbr.replace('{n}', '')}</span>
-              </span>
-            </div>
-          )}
-
-          <button
-            className="pxbtn pxbtn--ghost pxbtn--small"
-            onClick={() => p.setMoreOpen(!p.moreOpen)}
-            aria-expanded={p.moreOpen}
-          >
-            {p.moreOpen ? '▾' : '▸'} {it.altreRegole}
-          </button>
-          {p.moreOpen && (
-            <div className="config-section">
-              <input
-                type="text"
-                placeholder={it.seedOpzionale}
-                value={p.seed}
-                disabled={!p.editable}
-                onChange={(e) => p.setSeed(e.target.value)}
-                onBlur={p.commitSeed}
-                style={{ width: '100%' }}
-              />
-
-              {/* Dimensione tavola: due opzioni sia online sia offline. */}
-              <div style={{ fontSize: 9, color: 'var(--accent)' }}>{it.dimensioneTavola}</div>
-              <label className="check">
-                <input
-                  type="checkbox"
-                  checked={p.boardSize === 'grande'}
-                  disabled={!p.editable}
-                  onChange={() => p.onPickBoard('grande')}
-                />
-                {it.campoGrande}
-              </label>
-              <div style={{ fontSize: 8, color: 'var(--ink-dim)', lineHeight: 1.5 }}>
-                {it.campoGrandeSpiega}
-              </div>
-              <label className="check">
-                <input
-                  type="checkbox"
-                  checked={p.boardSize === 'gigante'}
-                  disabled={!p.editable}
-                  onChange={() => p.onPickBoard('gigante')}
-                />
-                {it.campoGigante}
-              </label>
-              <div style={{ fontSize: 8, color: 'var(--ink-dim)', lineHeight: 1.5 }}>
-                {it.campoGiganteSpiega}
-              </div>
-
-              <label className="check">
-                <input
-                  type="checkbox"
-                  checked={p.avoid68}
-                  disabled={!p.editable}
-                  onChange={(e) => p.setAvoid68(e.target.checked)}
-                />
-                {it.evita68}
-              </label>
-              {p.online && (
-                <label className="check">
+            <>
+              <div style={CAT_STYLE}>{it.categoriaOnline}</div>
+              <div className="stepper-row">
+                <span style={{ fontSize: 9 }}>{it.timerTurno}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <input
-                    type="checkbox"
-                    checked={p.isPublic}
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    max={600}
+                    step={5}
+                    placeholder="0"
+                    value={p.timerRaw}
                     disabled={!p.editable}
-                    onChange={(e) => p.setIsPublic(e.target.checked)}
+                    onChange={(e) => p.setTimerRaw(e.target.value)}
+                    onBlur={p.commitTimer}
+                    style={{ width: 70 }}
                   />
-                  {it.partitaPubblicaToggle}
-                </label>
-              )}
-            </div>
+                  <span style={{ fontSize: 8, color: 'var(--ink-dim)' }}>{it.secondiAbbr.replace('{n}', '')}</span>
+                </span>
+              </div>
+              <label className="check">
+                <input
+                  type="checkbox"
+                  checked={p.isPublic}
+                  disabled={!p.editable}
+                  onChange={(e) => p.setIsPublic(e.target.checked)}
+                />
+                {it.partitaPubblicaToggle}
+              </label>
+            </>
           )}
         </div>
       )}
