@@ -266,6 +266,7 @@ export const es: Strings = {
   conferma: 'Confirmar',
   chiudi: 'Cerrar',
   gioca: 'Jugar',
+  razziaScegli: 'Elige la casilla donde desatar el Saqueo.',
 
   // Panels
   leTueRisorse: 'Tus recursos',
@@ -379,6 +380,7 @@ export const es: Strings = {
     costruttoriDiSentieri: 'Constructores de Caminos',
     banchetto: 'Banquete',
     tributo: 'Tributo',
+    razzia: 'Saqueo',
   },
   calamita: {
     modalita: 'Modo de juego',
@@ -389,6 +391,7 @@ export const es: Strings = {
     rimaste: '{n} en el mazo',
     guadagna: 'Calamidad: gana {n} recursos',
     strade: 'Calamidad: ¡coloca tus caminos gratis en el mapa!',
+    franaScegli: '¡Deslizamiento! Elige cuál de tus caminos marginales se derrumba.',
     attesa: 'Calamidad en curso: espera a los demás…',
     nome: {
       materialeDoppio: '{mat} en abundancia',
@@ -413,6 +416,7 @@ export const es: Strings = {
       donoDegliDei: 'Don de los dioses',
       bottino: 'Botín del pobre',
       razzia: 'Saqueo',
+      frana: 'Deslizamiento',
     },
     desc: {
       materialeDoppio: 'Esta ronda el {mat} se obtiene doble.',
@@ -437,6 +441,7 @@ export const es: Strings = {
       donoDegliDei: 'Todos roban 1 Carta de Saga.',
       bottino: 'Quien tiene menos puntos roba 1 Carta de Saga.',
       razzia: 'Quien tiene más puntos da 1 recurso a cada rival.',
+      frana: 'Quien tiene más caminos pierde 1 marginal a su elección (nunca los dos iniciales).',
     },
   },
 
@@ -449,6 +454,7 @@ export const es: Strings = {
     costruttoriDiSentieri: 'Coloca de inmediato 2 caminos gratis.',
     banchetto: 'Toma 2 recursos a tu elección de la banca.',
     tributo: 'Cada rival te entrega TODAS sus unidades de un recurso.',
+    razzia: 'Colócala en una casilla: hasta tu próximo turno nadie recibe recursos de las tiradas — los cobras todos tú.',
   },
 
   /**
@@ -513,6 +519,9 @@ export const es: Strings = {
     cartaGiocata: '{nome} juega: {carta}',
     banchetto: '{nome} celebra un banquete: +{r1} y +{r2}',
     tributo: '{nome} cobra el tributo: {n}× {risorsa}',
+    razziaPosata: '💰 {nome} desata un Saqueo: desde ahora cobra la producción de todos',
+    razziaRiscossa: '💰 El Saqueo rinde a {nome}: {risorse}',
+    franaSpezzata: '⛰️ Un deslizamiento derrumba un camino de {nome}',
     scambioProposto: '{nome} propone un intercambio',
     rispostaScambio: '{nome} {risposta} el intercambio',
     accettaVerbo: 'acepta',

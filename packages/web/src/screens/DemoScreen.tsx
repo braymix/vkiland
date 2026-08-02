@@ -35,7 +35,7 @@ const ONLINE_STEPS: StepId[] = [
 ];
 const ALL_STEPS: StepId[] = [...GAME_STEPS, ...ONLINE_STEPS];
 
-const SAGA_KINDS: SagaCard[] = ['berserker', 'sagaDegliEroi', 'costruttoriDiSentieri', 'banchetto', 'tributo'];
+const SAGA_KINDS: SagaCard[] = ['berserker', 'sagaDegliEroi', 'costruttoriDiSentieri', 'banchetto', 'tributo', 'razzia'];
 const sagaCount = (card: SagaCard) => SAGA_DECK_COMPOSITION.filter((c) => c === card).length;
 const COST_KINDS: Buildable[] = ['sentiero', 'villaggio', 'roccaforte', 'cartaSaga'];
 const AUTOPLAY_MS = 5000;

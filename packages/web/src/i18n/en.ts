@@ -266,6 +266,7 @@ export const en: Strings = {
   conferma: 'Confirm',
   chiudi: 'Close',
   gioca: 'Play',
+  razziaScegli: 'Choose the hex to unleash the Raid on.',
 
   // Panels
   leTueRisorse: 'Your resources',
@@ -379,6 +380,7 @@ export const en: Strings = {
     costruttoriDiSentieri: 'Path Builders',
     banchetto: 'Feast',
     tributo: 'Tribute',
+    razzia: 'Raid',
   },
   calamita: {
     modalita: 'Game mode',
@@ -389,6 +391,7 @@ export const en: Strings = {
     rimaste: '{n} left in the deck',
     guadagna: 'Calamity: gain {n} resources',
     strade: 'Calamity: place your free roads on the map!',
+    franaScegli: 'Landslide! Choose which of your marginal roads collapses.',
     attesa: 'Calamity underway: wait for the others…',
     nome: {
       materialeDoppio: '{mat} in abundance',
@@ -413,6 +416,7 @@ export const en: Strings = {
       donoDegliDei: 'Gift of the gods',
       bottino: "Pauper's spoils",
       razzia: 'Raid',
+      frana: 'Landslide',
     },
     desc: {
       materialeDoppio: 'This round {mat} is gained double.',
@@ -437,6 +441,7 @@ export const en: Strings = {
       donoDegliDei: 'Everyone draws 1 Saga Card.',
       bottino: 'Whoever has the fewest points draws 1 Saga Card.',
       razzia: 'Whoever has the most points gives 1 resource to each opponent.',
+      frana: 'Whoever has the most roads loses 1 marginal one of their choice (never the two initial ones).',
     },
   },
 
@@ -449,6 +454,7 @@ export const en: Strings = {
     costruttoriDiSentieri: 'Immediately place 2 free paths.',
     banchetto: 'Take 2 resources of your choice from the bank.',
     tributo: 'Every opponent hands you ALL their units of one resource.',
+    razzia: 'Place it on a hex: until your next turn nobody gains from the dice — you collect it all.',
   },
 
   /**
@@ -513,6 +519,9 @@ export const en: Strings = {
     cartaGiocata: '{nome} plays: {carta}',
     banchetto: '{nome} feasts: +{r1} and +{r2}',
     tributo: '{nome} collects the tribute: {n}× {risorsa}',
+    razziaPosata: '💰 {nome} unleashes a Raid: from now on collects everyone’s production',
+    razziaRiscossa: '💰 The Raid pays off for {nome}: {risorse}',
+    franaSpezzata: '⛰️ A landslide collapses one of {nome}’s roads',
     scambioProposto: '{nome} proposes a trade',
     rispostaScambio: '{nome} {risposta} the trade',
     accettaVerbo: 'accepts',

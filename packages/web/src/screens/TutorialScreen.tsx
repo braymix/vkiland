@@ -11,7 +11,7 @@ import { getTutorial, type TutorialBlock } from '../i18n/tutorial';
 import { ResIcon, SagaIcon } from '../components/icons';
 
 /** Le 5 Carte Saga con quante copie ha il mazzo. */
-const SAGA_KINDS: SagaCard[] = ['berserker', 'sagaDegliEroi', 'costruttoriDiSentieri', 'banchetto', 'tributo'];
+const SAGA_KINDS: SagaCard[] = ['berserker', 'sagaDegliEroi', 'costruttoriDiSentieri', 'banchetto', 'tributo', 'razzia'];
 const sagaCount = (card: SagaCard) => SAGA_DECK_COMPOSITION.filter((c) => c === card).length;
 
 function Block({ block }: { block: TutorialBlock }) {

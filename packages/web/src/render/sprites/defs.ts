@@ -412,6 +412,11 @@ export const ICONA_SAGA: Record<string, SpriteDef> = {
     map: { L: 'ferroLuce', F: 'ferroScuro' },
     rows: ['...LL..', '..LL...', '.LLF...', 'FFLLFF.', '...FLL.', '...LL..', '..LL...'],
   },
+  razzia: {
+    // torcia del razziatore (fiamma + manico): il saccheggio vichingo
+    map: { F: 'cifraCalda', f: 'spigaChiara', t: 'tronco' },
+    rows: ['...F...', '..FfF..', '.FfffF.', '..FfF..', '...t...', '...t...', '...t...'],
+  },
 };
 
 /** Icone della UI (HUD): stella dei Punti Gloria, carte risorsa, pergamene. */

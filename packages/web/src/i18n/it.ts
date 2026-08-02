@@ -274,6 +274,7 @@ export const it = {
   conferma: 'Conferma',
   chiudi: 'Chiudi',
   gioca: 'Gioca',
+  razziaScegli: 'Scegli la casella su cui scatenare la Razzia.',
 
   // Pannelli
   leTueRisorse: 'Le tue risorse',
@@ -387,6 +388,7 @@ export const it = {
     costruttoriDiSentieri: 'Costruttori di Sentieri',
     banchetto: 'Banchetto',
     tributo: 'Tributo',
+    razzia: 'Razzia',
   } satisfies Record<SagaCard, string>,
   descrizioneCarta: {
     assalto: 'Attacco pesante gratis: raggiunta da una tua strada, distrugge la casetta avversaria o declassa la roccaforte a casetta.',
@@ -397,6 +399,7 @@ export const it = {
     costruttoriDiSentieri: 'Piazza subito 2 sentieri gratuiti.',
     banchetto: 'Prendi 2 risorse a scelta dalla banca.',
     tributo: 'Tutti gli avversari ti consegnano TUTTE le unità di una risorsa.',
+    razzia: 'Posala su una casella: fino al ritorno del tuo turno nessuno prende risorse dai tiri — le incassi tutte tu.',
   } satisfies Record<SagaCard, string>,
 
   // --- Modalità Calamità ---
@@ -410,6 +413,7 @@ export const it = {
     rimaste: '{n} nel mazzo',
     guadagna: 'Calamità: guadagna {n} risorse',
     strade: 'Calamità: piazza i tuoi sentieri gratis sulla mappa!',
+    franaScegli: 'Frana! Scegli quale tua strada marginale far crollare.',
     attesa: 'Calamità in corso: attendi gli altri…',
     nome: {
       materialeDoppio: '{mat} in abbondanza',
@@ -434,6 +438,7 @@ export const it = {
       donoDegliDei: 'Dono degli dèi',
       bottino: 'Bottino del povero',
       razzia: 'Razzia',
+      frana: 'Frana',
     } satisfies Record<CalamityKind, string>,
     desc: {
       materialeDoppio: 'Questo giro il {mat} si prende doppio.',
@@ -458,6 +463,7 @@ export const it = {
       donoDegliDei: 'Tutti pescano 1 Carta Saga.',
       bottino: 'Chi ha meno punti pesca 1 Carta Saga.',
       razzia: 'Chi ha più punti dà 1 risorsa a ciascun avversario.',
+      frana: 'Chi ha più strade ne perde 1 marginale, a sua scelta (mai le due iniziali).',
     } satisfies Record<CalamityKind, string>,
   },
 
@@ -524,6 +530,9 @@ export const it = {
     cartaGiocata: '{nome} gioca: {carta}',
     banchetto: '{nome} banchetta: +{r1} e +{r2}',
     tributo: '{nome} riscuote il tributo: {n}× {risorsa}',
+    razziaPosata: '💰 {nome} scatena una Razzia: da ora incassa la produzione di tutti',
+    razziaRiscossa: '💰 La Razzia frutta a {nome}: {risorse}',
+    franaSpezzata: '⛰️ Una frana fa crollare una strada di {nome}',
     scambioProposto: '{nome} propone uno scambio',
     rispostaScambio: '{nome} {risposta} lo scambio',
     accettaVerbo: 'accetta',

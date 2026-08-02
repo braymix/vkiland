@@ -41,7 +41,7 @@ export const DEMO_YOU_COLOR: PlayerColor = '#c0392b';
  *  - il primo tiro NON è un 7 e ti porta subito qualche risorsa.
  * Così l'arco «piazzi → tiri → produci» fila liscio. Vedi `demoScript.test.ts`.
  */
-export const DEMO_SEED = 'viking-demo-028';
+export const DEMO_SEED = 'viking-demo-002';
 
 const DEMO_NAMES = ['Tu', 'Astrid', 'Leif'];
 const DEMO_COLORS: PlayerColor[] = ['#c0392b', '#2e6fb7', '#3e8f4e'];

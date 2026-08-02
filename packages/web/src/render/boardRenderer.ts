@@ -38,6 +38,7 @@ import {
   CRISTALLO_GHIACCIO,
   DRAKKAR,
   ICONA_RISORSA,
+  ICONA_SAGA,
   MATTONE_DECO,
   MINERALE,
   PECORA,
@@ -329,6 +330,32 @@ function renderStatic(view: PlayerView): HTMLCanvasElement {
   return canvas;
 }
 
+/**
+ * RAZZIA: la casella su cui è posata «si illumina» del colore del razziatore.
+ * Si disegna un anello colorato spesso lungo il bordo dell'esagono (più una
+ * torcia in cima) così a colpo d'occhio si vede DOVE e DI CHI è la razzia.
+ */
+function drawRazziaGlow(ctx: CanvasRenderingContext2D, cx: number, cy: number, playerColor: PlayerColor): void {
+  const s = shadesFor(playerColor);
+  const inside = (dx: number, dy: number): boolean => {
+    const hw = hexHalfWidthAt(dy);
+    return hw > 0 && dx >= -hw && dx < hw;
+  };
+  for (let dy = -HEX_CORNER_Y; dy <= HEX_CORNER_Y; dy++) {
+    const hw = hexHalfWidthAt(dy);
+    if (hw <= 0) continue;
+    for (let dx = -hw; dx < hw; dx++) {
+      const onEdge =
+        !inside(dx - 2, dy) || !inside(dx + 2, dy) || !inside(dx, dy - 2) || !inside(dx, dy + 2);
+      if (!onEdge) continue;
+      const outer = !inside(dx - 1, dy) || !inside(dx + 1, dy) || !inside(dx, dy - 1) || !inside(dx, dy + 1);
+      ctx.fillStyle = outer ? s.dark : s.main;
+      ctx.fillRect(cx + dx, cy + dy, 1, 1);
+    }
+  }
+  drawSpriteCentered(ctx, bakeSprite('saga-razzia', ICONA_SAGA.razzia!), cx, cy - 15);
+}
+
 /** Sentiero: linea spessa pixelata nel colore del clan, con bordo scuro. */
 function drawRoad(
   ctx: CanvasRenderingContext2D,
@@ -422,6 +449,15 @@ export function renderBoard(
     dragonCenter.x,
     dragonCenter.y + 2
   );
+
+  // RAZZIA attiva: la casella scelta si illumina del colore del razziatore.
+  if (view.razzia) {
+    const raider = view.players[view.razzia.player];
+    if (raider) {
+      const c = hexCenterById(view.razzia.hex, radius);
+      drawRazziaGlow(ctx, c.x, c.y, raider.color);
+    }
+  }
 
   // Evidenziazioni delle mosse legali. I vertici degli approdi usano il
   // mirino VIOLA al posto del bianco: si vede subito quale piazzamento

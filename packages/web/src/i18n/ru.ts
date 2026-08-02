@@ -266,6 +266,7 @@ export const ru: Strings = {
   conferma: 'Подтвердить',
   chiudi: 'Закрыть',
   gioca: 'Сыграть',
+  razziaScegli: 'Выбери клетку, где устроить Набег.',
 
   // Panels
   leTueRisorse: 'Твои ресурсы',
@@ -379,6 +380,7 @@ export const ru: Strings = {
     costruttoriDiSentieri: 'Строители троп',
     banchetto: 'Пир',
     tributo: 'Дань',
+    razzia: 'Набег',
   },
   calamita: {
     modalita: 'Режим игры',
@@ -389,6 +391,7 @@ export const ru: Strings = {
     rimaste: 'в колоде: {n}',
     guadagna: 'Бедствие: получи {n} ресурсов',
     strade: 'Бедствие: поставь бесплатные дороги на карте!',
+    franaScegli: 'Обвал! Выбери, какая из твоих краевых дорог рухнет.',
     attesa: 'Бедствие в разгаре: подожди остальных…',
     nome: {
       materialeDoppio: 'Изобилие: {mat}',
@@ -413,6 +416,7 @@ export const ru: Strings = {
       donoDegliDei: 'Дар богов',
       bottino: 'Добыча бедняка',
       razzia: 'Набег',
+      frana: 'Обвал',
     },
     desc: {
       materialeDoppio: 'В этот круг {mat} берётся вдвойне.',
@@ -437,6 +441,7 @@ export const ru: Strings = {
       donoDegliDei: 'Все берут 1 карту Саги.',
       bottino: 'У кого меньше очков — берёт 1 карту Саги.',
       razzia: 'У кого больше очков — даёт по 1 ресурсу каждому сопернику.',
+      frana: 'У кого больше всего дорог — теряет 1 краевую на свой выбор (никогда две стартовые).',
     },
   },
 
@@ -449,6 +454,7 @@ export const ru: Strings = {
     costruttoriDiSentieri: 'Немедленно поставь 2 бесплатные тропы.',
     banchetto: 'Возьми из банка 2 ресурса на свой выбор.',
     tributo: 'Каждый соперник отдаёт тебе ВСЕ свои единицы одного ресурса.',
+    razzia: 'Положи на клетку: до твоего следующего хода никто не получает ресурсы с бросков — всё забираешь ты.',
   },
 
   /**
@@ -513,6 +519,9 @@ export const ru: Strings = {
     cartaGiocata: '{nome} играет: {carta}',
     banchetto: '{nome} пирует: +{r1} и +{r2}',
     tributo: '{nome} собирает дань: {n}× {risorsa}',
+    razziaPosata: '💰 {nome} устраивает Набег: теперь забирает добычу со всех бросков',
+    razziaRiscossa: '💰 Набег приносит {nome}: {risorse}',
+    franaSpezzata: '⛰️ Обвал разрушает дорогу игрока {nome}',
     scambioProposto: '{nome} предлагает обмен',
     rispostaScambio: '{nome} {risposta} обмен',
     accettaVerbo: 'принимает',

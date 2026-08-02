@@ -179,6 +179,13 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
         case 'giocaAssaltoLeggero':
           if (mode === 'assaltoLeggero') attackEdges.push(m.edge);
           break;
+        case 'giocaRazzia':
+          if (mode === 'razzia') hexes.push(m.hex);
+          break;
+        case 'franaSentiero':
+          // Frana: le proprie strade marginali che possono crollare (mirino rosso).
+          attackEdges.push(m.edge);
+          break;
       }
     }
     return { vertices, attackVertices, edges, attackEdges, hexes };
@@ -202,6 +209,7 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
       (a) =>
         (a.type === 'piazzaSentieroIniziale' ||
           a.type === 'piazzaSentieroGratis' ||
+          a.type === 'franaSentiero' ||
           (a.type === 'costruisciSentiero' && mode === 'sentiero') ||
           (a.type === 'spezzaSentiero' && mode === 'spezza') ||
           (a.type === 'giocaAssaltoLeggero' && mode === 'assaltoLeggero')) &&
@@ -210,7 +218,12 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
     if (m) dispatch(m as Action);
   };
   const pickHex = (h: HexId) => {
-    const m = legalActions.find((a) => a.type === 'muoviDrago' && a.hex === h);
+    const m = legalActions.find(
+      (a) =>
+        (a.type === 'muoviDrago' || (a.type === 'giocaRazzia' && mode === 'razzia')) &&
+        'hex' in a &&
+        a.hex === h
+    );
     if (m) dispatch(m as Action);
   };
 
@@ -227,6 +240,8 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
   // Calamità "strade gratis": tocca a me piazzarle sulla mappa?
   const placingCalamityRoads =
     view.phase.type === 'calamityRoads' && view.phase.queue[0] === viewpoint;
+  // Calamità "Frana": tocca a me scegliere quale strada marginale far crollare?
+  const choosingFrana = view.phase.type === 'calamityFrana' && view.phase.player === viewpoint;
   const stealing = view.phase.type === 'steal' && isMyTurn;
   const offer = view.pendingTrade;
   const offerToMe =
@@ -259,6 +274,11 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
             {placingCalamityRoads && (
               <div style={{ fontSize: 9, color: 'var(--accent)', textAlign: 'center' }}>
                 {it.calamita.strade}
+              </div>
+            )}
+            {choosingFrana && (
+              <div style={{ fontSize: 9, color: 'var(--danger)', textAlign: 'center' }}>
+                {it.calamita.franaScegli}
               </div>
             )}
           </div>
@@ -368,6 +388,10 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
           onEnterAssaltoLeggero={() => {
             setCardsOpen(false);
             setMode('assaltoLeggero');
+          }}
+          onEnterRazzia={() => {
+            setCardsOpen(false);
+            setMode('razzia');
           }}
         />
       )}

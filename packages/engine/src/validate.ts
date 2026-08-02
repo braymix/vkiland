@@ -23,6 +23,7 @@ import {
 import {
   buildingOwnerAt,
   effectiveBankRatio,
+  franaTargets,
   roadConnects,
   roadIsBreakable,
   roadOwnerAt,
@@ -98,6 +99,10 @@ const ERR = {
   nessunaCalamita: err(
     'NESSUNA_CALAMITA',
     'Non c’è nessuna calamità in corso da cambiare in questo giro.'
+  ),
+  franaNonValida: err(
+    'FRANA_NON_VALIDA',
+    'La frana può far crollare solo una tua strada marginale (mai una delle due iniziali).'
   ),
 } as const;
 
@@ -435,6 +440,22 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (calamityBlocksSaga(state)) return ERR.calamitaSaga;
       if (state.devCardPlayedThisTurn) return ERR.cartaGiaGiocata;
       if (!me.sagaCards.includes('tributo')) return ERR.cartaNonDisponibile;
+      return null;
+    }
+    case 'giocaRazzia': {
+      const guard = mainPhaseGuard(state, action.player);
+      if (guard) return guard;
+      if (calamityBlocksSaga(state)) return ERR.calamitaSaga;
+      if (state.devCardPlayedThisTurn) return ERR.cartaGiaGiocata;
+      if (!me.sagaCards.includes('razzia')) return ERR.cartaNonDisponibile;
+      if (!state.board.hexes.some((h) => h.id === action.hex)) return ERR.esagonoNonValido;
+      return null;
+    }
+
+    case 'franaSentiero': {
+      if (state.phase.type !== 'calamityFrana') return ERR.faseErrata;
+      if (action.player !== state.phase.player) return ERR.nonIlTuoTurno;
+      if (!franaTargets(me, radius).includes(action.edge)) return ERR.franaNonValida;
       return null;
     }
 
