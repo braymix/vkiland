@@ -49,6 +49,12 @@ export interface GameSetup {
   boardSize?: BoardSizeChoice;
   /** Forma della tavola; 'rientranze' = isola casuale con golfi e ponti. */
   boardShape?: BoardShapeChoice;
+  /** Modalità Squadra: indice di squadra per giocatore (assente = tutti contro tutti). */
+  teams?: number[];
+  /** Colore di ciascuna squadra (indicizzato per squadra). Con `teams`. */
+  teamColors?: string[];
+  /** Modalità Squadra: bersaglio Punti Gloria per giocatore (default 8). */
+  teamTargetPerPlayer?: number;
 }
 
 const BOT_DELAY_MIN = 450;

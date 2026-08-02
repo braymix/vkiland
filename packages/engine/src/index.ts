@@ -92,6 +92,16 @@ export {
 } from './calamityRules';
 export { longestRoadLength } from './longestRoad';
 export { scoreBreakdown, gloryPoints, countHiddenHeroes } from './scoring';
+// Modalità Squadra: query pure (bot, UI e resa).
+export {
+  isTeamMode,
+  teamOf,
+  sameTeam,
+  friendsOf,
+  distinctTeams,
+  validateTeams,
+  teamSize,
+} from './teams';
 export { seedRng, nextU32, nextInt, rollDie, shuffle, type RngState } from './rng';
 
 // Geometria della tavola (riusata dal renderer e dai bot).

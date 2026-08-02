@@ -231,6 +231,20 @@ export interface GameConfig {
    * false = partita standard.
    */
   battle: boolean;
+  /**
+   * MODALITÀ SQUADRA (opzionale): un indice di squadra per giocatore
+   * (`teams[i]` = squadra del giocatore i). Le squadre sono di ugual dimensione.
+   * In squadra strade/approdi/Grande Via/Furia sono in comune e gli scambi solo
+   * fra compagni. Assente = partita a tutti contro tutti (comportamento classico).
+   */
+  teams?: number[];
+  /**
+   * Colore di ciascuna squadra (esadecimale `#rrggbb`), indicizzato per squadra.
+   * Le costruzioni prendono questo come colore principale; il colore personale
+   * del giocatore (`PlayerConfig.color`) resta come «bandiera». Presente solo con
+   * `teams`.
+   */
+  teamColors?: string[];
 }
 
 export interface PlayerState {
@@ -353,6 +367,12 @@ export interface GameState {
   setupIndex: number;
   pendingTrade: TradeOffer | null;
   tradeCounter: number;
+  /**
+   * Modalità Squadra: numero di scambi fra compagni già conclusi in questo turno
+   * (massimo 2). Si azzera all'inizio di ogni turno. Assente nelle partite
+   * classiche (nessun limite di questo tipo).
+   */
+  teamTradesThisTurn?: number;
   longestRoad: { holder: PlayerId | null; length: number };
   largestArmy: { holder: PlayerId | null; count: number };
   /** Modalità Calamità: mazzo + carta del giro. Assente nelle partite standard. */
@@ -464,6 +484,14 @@ export interface PlayerView {
   calamitiesLeft: number | null;
   /** Modalità Battaglia attiva: la UI abilita l'azione di attacco. */
   battle: boolean;
+  /**
+   * Modalità Squadra: indice di squadra per giocatore (come `config.teams`).
+   * Assente = partita a tutti contro tutti. La UI la usa per i colori e per
+   * capire chi è compagno; le regole geometriche per la rete in comune.
+   */
+  teams?: number[];
+  /** Colore di ciascuna squadra (per la resa: colore principale delle costruzioni). */
+  teamColors?: string[];
   /**
    * RAZZIA in corso (carta sviluppo): la casella `hex` va illuminata del colore
    * del razziatore e la produzione dei tiri è tutta sua. null = nessuna razzia.
