@@ -201,6 +201,9 @@ export const de: Strings = {
   campoGrandeSpiega: '30 Felder — empfohlen für 5–6 Spieler.',
   campoGigante: 'Riesiges Feld',
   campoGiganteSpiega: '37 Felder — empfohlen für 7–8 Spieler.',
+  campoRientranze: 'Mit Einbuchtungen',
+  campoRientranzeSpiega:
+    'Zufällig geformte Insel (Buchten, Halbinseln) mit gleich vielen Feldern: über schmale Buchten (eine Straße breit) lassen sich Brücken bauen.',
   categoriaModalita: 'Modi',
   categoriaTavola: 'Spielfeld',
   categoriaOnline: 'Online',

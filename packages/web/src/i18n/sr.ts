@@ -200,6 +200,9 @@ export const sr: Strings = {
   campoGrandeSpiega: '30 polja — preporučeno za 5–6 igrača.',
   campoGigante: 'Džinovsko polje',
   campoGiganteSpiega: '37 polja — preporučeno za 7–8 igrača.',
+  campoRientranze: 'Sa zalivima',
+  campoRientranzeSpiega:
+    'Ostrvo nasumičnog oblika (zalivi, poluostrva) sa istim brojem polja: možeš graditi mostove da pređeš zalive široke jednu cestu.',
   categoriaModalita: 'Režimi',
   categoriaTavola: 'Tabla',
   categoriaOnline: 'Onlajn',

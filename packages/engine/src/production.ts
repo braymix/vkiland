@@ -1,5 +1,5 @@
 /** Distribuzione delle risorse al tiro dei dadi (con regola di penuria banca). */
-import { getTopology } from './board/topology';
+import { boardTopoKey, getTopology } from './board/topology';
 import { RESOURCES } from './constants';
 import type { GameEvent } from './actions';
 import { materialMultiplier } from './calamityRules';
@@ -13,7 +13,7 @@ import type { GameState, Resource, ResourceCount } from './types';
  * se la richiede uno solo, riceve quel che resta.
  */
 export function produceResources(state: GameState, total: number, events: GameEvent[]): void {
-  const topo = getTopology(state.config.boardRadius);
+  const topo = getTopology(boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes));
   const demand = new Map<number, ResourceCount>(); // giocatore → richiesta
 
   for (const hex of state.board.hexes) {
@@ -83,7 +83,7 @@ export function produceForSetupVillage(
   vertex: string,
   events: GameEvent[]
 ): void {
-  const topo = getTopology(state.config.boardRadius);
+  const topo = getTopology(boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes));
   const byId = new Map(state.board.hexes.map((h) => [h.id, h]));
   const gained = zeroResources();
   for (const hexId of topo.vertexLandHexes[vertex]!) {

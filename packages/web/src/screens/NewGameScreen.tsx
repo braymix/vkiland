@@ -15,6 +15,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import {
   DEFAULT_TARGET_GLORY,
   MAX_PLAYERS,
+  type BoardShapeChoice,
   type BoardSizeChoice,
   type BotLevel,
   type PlayerColor,
@@ -104,6 +105,8 @@ export function NewGameScreen({
   // volta che l'utente sceglie a mano.
   const [boardSize, setBoardSize] = useState<BoardSizeChoice | null>(null);
   const [boardSizeTouched, setBoardSizeTouched] = useState(false);
+  // Forma della tavola: null = esagono classico; 'rientranze' = isola con golfi.
+  const [boardShape, setBoardShape] = useState<BoardShapeChoice | null>(null);
   const [rulesOpen, setRulesOpen] = useState(false);
   const timerSec = Math.max(0, Math.min(600, Math.floor(Number(timerRaw) || 0)));
 
@@ -241,6 +244,7 @@ export function NewGameScreen({
     // automatica resta attiva (boardSizeTouched = false).
     setBoardSize(lobby.config.boardSize ?? autoBoardSize(lobby.slots.length));
     setBoardSizeTouched(lobby.config.boardSize != null);
+    setBoardShape(lobby.config.boardShape ?? null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lobby?.code]);
 
@@ -253,7 +257,11 @@ export function NewGameScreen({
   // --- Sincronizzazione config online ---
   // La dimensione tavola non è in `change` (può valere null = piccola): si passa
   // a parte, con ripiego sullo stato corrente per gli altri patch.
-  const patch = (change: Partial<LobbyConfig>, boardSizeVal: BoardSizeChoice | null = boardSize) => {
+  const patch = (
+    change: Partial<LobbyConfig>,
+    boardSizeVal: BoardSizeChoice | null = boardSize,
+    boardShapeVal: BoardShapeChoice | null = boardShape
+  ) => {
     if (!lobby) return;
     const next: LobbyConfig = {
       avoidAdjacent68: change.avoidAdjacent68 ?? avoid68,
@@ -263,6 +271,7 @@ export function NewGameScreen({
       calamities: change.calamities ?? calamities,
       battle: change.battle ?? battle,
       ...(boardSizeVal ? { boardSize: boardSizeVal } : {}),
+      ...(boardShapeVal ? { boardShape: boardShapeVal } : {}),
       ...((change.seed ?? seed).trim() ? { seed: (change.seed ?? seed).trim() } : {}),
     };
     socketRef.current?.emit('lobby:updateConfig', next, (res) => {
@@ -279,6 +288,7 @@ export function NewGameScreen({
     calamities,
     battle,
     ...(boardSize ? { boardSize } : {}),
+    ...(boardShape ? { boardShape } : {}),
     ...(seed.trim() ? { seed: seed.trim() } : {}),
   });
 
@@ -289,6 +299,13 @@ export function NewGameScreen({
       boardSize === choice ? (playerCount >= 5 ? choice : null) : choice;
     setBoardSize(nextVal);
     if (mode === 'online') patch({}, nextVal);
+  };
+
+  /** Attiva/disattiva la forma «con rientranze» (isola casuale con golfi e ponti). */
+  const toggleBoardShape = () => {
+    const nextVal: BoardShapeChoice | null = boardShape === 'rientranze' ? null : 'rientranze';
+    setBoardShape(nextVal);
+    if (mode === 'online') patch({}, boardSize, nextVal);
   };
 
   // --- Azioni online ---
@@ -391,6 +408,7 @@ export function NewGameScreen({
       calamities,
       battle,
       ...(boardSize ? { boardSize } : {}),
+      ...(boardShape ? { boardShape } : {}),
     });
   };
 
@@ -605,6 +623,8 @@ export function NewGameScreen({
             setSeed={(v) => setSeed(v)}
             boardSize={boardSize}
             onPickBoard={pickBoardSize}
+            boardShape={boardShape}
+            onToggleShape={toggleBoardShape}
             timerRaw={timerRaw}
             setTimerRaw={setTimerRaw}
             commitTimer={() => {}}
@@ -823,6 +843,8 @@ export function NewGameScreen({
             commitSeed={() => patch({ seed: seed.trim() })}
             boardSize={boardSize}
             onPickBoard={pickBoardSize}
+            boardShape={boardShape}
+            onToggleShape={toggleBoardShape}
             timerRaw={timerRaw}
             setTimerRaw={setTimerRaw}
             commitTimer={() => patch({ turnTimerSec: timerSec })}
@@ -916,6 +938,9 @@ interface RulesPresetProps {
   /** Tavola grande scelta (null = piccola/consigliata dal numero di giocatori). */
   boardSize: BoardSizeChoice | null;
   onPickBoard: (choice: BoardSizeChoice) => void;
+  /** Forma della tavola (null = esagono classico; 'rientranze' = isola con golfi). */
+  boardShape: BoardShapeChoice | null;
+  onToggleShape: () => void;
   timerRaw: string;
   setTimerRaw: (v: string) => void;
   commitTimer: () => void;
@@ -1019,6 +1044,16 @@ function RulesPreset(p: RulesPresetProps) {
             {it.campoGigante}
           </label>
           <div style={NOTE_STYLE}>{it.campoGiganteSpiega}</div>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={p.boardShape === 'rientranze'}
+              disabled={!p.editable}
+              onChange={p.onToggleShape}
+            />
+            {it.campoRientranze}
+          </label>
+          <div style={NOTE_STYLE}>{it.campoRientranzeSpiega}</div>
           <label className="check">
             <input
               type="checkbox"

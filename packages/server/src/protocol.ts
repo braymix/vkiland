@@ -7,6 +7,7 @@
  */
 import type {
   Action,
+  BoardShapeChoice,
   BoardSizeChoice,
   BotLevel,
   GameEvent,
@@ -62,6 +63,11 @@ export interface LobbyConfig {
    * assente = tavola consigliata dal numero di giocatori (piccola per 2–4).
    */
   boardSize?: BoardSizeChoice;
+  /**
+   * Forma della tavola: 'rientranze' = isola casuale (golfi, penisole, ponti)
+   * con lo stesso numero di caselle della taglia. Assente = esagono classico.
+   */
+  boardShape?: BoardShapeChoice;
   /** Seme della mappa (opzionale: undefined = casuale). */
   seed?: string;
 }

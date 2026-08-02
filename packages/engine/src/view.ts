@@ -76,6 +76,7 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
     largestArmy: { ...state.largestArmy },
     targetGloryPoints: state.config.targetGloryPoints,
     boardRadius: state.config.boardRadius,
+    ...(state.config.boardShape ? { boardShape: state.config.boardShape } : {}),
     calamity: activeCalamity(state),
     calamitiesLeft: state.calamities ? state.calamities.deck.length : null,
     battle: state.config.battle,

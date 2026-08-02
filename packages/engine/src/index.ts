@@ -103,6 +103,7 @@ export {
   BOARD_CODE_GRANDE,
   BOARD_CODE_GIGANTE,
   boardGeomRadius,
+  rientranzeRegionRadius,
   boardHexes,
   isHexOnBoardCode,
   hexKey,
@@ -118,5 +119,11 @@ export {
   hexVertexIds,
   hexEdgeIds,
 } from './board/coords';
-export { getTopology, type BoardTopology } from './board/topology';
+export {
+  getTopology,
+  boardTopoKey,
+  shapeSignature,
+  type BoardTopology,
+  type TopoKey,
+} from './board/topology';
 export { generateBoard } from './board/generate';

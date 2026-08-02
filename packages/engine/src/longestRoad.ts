@@ -7,7 +7,7 @@
  * SPEZZA il percorso: ci si può terminare, ma non attraversarlo.
  */
 import { BOARD_RADIUS } from './board/coords';
-import { getTopology } from './board/topology';
+import { boardTopoKey, getTopology, type TopoKey } from './board/topology';
 import { GRANDE_VIA_MIN } from './constants';
 import type { GameEvent } from './actions';
 import { buildingOwnerAt } from './rules';
@@ -16,7 +16,7 @@ import type { GameState, PiecesView, PlayerId, VertexId } from './types';
 export function longestRoadLength(
   state: PiecesView,
   player: PlayerId,
-  radius: number = BOARD_RADIUS
+  radius: TopoKey = BOARD_RADIUS
 ): number {
   const topo = getTopology(radius);
   const roads = new Set(state.players[player]!.roads);
@@ -66,7 +66,8 @@ export function longestRoadLength(
  * non va a nessuno finché qualcuno non resta da solo in testa.
  */
 export function recomputeGrandeVia(state: GameState, events: GameEvent[]): void {
-  const lengths = state.players.map((p) => longestRoadLength(state, p.id, state.config.boardRadius));
+  const topoKey = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes);
+  const lengths = state.players.map((p) => longestRoadLength(state, p.id, topoKey));
   const best = Math.max(...lengths);
   const prev = state.longestRoad;
 

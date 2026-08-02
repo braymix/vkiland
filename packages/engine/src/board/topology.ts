@@ -15,19 +15,73 @@ import {
   hexKey,
   hexNeighbors,
   hexVertexIds,
-  isHexOnBoardCode,
   parseEdgeId,
+  parseHexKey,
   parseVertexId,
   vertexId,
 } from './coords';
+
+/**
+ * CHIAVE della topologia. Due forme:
+ *  - `number` → tavola a forma FISSA (piccola/grande/gigante): il numero è il
+ *    CODICE della tavola; la forma viene da `boardHexes(code)` ed è convessa
+ *    (nessun ponte). Retro-compatibile con tutto il codice e i test esistenti.
+ *  - `string` → tavola «con rientranze» (forma casuale, non esagonale): la
+ *    stringa CODIFICA l'insieme delle caselle di terra (vedi `shapeSignature`),
+ *    così la topologia è ricostruibile in modo deterministico dal solo tabellone
+ *    (nessun registro globale, nessuna collisione, sopravvive alla
+ *    serializzazione). Su queste tavole la topologia include anche i PONTI.
+ */
+export type TopoKey = number | string;
+
+const SHAPE_PREFIX = 'S:';
+
+/**
+ * Firma canonica di una forma di tavola: le chiavi delle caselle di terra,
+ * ordinate. È la `TopoKey` delle tavole «con rientranze» ed è una funzione pura
+ * (e stabile) del solo insieme di caselle, quindi ricostruibile dal tabellone.
+ */
+export function shapeSignature(hexes: readonly { id: string }[]): string {
+  return SHAPE_PREFIX + hexes.map((h) => h.id).slice().sort().join(';');
+}
+
+function isShapeKey(key: TopoKey): key is string {
+  return typeof key === 'string';
+}
+
+function parseShapeKey(key: string): AxialCoord[] {
+  return key.slice(SHAPE_PREFIX.length).split(';').filter(Boolean).map(parseHexKey);
+}
+
+/**
+ * `TopoKey` per un tabellone: la firma della forma se è «con rientranze»,
+ * altrimenti il codice numerico (comportamento classico). È l'unico punto in cui
+ * si decide quale topologia usare, condiviso da engine, bot e renderer.
+ */
+export function boardTopoKey(
+  boardRadius: number,
+  boardShape: 'rientranze' | undefined,
+  hexes: readonly { id: string }[]
+): TopoKey {
+  return boardShape === 'rientranze' ? shapeSignature(hexes) : boardRadius;
+}
 
 export interface BoardTopology {
   /** Le 19 caselle di terra, in ordine deterministico. */
   hexKeys: readonly string[];
   /** I 54 vertici edificabili (almeno un esagono di terra). */
   vertices: readonly string[];
-  /** I 72 spigoli percorribili (almeno un esagono di terra). */
+  /** I 72 spigoli percorribili (almeno un esagono di terra) + eventuali PONTI. */
   edges: readonly string[];
+  /**
+   * PONTI: spigoli di solo MARE (nessuna casella di terra) i cui DUE vertici
+   * toccano però la terra — cioè attraversano un golfo largo «una strada». Sono
+   * spigoli percorribili a tutti gli effetti (una strada normale), inclusi in
+   * `edges`/`edgeVertices`/`vertexEdges`/`vertexNeighbors`; qui sono elencati a
+   * parte solo perché il renderer li disegni come ponti sul mare. Vuoto sulle
+   * tavole a forma fissa (convesse: nessun golfo).
+   */
+  bridges: readonly string[];
   /** esagono di terra → i suoi 6 vertici. */
   hexVertices: Readonly<Record<string, readonly string[]>>;
   /** esagono di terra → i suoi 6 spigoli (solo quelli validi, cioè tutti). */
@@ -47,15 +101,25 @@ export interface BoardTopology {
   coastalRing: readonly string[];
 }
 
-/** Una topologia per CODICE tavola (piccola/grande/gigante): immutabile, memoizzata a modulo. */
-const cache = new Map<number, BoardTopology>();
+/** Una topologia per CHIAVE tavola (codice fisso o firma «con rientranze»): immutabile, memoizzata a modulo. */
+const cache = new Map<TopoKey, BoardTopology>();
 
-export function getTopology(code: number = BOARD_RADIUS): BoardTopology {
-  const hit = cache.get(code);
+export function getTopology(key: TopoKey = BOARD_RADIUS): BoardTopology {
+  const hit = cache.get(key);
   if (hit) return hit;
 
-  const land = boardHexes(code);
+  // Le tavole a forma fissa (chiave numerica) sono convesse e SENZA ponti; le
+  // tavole «con rientranze» (chiave-firma) portano la forma con sé e abilitano i
+  // ponti sui golfi.
+  const land = isShapeKey(key) ? parseShapeKey(key) : boardHexes(key);
+  const topo = buildTopology(land, isShapeKey(key));
+  cache.set(key, topo);
+  return topo;
+}
+
+function buildTopology(land: readonly AxialCoord[], withBridges: boolean): BoardTopology {
   const hexKeys = land.map(hexKey);
+  const landSet = new Set(hexKeys);
 
   const vertexSet = new Set<string>();
   const edgeSet = new Set<string>();
@@ -71,14 +135,39 @@ export function getTopology(code: number = BOARD_RADIUS): BoardTopology {
     for (const e of es) edgeSet.add(e);
   }
 
+  // PONTI: uno spigolo di solo mare {W1,W2} è un ponte se i suoi DUE vertici
+  // toccano la terra, cioè se ENTRAMBI i vicini comuni di W1,W2 sono terra. Si
+  // scoprono dai «golfi»: per ogni casella di terra C1 e ogni coppia di vicini
+  // consecutivi entrambi di mare (W1,W2), l'altro vicino comune è C2 = W1+W2−C1
+  // (identità del rombo esagonale). Se C2 è terra, {W1,W2} è un ponte. Aggiunti
+  // a `edgeSet` PRIMA di derivare vertici/adiacenze, così entrano da soli in
+  // edgeVertices/vertexEdges/vertexNeighbors senza casi speciali.
+  const bridgeSet = new Set<string>();
+  if (withBridges) {
+    for (const c1 of land) {
+      const n = hexNeighbors(c1);
+      for (let i = 0; i < 6; i++) {
+        const w1 = n[i]!;
+        const w2 = n[(i + 1) % 6]!;
+        if (landSet.has(hexKey(w1)) || landSet.has(hexKey(w2))) continue;
+        const c2 = { q: w1.q + w2.q - c1.q, r: w1.r + w2.r - c1.r };
+        if (!landSet.has(hexKey(c2))) continue;
+        const e = edgeId(w1, w2);
+        bridgeSet.add(e);
+        edgeSet.add(e);
+      }
+    }
+  }
+
   const vertices = [...vertexSet].sort();
   const edges = [...edgeSet].sort();
+  const bridges = [...bridgeSet].sort();
 
   // vertice → esagoni di terra incidenti
   const vertexLandHexes: Record<string, string[]> = {};
   for (const v of vertices) {
     vertexLandHexes[v] = parseVertexId(v)
-      .filter((c) => isHexOnBoardCode(c, code))
+      .filter((c) => landSet.has(hexKey(c)))
       .map(hexKey);
   }
 
@@ -113,14 +202,18 @@ export function getTopology(code: number = BOARD_RADIUS): BoardTopology {
     });
   }
 
-  // Spigoli costieri: esattamente 1 esagono di terra.
+  // Spigoli costieri: esattamente 1 esagono di terra (i ponti hanno 0 terra e
+  // restano quindi esclusi: nessun approdo su un ponte).
   const coastal = edges.filter((e) => {
     const [a, b] = parseEdgeId(e);
-    return Number(isHexOnBoardCode(a, code)) + Number(isHexOnBoardCode(b, code)) === 1;
+    return Number(landSet.has(hexKey(a))) + Number(landSet.has(hexKey(b))) === 1;
   });
 
-  // Ordina la costa percorrendola: in ogni vertice costiero si incontrano
-  // esattamente 2 spigoli costieri, quindi formano un unico anello chiuso.
+  // Ordina la costa percorrendola. Su una tavola convessa la costa è un unico
+  // anello chiuso di vertici di grado 2; su una tavola «con rientranze» possono
+  // esserci più anelli (golfi/insenature) o vertici di «strozzatura» con più di
+  // due spigoli costieri: si percorre a componenti, consumando gli spigoli, così
+  // la costruzione non si blocca mai e resta identica sul caso convesso.
   const coastalByVertex = new Map<string, string[]>();
   for (const e of coastal) {
     for (const v of edgeVertices[e]!) {
@@ -129,23 +222,33 @@ export function getTopology(code: number = BOARD_RADIUS): BoardTopology {
       coastalByVertex.set(v, list);
     }
   }
-  const start = coastal[0]!; // 'coastal' è già ordinato lessicograficamente
-  const ring: string[] = [start];
-  let prevVertex = edgeVertices[start]![0];
-  let current = start;
-  while (ring.length < coastal.length) {
-    const [v1, v2] = edgeVertices[current]!;
-    const nextVertex = v1 === prevVertex ? v2 : v1;
-    const candidates = coastalByVertex.get(nextVertex)!.filter((e) => e !== current);
-    current = candidates[0]!;
+  const remaining = new Set(coastal); // 'coastal' è già ordinato lessicograficamente
+  const ring: string[] = [];
+  for (const seed of coastal) {
+    if (!remaining.has(seed)) continue;
+    let current = seed;
+    remaining.delete(current);
     ring.push(current);
-    prevVertex = nextVertex;
+    let prevVertex = edgeVertices[current]![0];
+    for (;;) {
+      const [v1, v2] = edgeVertices[current]!;
+      const arrival = v1 === prevVertex ? v2 : v1;
+      const next = (coastalByVertex.get(arrival) ?? []).find(
+        (e) => e !== current && remaining.has(e)
+      );
+      if (!next) break;
+      remaining.delete(next);
+      ring.push(next);
+      prevVertex = arrival;
+      current = next;
+    }
   }
 
-  const topo: BoardTopology = {
+  return {
     hexKeys,
     vertices,
     edges,
+    bridges,
     hexVertices,
     hexEdges,
     vertexLandHexes,
@@ -154,6 +257,4 @@ export function getTopology(code: number = BOARD_RADIUS): BoardTopology {
     vertexNeighbors,
     coastalRing: ring,
   };
-  cache.set(code, topo);
-  return topo;
 }
