@@ -200,6 +200,9 @@ export const en: Strings = {
   campoGrandeSpiega: '30 tiles — recommended for 5–6 players.',
   campoGigante: 'Giant board',
   campoGiganteSpiega: '37 tiles — recommended for 7–8 players.',
+  campoRientranze: 'With inlets',
+  campoRientranzeSpiega:
+    'Randomly shaped island (gulfs, peninsulas) with the same number of tiles: you can build bridges to cross gulfs one road wide.',
   categoriaModalita: 'Modes',
   categoriaTavola: 'Board',
   categoriaOnline: 'Online',

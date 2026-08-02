@@ -122,6 +122,7 @@ export class GameRoom {
       calamities: config.calamities,
       battle: config.battle,
       ...(config.boardSize ? { boardSize: config.boardSize } : {}),
+      ...(config.boardShape ? { boardShape: config.boardShape } : {}),
     });
     seats.forEach((s, i) => {
       if (s.isBot) this.bots.set(i, createBot(s.botLevel ?? 'normale'));

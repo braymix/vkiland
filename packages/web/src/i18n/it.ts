@@ -208,6 +208,9 @@ export const it = {
   campoGrandeSpiega: '30 caselle — consigliato per 5–6 giocatori.',
   campoGigante: 'Campo gigante',
   campoGiganteSpiega: '37 caselle — consigliato per 7–8 giocatori.',
+  campoRientranze: 'Con rientranze',
+  campoRientranzeSpiega:
+    'Isola dalla forma casuale (golfi, penisole) con lo stesso numero di caselle: si possono costruire ponti per scavalcare i golfi larghi una strada.',
   categoriaModalita: 'Modalità',
   categoriaTavola: 'Tavola',
   categoriaOnline: 'Online',

@@ -200,6 +200,9 @@ export const es: Strings = {
   campoGrandeSpiega: '30 casillas — recomendado para 5–6 jugadores.',
   campoGigante: 'Campo gigante',
   campoGiganteSpiega: '37 casillas — recomendado para 7–8 jugadores.',
+  campoRientranze: 'Con entrantes',
+  campoRientranzeSpiega:
+    'Isla de forma aleatoria (golfos, penínsulas) con el mismo número de casillas: puedes construir puentes para cruzar golfos de una carretera de ancho.',
   categoriaModalita: 'Modos',
   categoriaTavola: 'Tablero',
   categoriaOnline: 'Online',

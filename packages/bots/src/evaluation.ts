@@ -4,6 +4,7 @@
  */
 import {
   RESOURCES,
+  boardTopoKey,
   getTopology,
   pipWeight,
   vertexFreeWithDistance,
@@ -12,8 +13,14 @@ import {
   type PlayerView,
   type Resource,
   type ResourceCount,
+  type TopoKey,
   type VertexId,
 } from '@vikiland/engine';
+
+/** Chiave della topologia per una vista: gestisce anche le tavole «con rientranze». */
+export function viewTopoKey(view: PlayerView): TopoKey {
+  return boardTopoKey(view.boardRadius, view.boardShape, view.board.hexes);
+}
 
 export function hexById(view: PlayerView): Map<string, Hex> {
   return new Map(view.board.hexes.map((h) => [h.id, h]));
@@ -21,7 +28,7 @@ export function hexById(view: PlayerView): Map<string, Hex> {
 
 /** Pip per risorsa garantiti da un vertice (esagoni di terra adiacenti). */
 export function vertexPips(view: PlayerView, vertex: VertexId): ResourceCount {
-  const topo = getTopology(view.boardRadius);
+  const topo = getTopology(viewTopoKey(view));
   const byId = hexById(view);
   const out = zeroResources();
   for (const hexId of topo.vertexLandHexes[vertex] ?? []) {
@@ -54,7 +61,7 @@ export function playerPips(view: PlayerView, player: number): ResourceCount {
  * NUOVE rispetto a quelle già coperte + bonus approdo.
  */
 export function placementScore(view: PlayerView, player: number, vertex: VertexId): number {
-  const topo = getTopology(view.boardRadius);
+  const topo = getTopology(viewTopoKey(view));
   const own = playerPips(view, player);
   const pips = vertexPips(view, vertex);
   let score = 0;
@@ -120,14 +127,14 @@ export function totalOf(rc: ResourceCount): number {
  * scontati del 40%).
  */
 export function edgeExpansionScore(view: PlayerView, player: number, edge: string): number {
-  const topo = getTopology(view.boardRadius);
+  const topo = getTopology(viewTopoKey(view));
   let best = 0;
   for (const v of topo.edgeVertices[edge] ?? []) {
-    if (vertexFreeWithDistance(view, v, view.boardRadius)) {
+    if (vertexFreeWithDistance(view, v, viewTopoKey(view))) {
       best = Math.max(best, placementScore(view, player, v));
     }
     for (const w of topo.vertexNeighbors[v] ?? []) {
-      if (vertexFreeWithDistance(view, w, view.boardRadius)) {
+      if (vertexFreeWithDistance(view, w, viewTopoKey(view))) {
         best = Math.max(best, placementScore(view, player, w) * 0.6);
       }
     }
@@ -154,7 +161,7 @@ export function dragonDamage(
   view: PlayerView,
   hexId: string
 ): { perPlayer: Map<number, number>; total: number } {
-  const topo = getTopology(view.boardRadius);
+  const topo = getTopology(viewTopoKey(view));
   const byId = hexById(view);
   const hex = byId.get(hexId);
   const perPlayer = new Map<number, number>();

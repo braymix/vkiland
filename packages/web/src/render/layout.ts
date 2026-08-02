@@ -14,11 +14,14 @@
 import {
   BOARD_RADIUS,
   boardGeomRadius,
-  getTopology,
+  hexKey,
+  hexNeighbors,
   isHexOnBoardCode,
   parseEdgeId,
   parseHexKey,
   parseVertexId,
+  vertexId,
+  type AxialCoord,
   type EdgeId,
   type HexId,
   type VertexId,
@@ -78,9 +81,25 @@ export function vertexPoint(vertexId: VertexId, radius: number = BOARD_RADIUS): 
   return { x: (ca.x + cb.x + cc.x) / 3, y: (ca.y + cb.y + cc.y) / 3 };
 }
 
+/**
+ * I due vertici estremi di uno spigolo, ricavati per pura GEOMETRIA (senza
+ * topologia): per lo spigolo {A,B} sono le triple {A,B,C} coi 2 vicini comuni
+ * di A e B. Vale per ogni spigolo, inclusi i PONTI (spigoli di solo mare): così
+ * il renderer disegna strade e ponti su tavole di qualsiasi forma senza
+ * dipendere dalla topologia (che varia con l'isola «con rientranze»).
+ */
+export function edgeVertexIds(edgeId: EdgeId): [VertexId, VertexId] {
+  const [a, b] = parseEdgeId(edgeId);
+  const bNeighbors = new Set(hexNeighbors(b).map(hexKey));
+  const [c1, c2] = hexNeighbors(a).filter((c) => bNeighbors.has(hexKey(c))) as [
+    AxialCoord,
+    AxialCoord,
+  ];
+  return [vertexId(a, b, c1), vertexId(a, b, c2)];
+}
+
 export function edgeEndpoints(edgeId: EdgeId, radius: number = BOARD_RADIUS): [Point, Point] {
-  const topo = getTopology(radius);
-  const [v1, v2] = topo.edgeVertices[edgeId]!;
+  const [v1, v2] = edgeVertexIds(edgeId);
   return [vertexPoint(v1, radius), vertexPoint(v2, radius)];
 }
 
@@ -93,9 +112,20 @@ export function edgeMidpoint(edgeId: EdgeId, radius: number = BOARD_RADIUS): Poi
  * Ancoraggio dell'approdo: dal punto medio dello spigolo costiero, spinto
  * verso il centro dell'esagono di MARE (così il drakkar galleggia al largo).
  */
-export function portAnchor(edgeId: EdgeId, radius: number = BOARD_RADIUS): Point {
+export function portAnchor(
+  edgeId: EdgeId,
+  radius: number = BOARD_RADIUS,
+  /**
+   * Chiavi delle caselle di TERRA della tavola: serve sulle tavole «con
+   * rientranze», dove la terra non coincide con l'esagono del codice. Assente =
+   * tavola a forma fissa (si usa la forma del codice `radius`).
+   */
+  landKeys?: ReadonlySet<string>
+): Point {
   const [a, b] = parseEdgeId(edgeId);
-  const landFirst = isHexOnBoardCode(a, radius);
+  const isLand = (c: AxialCoord): boolean =>
+    landKeys ? landKeys.has(hexKey(c)) : isHexOnBoardCode(c, radius);
+  const landFirst = isLand(a);
   const land = hexCenter(landFirst ? a.q : b.q, landFirst ? a.r : b.r, radius);
   const sea = hexCenter(landFirst ? b.q : a.q, landFirst ? b.r : a.r, radius);
   return {

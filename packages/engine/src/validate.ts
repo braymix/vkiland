@@ -5,7 +5,7 @@
  * controllo girerà sul server contro i client manomessi.
  */
 import type { Action, ValidationError } from './actions';
-import { getTopology } from './board/topology';
+import { boardTopoKey, getTopology, type TopoKey } from './board/topology';
 import {
   calamityBlocksBankTrade,
   calamityBlocksRoad,
@@ -114,7 +114,7 @@ function attackTargetError(
   state: GameState,
   player: PlayerId,
   vertex: string,
-  radius: number
+  radius: TopoKey
 ): ValidationError | null {
   const owner = buildingOwnerAt(state, vertex);
   if (owner === null || owner === player) return ERR.bersaglioNonRaggiunto;
@@ -136,7 +136,7 @@ function roadAttackTargetError(
   state: GameState,
   player: PlayerId,
   edge: string,
-  radius: number
+  radius: TopoKey
 ): ValidationError | null {
   const owner = roadOwnerAt(state, edge);
   if (owner === null || owner === player) return ERR.sentieroNonRaggiunto;
@@ -161,7 +161,7 @@ function mainPhaseGuard(state: GameState, player: PlayerId): ValidationError | n
 export function isLegal(state: GameState, action: Action): ValidationError | null {
   if (state.phase.type === 'gameOver') return ERR.partitaFinita;
   if (!isPlayerId(state, action.player)) return ERR.giocatoreInesistente;
-  const radius = state.config.boardRadius;
+  const radius = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes);
   const topo = getTopology(radius);
   const me = state.players[action.player]!;
 

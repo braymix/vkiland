@@ -91,6 +91,18 @@ export function boardGeomRadius(code: number = BOARD_RADIUS): number {
   return boardShape(code).radius;
 }
 
+/**
+ * Raggio della REGIONE entro cui si genera un'isola «con rientranze» a partire
+ * dalla taglia `code`: un anello in più del raggio geometrico di base, così una
+ * forma non convessa con lo STESSO numero di caselle ha spazio per golfi e
+ * penisole (la piccola, che riempie già il raggio 2, cresce a 3; grande e
+ * gigante a 4). È anche il raggio geometrico salvato in `config.boardRadius`
+ * per queste tavole, così il canvas le contiene tutte.
+ */
+export function rientranzeRegionRadius(code: number = BOARD_RADIUS): number {
+  return boardGeomRadius(code) + 1;
+}
+
 /** Le caselle di terra della tavola col dato codice, in ordine deterministico. */
 export function boardHexes(code: number = BOARD_RADIUS): AxialCoord[] {
   return boardShape(code).hexes;

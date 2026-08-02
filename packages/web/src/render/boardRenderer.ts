@@ -8,6 +8,7 @@
  * evidenziazioni) viene ricomposto a ogni cambiamento di stato.
  */
 import {
+  boardTopoKey,
   getTopology,
   pipWeight,
   type EdgeId,
@@ -27,6 +28,11 @@ import {
   vertexPoint,
   type Point,
 } from './layout';
+
+/** Chiave della topologia della vista (gestisce anche le tavole «con rientranze»). */
+function topoKeyOf(view: PlayerView) {
+  return boardTopoKey(view.boardRadius, view.boardShape, view.board.hexes);
+}
 import { bakeSprite, drawDigits, drawSpriteCentered, digitsWidth } from './sprites/bake';
 import {
   CRISTALLO_GHIACCIO,
@@ -113,8 +119,10 @@ function color(key: string): string {
 
 function boardSignature(view: PlayerView): string {
   return (
-    `r${view.boardRadius}#` +
-    view.board.hexes.map((h) => `${h.terrain}${h.token ?? ''}`).join('|') +
+    `r${view.boardRadius}${view.boardShape ?? ''}#` +
+    // Include l'id (coordinate) di ogni casella: due isole «con rientranze»
+    // diverse con la stessa sequenza di terreni non devono condividere la cache.
+    view.board.hexes.map((h) => `${h.id}:${h.terrain}${h.token ?? ''}`).join('|') +
     '#' +
     view.board.ports.map((p) => `${p.edge}${p.kind}`).join('|')
   );
@@ -221,6 +229,42 @@ function drawPortJetty(ctx: CanvasRenderingContext2D, from: Point, to: Point): v
   }
 }
 
+/**
+ * Impalcato di un PONTE: assicelle di legno tese sul mare tra i due vertici
+ * costieri del golfo. Fa da «invito» a costruire (la strada del clan ci va
+ * sopra) e resta visibile anche senza strada.
+ */
+function drawBridgeDeck(ctx: CanvasRenderingContext2D, from: Point, to: Point): void {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const len = Math.hypot(dx, dy);
+  if (len < 1) return;
+  const t0 = 6 / len;
+  const steps = Math.ceil(len);
+  const ux = dx / len;
+  const uy = dy / len;
+  // Base scura (impalcato), poi le tavole chiare trasversali.
+  ctx.fillStyle = color('scafoScuro');
+  for (let i = 0; i <= steps; i++) {
+    const t = t0 + (i / steps) * (1 - 2 * t0);
+    if (t > 1 - t0) break;
+    const x = Math.round(from.x + dx * t);
+    const y = Math.round(from.y + dy * t);
+    ctx.fillRect(x - 3, y - 3, 6, 6);
+  }
+  ctx.fillStyle = color('scafo');
+  for (let i = 0; i <= steps; i += 3) {
+    const t = t0 + (i / steps) * (1 - 2 * t0);
+    if (t > 1 - t0) break;
+    const cx = from.x + dx * t;
+    const cy = from.y + dy * t;
+    // tavola trasversale (perpendicolare alla direzione del ponte)
+    for (let s = -3; s <= 3; s++) {
+      ctx.fillRect(Math.round(cx - uy * s), Math.round(cy + ux * s), 2, 2);
+    }
+  }
+}
+
 function renderStatic(view: PlayerView): HTMLCanvasElement {
   const radius = view.boardRadius;
   const { w, h } = boardCanvasSize(radius);
@@ -251,11 +295,20 @@ function renderStatic(view: PlayerView): HTMLCanvasElement {
     if (hex.token !== null) drawToken(ctx, x, y, hex.token);
   }
 
+  // PONTI (tavola «con rientranze»): un impalcato di legno sul mare dove si può
+  // costruire una strada per scavalcare un golfo largo «una strada». Disegnato
+  // nello strato statico, sotto le eventuali strade.
+  const topo = getTopology(topoKeyOf(view));
+  for (const bridge of topo.bridges) {
+    const [p1, p2] = edgeEndpoints(bridge, radius);
+    drawBridgeDeck(ctx, p1, p2);
+  }
+
   // Approdi: pontili verso i vertici costieri + drakkar al largo + etichetta
   // del rapporto (+ icona risorsa).
-  const topo = getTopology(radius);
+  const landKeys = new Set(view.board.hexes.map((h) => h.id));
   for (const port of view.board.ports) {
-    const anchor = portAnchor(port.edge, radius);
+    const anchor = portAnchor(port.edge, radius, landKeys);
     // Pontili PRIMA dello scafo: convergono e si infilano sotto la chiglia.
     for (const v of topo.edgeVertices[port.edge] ?? []) {
       drawPortJetty(ctx, vertexPoint(v, radius), anchor);
@@ -315,7 +368,7 @@ export function renderBoard(
   ui: BoardUiState = {}
 ): void {
   const radius = view.boardRadius;
-  const topo = getTopology(radius);
+  const topo = getTopology(topoKeyOf(view));
   const { w, h } = boardCanvasSize(radius);
   canvas.width = w;
   canvas.height = h;

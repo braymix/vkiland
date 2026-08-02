@@ -200,6 +200,9 @@ export const nl: Strings = {
   campoGrandeSpiega: '30 vakken — aanbevolen voor 5–6 spelers.',
   campoGigante: 'Reuzenveld',
   campoGiganteSpiega: '37 vakken — aanbevolen voor 7–8 spelers.',
+  campoRientranze: 'Met inhammen',
+  campoRientranzeSpiega:
+    'Eiland met willekeurige vorm (baaien, schiereilanden) met evenveel vakken: je kunt bruggen bouwen om baaien van één weg breed over te steken.',
   categoriaModalita: 'Modi',
   categoriaTavola: 'Bord',
   categoriaOnline: 'Online',

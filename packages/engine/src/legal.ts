@@ -6,7 +6,7 @@
  * Garanzia testata: ogni azione concreta restituita è accettata da `isLegal`.
  */
 import type { LegalMove } from './actions';
-import { getTopology } from './board/topology';
+import { boardTopoKey, getTopology } from './board/topology';
 import {
   calamityBlocksBankTrade,
   calamityBlocksRoad,
@@ -27,7 +27,7 @@ import {
 import type { GameState, PlayerId, Resource } from './types';
 
 export function getLegalActions(state: GameState, player: PlayerId): LegalMove[] {
-  const radius = state.config.boardRadius;
+  const radius = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes);
   const topo = getTopology(radius);
   const moves: LegalMove[] = [];
   if (player < 0 || player >= state.players.length) return moves;

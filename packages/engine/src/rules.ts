@@ -3,7 +3,7 @@
  * legali (`legal.ts`): un'unica fonte di verità per ogni vincolo di piazzamento.
  */
 import { BOARD_RADIUS } from './board/coords';
-import { getTopology } from './board/topology';
+import { getTopology, type TopoKey } from './board/topology';
 import { calamityBankFloor, calamityBlocksSaga } from './calamityRules';
 import { PIECE_LIMITS } from './constants';
 import type { EdgeId, GameState, PiecesView, PlayerId, Resource, TradeRatioView, VertexId } from './types';
@@ -27,7 +27,7 @@ export function roadOwnerAt(state: PiecesView, edge: EdgeId): PlayerId | null {
 export function vertexFreeWithDistance(
   state: PiecesView,
   vertex: VertexId,
-  radius: number = BOARD_RADIUS
+  radius: TopoKey = BOARD_RADIUS
 ): boolean {
   const topo = getTopology(radius);
   if (buildingOwnerAt(state, vertex) !== null) return false;
@@ -43,7 +43,7 @@ export function roadConnects(
   state: PiecesView,
   player: PlayerId,
   edge: EdgeId,
-  radius: number = BOARD_RADIUS
+  radius: TopoKey = BOARD_RADIUS
 ): boolean {
   const topo = getTopology(radius);
   const me = state.players[player]!;
@@ -62,7 +62,7 @@ export function canPlaceRoad(
   state: PiecesView,
   player: PlayerId,
   edge: EdgeId,
-  radius: number = BOARD_RADIUS
+  radius: TopoKey = BOARD_RADIUS
 ): boolean {
   const topo = getTopology(radius);
   if (!(edge in topo.edgeVertices)) return false;
@@ -75,7 +75,7 @@ export function canPlaceRoad(
 export function legalRoadEdges(
   state: PiecesView,
   player: PlayerId,
-  radius: number = BOARD_RADIUS
+  radius: TopoKey = BOARD_RADIUS
 ): EdgeId[] {
   const topo = getTopology(radius);
   const me = state.players[player]!;
@@ -100,7 +100,7 @@ export function legalRoadEdges(
 export function legalVillageVertices(
   state: PiecesView,
   player: PlayerId,
-  radius: number = BOARD_RADIUS
+  radius: TopoKey = BOARD_RADIUS
 ): VertexId[] {
   const topo = getTopology(radius);
   const me = state.players[player]!;
@@ -137,7 +137,7 @@ export interface BattleView {
 export function battleTargets(
   state: BattleView,
   player: PlayerId,
-  radius: number = BOARD_RADIUS
+  radius: TopoKey = BOARD_RADIUS
 ): VertexId[] {
   const topo = getTopology(radius);
   const myRoads = new Set(state.players[player]!.roads);
@@ -168,7 +168,7 @@ function roadEndpointAnchored(
   owner: { villages: VertexId[]; strongholds: VertexId[]; roads: EdgeId[] },
   vertex: VertexId,
   edge: EdgeId,
-  radius: number
+  radius: TopoKey
 ): boolean {
   if (owner.villages.includes(vertex) || owner.strongholds.includes(vertex)) return true;
   const topo = getTopology(radius);
@@ -183,7 +183,7 @@ function roadEndpointAnchored(
 export function roadIsBreakable(
   owner: { villages: VertexId[]; strongholds: VertexId[]; roads: EdgeId[] },
   edge: EdgeId,
-  radius: number = BOARD_RADIUS
+  radius: TopoKey = BOARD_RADIUS
 ): boolean {
   const topo = getTopology(radius);
   const vs = topo.edgeVertices[edge];
@@ -202,7 +202,7 @@ export function roadIsBreakable(
 export function roadBattleTargets(
   state: BattleView,
   player: PlayerId,
-  radius: number = BOARD_RADIUS
+  radius: TopoKey = BOARD_RADIUS
 ): EdgeId[] {
   const topo = getTopology(radius);
   const myRoads = new Set(state.players[player]!.roads);
@@ -227,7 +227,7 @@ export function bankTradeRatio(
   state: TradeRatioView,
   player: PlayerId,
   give: Resource,
-  radius: number = BOARD_RADIUS
+  radius: TopoKey = BOARD_RADIUS
 ): number {
   const topo = getTopology(radius);
   const me = state.players[player]!;
@@ -252,7 +252,7 @@ export function effectiveBankRatio(
   state: GameState,
   player: PlayerId,
   give: Resource,
-  radius: number = BOARD_RADIUS
+  radius: TopoKey = BOARD_RADIUS
 ): number {
   return Math.min(bankTradeRatio(state, player, give, radius), calamityBankFloor(state, give));
 }

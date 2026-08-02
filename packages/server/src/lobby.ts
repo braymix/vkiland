@@ -514,6 +514,8 @@ function sanitizeConfig(c: LobbyConfig): LobbyConfig {
     battle: Boolean(c.battle),
     // Solo 'grande' o 'gigante' sono valori validi; qualsiasi altro = consigliata.
     ...(c.boardSize === 'grande' || c.boardSize === 'gigante' ? { boardSize: c.boardSize } : {}),
+    // Forma tavola: solo 'rientranze' è un valore valido; altro = esagono classico.
+    ...(c.boardShape === 'rientranze' ? { boardShape: c.boardShape } : {}),
   };
   return c.seed?.trim() ? { ...base, seed: c.seed.trim() } : base;
 }

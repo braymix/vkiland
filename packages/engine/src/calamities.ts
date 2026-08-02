@@ -12,6 +12,7 @@
 import type { GameEvent } from './actions';
 import { HAND_LIMIT, PIECE_LIMITS, RESOURCES } from './constants';
 import { flattenResources, totalResources, zeroResources } from './resources';
+import { boardTopoKey } from './board/topology';
 import { nextInt } from './rng';
 import { legalRoadEdges } from './rules';
 import { gloryPoints } from './scoring';
@@ -237,7 +238,7 @@ function discardMap(state: GameState, amountFn: (hand: number) => number): Recor
 /** Giocatori col MINIMO di strade che possono effettivamente piazzarne, in ordine di turno. */
 function fewestRoadsPlaceable(state: GameState): PlayerId[] {
   const min = Math.min(...state.players.map((p) => p.roads.length));
-  const radius = state.config.boardRadius;
+  const radius = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes);
   return state.turnOrder.filter((pid) => {
     const p = state.players[pid]!;
     return (

@@ -200,6 +200,9 @@ export const ru: Strings = {
   campoGrandeSpiega: '30 клеток — рекомендуется для 5–6 игроков.',
   campoGigante: 'Гигантское поле',
   campoGiganteSpiega: '37 клеток — рекомендуется для 7–8 игроков.',
+  campoRientranze: 'С заливами',
+  campoRientranzeSpiega:
+    'Остров случайной формы (заливы, полуострова) с тем же числом клеток: можно строить мосты через заливы шириной в одну дорогу.',
   categoriaModalita: 'Режимы',
   categoriaTavola: 'Поле',
   categoriaOnline: 'Онлайн',

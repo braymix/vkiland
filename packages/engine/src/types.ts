@@ -173,6 +173,15 @@ export interface PlayerConfig {
  */
 export type BoardSizeChoice = 'grande' | 'gigante';
 
+/**
+ * Forma della tavola, indipendente dalla taglia:
+ *  - assente → esagono classico (convesso) della taglia scelta;
+ *  - 'rientranze' → isola dalla forma CASUALE e non esagonale (golfi, penisole,
+ *    insenature) con lo STESSO numero di caselle della taglia, dove si possono
+ *    costruire PONTI per scavalcare i golfi larghi «una strada».
+ */
+export type BoardShapeChoice = 'rientranze';
+
 export interface GameConfig {
   seed: string;
   players: PlayerConfig[];
@@ -186,6 +195,13 @@ export interface GameConfig {
    * codice coincide col raggio geometrico.
    */
   boardRadius: number;
+  /**
+   * Forma della tavola. Assente = esagono convesso classico; 'rientranze' =
+   * isola casuale con golfi e ponti (vedi `BoardShapeChoice`). Su questa forma
+   * la topologia NON è ricavabile dal solo `boardRadius`: si ricostruisce dalle
+   * caselle (`board.hexes`), che restano l'unica fonte di verità della forma.
+   */
+  boardShape?: BoardShapeChoice;
   /** Modalità Calamità: una carta per giro. false = partita standard. */
   calamities: boolean;
   /**
@@ -401,8 +417,10 @@ export interface PlayerView {
   longestRoad: { holder: PlayerId | null; length: number };
   largestArmy: { holder: PlayerId | null; count: number };
   targetGloryPoints: number;
-  /** CODICE della tavola: il renderer e i bot lo usano per la topologia (e la geometria) giusta. */
+  /** Raggio geometrico della tavola: il renderer e i bot lo usano per la geometria (canvas, posizioni). */
   boardRadius: number;
+  /** Forma della tavola (assente = esagono classico; 'rientranze' = isola con golfi/ponti). */
+  boardShape?: BoardShapeChoice;
   /** Calamità attiva nel giro (null = nessuna in corso). */
   calamity: CalamityCard | null;
   /** Calamità ancora nel mazzo; null in modalità standard (per distinguere le due). */

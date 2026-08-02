@@ -19,6 +19,7 @@ import {
   getLegalActions,
   getPlayerView,
   type Action,
+  type BoardShapeChoice,
   type BoardSizeChoice,
   type GameEvent,
   type GameState,
@@ -46,6 +47,8 @@ export interface GameSetup {
   battle: boolean;
   /** Tavola grande scelta esplicitamente; assente = consigliata dal numero di giocatori. */
   boardSize?: BoardSizeChoice;
+  /** Forma della tavola; 'rientranze' = isola casuale con golfi e ponti. */
+  boardShape?: BoardShapeChoice;
 }
 
 const BOT_DELAY_MIN = 450;
@@ -189,7 +192,7 @@ export class LocalGameController implements GameController {
       }
       // Easter egg: i bot bloccati dal Drago si lamentano nel diario.
       if (e.type === 'dragoMosso') {
-        for (const line of dragonComplaints(e, next, new Set(this.bots.keys()), next.config.boardRadius)) {
+        for (const line of dragonComplaints(e, next, new Set(this.bots.keys()))) {
           this.log.push({ id: this.logCounter++, text: line });
         }
       }
