@@ -4,6 +4,29 @@
 
 ## Stato attuale
 
+**MODALITÀ SQUADRA** ✅ — nuova modalità opzionale (per ora solo locale/hot-seat,
+italiano) combinabile con TUTTE le altre (calamità, battaglia, tavole grandi e
+«con rientranze»). I giocatori si dividono in squadre di UGUAL dimensione
+(configurabili in setup: numero di squadre = un divisore del numero di posti,
+assegnazione per posto). Ogni squadra ha un COLORE proprio; il colore personale
+del giocatore resta come «bandiera» sulle costruzioni (colore principale =
+squadra, bandierina = personale) e le STRADE sono tutte del colore della squadra.
+Regole di squadra: le strade sono in COMUNE (connettività di strade/villaggi e
+«La Grande Via» sulla rete UNITA dei compagni), gli APPRODI sono in comune (il
+rapporto di scambio guarda gli edifici di tutta la squadra), «La Grande Via» e
+«La Furia» sono di squadra (rete/berserker combinati), in Battaglia non si
+attaccano i compagni. Gli SCAMBI fra giocatori sono ammessi solo fra compagni,
+uno-a-uno, al massimo DUE per turno (`state.teamTradesThisTurn`). Si VINCE quando
+i Punti Gloria COMBINATI della squadra raggiungono il bersaglio = giocatori-per-
+squadra × un valore impostabile (default 8). Config: `config.teams` (indice di
+squadra per giocatore) + `config.teamColors`; assenti = partita classica a tutti
+contro tutti, invariata byte-per-byte (le regole geometriche ricevono un insieme
+`friends` che fuori dalla modalità è `{player}`). Engine puro con 18 test dedicati
+(connettività, Grande Via/Furia combinate, approdi, scambi 2×/1:1/solo-squadra,
+vittoria combinata, partite complete casuali-legali anche con calamità+battaglia
+e con rientranze). HUD con i punteggi combinati per squadra; renderer con colore
+di squadra + bandierina personale; setup locale con scelta squadre/colori/bersaglio.
+
 **TAVOLA «CON RIENTRANZE» + PONTI** ✅ — nuova FORMA di tavola, scegliibile in
 aggiunta alla taglia (piccola/grande/gigante) con una spunta «Con rientranze»
 nella categoria *Tavola* del setup (locale e online). Genera un'ISOLA dalla

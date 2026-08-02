@@ -6,7 +6,18 @@ import { BOARD_RADIUS } from './board/coords';
 import { getTopology, type TopoKey } from './board/topology';
 import { calamityBankFloor, calamityBlocksSaga } from './calamityRules';
 import { PIECE_LIMITS } from './constants';
+import { friendsOf } from './teams';
 import type { EdgeId, GameState, PiecesView, PlayerId, Resource, TradeRatioView, VertexId } from './types';
+
+/**
+ * Insieme dei giocatori considerati "propri" per la connettività e gli approdi:
+ * in modalità squadra sono i compagni (strade e approdi in comune), altrimenti
+ * solo `player`. Le regole geometriche accettano questo insieme come parametro
+ * opzionale `friends`; assente = comportamento classico ({player}).
+ */
+function teamOrSelf(friends: ReadonlySet<PlayerId> | undefined, player: PlayerId): ReadonlySet<PlayerId> {
+  return friends ?? new Set([player]);
+}
 
 /** Chi ha un edificio (villaggio o roccaforte) su questo vertice? null = nessuno. */
 export function buildingOwnerAt(state: PiecesView, vertex: VertexId): PlayerId | null {
@@ -35,24 +46,29 @@ export function vertexFreeWithDistance(
 }
 
 /**
- * Connettività di un sentiero: deve toccare in un estremo un proprio edificio,
- * oppure un proprio sentiero — ma la connessione via sentiero NON vale se su
- * quel vertice c'è un edificio AVVERSARIO (non si costruisce "attraverso").
+ * Connettività di un sentiero: deve toccare in un estremo un proprio edificio
+ * (o di un compagno di squadra), oppure una propria strada (o di un compagno) —
+ * ma la connessione via sentiero NON vale se su quel vertice c'è un edificio
+ * AVVERSARIO (non si costruisce "attraverso"). In modalità squadra le strade
+ * sono in comune: passa l'insieme `friends` con tutti i compagni.
  */
 export function roadConnects(
   state: PiecesView,
   player: PlayerId,
   edge: EdgeId,
-  radius: TopoKey = BOARD_RADIUS
+  radius: TopoKey = BOARD_RADIUS,
+  friends?: ReadonlySet<PlayerId>
 ): boolean {
   const topo = getTopology(radius);
-  const me = state.players[player]!;
+  const team = teamOrSelf(friends, player);
+  const teamRoads = new Set<EdgeId>();
+  for (const p of state.players) if (team.has(p.id)) for (const e of p.roads) teamRoads.add(e);
   for (const v of topo.edgeVertices[edge]!) {
     const owner = buildingOwnerAt(state, v);
-    if (owner === player) return true;
+    if (owner !== null && team.has(owner)) return true; // edificio amico (mio o del compagno)
     if (owner !== null) continue; // edificio avversario: questo estremo non connette
-    const hasOwnRoad = topo.vertexEdges[v]!.some((e) => e !== edge && me.roads.includes(e));
-    if (hasOwnRoad) return true;
+    const hasTeamRoad = topo.vertexEdges[v]!.some((e) => e !== edge && teamRoads.has(e));
+    if (hasTeamRoad) return true;
   }
   return false;
 }
@@ -62,53 +78,62 @@ export function canPlaceRoad(
   state: PiecesView,
   player: PlayerId,
   edge: EdgeId,
-  radius: TopoKey = BOARD_RADIUS
+  radius: TopoKey = BOARD_RADIUS,
+  friends?: ReadonlySet<PlayerId>
 ): boolean {
   const topo = getTopology(radius);
   if (!(edge in topo.edgeVertices)) return false;
   if (roadOwnerAt(state, edge) !== null) return false;
   if (state.players[player]!.roads.length >= PIECE_LIMITS.sentiero) return false;
-  return roadConnects(state, player, edge, radius);
+  return roadConnects(state, player, edge, radius, friends);
 }
 
 /** Tutti gli spigoli su cui `player` potrebbe piazzare un sentiero ora. */
 export function legalRoadEdges(
   state: PiecesView,
   player: PlayerId,
-  radius: TopoKey = BOARD_RADIUS
+  radius: TopoKey = BOARD_RADIUS,
+  friends?: ReadonlySet<PlayerId>
 ): EdgeId[] {
   const topo = getTopology(radius);
-  const me = state.players[player]!;
-  // Candidati: spigoli adiacenti alla propria rete (estremi di sentieri e edifici).
-  // Gli id sconosciuti alla topologia (stati sintetici) vengono ignorati.
+  const team = teamOrSelf(friends, player);
+  // Candidati: spigoli adiacenti alla rete della SQUADRA (estremi di sentieri e
+  // edifici di tutti i compagni). Id sconosciuti alla topologia ignorati.
   const candidates = new Set<EdgeId>();
   const addAround = (v: VertexId) => {
     const edges = topo.vertexEdges[v];
     if (!edges) return;
     for (const e of edges) candidates.add(e);
   };
-  for (const e of me.roads) {
-    const vs = topo.edgeVertices[e];
-    if (!vs) continue;
-    for (const v of vs) addAround(v);
+  for (const p of state.players) {
+    if (!team.has(p.id)) continue;
+    for (const e of p.roads) {
+      const vs = topo.edgeVertices[e];
+      if (!vs) continue;
+      for (const v of vs) addAround(v);
+    }
+    for (const v of [...p.villages, ...p.strongholds]) addAround(v);
   }
-  for (const v of [...me.villages, ...me.strongholds]) addAround(v);
-  return [...candidates].filter((e) => canPlaceRoad(state, player, e, radius));
+  return [...candidates].filter((e) => canPlaceRoad(state, player, e, radius, friends));
 }
 
 /** Tutti i vertici su cui `player` potrebbe costruire un villaggio ora (connettività inclusa). */
 export function legalVillageVertices(
   state: PiecesView,
   player: PlayerId,
-  radius: TopoKey = BOARD_RADIUS
+  radius: TopoKey = BOARD_RADIUS,
+  friends?: ReadonlySet<PlayerId>
 ): VertexId[] {
   const topo = getTopology(radius);
-  const me = state.players[player]!;
+  const team = teamOrSelf(friends, player);
   const candidates = new Set<VertexId>();
-  for (const e of me.roads) {
-    const vs = topo.edgeVertices[e];
-    if (!vs) continue;
-    for (const v of vs) candidates.add(v);
+  for (const p of state.players) {
+    if (!team.has(p.id)) continue;
+    for (const e of p.roads) {
+      const vs = topo.edgeVertices[e];
+      if (!vs) continue;
+      for (const v of vs) candidates.add(v);
+    }
   }
   return [...candidates].filter((v) => vertexFreeWithDistance(state, v, radius));
 }
@@ -137,9 +162,11 @@ export interface BattleView {
 export function battleTargets(
   state: BattleView,
   player: PlayerId,
-  radius: TopoKey = BOARD_RADIUS
+  radius: TopoKey = BOARD_RADIUS,
+  friends?: ReadonlySet<PlayerId>
 ): VertexId[] {
   const topo = getTopology(radius);
+  const team = teamOrSelf(friends, player);
   const myRoads = new Set(state.players[player]!.roads);
   if (myRoads.size === 0) return [];
   const reached = (v: VertexId): boolean => {
@@ -148,7 +175,7 @@ export function battleTargets(
   };
   const out: VertexId[] = [];
   for (const p of state.players) {
-    if (p.id === player) continue;
+    if (team.has(p.id)) continue; // né sé stessi né i compagni di squadra
     const indistruttibili = new Set(p.initialVillages);
     // Le roccaforti sono sempre attaccabili (declassate a casetta).
     for (const v of p.strongholds) if (reached(v)) out.push(v);
@@ -202,9 +229,11 @@ export function roadIsBreakable(
 export function roadBattleTargets(
   state: BattleView,
   player: PlayerId,
-  radius: TopoKey = BOARD_RADIUS
+  radius: TopoKey = BOARD_RADIUS,
+  friends?: ReadonlySet<PlayerId>
 ): EdgeId[] {
   const topo = getTopology(radius);
+  const team = teamOrSelf(friends, player);
   const myRoads = new Set(state.players[player]!.roads);
   if (myRoads.size === 0) return [];
   const reached = (edge: EdgeId): boolean => {
@@ -214,7 +243,7 @@ export function roadBattleTargets(
   };
   const out: EdgeId[] = [];
   for (const p of state.players) {
-    if (p.id === player) continue;
+    if (team.has(p.id)) continue; // né le proprie strade né quelle dei compagni
     for (const e of p.roads) {
       if (reached(e) && roadIsBreakable(p, e, radius)) out.push(e);
     }
@@ -235,16 +264,25 @@ export function franaTargets(
   return owner.roads.filter((e) => !initial.has(e) && roadIsBreakable(owner, e, radius));
 }
 
-/** Rapporto di scambio con la banca per una data risorsa da approdi/banca (4, 3 o 2). */
+/**
+ * Rapporto di scambio con la banca per una data risorsa da approdi/banca
+ * (4, 3 o 2). In modalità squadra gli approdi sono in comune: passa `friends`
+ * con i compagni e vengono contati gli edifici di tutta la squadra.
+ */
 export function bankTradeRatio(
   state: TradeRatioView,
   player: PlayerId,
   give: Resource,
-  radius: TopoKey = BOARD_RADIUS
+  radius: TopoKey = BOARD_RADIUS,
+  friends?: ReadonlySet<PlayerId>
 ): number {
   const topo = getTopology(radius);
-  const me = state.players[player]!;
-  const buildings = new Set([...me.villages, ...me.strongholds]);
+  const team = teamOrSelf(friends, player);
+  const buildings = new Set<VertexId>();
+  for (const p of state.players) {
+    if (!team.has(p.id)) continue;
+    for (const v of [...p.villages, ...p.strongholds]) buildings.add(v);
+  }
   let ratio = 4;
   for (const port of state.board.ports) {
     const [v1, v2] = topo.edgeVertices[port.edge]!;
@@ -267,7 +305,10 @@ export function effectiveBankRatio(
   give: Resource,
   radius: TopoKey = BOARD_RADIUS
 ): number {
-  return Math.min(bankTradeRatio(state, player, give, radius), calamityBankFloor(state, give));
+  // In modalità squadra gli approdi sono in comune: si contano gli edifici dei
+  // compagni (friendsOf ⇒ {player} fuori dalla modalità, quindi invariato).
+  const friends = friendsOf(state.config.teams, player);
+  return Math.min(bankTradeRatio(state, player, give, radius, friends), calamityBankFloor(state, give));
 }
 
 /** Il giocatore può giocare una carta Saga (non Eroi) in questo momento del turno? */
