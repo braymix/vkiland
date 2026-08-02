@@ -266,6 +266,7 @@ export const es: Strings = {
   conferma: 'Confirmar',
   chiudi: 'Cerrar',
   gioca: 'Jugar',
+  razziaScegli: 'Elige la casilla donde desatar el Saqueo.',
 
   // Panels
   leTueRisorse: 'Tus recursos',
@@ -379,6 +380,7 @@ export const es: Strings = {
     costruttoriDiSentieri: 'Constructores de Caminos',
     banchetto: 'Banquete',
     tributo: 'Tributo',
+    razzia: 'Saqueo',
   },
   calamita: {
     modalita: 'Modo de juego',
@@ -449,6 +451,7 @@ export const es: Strings = {
     costruttoriDiSentieri: 'Coloca de inmediato 2 caminos gratis.',
     banchetto: 'Toma 2 recursos a tu elección de la banca.',
     tributo: 'Cada rival te entrega TODAS sus unidades de un recurso.',
+    razzia: 'Colócala en una casilla: hasta tu próximo turno nadie recibe recursos de las tiradas — los cobras todos tú.',
   },
 
   /**
@@ -513,6 +516,8 @@ export const es: Strings = {
     cartaGiocata: '{nome} juega: {carta}',
     banchetto: '{nome} celebra un banquete: +{r1} y +{r2}',
     tributo: '{nome} cobra el tributo: {n}× {risorsa}',
+    razziaPosata: '💰 {nome} desata un Saqueo: desde ahora cobra la producción de todos',
+    razziaRiscossa: '💰 El Saqueo rinde a {nome}: {risorse}',
     scambioProposto: '{nome} propone un intercambio',
     rispostaScambio: '{nome} {risposta} el intercambio',
     accettaVerbo: 'acepta',

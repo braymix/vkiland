@@ -266,6 +266,7 @@ export const en: Strings = {
   conferma: 'Confirm',
   chiudi: 'Close',
   gioca: 'Play',
+  razziaScegli: 'Choose the hex to unleash the Raid on.',
 
   // Panels
   leTueRisorse: 'Your resources',
@@ -379,6 +380,7 @@ export const en: Strings = {
     costruttoriDiSentieri: 'Path Builders',
     banchetto: 'Feast',
     tributo: 'Tribute',
+    razzia: 'Raid',
   },
   calamita: {
     modalita: 'Game mode',
@@ -449,6 +451,7 @@ export const en: Strings = {
     costruttoriDiSentieri: 'Immediately place 2 free paths.',
     banchetto: 'Take 2 resources of your choice from the bank.',
     tributo: 'Every opponent hands you ALL their units of one resource.',
+    razzia: 'Place it on a hex: until your next turn nobody gains from the dice — you collect it all.',
   },
 
   /**
@@ -513,6 +516,8 @@ export const en: Strings = {
     cartaGiocata: '{nome} plays: {carta}',
     banchetto: '{nome} feasts: +{r1} and +{r2}',
     tributo: '{nome} collects the tribute: {n}× {risorsa}',
+    razziaPosata: '💰 {nome} unleashes a Raid: from now on collects everyone’s production',
+    razziaRiscossa: '💰 The Raid pays off for {nome}: {risorse}',
     scambioProposto: '{nome} proposes a trade',
     rispostaScambio: '{nome} {risposta} the trade',
     accettaVerbo: 'accepts',

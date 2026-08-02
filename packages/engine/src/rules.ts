@@ -266,6 +266,7 @@ export function canPlaySagaCard(
     | 'costruttoriDiSentieri'
     | 'banchetto'
     | 'tributo'
+    | 'razzia'
     | 'assalto'
     | 'assaltoLeggero'
     | 'cambiaCalamita'

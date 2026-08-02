@@ -33,6 +33,11 @@ import { isLegal } from './validate';
  * altrimenti si va alla fase di tiro (preRoll, o spostamento Drago se imposto).
  */
 function beginTurn(state: GameState, events: GameEvent[]): void {
+  // La RAZZIA dura «un giro»: si spegne quando torna il turno di chi l'ha giocata,
+  // così la sua produzione di questo turno torna normale.
+  if (state.razzia && state.currentPlayer === state.razzia.player) {
+    state.razzia = null;
+  }
   events.push({
     type: 'turnoIniziato',
     player: state.currentPlayer,
@@ -548,6 +553,17 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
         resource: action.resource,
         total: taken,
       });
+      break;
+    }
+    case 'giocaRazzia': {
+      // La RAZZIA si posa su una casella (illuminata del colore del razziatore) e
+      // resta attiva fino al ritorno del suo turno: da qui la produzione di OGNI
+      // tiro (anche degli avversari) la incassa lui al posto dei proprietari.
+      removeCard(me.sagaCards, 'razzia');
+      state.devCardPlayedThisTurn = true;
+      state.razzia = { player: me.id, hex: action.hex };
+      events.push({ type: 'cartaSagaGiocata', player: me.id, card: 'razzia' });
+      events.push({ type: 'razziaPosata', player: me.id, hex: action.hex });
       break;
     }
 

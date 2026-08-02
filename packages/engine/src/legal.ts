@@ -253,6 +253,10 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
       if (canPlaySagaCard(state, player, 'tributo')) {
         for (const r of RESOURCES) moves.push({ type: 'giocaTributo', player, resource: r as Resource });
       }
+      // Razzia: si posa su una casella qualsiasi della tavola.
+      if (canPlaySagaCard(state, player, 'razzia')) {
+        for (const h of state.board.hexes) moves.push({ type: 'giocaRazzia', player, hex: h.id });
+      }
 
       moves.push({ type: 'fineTurno', player });
       return moves;

@@ -110,13 +110,14 @@ export const BANK_PER_RESOURCE_GIGANTE = 30;
 /** @deprecated Alias storico della gigante (retro-compat). */
 export const BANK_PER_RESOURCE_LARGE = BANK_PER_RESOURCE_GIGANTE;
 
-/** Mazzo Carte Saga: 25 carte. */
+/** Mazzo Carte Saga: 28 carte. */
 export const SAGA_DECK_COMPOSITION: readonly SagaCard[] = [
   ...Array<SagaCard>(14).fill('berserker'),
   ...Array<SagaCard>(5).fill('sagaDegliEroi'),
   ...Array<SagaCard>(2).fill('costruttoriDiSentieri'),
   ...Array<SagaCard>(2).fill('banchetto'),
   ...Array<SagaCard>(2).fill('tributo'),
+  ...Array<SagaCard>(3).fill('razzia'),
 ];
 
 /**

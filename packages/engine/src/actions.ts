@@ -51,6 +51,8 @@ export type Action =
   | { type: 'piazzaSentieroGratis'; player: PlayerId; edge: EdgeId }
   | { type: 'giocaBanchetto'; player: PlayerId; resources: [Resource, Resource] }
   | { type: 'giocaTributo'; player: PlayerId; resource: Resource }
+  // --- Razzia: posa la carta su una casella; dirotta la produzione al razziatore ---
+  | { type: 'giocaRazzia'; player: PlayerId; hex: HexId }
   // --- Battaglia: la carta ASSALTO attacca gratis l'edificio scelto ---
   | { type: 'giocaAssalto'; player: PlayerId; vertex: VertexId }
   // --- Battaglia: la carta ASSALTO LEGGERO spezza gratis la strada scelta ---
@@ -128,6 +130,10 @@ export type GameEvent =
   | { type: 'cartaSagaGiocata'; player: PlayerId; card: SagaCard }
   | { type: 'banchettoRiscosso'; player: PlayerId; resources: [Resource, Resource] }
   | { type: 'tributoRiscosso'; player: PlayerId; resource: Resource; total: number }
+  /** Razzia posata su una casella: da qui la produzione dei tiri è del razziatore. */
+  | { type: 'razziaPosata'; player: PlayerId; hex: HexId }
+  /** Una razzia attiva ha incassato la produzione di un tiro al posto di tutti. */
+  | { type: 'razziaRiscossa'; player: PlayerId; resources: ResourceCount }
   | { type: 'scambioProposto'; offer: TradeOffer }
   | { type: 'rispostaScambio'; player: PlayerId; offerId: number; accepted: boolean }
   | {

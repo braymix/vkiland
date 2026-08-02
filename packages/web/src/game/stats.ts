@@ -108,6 +108,15 @@ export function accumulateStats(stats: GameStats, e: GameEvent): void {
         for (const r of RESOURCES) p.byResource[r] += g.resources[r] ?? 0;
       }
       break;
+    case 'razziaRiscossa': {
+      // La produzione dirottata dalla Razzia conta come prodotta dal razziatore.
+      const p = who(e.player);
+      if (p) {
+        p.resourcesProduced += sumResources(e.resources);
+        for (const r of RESOURCES) p.byResource[r] += e.resources[r] ?? 0;
+      }
+      break;
+    }
     case 'risorseScartate': {
       const p = who(e.player);
       if (p) p.discarded += e.total;

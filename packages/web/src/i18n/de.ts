@@ -267,6 +267,7 @@ export const de: Strings = {
   conferma: 'Bestätigen',
   chiudi: 'Schließen',
   gioca: 'Ausspielen',
+  razziaScegli: 'Wähle das Feld, auf dem du den Raubzug entfesselst.',
 
   // Panels
   leTueRisorse: 'Deine Rohstoffe',
@@ -380,6 +381,7 @@ export const de: Strings = {
     costruttoriDiSentieri: 'Pfadbauer',
     banchetto: 'Festmahl',
     tributo: 'Tribut',
+    razzia: 'Raubzug',
   },
   calamita: {
     modalita: 'Spielmodus',
@@ -450,6 +452,7 @@ export const de: Strings = {
     costruttoriDiSentieri: 'Platziere sofort 2 kostenlose Pfade.',
     banchetto: 'Nimm 2 Rohstoffe deiner Wahl aus der Bank.',
     tributo: 'Jeder Gegner übergibt dir ALLE seine Einheiten eines Rohstoffs.',
+    razzia: 'Lege sie auf ein Feld: Bis zu deinem nächsten Zug erhält niemand Würfel-Rohstoffe — du kassierst alles.',
   },
 
   /**
@@ -514,6 +517,8 @@ export const de: Strings = {
     cartaGiocata: '{nome} spielt: {carta}',
     banchetto: '{nome} hält ein Festmahl: +{r1} und +{r2}',
     tributo: '{nome} kassiert den Tribut: {n}× {risorsa}',
+    razziaPosata: '💰 {nome} entfesselt einen Raubzug: kassiert ab jetzt die Produktion aller',
+    razziaRiscossa: '💰 Der Raubzug bringt {nome} ein: {risorse}',
     scambioProposto: '{nome} schlägt einen Handel vor',
     rispostaScambio: '{nome} {risposta} den Handel',
     accettaVerbo: 'nimmt an',

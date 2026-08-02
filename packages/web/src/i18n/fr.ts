@@ -267,6 +267,7 @@ export const fr: Strings = {
   conferma: 'Confirmer',
   chiudi: 'Fermer',
   gioca: 'Jouer',
+  razziaScegli: 'Choisis la case où déclencher la Razzia.',
 
   // Panels
   leTueRisorse: 'Tes ressources',
@@ -380,6 +381,7 @@ export const fr: Strings = {
     costruttoriDiSentieri: 'Bâtisseurs de Chemins',
     banchetto: 'Banquet',
     tributo: 'Tribut',
+    razzia: 'Razzia',
   },
   calamita: {
     modalita: 'Mode de jeu',
@@ -450,6 +452,7 @@ export const fr: Strings = {
     costruttoriDiSentieri: 'Place aussitôt 2 chemins gratuits.',
     banchetto: 'Prends 2 ressources de ton choix dans la banque.',
     tributo: "Chaque adversaire te remet TOUTES ses unités d'une ressource.",
+    razzia: 'Pose-la sur une case : jusqu’à ton prochain tour personne ne reçoit de ressources des dés — tu encaisses tout.',
   },
 
   /**
@@ -514,6 +517,8 @@ export const fr: Strings = {
     cartaGiocata: '{nome} joue : {carta}',
     banchetto: '{nome} festoie : +{r1} et +{r2}',
     tributo: '{nome} encaisse le tribut : {n}× {risorsa}',
+    razziaPosata: '💰 {nome} déclenche une Razzia : encaisse désormais la production de tous',
+    razziaRiscossa: '💰 La Razzia rapporte à {nome} : {risorse}',
     scambioProposto: '{nome} propose un échange',
     rispostaScambio: '{nome} {risposta} l’échange',
     accettaVerbo: 'accepte',

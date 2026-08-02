@@ -266,6 +266,7 @@ export const nl: Strings = {
   conferma: 'Bevestigen',
   chiudi: 'Sluiten',
   gioca: 'Spelen',
+  razziaScegli: 'Kies het vak waarop je de Rooftocht ontketent.',
 
   // Panelen
   leTueRisorse: 'Jouw grondstoffen',
@@ -379,6 +380,7 @@ export const nl: Strings = {
     costruttoriDiSentieri: 'Padenbouwers',
     banchetto: 'Feestmaal',
     tributo: 'Tribuut',
+    razzia: 'Rooftocht',
   },
   calamita: {
     modalita: 'Spelmodus',
@@ -449,6 +451,7 @@ export const nl: Strings = {
     costruttoriDiSentieri: 'Plaats meteen 2 gratis paden.',
     banchetto: 'Neem 2 grondstoffen naar keuze uit de bank.',
     tributo: 'Elke tegenstander geeft je AL zijn eenheden van één grondstof.',
+    razzia: 'Leg hem op een vak: tot je volgende beurt krijgt niemand grondstoffen van de worpen — jij int alles.',
   },
 
   /**
@@ -513,6 +516,8 @@ export const nl: Strings = {
     cartaGiocata: '{nome} speelt: {carta}',
     banchetto: '{nome} houdt een feestmaal: +{r1} en +{r2}',
     tributo: '{nome} int het tribuut: {n}× {risorsa}',
+    razziaPosata: '💰 {nome} ontketent een Rooftocht: int voortaan ieders productie',
+    razziaRiscossa: '💰 De Rooftocht levert {nome} op: {risorse}',
     scambioProposto: '{nome} stelt een ruil voor',
     rispostaScambio: '{nome} {risposta} de ruil',
     accettaVerbo: 'accepteert',

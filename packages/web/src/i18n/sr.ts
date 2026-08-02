@@ -266,6 +266,7 @@ export const sr: Strings = {
   conferma: 'Potvrdi',
   chiudi: 'Zatvori',
   gioca: 'Odigraj',
+  razziaScegli: 'Izaberi polje na kome ćeš pokrenuti Pljačku.',
 
   // Panels
   leTueRisorse: 'Tvoji resursi',
@@ -379,6 +380,7 @@ export const sr: Strings = {
     costruttoriDiSentieri: 'Graditelji puteva',
     banchetto: 'Gozba',
     tributo: 'Danak',
+    razzia: 'Pljačka',
   },
   calamita: {
     modalita: 'Režim igre',
@@ -449,6 +451,7 @@ export const sr: Strings = {
     costruttoriDiSentieri: 'Odmah postavi 2 besplatna puta.',
     banchetto: 'Uzmi 2 resursa po izboru iz banke.',
     tributo: 'Svaki protivnik ti predaje SVE svoje jedinice jednog resursa.',
+    razzia: 'Postavi je na polje: do tvog sledećeg poteza niko ne dobija resurse sa bacanja — sve uzimaš ti.',
   },
 
   /**
@@ -513,6 +516,8 @@ export const sr: Strings = {
     cartaGiocata: '{nome} igra: {carta}',
     banchetto: '{nome} gozbuje: +{r1} i +{r2}',
     tributo: '{nome} naplaćuje danak: {n}× {risorsa}',
+    razziaPosata: '💰 {nome} pokreće Pljačku: od sada uzima proizvodnju svih',
+    razziaRiscossa: '💰 Pljačka donosi {nome}: {risorse}',
     scambioProposto: '{nome} predlaže razmenu',
     rispostaScambio: '{nome} {risposta} razmenu',
     accettaVerbo: 'prihvata',

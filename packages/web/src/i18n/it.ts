@@ -274,6 +274,7 @@ export const it = {
   conferma: 'Conferma',
   chiudi: 'Chiudi',
   gioca: 'Gioca',
+  razziaScegli: 'Scegli la casella su cui scatenare la Razzia.',
 
   // Pannelli
   leTueRisorse: 'Le tue risorse',
@@ -387,6 +388,7 @@ export const it = {
     costruttoriDiSentieri: 'Costruttori di Sentieri',
     banchetto: 'Banchetto',
     tributo: 'Tributo',
+    razzia: 'Razzia',
   } satisfies Record<SagaCard, string>,
   descrizioneCarta: {
     assalto: 'Attacco pesante gratis: raggiunta da una tua strada, distrugge la casetta avversaria o declassa la roccaforte a casetta.',
@@ -397,6 +399,7 @@ export const it = {
     costruttoriDiSentieri: 'Piazza subito 2 sentieri gratuiti.',
     banchetto: 'Prendi 2 risorse a scelta dalla banca.',
     tributo: 'Tutti gli avversari ti consegnano TUTTE le unità di una risorsa.',
+    razzia: 'Posala su una casella: fino al ritorno del tuo turno nessuno prende risorse dai tiri — le incassi tutte tu.',
   } satisfies Record<SagaCard, string>,
 
   // --- Modalità Calamità ---
@@ -524,6 +527,8 @@ export const it = {
     cartaGiocata: '{nome} gioca: {carta}',
     banchetto: '{nome} banchetta: +{r1} e +{r2}',
     tributo: '{nome} riscuote il tributo: {n}× {risorsa}',
+    razziaPosata: '💰 {nome} scatena una Razzia: da ora incassa la produzione di tutti',
+    razziaRiscossa: '💰 La Razzia frutta a {nome}: {risorse}',
     scambioProposto: '{nome} propone uno scambio',
     rispostaScambio: '{nome} {risposta} lo scambio',
     accettaVerbo: 'accetta',

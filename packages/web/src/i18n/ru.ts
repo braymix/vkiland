@@ -266,6 +266,7 @@ export const ru: Strings = {
   conferma: 'Подтвердить',
   chiudi: 'Закрыть',
   gioca: 'Сыграть',
+  razziaScegli: 'Выбери клетку, где устроить Набег.',
 
   // Panels
   leTueRisorse: 'Твои ресурсы',
@@ -379,6 +380,7 @@ export const ru: Strings = {
     costruttoriDiSentieri: 'Строители троп',
     banchetto: 'Пир',
     tributo: 'Дань',
+    razzia: 'Набег',
   },
   calamita: {
     modalita: 'Режим игры',
@@ -449,6 +451,7 @@ export const ru: Strings = {
     costruttoriDiSentieri: 'Немедленно поставь 2 бесплатные тропы.',
     banchetto: 'Возьми из банка 2 ресурса на свой выбор.',
     tributo: 'Каждый соперник отдаёт тебе ВСЕ свои единицы одного ресурса.',
+    razzia: 'Положи на клетку: до твоего следующего хода никто не получает ресурсы с бросков — всё забираешь ты.',
   },
 
   /**
@@ -513,6 +516,8 @@ export const ru: Strings = {
     cartaGiocata: '{nome} играет: {carta}',
     banchetto: '{nome} пирует: +{r1} и +{r2}',
     tributo: '{nome} собирает дань: {n}× {risorsa}',
+    razziaPosata: '💰 {nome} устраивает Набег: теперь забирает добычу со всех бросков',
+    razziaRiscossa: '💰 Набег приносит {nome}: {risorse}',
     scambioProposto: '{nome} предлагает обмен',
     rispostaScambio: '{nome} {risposta} обмен',
     accettaVerbo: 'принимает',

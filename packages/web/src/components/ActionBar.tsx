@@ -10,6 +10,7 @@ export type BuildMode =
   | 'spezza'
   | 'assalto'
   | 'assaltoLeggero'
+  | 'razzia'
   | null;
 
 interface Props {
@@ -115,6 +116,11 @@ export function ActionBar(props: Props) {
           </button>
         )}
       </div>
+      {!props.errorText && mode === 'razzia' && (
+        <div className="phase-banner" style={{ color: 'var(--accent)' }}>
+          {it.razziaScegli}
+        </div>
+      )}
       {!props.errorText &&
         (mode === 'attacca' ||
           mode === 'assalto' ||

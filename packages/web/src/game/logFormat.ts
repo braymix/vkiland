@@ -156,6 +156,13 @@ export function describeEvent(e: GameEvent, state: NamedPlayers): string | null 
         n: e.total,
         risorsa: it.risorsa[e.resource],
       });
+    case 'razziaPosata':
+      return t(it.log.razziaPosata, { nome: nameOf(state, e.player) });
+    case 'razziaRiscossa':
+      return t(it.log.razziaRiscossa, {
+        nome: nameOf(state, e.player),
+        risorse: listResources(e.resources),
+      });
     case 'scambioProposto':
       return t(it.log.scambioProposto, { nome: nameOf(state, e.offer.from) });
     case 'rispostaScambio':

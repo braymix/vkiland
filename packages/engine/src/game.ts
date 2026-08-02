@@ -236,5 +236,7 @@ export function cloneState(s: GameState): GameState {
     ...(s.calamities
       ? { calamities: { deck: [...s.calamities.deck], current: s.calamities.current } }
       : {}),
+    // La razzia attiva è un piccolo record: si clona a parte per non condividerlo.
+    ...(s.razzia ? { razzia: { ...s.razzia } } : {}),
   };
 }
