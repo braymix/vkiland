@@ -14,7 +14,7 @@ import { HAND_LIMIT, PIECE_LIMITS, RESOURCES } from './constants';
 import { flattenResources, totalResources, zeroResources } from './resources';
 import { boardTopoKey } from './board/topology';
 import { nextInt } from './rng';
-import { legalRoadEdges } from './rules';
+import { franaTargets, legalRoadEdges } from './rules';
 import { gloryPoints } from './scoring';
 import type { CalamityCard, GameState, PlayerId, PlayerState, ResourceCount } from './types';
 
@@ -146,6 +146,16 @@ function applyInstantCalamity(state: GameState, card: CalamityCard, events: Game
       state.phase = { type: 'calamityRoads', queue, remaining: 2 };
       return true;
     }
+    case 'frana': {
+      // Il giocatore con PIÙ strade sceglierà quale sua strada marginale (mai una
+      // delle due iniziali) far crollare. Senza bersagli validi: non crolla nulla.
+      const pid = playerWithMostRoads(state);
+      if (pid === null) return false;
+      const radius = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes);
+      if (franaTargets(state.players[pid]!, radius).length === 0) return false;
+      state.phase = { type: 'calamityFrana', player: pid };
+      return true;
+    }
 
     // ---------- persistenti: nessun effetto immediato ----------
     default:
@@ -233,6 +243,23 @@ function discardMap(state: GameState, amountFn: (hand: number) => number): Recor
     if (n > 0) map[p.id] = n;
   }
   return map;
+}
+
+/**
+ * Il giocatore con PIÙ strade (per la Frana). Pareggi risolti in ordine di
+ * turno (il primo vince). null se nessuno ha strade.
+ */
+function playerWithMostRoads(state: GameState): PlayerId | null {
+  let best: PlayerId | null = null;
+  let bestCount = 0;
+  for (const pid of state.turnOrder) {
+    const n = state.players[pid]!.roads.length;
+    if (n > bestCount) {
+      bestCount = n;
+      best = pid;
+    }
+  }
+  return best;
 }
 
 /** Giocatori col MINIMO di strade che possono effettivamente piazzarne, in ordine di turno. */

@@ -266,6 +266,7 @@ export const nl: Strings = {
   conferma: 'Bevestigen',
   chiudi: 'Sluiten',
   gioca: 'Spelen',
+  razziaScegli: 'Kies het vak waarop je de Rooftocht ontketent.',
 
   // Panelen
   leTueRisorse: 'Jouw grondstoffen',
@@ -379,6 +380,7 @@ export const nl: Strings = {
     costruttoriDiSentieri: 'Padenbouwers',
     banchetto: 'Feestmaal',
     tributo: 'Tribuut',
+    razzia: 'Rooftocht',
   },
   calamita: {
     modalita: 'Spelmodus',
@@ -389,6 +391,7 @@ export const nl: Strings = {
     rimaste: 'nog {n} in de stapel',
     guadagna: 'Ramp: verdien {n} grondstoffen',
     strade: 'Ramp: plaats je gratis wegen op de kaart!',
+    franaScegli: 'Aardverschuiving! Kies welke van je randwegen instort.',
     attesa: 'Ramp bezig: wacht op de anderen…',
     nome: {
       materialeDoppio: '{mat} in overvloed',
@@ -413,6 +416,7 @@ export const nl: Strings = {
       donoDegliDei: 'Geschenk der goden',
       bottino: 'Buit van de arme',
       razzia: 'Rooftocht',
+      frana: 'Aardverschuiving',
     },
     desc: {
       materialeDoppio: 'Deze ronde krijg je {mat} dubbel.',
@@ -437,6 +441,7 @@ export const nl: Strings = {
       donoDegliDei: 'Iedereen trekt 1 Sagakaart.',
       bottino: 'Wie de minste punten heeft, trekt 1 Sagakaart.',
       razzia: 'Wie de meeste punten heeft, geeft elke tegenstander 1 grondstof.',
+      frana: 'Wie de meeste wegen heeft, verliest er 1 aan de rand naar keuze (nooit de twee beginwegen).',
     },
   },
 
@@ -449,6 +454,7 @@ export const nl: Strings = {
     costruttoriDiSentieri: 'Plaats meteen 2 gratis paden.',
     banchetto: 'Neem 2 grondstoffen naar keuze uit de bank.',
     tributo: 'Elke tegenstander geeft je AL zijn eenheden van één grondstof.',
+    razzia: 'Leg hem op een vak: tot je volgende beurt krijgt niemand grondstoffen van de worpen — jij int alles.',
   },
 
   /**
@@ -513,6 +519,9 @@ export const nl: Strings = {
     cartaGiocata: '{nome} speelt: {carta}',
     banchetto: '{nome} houdt een feestmaal: +{r1} en +{r2}',
     tributo: '{nome} int het tribuut: {n}× {risorsa}',
+    razziaPosata: '💰 {nome} ontketent een Rooftocht: int voortaan ieders productie',
+    razziaRiscossa: '💰 De Rooftocht levert {nome} op: {risorse}',
+    franaSpezzata: '⛰️ Een aardverschuiving laat een weg van {nome} instorten',
     scambioProposto: '{nome} stelt een ruil voor',
     rispostaScambio: '{nome} {risposta} de ruil',
     accettaVerbo: 'accepteert',

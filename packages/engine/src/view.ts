@@ -80,6 +80,7 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
     calamity: activeCalamity(state),
     calamitiesLeft: state.calamities ? state.calamities.deck.length : null,
     battle: state.config.battle,
+    razzia: state.razzia ? { ...state.razzia } : null,
   };
 }
 

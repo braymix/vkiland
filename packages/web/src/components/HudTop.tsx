@@ -38,6 +38,7 @@ function phaseMessage(view: PlayerView): string {
     }
     case 'calamityGain':
     case 'calamityRoads':
+    case 'calamityFrana':
       return it.calamita.titolo;
     case 'main':
       return t(it.faseMain, { nome });

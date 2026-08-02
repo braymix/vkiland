@@ -37,6 +37,17 @@ export function produceResources(state: GameState, total: number, events: GameEv
     }
   }
 
+  // RAZZIA: se un clan ha giocato la Razzia, la produzione di questo tiro NON va
+  // ai proprietari delle caselle — la incassa tutta il razziatore (fin dove
+  // arriva la banca). Si fondono tutte le richieste in un'unica, sua.
+  if (state.razzia) {
+    const raider = state.razzia.player;
+    const merged = zeroResources();
+    for (const d of demand.values()) for (const res of RESOURCES) merged[res] += d[res];
+    demand.clear();
+    if (totalResources(merged) > 0) demand.set(raider, merged);
+  }
+
   // Penuria banca, risorsa per risorsa.
   const shortage: Resource[] = [];
   for (const res of RESOURCES) {
@@ -71,8 +82,13 @@ export function produceResources(state: GameState, total: number, events: GameEv
 
   if (shortage.length > 0) events.push({ type: 'penuriaBanca', resources: shortage });
   if (gains.length > 0) {
-    gains.sort((a, b) => a.player - b.player);
-    events.push({ type: 'risorseProdotte', gains });
+    if (state.razzia) {
+      // Produzione dirottata: evento dedicato (nel log «la razzia frutta a …»).
+      events.push({ type: 'razziaRiscossa', player: state.razzia.player, resources: gains[0]!.resources });
+    } else {
+      gains.sort((a, b) => a.player - b.player);
+      events.push({ type: 'risorseProdotte', gains });
+    }
   }
 }
 

@@ -110,6 +110,7 @@ export function createGame(options: NewGameOptions): GameState {
     strongholds: [],
     roads: [],
     initialVillages: [],
+    initialRoads: [],
   }));
 
   // L'ORDINE DI PARTENZA si decide coi dadi (deterministico dal seed): tutti
@@ -189,6 +190,8 @@ export function clonePhase(phase: Phase): Phase {
       return { type: 'calamityGain', mustGain: { ...phase.mustGain } };
     case 'calamityRoads':
       return { type: 'calamityRoads', queue: [...phase.queue], remaining: phase.remaining };
+    case 'calamityFrana':
+      return { type: 'calamityFrana', player: phase.player };
     default:
       return { ...phase };
   }
@@ -217,6 +220,7 @@ export function cloneState(s: GameState): GameState {
       strongholds: [...p.strongholds],
       roads: [...p.roads],
       initialVillages: [...p.initialVillages],
+      initialRoads: [...p.initialRoads],
     })),
     bank: { ...s.bank },
     sagaDeck: [...s.sagaDeck],
@@ -236,5 +240,7 @@ export function cloneState(s: GameState): GameState {
     ...(s.calamities
       ? { calamities: { deck: [...s.calamities.deck], current: s.calamities.current } }
       : {}),
+    // La razzia attiva è un piccolo record: si clona a parte per non condividerlo.
+    ...(s.razzia ? { razzia: { ...s.razzia } } : {}),
   };
 }

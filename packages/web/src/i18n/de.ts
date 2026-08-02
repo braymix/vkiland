@@ -267,6 +267,7 @@ export const de: Strings = {
   conferma: 'Bestätigen',
   chiudi: 'Schließen',
   gioca: 'Ausspielen',
+  razziaScegli: 'Wähle das Feld, auf dem du den Raubzug entfesselst.',
 
   // Panels
   leTueRisorse: 'Deine Rohstoffe',
@@ -380,6 +381,7 @@ export const de: Strings = {
     costruttoriDiSentieri: 'Pfadbauer',
     banchetto: 'Festmahl',
     tributo: 'Tribut',
+    razzia: 'Raubzug',
   },
   calamita: {
     modalita: 'Spielmodus',
@@ -390,6 +392,7 @@ export const de: Strings = {
     rimaste: 'noch {n} im Stapel',
     guadagna: 'Katastrophe: erhalte {n} Rohstoffe',
     strade: 'Katastrophe: platziere deine Gratiswege auf der Karte!',
+    franaScegli: 'Erdrutsch! Wähle, welcher deiner Rand-Wege einstürzt.',
     attesa: 'Katastrophe läuft: warte auf die anderen…',
     nome: {
       materialeDoppio: '{mat} im Überfluss',
@@ -414,6 +417,7 @@ export const de: Strings = {
       donoDegliDei: 'Geschenk der Götter',
       bottino: 'Beute des Armen',
       razzia: 'Raubzug',
+      frana: 'Erdrutsch',
     },
     desc: {
       materialeDoppio: 'Diese Runde gibt es {mat} doppelt.',
@@ -438,6 +442,7 @@ export const de: Strings = {
       donoDegliDei: 'Alle ziehen 1 Saga-Karte.',
       bottino: 'Wer die wenigsten Punkte hat, zieht 1 Saga-Karte.',
       razzia: 'Wer die meisten Punkte hat, gibt jedem Gegner 1 Rohstoff.',
+      frana: 'Wer die meisten Wege hat, verliert 1 Rand-Weg seiner Wahl (nie die zwei Startwege).',
     },
   },
 
@@ -450,6 +455,7 @@ export const de: Strings = {
     costruttoriDiSentieri: 'Platziere sofort 2 kostenlose Pfade.',
     banchetto: 'Nimm 2 Rohstoffe deiner Wahl aus der Bank.',
     tributo: 'Jeder Gegner übergibt dir ALLE seine Einheiten eines Rohstoffs.',
+    razzia: 'Lege sie auf ein Feld: Bis zu deinem nächsten Zug erhält niemand Würfel-Rohstoffe — du kassierst alles.',
   },
 
   /**
@@ -514,6 +520,9 @@ export const de: Strings = {
     cartaGiocata: '{nome} spielt: {carta}',
     banchetto: '{nome} hält ein Festmahl: +{r1} und +{r2}',
     tributo: '{nome} kassiert den Tribut: {n}× {risorsa}',
+    razziaPosata: '💰 {nome} entfesselt einen Raubzug: kassiert ab jetzt die Produktion aller',
+    razziaRiscossa: '💰 Der Raubzug bringt {nome} ein: {risorse}',
+    franaSpezzata: '⛰️ Ein Erdrutsch lässt einen Weg von {nome} einstürzen',
     scambioProposto: '{nome} schlägt einen Handel vor',
     rispostaScambio: '{nome} {risposta} den Handel',
     accettaVerbo: 'nimmt an',

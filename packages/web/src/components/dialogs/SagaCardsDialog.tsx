@@ -21,6 +21,8 @@ interface Props {
   onEnterAssalto: () => void;
   /** Battaglia: gioca la carta ASSALTO LEGGERO scegliendo la strada sulla mappa. */
   onEnterAssaltoLeggero: () => void;
+  /** Razzia: gioca la carta scegliendo la casella sulla mappa. */
+  onEnterRazzia: () => void;
 }
 
 export function SagaCardsDialog({
@@ -30,6 +32,7 @@ export function SagaCardsDialog({
   onClose,
   onEnterAssalto,
   onEnterAssaltoLeggero,
+  onEnterRazzia,
 }: Props) {
   const me = view.me!;
   const [picking, setPicking] = useState<'banchetto' | 'tributo' | null>(null);
@@ -51,6 +54,8 @@ export function SagaCardsDialog({
         return legalActions.some((m) => m.type === 'giocaAssaltoLeggero');
       case 'cambiaCalamita':
         return legalActions.some((m) => m.type === 'giocaCambiaCalamita');
+      case 'razzia':
+        return legalActions.some((m) => m.type === 'giocaRazzia');
       default:
         return false;
     }
@@ -64,6 +69,8 @@ export function SagaCardsDialog({
     // ASSALTO/ASSALTO LEGGERO: si sceglie il bersaglio sulla mappa, si chiude il dialogo.
     else if (card === 'assalto') onEnterAssalto();
     else if (card === 'assaltoLeggero') onEnterAssaltoLeggero();
+    // RAZZIA: si sceglie la casella sulla mappa, si chiude il dialogo.
+    else if (card === 'razzia') onEnterRazzia();
     // CAMBIA SORTE: effetto immediato, nessun bersaglio.
     else if (card === 'cambiaCalamita') onSubmit({ type: 'giocaCambiaCalamita', player: me.id });
   };

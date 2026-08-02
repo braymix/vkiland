@@ -14,6 +14,13 @@ export type SagaCard =
   | 'banchetto'
   | 'tributo'
   /**
+   * RAZZIA (carta sviluppo, SEMPRE nel mazzo: 3 copie). Si gioca posandola su
+   * una casella, che si illumina del colore del razziatore. Da quel momento e
+   * fino al RITORNO del suo turno la produzione di OGNI tiro è dirottata:
+   * nessuno prende le proprie risorse, le incassa tutte il razziatore.
+   */
+  | 'razzia'
+  /**
    * ASSALTO (modalità Battaglia): 2 copie aggiunte al mazzo solo se la Battaglia
    * è attiva. Giocarla vale come un attacco PESANTE GRATIS (nessuna risorsa) a
    * un edificio avversario raggiunto da una propria strada.
@@ -66,7 +73,8 @@ export type CalamityCard =
   | { kind: 'tuttiUnoDiTutto' } // 14 · tutti guadagnano 1 di ogni materiale
   | { kind: 'donoDegliDei' } // extra · tutti pescano 1 Carta Saga
   | { kind: 'bottino' } // extra · chi ha meno punti pesca 1 Carta Saga
-  | { kind: 'razzia' }; // extra · chi ha più punti dà 1 risorsa a ciascun avversario
+  | { kind: 'razzia' } // extra · chi ha più punti dà 1 risorsa a ciascun avversario
+  | { kind: 'frana' }; // extra · chi ha più strade ne perde 1 marginale a sua scelta (mai le 2 iniziali)
 
 export type CalamityKind = CalamityCard['kind'];
 
@@ -75,6 +83,17 @@ export interface CalamityState {
   deck: CalamityCard[];
   /** Calamità attiva nel giro corrente (null prima del 1° giro o a mazzo finito). */
   current: CalamityCard | null;
+}
+
+/**
+ * RAZZIA in corso (carta sviluppo omonima). Un clan l'ha giocata su una
+ * casella: fino al ritorno del SUO turno tutta la produzione dei tiri va a lui.
+ */
+export interface RazziaState {
+  /** Chi ha giocato la Razzia: incassa tutta la produzione finché è attiva. */
+  player: PlayerId;
+  /** Casella su cui è posata: si illumina del colore del razziatore. */
+  hex: HexId;
 }
 /**
  * Colore del clan: un esadecimale `#rrggbb` (palette libera, qualsiasi colore).
@@ -235,6 +254,11 @@ export interface PlayerState {
    * l'attacco li riporta a casetta, di nuovo indistruttibile).
    */
   initialVillages: VertexId[];
+  /**
+   * I due sentieri INIZIALI del clan (piazzati nel setup). La calamità «Frana»
+   * non li può mai far crollare: si spezzano solo le strade costruite dopo.
+   */
+  initialRoads: EdgeId[];
   // PUNTO DI ESTENSIONE: qui in Fase 4 verrà aggiunto un campo opzionale
   // `cosmetics` (id palette/skin scelti dal giocatore) che l'engine si limita
   // a trasportare senza interpretarlo.
@@ -290,6 +314,14 @@ export type Phase =
       queue: PlayerId[];
       remaining: number;
     }
+  | {
+      /**
+       * Calamità «Frana»: il giocatore con più strade sceglie quale sua strada
+       * MARGINALE (all'estremità, mai una delle due iniziali) far crollare.
+       */
+      type: 'calamityFrana';
+      player: PlayerId;
+    }
   | { type: 'gameOver'; winner: PlayerId };
 
 export interface GameState {
@@ -325,6 +357,11 @@ export interface GameState {
   largestArmy: { holder: PlayerId | null; count: number };
   /** Modalità Calamità: mazzo + carta del giro. Assente nelle partite standard. */
   calamities?: CalamityState;
+  /**
+   * RAZZIA attiva (carta sviluppo): dirotta al razziatore la produzione di
+   * tutti i tiri finché non torna il suo turno. Assente/null = nessuna razzia.
+   */
+  razzia?: RazziaState | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -427,4 +464,9 @@ export interface PlayerView {
   calamitiesLeft: number | null;
   /** Modalità Battaglia attiva: la UI abilita l'azione di attacco. */
   battle: boolean;
+  /**
+   * RAZZIA in corso (carta sviluppo): la casella `hex` va illuminata del colore
+   * del razziatore e la produzione dei tiri è tutta sua. null = nessuna razzia.
+   */
+  razzia: RazziaState | null;
 }

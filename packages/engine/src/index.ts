@@ -72,6 +72,7 @@ export {
   legalVillageVertices,
   battleTargets,
   roadBattleTargets,
+  franaTargets,
   roadIsBreakable,
   bankTradeRatio,
   effectiveBankRatio,

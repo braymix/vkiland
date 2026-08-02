@@ -136,11 +136,11 @@ function produce(state: GameState, total: number): { state: GameState; events: G
 // ---------------------------------------------------------------------------
 
 describe('Calamità — mazzo, modalità e determinismo', () => {
-  it('mazzo di 38 carte, deterministico dal seed; assente in partita standard', () => {
-    expect(CALAMITY_DECK_COMPOSITION.length).toBe(38);
+  it('mazzo di 39 carte, deterministico dal seed; assente in partita standard', () => {
+    expect(CALAMITY_DECK_COMPOSITION.length).toBe(39);
     const a = createGame({ seed: 'x', players: makePlayers(3), calamities: true });
     const b = createGame({ seed: 'x', players: makePlayers(3), calamities: true });
-    expect(a.calamities?.deck.length).toBe(38);
+    expect(a.calamities?.deck.length).toBe(39);
     expect(JSON.stringify(a.calamities!.deck)).toBe(JSON.stringify(b.calamities!.deck));
 
     const std = createGame({ seed: 'x', players: makePlayers(3) });
@@ -154,7 +154,7 @@ describe('Calamità — mazzo, modalità e determinismo', () => {
   it('rivela una carta a inizio giro; il mazzo cala; a mazzo vuoto il giro è normale', () => {
     const afterSetup = autoSetup(calGame(3));
     expect(afterSetup.calamities?.current).not.toBeNull(); // 1° giro rivelato
-    expect(afterSetup.calamities?.deck.length).toBe(37);
+    expect(afterSetup.calamities?.deck.length).toBe(38);
 
     // Mazzo vuoto → nessuna calamità e preRoll normale.
     const last = afterSetup.turnOrder[afterSetup.turnOrder.length - 1]!;
