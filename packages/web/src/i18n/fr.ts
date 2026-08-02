@@ -392,6 +392,7 @@ export const fr: Strings = {
     rimaste: '{n} dans la pioche',
     guadagna: 'Calamité : gagne {n} ressources',
     strade: 'Calamité : place tes chemins gratuits sur la carte !',
+    franaScegli: 'Éboulement ! Choisis lequel de tes chemins marginaux s’effondre.',
     attesa: 'Calamité en cours : attends les autres…',
     nome: {
       materialeDoppio: '{mat} en abondance',
@@ -416,6 +417,7 @@ export const fr: Strings = {
       donoDegliDei: 'Don des dieux',
       bottino: 'Butin du pauvre',
       razzia: 'Razzia',
+      frana: 'Éboulement',
     },
     desc: {
       materialeDoppio: 'Ce tour, le {mat} est pris en double.',
@@ -440,6 +442,7 @@ export const fr: Strings = {
       donoDegliDei: 'Tout le monde pioche 1 Carte Saga.',
       bottino: 'Celui qui a le moins de points pioche 1 Carte Saga.',
       razzia: 'Celui qui a le plus de points donne 1 ressource à chaque adversaire.',
+      frana: 'Celui qui a le plus de chemins en perd 1 marginal à son choix (jamais les deux initiaux).',
     },
   },
 
@@ -519,6 +522,7 @@ export const fr: Strings = {
     tributo: '{nome} encaisse le tribut : {n}× {risorsa}',
     razziaPosata: '💰 {nome} déclenche une Razzia : encaisse désormais la production de tous',
     razziaRiscossa: '💰 La Razzia rapporte à {nome} : {risorse}',
+    franaSpezzata: '⛰️ Un éboulement fait s’effondrer un chemin de {nome}',
     scambioProposto: '{nome} propose un échange',
     rispostaScambio: '{nome} {risposta} l’échange',
     accettaVerbo: 'accepte',

@@ -413,6 +413,7 @@ export const it = {
     rimaste: '{n} nel mazzo',
     guadagna: 'Calamità: guadagna {n} risorse',
     strade: 'Calamità: piazza i tuoi sentieri gratis sulla mappa!',
+    franaScegli: 'Frana! Scegli quale tua strada marginale far crollare.',
     attesa: 'Calamità in corso: attendi gli altri…',
     nome: {
       materialeDoppio: '{mat} in abbondanza',
@@ -437,6 +438,7 @@ export const it = {
       donoDegliDei: 'Dono degli dèi',
       bottino: 'Bottino del povero',
       razzia: 'Razzia',
+      frana: 'Frana',
     } satisfies Record<CalamityKind, string>,
     desc: {
       materialeDoppio: 'Questo giro il {mat} si prende doppio.',
@@ -461,6 +463,7 @@ export const it = {
       donoDegliDei: 'Tutti pescano 1 Carta Saga.',
       bottino: 'Chi ha meno punti pesca 1 Carta Saga.',
       razzia: 'Chi ha più punti dà 1 risorsa a ciascun avversario.',
+      frana: 'Chi ha più strade ne perde 1 marginale, a sua scelta (mai le due iniziali).',
     } satisfies Record<CalamityKind, string>,
   },
 
@@ -529,6 +532,7 @@ export const it = {
     tributo: '{nome} riscuote il tributo: {n}× {risorsa}',
     razziaPosata: '💰 {nome} scatena una Razzia: da ora incassa la produzione di tutti',
     razziaRiscossa: '💰 La Razzia frutta a {nome}: {risorse}',
+    franaSpezzata: '⛰️ Una frana fa crollare una strada di {nome}',
     scambioProposto: '{nome} propone uno scambio',
     rispostaScambio: '{nome} {risposta} lo scambio',
     accettaVerbo: 'accetta',

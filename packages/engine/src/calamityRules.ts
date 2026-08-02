@@ -16,7 +16,8 @@ export function isCalamityResolutionPhase(phase: Phase): boolean {
   return (
     phase.type === 'calamityDiscard' ||
     phase.type === 'calamityGain' ||
-    phase.type === 'calamityRoads'
+    phase.type === 'calamityRoads' ||
+    phase.type === 'calamityFrana'
   );
 }
 

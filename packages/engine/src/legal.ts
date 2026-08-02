@@ -19,6 +19,7 @@ import {
   battleTargets,
   canPlaySagaCard,
   effectiveBankRatio,
+  franaTargets,
   legalRoadEdges,
   legalVillageVertices,
   roadBattleTargets,
@@ -93,6 +94,14 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
       if (player !== state.phase.queue[0]) return moves;
       for (const e of legalRoadEdges(state, player, radius)) {
         moves.push({ type: 'piazzaSentieroGratis', player, edge: e });
+      }
+      return moves;
+    }
+
+    case 'calamityFrana': {
+      if (player !== state.phase.player) return moves;
+      for (const e of franaTargets(me, radius)) {
+        moves.push({ type: 'franaSentiero', player, edge: e });
       }
       return moves;
     }

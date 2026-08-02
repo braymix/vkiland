@@ -391,6 +391,7 @@ export const ru: Strings = {
     rimaste: 'в колоде: {n}',
     guadagna: 'Бедствие: получи {n} ресурсов',
     strade: 'Бедствие: поставь бесплатные дороги на карте!',
+    franaScegli: 'Обвал! Выбери, какая из твоих краевых дорог рухнет.',
     attesa: 'Бедствие в разгаре: подожди остальных…',
     nome: {
       materialeDoppio: 'Изобилие: {mat}',
@@ -415,6 +416,7 @@ export const ru: Strings = {
       donoDegliDei: 'Дар богов',
       bottino: 'Добыча бедняка',
       razzia: 'Набег',
+      frana: 'Обвал',
     },
     desc: {
       materialeDoppio: 'В этот круг {mat} берётся вдвойне.',
@@ -439,6 +441,7 @@ export const ru: Strings = {
       donoDegliDei: 'Все берут 1 карту Саги.',
       bottino: 'У кого меньше очков — берёт 1 карту Саги.',
       razzia: 'У кого больше очков — даёт по 1 ресурсу каждому сопернику.',
+      frana: 'У кого больше всего дорог — теряет 1 краевую на свой выбор (никогда две стартовые).',
     },
   },
 
@@ -518,6 +521,7 @@ export const ru: Strings = {
     tributo: '{nome} собирает дань: {n}× {risorsa}',
     razziaPosata: '💰 {nome} устраивает Набег: теперь забирает добычу со всех бросков',
     razziaRiscossa: '💰 Набег приносит {nome}: {risorse}',
+    franaSpezzata: '⛰️ Обвал разрушает дорогу игрока {nome}',
     scambioProposto: '{nome} предлагает обмен',
     rispostaScambio: '{nome} {risposta} обмен',
     accettaVerbo: 'принимает',

@@ -73,7 +73,8 @@ export type CalamityCard =
   | { kind: 'tuttiUnoDiTutto' } // 14 · tutti guadagnano 1 di ogni materiale
   | { kind: 'donoDegliDei' } // extra · tutti pescano 1 Carta Saga
   | { kind: 'bottino' } // extra · chi ha meno punti pesca 1 Carta Saga
-  | { kind: 'razzia' }; // extra · chi ha più punti dà 1 risorsa a ciascun avversario
+  | { kind: 'razzia' } // extra · chi ha più punti dà 1 risorsa a ciascun avversario
+  | { kind: 'frana' }; // extra · chi ha più strade ne perde 1 marginale a sua scelta (mai le 2 iniziali)
 
 export type CalamityKind = CalamityCard['kind'];
 
@@ -253,6 +254,11 @@ export interface PlayerState {
    * l'attacco li riporta a casetta, di nuovo indistruttibile).
    */
   initialVillages: VertexId[];
+  /**
+   * I due sentieri INIZIALI del clan (piazzati nel setup). La calamità «Frana»
+   * non li può mai far crollare: si spezzano solo le strade costruite dopo.
+   */
+  initialRoads: EdgeId[];
   // PUNTO DI ESTENSIONE: qui in Fase 4 verrà aggiunto un campo opzionale
   // `cosmetics` (id palette/skin scelti dal giocatore) che l'engine si limita
   // a trasportare senza interpretarlo.
@@ -307,6 +313,14 @@ export type Phase =
       type: 'calamityRoads';
       queue: PlayerId[];
       remaining: number;
+    }
+  | {
+      /**
+       * Calamità «Frana»: il giocatore con più strade sceglie quale sua strada
+       * MARGINALE (all'estremità, mai una delle due iniziali) far crollare.
+       */
+      type: 'calamityFrana';
+      player: PlayerId;
     }
   | { type: 'gameOver'; winner: PlayerId };
 

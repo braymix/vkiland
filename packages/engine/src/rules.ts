@@ -222,6 +222,19 @@ export function roadBattleTargets(
   return out;
 }
 
+/**
+ * Calamità «Frana»: le PROPRIE strade che possono crollare. Sono quelle
+ * MARGINALI (all'estremità, come per l'attacco leggero) ESCLUSE le due strade
+ * iniziali del setup — quelle non crollano mai. Lista vuota ⇒ niente crolla.
+ */
+export function franaTargets(
+  owner: { villages: VertexId[]; strongholds: VertexId[]; roads: EdgeId[]; initialRoads: EdgeId[] },
+  radius: TopoKey = BOARD_RADIUS
+): EdgeId[] {
+  const initial = new Set(owner.initialRoads);
+  return owner.roads.filter((e) => !initial.has(e) && roadIsBreakable(owner, e, radius));
+}
+
 /** Rapporto di scambio con la banca per una data risorsa da approdi/banca (4, 3 o 2). */
 export function bankTradeRatio(
   state: TradeRatioView,

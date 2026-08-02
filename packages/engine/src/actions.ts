@@ -62,6 +62,8 @@ export type Action =
   // --- Calamità: guadagno "a scelta" (fase calamityGain); scarti e strade
   //     riusano `scarta` e `piazzaSentieroGratis`. ---
   | { type: 'guadagnaCalamita'; player: PlayerId; resources: ResourceCount }
+  // --- Calamità Frana: il giocatore con più strade sceglie quale marginale far crollare ---
+  | { type: 'franaSentiero'; player: PlayerId; edge: EdgeId }
   // --- Fine turno ---
   | { type: 'fineTurno'; player: PlayerId };
 
@@ -130,6 +132,8 @@ export type GameEvent =
   | { type: 'cartaSagaGiocata'; player: PlayerId; card: SagaCard }
   | { type: 'banchettoRiscosso'; player: PlayerId; resources: [Resource, Resource] }
   | { type: 'tributoRiscosso'; player: PlayerId; resource: Resource; total: number }
+  /** Calamità Frana: una strada marginale del giocatore con più strade è crollata. */
+  | { type: 'franaSpezzata'; player: PlayerId; edge: EdgeId }
   /** Razzia posata su una casella: da qui la produzione dei tiri è del razziatore. */
   | { type: 'razziaPosata'; player: PlayerId; hex: HexId }
   /** Una razzia attiva ha incassato la produzione di un tiro al posto di tutti. */

@@ -275,6 +275,7 @@ export const CALAMITY_DECK_COMPOSITION: readonly CalamityCard[] = [
   { kind: 'donoDegliDei' },
   { kind: 'bottino' },
   { kind: 'razzia' },
+  { kind: 'frana' },
 ];
 
 /** Con più di 7 carte in mano, un 7 costringe a scartarne la metà. */

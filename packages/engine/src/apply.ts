@@ -223,6 +223,8 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
     }
     case 'piazzaSentieroIniziale': {
       me.roads.push(action.edge);
+      // Sentiero iniziale: "indistruttibile" dalla calamità Frana.
+      me.initialRoads.push(action.edge);
       events.push({
         type: 'costruito',
         player: me.id,
@@ -588,6 +590,15 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
             ? { type: 'calamityGain', mustGain: remaining }
             : rollTimePhase(state);
       }
+      break;
+    }
+    case 'franaSentiero': {
+      // Calamità Frana: la strada marginale scelta crolla. Come uno spezza-strada,
+      // può accorciare la Grande Via. Risolta la scelta, si passa al tiro del giro.
+      me.roads = me.roads.filter((e) => e !== action.edge);
+      events.push({ type: 'franaSpezzata', player: me.id, edge: action.edge });
+      recomputeGrandeVia(state, events);
+      state.phase = rollTimePhase(state);
       break;
     }
 

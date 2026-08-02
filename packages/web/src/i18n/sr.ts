@@ -391,6 +391,7 @@ export const sr: Strings = {
     rimaste: 'još {n} u špilu',
     guadagna: 'Nedaća: osvoji {n} sirovina',
     strade: 'Nedaća: postavi svoje besplatne puteve na mapi!',
+    franaScegli: 'Odron! Izaberi koji tvoj rubni put će se srušiti.',
     attesa: 'Nedaća u toku: sačekaj ostale…',
     nome: {
       materialeDoppio: 'Obilje: {mat}',
@@ -415,6 +416,7 @@ export const sr: Strings = {
       donoDegliDei: 'Dar bogova',
       bottino: 'Plen siromaha',
       razzia: 'Pljačkaški pohod',
+      frana: 'Odron',
     },
     desc: {
       materialeDoppio: 'Ovog kruga {mat} se uzima duplo.',
@@ -439,6 +441,7 @@ export const sr: Strings = {
       donoDegliDei: 'Svi vuku 1 Saga kartu.',
       bottino: 'Ko ima najmanje poena vuče 1 Saga kartu.',
       razzia: 'Ko ima najviše poena daje 1 sirovinu svakom protivniku.',
+      frana: 'Ko ima najviše puteva gubi 1 rubni po izboru (nikad dva početna).',
     },
   },
 
@@ -518,6 +521,7 @@ export const sr: Strings = {
     tributo: '{nome} naplaćuje danak: {n}× {risorsa}',
     razziaPosata: '💰 {nome} pokreće Pljačku: od sada uzima proizvodnju svih',
     razziaRiscossa: '💰 Pljačka donosi {nome}: {risorse}',
+    franaSpezzata: '⛰️ Odron ruši jedan put igrača {nome}',
     scambioProposto: '{nome} predlaže razmenu',
     rispostaScambio: '{nome} {risposta} razmenu',
     accettaVerbo: 'prihvata',
