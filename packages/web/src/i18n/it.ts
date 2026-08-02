@@ -101,6 +101,25 @@ export const it = {
   visibilitaPubblica: 'Pubblica',
   visibilitaPrivata: 'Privata (su invito)',
 
+  // Guarda partita (spettatore)
+  spettatore: {
+    guarda: 'Guarda',
+    partiteInCorso: 'Partite in corso',
+    nessunaInCorso: 'Nessuna partita in corso da guardare.',
+    giroN: 'Giro {n}',
+    spettatoriN: '{n} 👁',
+    staiGuardando: 'Stai guardando',
+    smettiGuarda: 'Smetti di guardare',
+    chiediMano: 'Vedi la mano',
+    manoNascosta: 'Mano nascosta',
+    inAttesa: 'In attesa…',
+    richiestaTitolo: 'Uno spettatore ti osserva',
+    richiestaTesto: '{nome} vuole vedere la tua mano. Permetti?',
+    permetti: 'Permetti',
+    nega: 'Nega',
+    spettatoreTag: 'Spettatore',
+  },
+
   // Gestione account
   account: 'Account',
 
@@ -189,6 +208,9 @@ export const it = {
   campoGrandeSpiega: '30 caselle — consigliato per 5–6 giocatori.',
   campoGigante: 'Campo gigante',
   campoGiganteSpiega: '37 caselle — consigliato per 7–8 giocatori.',
+  campoRientranze: 'Con rientranze',
+  campoRientranzeSpiega:
+    'Isola dalla forma casuale (golfi, penisole) con lo stesso numero di caselle: si possono costruire ponti per scavalcare i golfi larghi una strada.',
   categoriaModalita: 'Modalità',
   categoriaTavola: 'Tavola',
   categoriaOnline: 'Online',

@@ -36,6 +36,7 @@ import {
   placementScore,
   totalOf,
   vertexTotalPips,
+  viewTopoKey,
 } from './evaluation';
 import { buildGreedyDiscard } from './randomBot';
 import type { Bot, BotInput } from './types';
@@ -356,7 +357,7 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
       const { view, player } = input;
       const me = view.players[player]!;
       const my = view.me!;
-      const topo = getTopology(view.boardRadius);
+      const topo = getTopology(viewTopoKey(view));
 
       // --- Livello facile: ogni tanto gioca a caso (ma mai scambi/proposte) ---
       if (epsilon > 0) {
@@ -398,7 +399,7 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
       // --- Scarto sul 7 o imposto da una calamità (stesso descrittore) ---
       const discard = input.legalActions.find((m) => m.type === 'scartaDescr');
       if (discard && discard.type === 'scartaDescr') {
-        const spots = legalVillageVertices(view, player, view.boardRadius);
+        const spots = legalVillageVertices(view, player, viewTopoKey(view));
         const { cost } = currentGoal(view, player, BUILD_COSTS, spots.length > 0);
         return {
           type: 'scarta',
@@ -413,7 +414,7 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
       // --- Guadagno "a scelta" di una calamità: si punta all'obiettivo corrente ---
       const gain = input.legalActions.find((m) => m.type === 'guadagnaDescr');
       if (gain && gain.type === 'guadagnaDescr') {
-        const spots = legalVillageVertices(view, player, view.boardRadius);
+        const spots = legalVillageVertices(view, player, viewTopoKey(view));
         const { cost } = currentGoal(view, player, BUILD_COSTS, spots.length > 0);
         return {
           type: 'guadagnaCalamita',
@@ -458,7 +459,7 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
       const tradeResponses = bucket(input, 'rispondiScambio');
       if (tradeResponses.length > 0) {
         const offer = view.pendingTrade!;
-        const spots = legalVillageVertices(view, player, view.boardRadius);
+        const spots = legalVillageVertices(view, player, viewTopoKey(view));
         const { cost } = currentGoal(view, player, BUILD_COSTS, spots.length > 0);
         const need = deficit(my.resources, cost);
         // Ciò che RICEVO è offer.give; ciò che PAGO è offer.receive.
@@ -519,7 +520,7 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
       }
 
       // --- Fase main: priorità di costruzione ---
-      const spots = legalVillageVertices(view, player, view.boardRadius);
+      const spots = legalVillageVertices(view, player, viewTopoKey(view));
       const { goal, cost } = currentGoal(view, player, BUILD_COSTS, spots.length > 0);
       const need = deficit(my.resources, cost);
 
@@ -574,7 +575,7 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
         // contende La Grande Via.
         const chasingVia =
           view.longestRoad.holder !== player &&
-          longestRoadLength(view, player) + 1 >=
+          longestRoadLength(view, player, viewTopoKey(view)) + 1 >=
             Math.max(GRANDE_VIA_MIN, view.longestRoad.length + 1) - 1;
         const scored = roads
           .map((m) => ({ m, score: edgeExpansionScore(view, player, m.edge) }))
@@ -591,13 +592,13 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
                 p.id === player ? { ...p, roads: [...p.roads, m.edge] } : p
               ),
             };
-            const len = longestRoadLength(ipotetico, player);
+            const len = longestRoadLength(ipotetico, player, viewTopoKey(view));
             if (len > bestLen) {
               bestLen = len;
               best = m;
             }
           }
-          if (bestLen > longestRoadLength(view, player)) return best;
+          if (bestLen > longestRoadLength(view, player, viewTopoKey(view))) return best;
         }
       }
 

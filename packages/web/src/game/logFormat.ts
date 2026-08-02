@@ -1,6 +1,6 @@
 /** Traduzione degli eventi del motore in righe del diario di bordo. */
 import type { GameEvent, ResourceCount } from '@vikiland/engine';
-import { BOARD_RADIUS, RESOURCES, getTopology, nextInt, seedRng, totalResources } from '@vikiland/engine';
+import { RESOURCES, hexVertexIds, nextInt, parseHexKey, seedRng, totalResources } from '@vikiland/engine';
 import { it, t } from '../i18n';
 import { calamityDesc, calamityName } from './calamityText';
 
@@ -28,10 +28,10 @@ export interface PiecesForComplaints {
 export function dragonComplaints(
   event: Extract<GameEvent, { type: 'dragoMosso' }>,
   state: PiecesForComplaints,
-  botIds: ReadonlySet<number>,
-  radius: number = BOARD_RADIUS
+  botIds: ReadonlySet<number>
 ): string[] {
-  const vertices = getTopology(radius).hexVertices[event.hex] ?? [];
+  // I 6 vertici dell'esagono sono pura geometria: nessuna dipendenza dalla forma.
+  const vertices = hexVertexIds(parseHexKey(event.hex));
   const lines: string[] = [];
   state.players.forEach((p, pid) => {
     if (!botIds.has(pid) || pid === event.player) return;

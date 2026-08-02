@@ -70,6 +70,9 @@ const lobbies = new LobbyManager({
   gameFinished: (record) => storage.appendFinishedGame(record),
   // All'avvio della partita ogni posto umano riceve le skin del suo account.
   getCosmetics: (userId) => storage.getUserById(userId)?.cosmetics,
+  // Gli spettatori ricevono la vista filtrata sullo stesso canale del gioco.
+  sendSpectatorUpdate: (userId, update) => io.to(`user:${userId}`).emit('game:update', update),
+  notifyHandRequest: (userId, req) => io.to(`user:${userId}`).emit('spectator:handRequest', req),
 });
 
 // ---------------------------------------------------------------------------
@@ -189,6 +192,13 @@ io.on('connection', (socket: AnySocket) => {
     socket.emit('lobby:state', lobbies.toState(current));
     if (current.started) lobbies.refreshGame(userId);
   }
+  // Riconnessione da spettatore: ritrova la partita che stava guardando.
+  const watched = lobbies.lobbyOfSpectator(userId);
+  if (watched) {
+    socket.join(`lobby:${watched.code}`);
+    socket.emit('lobby:state', lobbies.toState(watched));
+    lobbies.refreshGame(userId);
+  }
 
   socket.on('lobby:create', (config, cb) => {
     const res = lobbies.create({ id: userId, name }, config);
@@ -200,6 +210,8 @@ io.on('connection', (socket: AnySocket) => {
 
   socket.on('lobby:list', (cb) => cb(lobbies.listPublic()));
 
+  socket.on('lobby:listWatchable', (cb) => cb(lobbies.listWatchable()));
+
   socket.on('lobby:join', (code, cb) => {
     const res = lobbies.join(code, { id: userId, name });
     if (!isApiError(res)) {
@@ -208,6 +220,26 @@ io.on('connection', (socket: AnySocket) => {
     }
     cb(res);
   });
+
+  socket.on('lobby:watch', (code, cb) => {
+    const res = lobbies.watch(code, { id: userId, name });
+    if (!isApiError(res)) {
+      socket.join(`lobby:${res.code}`);
+      lobbies.refreshGame(userId); // manda subito la vista da spettatore
+    }
+    cb(res);
+  });
+
+  socket.on('lobby:stopWatch', () => {
+    const lobby = lobbies.lobbyOfSpectator(userId);
+    if (lobby) socket.leave(`lobby:${lobby.code}`);
+    lobbies.stopWatch(userId);
+  });
+
+  socket.on('spectator:requestHand', (seat) => lobbies.requestHand(userId, Number(seat)));
+  socket.on('spectator:respondHand', (spectatorId, allow) =>
+    lobbies.respondHand(userId, String(spectatorId), Boolean(allow))
+  );
 
   socket.on('lobby:leave', () => {
     const lobby = lobbies.lobbyOfUser(userId);

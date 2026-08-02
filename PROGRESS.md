@@ -4,6 +4,30 @@
 
 ## Stato attuale
 
+**TAVOLA «CON RIENTRANZE» + PONTI** ✅ — nuova FORMA di tavola, scegliibile in
+aggiunta alla taglia (piccola/grande/gigante) con una spunta «Con rientranze»
+nella categoria *Tavola* del setup (locale e online). Genera un'ISOLA dalla
+forma casuale e non esagonale (golfi, penisole, insenature) con lo STESSO numero
+di caselle della taglia (19/30/37), quindi riusa identici i sacchetti
+terreni/segnalini; gli approdi vengono ridistribuiti uniformemente sulla costa
+(più lunga e irregolare). Generazione deterministica dal seed: crescita a
+frontiera pesata verso le caselle con pochi vicini (penisole/golfi) entro un
+esagono di un anello più largo (`rientranzeRegionRadius`). Nuovo concetto di
+**PONTE**: uno spigolo di solo mare i cui DUE vertici toccano la terra —
+attraversa un golfo largo «una strada» — è una strada NORMALE a tutti gli
+effetti (stesso costo, conta per «La Grande Via», stesse regole di connessione),
+disegnata come un impalcato di legno sul mare. Architettura: la topologia non è
+più identificata dal solo raggio ma da una **`TopoKey` = numero (forma fissa) |
+firma (`shapeSignature` delle caselle, tavola con rientranze)**; `getTopology`
+la ricostruisce in modo deterministico dal tabellone (nessun registro globale,
+sopravvive alla serializzazione) e sulle rientranze include i ponti. Il raggio
+GEOMETRICO resta `config.boardRadius` (per canvas/hit-testing), la FORMA è in
+`config.boardShape`/`board.hexes`; engine, bot e renderer risolvono la topologia
+via `boardTopoKey(...)`. `edgeEndpoints` del renderer è ora pura geometria (vale
+anche per i ponti). Test: `rientranze.test.ts` (forma/connessione/approdi per le
+tre taglie, validità dei ponti, ponte costruibile che conta per la Grande Via,
+partite complete deterministiche con invarianti).
+
 **MODALITÀ CALAMITÀ** ✅ — nuova modalità opzionale (single player, hot-seat e
 online): a inizio partita si sceglie «Partita standard» o «Con calamità». Un
 mazzo di 38 carte, una rivelata all'inizio di ogni giro e valida SOLO per quel

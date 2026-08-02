@@ -96,6 +96,23 @@ export const ru: Strings = {
   postiNsuM: '{n}/{m} викингов',
   visibilitaPubblica: 'Открытая',
   visibilitaPrivata: 'Закрытая (по приглашению)',
+  spettatore: {
+    guarda: 'Смотреть',
+    partiteInCorso: 'Идущие партии',
+    nessunaInCorso: 'Нет идущих партий для просмотра.',
+    giroN: 'Раунд {n}',
+    spettatoriN: '{n} 👁',
+    staiGuardando: 'Вы наблюдаете',
+    smettiGuarda: 'Перестать смотреть',
+    chiediMano: 'Показать руку',
+    manoNascosta: 'Рука скрыта',
+    inAttesa: 'Ожидание…',
+    richiestaTitolo: 'За вами наблюдает зритель',
+    richiestaTesto: '{nome} хочет увидеть вашу руку. Разрешить?',
+    permetti: 'Разрешить',
+    nega: 'Отклонить',
+    spettatoreTag: 'Зритель',
+  },
 
   // Account management
   account: 'Аккаунт',
@@ -183,6 +200,9 @@ export const ru: Strings = {
   campoGrandeSpiega: '30 клеток — рекомендуется для 5–6 игроков.',
   campoGigante: 'Гигантское поле',
   campoGiganteSpiega: '37 клеток — рекомендуется для 7–8 игроков.',
+  campoRientranze: 'С заливами',
+  campoRientranzeSpiega:
+    'Остров случайной формы (заливы, полуострова) с тем же числом клеток: можно строить мосты через заливы шириной в одну дорогу.',
   categoriaModalita: 'Режимы',
   categoriaTavola: 'Поле',
   categoriaOnline: 'Онлайн',

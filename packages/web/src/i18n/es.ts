@@ -96,6 +96,23 @@ export const es: Strings = {
   postiNsuM: '{n}/{m} vikingos',
   visibilitaPubblica: 'Pública',
   visibilitaPrivata: 'Privada (solo con invitación)',
+  spettatore: {
+    guarda: 'Ver',
+    partiteInCorso: 'Partidas en curso',
+    nessunaInCorso: 'No hay partidas en curso para ver.',
+    giroN: 'Ronda {n}',
+    spettatoriN: '{n} 👁',
+    staiGuardando: 'Estás mirando',
+    smettiGuarda: 'Dejar de mirar',
+    chiediMano: 'Ver la mano',
+    manoNascosta: 'Mano oculta',
+    inAttesa: 'Esperando…',
+    richiestaTitolo: 'Un espectador te observa',
+    richiestaTesto: '{nome} quiere ver tu mano. ¿Permitir?',
+    permetti: 'Permitir',
+    nega: 'Denegar',
+    spettatoreTag: 'Espectador',
+  },
 
   // Account management
   account: 'Cuenta',
@@ -183,6 +200,9 @@ export const es: Strings = {
   campoGrandeSpiega: '30 casillas — recomendado para 5–6 jugadores.',
   campoGigante: 'Campo gigante',
   campoGiganteSpiega: '37 casillas — recomendado para 7–8 jugadores.',
+  campoRientranze: 'Con entrantes',
+  campoRientranzeSpiega:
+    'Isla de forma aleatoria (golfos, penínsulas) con el mismo número de casillas: puedes construir puentes para cruzar golfos de una carretera de ancho.',
   categoriaModalita: 'Modos',
   categoriaTavola: 'Tablero',
   categoriaOnline: 'Online',

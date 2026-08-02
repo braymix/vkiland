@@ -96,6 +96,23 @@ export const fr: Strings = {
   postiNsuM: '{n}/{m} Vikings',
   visibilitaPubblica: 'Publique',
   visibilitaPrivata: 'Privée (sur invitation)',
+  spettatore: {
+    guarda: 'Regarder',
+    partiteInCorso: 'Parties en cours',
+    nessunaInCorso: 'Aucune partie en cours à regarder.',
+    giroN: 'Tour {n}',
+    spettatoriN: '{n} 👁',
+    staiGuardando: 'Vous regardez',
+    smettiGuarda: 'Arrêter de regarder',
+    chiediMano: 'Voir la main',
+    manoNascosta: 'Main cachée',
+    inAttesa: 'En attente…',
+    richiestaTitolo: 'Un spectateur vous observe',
+    richiestaTesto: '{nome} veut voir votre main. Autoriser ?',
+    permetti: 'Autoriser',
+    nega: 'Refuser',
+    spettatoreTag: 'Spectateur',
+  },
 
   // Account management
   account: 'Compte',
@@ -184,6 +201,9 @@ export const fr: Strings = {
   campoGrandeSpiega: '30 cases — recommandé pour 5–6 joueurs.',
   campoGigante: 'Plateau géant',
   campoGiganteSpiega: '37 cases — recommandé pour 7–8 joueurs.',
+  campoRientranze: 'Avec échancrures',
+  campoRientranzeSpiega:
+    'Île de forme aléatoire (golfes, péninsules) avec le même nombre de cases : on peut bâtir des ponts pour franchir les golfes larges d’une route.',
   categoriaModalita: 'Modes',
   categoriaTavola: 'Plateau',
   categoriaOnline: 'En ligne',

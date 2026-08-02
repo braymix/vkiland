@@ -165,7 +165,12 @@ export interface PlayoutResult {
  */
 export function randomPlayout(
   seed: string,
-  opts: { nPlayers?: number; maxActions?: number; calamities?: boolean } = {}
+  opts: {
+    nPlayers?: number;
+    maxActions?: number;
+    calamities?: boolean;
+    boardShape?: 'rientranze';
+  } = {}
 ): PlayoutResult {
   const maxActions = opts.maxActions ?? 5000;
   let rng = seedRng(`playout:${seed}`);
@@ -179,6 +184,7 @@ export function randomPlayout(
     seed,
     players: makePlayers(nPlayers),
     ...(opts.calamities ? { calamities: true } : {}),
+    ...(opts.boardShape ? { boardShape: opts.boardShape } : {}),
   });
   const actions: Action[] = [];
 

@@ -11,7 +11,9 @@ import {
   SAGA_DECK_COMPOSITION,
 } from './constants';
 import { rollDie, seedRng, shuffle } from './rng';
+import { rientranzeRegionRadius } from './board/coords';
 import type {
+  BoardShapeChoice,
   BoardSizeChoice,
   CalamityState,
   GameConfig,
@@ -33,6 +35,8 @@ export interface NewGameOptions {
   battle?: boolean;
   /** Scelta esplicita della tavola grande; assente = consigliata dal numero di giocatori. */
   boardSize?: BoardSizeChoice;
+  /** Forma della tavola; 'rientranze' = isola casuale con golfi e ponti. Assente = esagono classico. */
+  boardShape?: BoardShapeChoice;
 }
 
 export function createGame(options: NewGameOptions): GameState {
@@ -51,19 +55,23 @@ export function createGame(options: NewGameOptions): GameState {
   // La taglia della tavola: scelta esplicita se presente, altrimenti la
   // consigliata dal numero di giocatori (2–4 piccola, 5–6 grande, 7–8 gigante).
   const spec = resolveBoardSpec(players.length, options.boardSize);
+  const shape = options.boardShape;
 
   const config: GameConfig = {
     seed,
     players: players.map((p) => ({ ...p })),
     avoidAdjacent68: options.avoidAdjacent68 ?? true,
     targetGloryPoints: options.targetGloryPoints ?? DEFAULT_TARGET_GLORY,
-    boardRadius: spec.code,
+    // Con le rientranze la tavola è un'isola dentro un esagono più ampio: il
+    // raggio geometrico cresce di un anello, così il canvas la contiene tutta.
+    boardRadius: shape === 'rientranze' ? rientranzeRegionRadius(spec.code) : spec.code,
+    ...(shape ? { boardShape: shape } : {}),
     calamities: options.calamities ?? false,
     battle: options.battle ?? false,
   };
 
   let rng = seedRng(seed);
-  const [board, rngAfterBoard] = generateBoard(rng, config.avoidAdjacent68, spec);
+  const [board, rngAfterBoard] = generateBoard(rng, config.avoidAdjacent68, spec, shape);
   rng = rngAfterBoard;
   // Battaglia e Calamità aggiungono le proprie carte extra al mazzo Saga; le
   // partite standard restano identiche (stessa composizione, stesso consumo di

@@ -96,6 +96,23 @@ export const nl: Strings = {
   postiNsuM: '{n}/{m} Vikingen',
   visibilitaPubblica: 'Openbaar',
   visibilitaPrivata: 'Privé (op uitnodiging)',
+  spettatore: {
+    guarda: 'Kijken',
+    partiteInCorso: 'Lopende partijen',
+    nessunaInCorso: 'Geen lopende partijen om te bekijken.',
+    giroN: 'Ronde {n}',
+    spettatoriN: '{n} 👁',
+    staiGuardando: 'Je kijkt mee',
+    smettiGuarda: 'Stoppen met kijken',
+    chiediMano: 'Bekijk de hand',
+    manoNascosta: 'Hand verborgen',
+    inAttesa: 'Wachten…',
+    richiestaTitolo: 'Een kijker observeert je',
+    richiestaTesto: '{nome} wil je hand zien. Toestaan?',
+    permetti: 'Toestaan',
+    nega: 'Weigeren',
+    spettatoreTag: 'Toeschouwer',
+  },
 
   // Accountbeheer
   account: 'Account',
@@ -183,6 +200,9 @@ export const nl: Strings = {
   campoGrandeSpiega: '30 vakken — aanbevolen voor 5–6 spelers.',
   campoGigante: 'Reuzenveld',
   campoGiganteSpiega: '37 vakken — aanbevolen voor 7–8 spelers.',
+  campoRientranze: 'Met inhammen',
+  campoRientranzeSpiega:
+    'Eiland met willekeurige vorm (baaien, schiereilanden) met evenveel vakken: je kunt bruggen bouwen om baaien van één weg breed over te steken.',
   categoriaModalita: 'Modi',
   categoriaTavola: 'Bord',
   categoriaOnline: 'Online',

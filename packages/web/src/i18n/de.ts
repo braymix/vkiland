@@ -96,6 +96,23 @@ export const de: Strings = {
   postiNsuM: '{n}/{m} Wikinger',
   visibilitaPubblica: 'Öffentlich',
   visibilitaPrivata: 'Privat (nur mit Einladung)',
+  spettatore: {
+    guarda: 'Zuschauen',
+    partiteInCorso: 'Laufende Partien',
+    nessunaInCorso: 'Keine laufenden Partien zum Zuschauen.',
+    giroN: 'Runde {n}',
+    spettatoriN: '{n} 👁',
+    staiGuardando: 'Du schaust zu',
+    smettiGuarda: 'Zuschauen beenden',
+    chiediMano: 'Hand ansehen',
+    manoNascosta: 'Hand verborgen',
+    inAttesa: 'Warten…',
+    richiestaTitolo: 'Ein Zuschauer beobachtet dich',
+    richiestaTesto: '{nome} möchte deine Hand sehen. Erlauben?',
+    permetti: 'Erlauben',
+    nega: 'Ablehnen',
+    spettatoreTag: 'Zuschauer',
+  },
 
   // Account management
   account: 'Konto',
@@ -184,6 +201,9 @@ export const de: Strings = {
   campoGrandeSpiega: '30 Felder — empfohlen für 5–6 Spieler.',
   campoGigante: 'Riesiges Feld',
   campoGiganteSpiega: '37 Felder — empfohlen für 7–8 Spieler.',
+  campoRientranze: 'Mit Einbuchtungen',
+  campoRientranzeSpiega:
+    'Zufällig geformte Insel (Buchten, Halbinseln) mit gleich vielen Feldern: über schmale Buchten (eine Straße breit) lassen sich Brücken bauen.',
   categoriaModalita: 'Modi',
   categoriaTavola: 'Spielfeld',
   categoriaOnline: 'Online',
