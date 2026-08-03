@@ -466,7 +466,7 @@ export const de: Strings = {
     nome: '👑 Hauptstadt',
     conCapitale: 'Mit Hauptstadt',
     spiega:
-      'Baue eine deiner Festungen zur Hauptstadt aus (1 Holz, 1 Stein, 2 Gerste, 3 Eisen): Sie ist 3 Ruhmespunkte wert, bringt 3 Rohstoffe statt 2 und kann nie zerstört werden. Es kann nur eine gebaut werden.',
+      'Baue eine deiner Festungen zur Hauptstadt aus (1 Holz, 1 Stein, 1 Schaf, 2 Gerste, 3 Eisen): Sie ist 3 Ruhmespunkte wert, bringt 3 Rohstoffe statt 2 und kann nie zerstört werden. Es kann nur eine gebaut werden.',
     scegli: 'Wähle die Festung, die zur Hauptstadt ausgebaut wird.',
   },
 
