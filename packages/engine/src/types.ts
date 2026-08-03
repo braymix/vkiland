@@ -232,6 +232,13 @@ export interface GameConfig {
    */
   battle: boolean;
   /**
+   * MODALITÀ CAPITALE (opzionale): abilita la costruzione della Capitale,
+   * evoluzione di una Roccaforte. Se ne può costruire UNA SOLA per clan, vale 3
+   * Punti Gloria, fa prendere 3 materiali al posto di 2 e non si può mai
+   * distruggere (nemmeno in Battaglia). false = partita standard.
+   */
+  capitale: boolean;
+  /**
    * MODALITÀ SQUADRA (opzionale): un indice di squadra per giocatore
    * (`teams[i]` = squadra del giocatore i). Le squadre sono di ugual dimensione.
    * In squadra strade/approdi/Grande Via/Furia sono in comune e gli scambi solo
@@ -260,6 +267,13 @@ export interface PlayerState {
   playedBerserkers: number;
   villages: VertexId[];
   strongholds: VertexId[];
+  /**
+   * MODALITÀ CAPITALE (opzionale): la (unica) Capitale del clan, evoluzione di
+   * una Roccaforte. Il vertice resta ANCHE in `strongholds` (per rete, approdi,
+   * distanza…): questo array è solo il "di più" della Capitale (produce 3 e vale
+   * 3 Punti Gloria invece di 2, e non si può mai distruggere). Al massimo una.
+   */
+  capitals: VertexId[];
   roads: EdgeId[];
   /**
    * I due insediamenti INIZIALI del clan (piazzati nel setup). In modalità
@@ -425,6 +439,8 @@ export interface PublicPlayer {
   playedBerserkers: number;
   villages: VertexId[];
   strongholds: VertexId[];
+  /** Modalità Capitale: la Capitale del clan (evoluzione di una Roccaforte). */
+  capitals: VertexId[];
   roads: EdgeId[];
   /** Punti Gloria visibili (esclusi gli Eroi nascosti). */
   gloryPointsPublic: number;
@@ -484,6 +500,8 @@ export interface PlayerView {
   calamitiesLeft: number | null;
   /** Modalità Battaglia attiva: la UI abilita l'azione di attacco. */
   battle: boolean;
+  /** Modalità Capitale attiva: la UI abilita la costruzione della Capitale. */
+  capitale: boolean;
   /**
    * Modalità Squadra: indice di squadra per giocatore (come `config.teams`).
    * Assente = partita a tutti contro tutti. La UI la usa per i colori e per

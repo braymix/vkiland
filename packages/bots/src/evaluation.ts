@@ -171,7 +171,8 @@ export function dragonDamage(
   const pip = pipWeight(hex.token);
   for (const v of topo.hexVertices[hexId] ?? []) {
     for (const p of view.players) {
-      const weight = p.strongholds.includes(v) ? 2 : p.villages.includes(v) ? 1 : 0;
+      // La Capitale (modalità Capitale) frutta 3 (è anche fra le roccaforti).
+      const weight = p.capitals.includes(v) ? 3 : p.strongholds.includes(v) ? 2 : p.villages.includes(v) ? 1 : 0;
       if (weight > 0) perPlayer.set(p.id, (perPlayer.get(p.id) ?? 0) + weight * pip);
     }
   }

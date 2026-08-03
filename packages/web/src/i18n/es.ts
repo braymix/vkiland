@@ -461,6 +461,14 @@ export const es: Strings = {
    * EASTER EGG: bots griping when the Dragon blocks them — just like at a real
    * table, where someone always takes it personally.
    */
+  capitale: {
+    nome: '👑 Capital',
+    conCapitale: 'Con capital',
+    spiega:
+      'Convierte una de tus Fortalezas en Capital (1 madera, 1 piedra, 2 cebada, 3 hierro): vale 3 Puntos de Gloria, produce 3 materiales en vez de 2 y nunca se puede destruir. Solo se puede construir una.',
+    scegli: 'Elige qué Fortaleza convertir en Capital.',
+  },
+
   battaglia: {
     assaltoScegli: 'Elige el edificio rival a asaltar con la carta.',
     assaltoLeggeroScegli: 'Elige el camino rival a romper con la carta.',

@@ -462,6 +462,14 @@ export const de: Strings = {
    * EASTER EGG: bots griping when the Dragon blocks them — just like at a real
    * table, where someone always takes it personally.
    */
+  capitale: {
+    nome: '👑 Hauptstadt',
+    conCapitale: 'Mit Hauptstadt',
+    spiega:
+      'Baue eine deiner Festungen zur Hauptstadt aus (1 Holz, 1 Stein, 2 Gerste, 3 Eisen): Sie ist 3 Ruhmespunkte wert, bringt 3 Rohstoffe statt 2 und kann nie zerstört werden. Es kann nur eine gebaut werden.',
+    scegli: 'Wähle die Festung, die zur Hauptstadt ausgebaut wird.',
+  },
+
   battaglia: {
     assaltoScegli: 'Wähle das gegnerische Gebäude für den Karten-Angriff.',
     assaltoLeggeroScegli: 'Wähle den gegnerischen Pfad, den die Karte zerbricht.',

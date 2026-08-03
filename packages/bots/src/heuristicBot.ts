@@ -601,6 +601,15 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
         return changeFate as Action;
       }
 
+      // Capitale (modalità Capitale): evoluzione strettamente vantaggiosa (3 PG,
+      // produce 3, indistruttibile). Sulla roccaforte col miglior rendimento.
+      const capitals = bucket(input, 'costruisciCapitale');
+      if (capitals.length > 0) {
+        return capitals.reduce((a, b) =>
+          vertexTotalPips(view, b.vertex) > vertexTotalPips(view, a.vertex) ? b : a
+        );
+      }
+
       const strongholds = bucket(input, 'costruisciRoccaforte');
       if (strongholds.length > 0) {
         return strongholds.reduce((a, b) =>

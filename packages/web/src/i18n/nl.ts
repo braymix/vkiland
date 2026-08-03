@@ -461,6 +461,14 @@ export const nl: Strings = {
    * EASTER EGG: bots die mopperen als de Draak hen blokkeert — net als aan een
    * echte tafel, waar iemand het altijd persoonlijk opvat.
    */
+  capitale: {
+    nome: '👑 Hoofdstad',
+    conCapitale: 'Met hoofdstad',
+    spiega:
+      'Waardeer een van je Burchten op tot Hoofdstad (1 hout, 1 steen, 2 gerst, 3 ijzer): hij is 3 Roempunten waard, levert 3 grondstoffen in plaats van 2 en kan nooit worden vernietigd. Je kunt er maar één bouwen.',
+    scegli: 'Kies welke Burcht je opwaardeert tot Hoofdstad.',
+  },
+
   battaglia: {
     assaltoScegli: 'Kies het gebouw van de tegenstander om met de kaart aan te vallen.',
     assaltoLeggeroScegli: 'Kies de weg van de tegenstander om met de kaart te breken.',

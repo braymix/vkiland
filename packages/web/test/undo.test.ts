@@ -15,6 +15,7 @@ function twoHumans(seed: string): GameSetup {
     targetGloryPoints: 10,
     calamities: false,
     battle: false,
+    capitale: false,
   };
 }
 

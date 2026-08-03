@@ -15,6 +15,7 @@ function makeController(): LocalGameController {
     targetGloryPoints: 10,
     calamities: false,
     battle: false,
+    capitale: false,
   });
 }
 

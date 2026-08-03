@@ -467,6 +467,15 @@ export const it = {
     } satisfies Record<CalamityKind, string>,
   },
 
+  // --- Modalità Capitale ---
+  capitale: {
+    nome: '👑 Capitale',
+    conCapitale: 'Con capitale',
+    spiega:
+      'Evolvi una tua Roccaforte in Capitale (1 legno, 1 pietra, 2 orzo, 3 ferro): vale 3 Punti Gloria, fa prendere 3 materiali al posto di 2 e non si può mai distruggere. Se ne può costruire una sola.',
+    scegli: 'Scegli quale tua Roccaforte evolvere in Capitale.',
+  },
+
   // --- Modalità Battaglia ---
   battaglia: {
     assaltoScegli: 'Scegli l’edificio avversario da assaltare con la carta.',

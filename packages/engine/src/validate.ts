@@ -79,6 +79,14 @@ const ERR = {
   calamitaDrago: err('CALAMITA_DRAGO', 'Una calamità tiene fermo il Drago in questo giro.'),
   nienteDaGuadagnare: err('NIENTE_DA_GUADAGNARE', 'Non hai un guadagno da riscuotere.'),
   guadagnoErrato: err('GUADAGNO_ERRATO', 'La selezione di risorse da guadagnare non è valida.'),
+  // --- Capitale ---
+  capitaleSpenta: err('CAPITALE_SPENTA', 'La modalità Capitale non è attiva in questa partita.'),
+  capitaleGiaCostruita: err('CAPITALE_GIA_COSTRUITA', 'Hai già la tua Capitale: se ne può costruire una sola.'),
+  nonRoccaforte: err('NON_ROCCAFORTE', 'La Capitale si costruisce solo su una tua Roccaforte.'),
+  capitaleIndistruttibile: err(
+    'CAPITALE_INDISTRUTTIBILE',
+    'La Capitale non si può mai distruggere.'
+  ),
   // --- Battaglia ---
   battagliaSpenta: err('BATTAGLIA_SPENTA', 'La modalità Battaglia non è attiva in questa partita.'),
   bersaglioNonRaggiunto: err(
@@ -143,6 +151,8 @@ function attackTargetError(
   const reached = (topo.vertexEdges[vertex] ?? []).some((e) => state.players[player]!.roads.includes(e));
   if (!reached) return ERR.bersaglioNonRaggiunto;
   const ownerP = state.players[owner]!;
+  // La Capitale non si può mai distruggere (né declassare).
+  if (ownerP.capitals.includes(vertex)) return ERR.capitaleIndistruttibile;
   if (!ownerP.strongholds.includes(vertex) && ownerP.initialVillages.includes(vertex))
     return ERR.casaIndistruttibile;
   return null;
@@ -289,6 +299,20 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (!me.villages.includes(action.vertex)) return ERR.verticeNonValido;
       if (me.strongholds.length >= PIECE_LIMITS.roccaforte) return ERR.pezziEsauriti;
       if (!hasAtLeast(me.resources, BUILD_COSTS.roccaforte)) return ERR.risorseInsufficienti;
+      return null;
+    }
+    case 'costruisciCapitale': {
+      const guard = mainPhaseGuard(state, action.player);
+      if (guard) return guard;
+      if (!state.config.capitale) return ERR.capitaleSpenta;
+      // La Capitale è un'evoluzione della Roccaforte: la stessa calamità che
+      // vieta le roccaforti (assedio) la blocca.
+      if (calamityBlocksStronghold(state)) return ERR.calamitaRoccaforte;
+      if (me.capitals.length >= PIECE_LIMITS.capitale) return ERR.capitaleGiaCostruita;
+      // Si costruisce SOLO su una propria Roccaforte (non ancora Capitale).
+      if (!me.strongholds.includes(action.vertex) || me.capitals.includes(action.vertex))
+        return ERR.nonRoccaforte;
+      if (!hasAtLeast(me.resources, BUILD_COSTS.capitale)) return ERR.risorseInsufficienti;
       return null;
     }
     case 'compraCartaSaga': {

@@ -461,6 +461,14 @@ export const en: Strings = {
    * EASTER EGG: bots griping when the Dragon blocks them — just like at a real
    * table, where someone always takes it personally.
    */
+  capitale: {
+    nome: '👑 Capital',
+    conCapitale: 'With capital',
+    spiega:
+      'Upgrade one of your Strongholds into a Capital (1 wood, 1 stone, 2 barley, 3 iron): it is worth 3 Glory Points, yields 3 resources instead of 2 and can never be destroyed. Only one can be built.',
+    scegli: 'Choose which of your Strongholds to upgrade into the Capital.',
+  },
+
   battaglia: {
     assaltoScegli: 'Pick the opponent building to assault with the card.',
     assaltoLeggeroScegli: 'Pick the opponent road to break with the card.',

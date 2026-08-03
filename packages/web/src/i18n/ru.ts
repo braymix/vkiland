@@ -461,6 +461,14 @@ export const ru: Strings = {
    * EASTER EGG: bots griping when the Dragon blocks them — just like at a real
    * table, where someone always takes it personally.
    */
+  capitale: {
+    nome: '👑 Столица',
+    conCapitale: 'Со столицей',
+    spiega:
+      'Превратите одну из своих Крепостей в Столицу (1 дерево, 1 камень, 2 ячмень, 3 железо): она даёт 3 очка славы, приносит 3 ресурса вместо 2 и её нельзя разрушить. Можно построить только одну.',
+    scegli: 'Выберите Крепость, которую превратить в Столицу.',
+  },
+
   battaglia: {
     assaltoScegli: 'Выберите вражеское строение для штурма картой.',
     assaltoLeggeroScegli: 'Выберите вражескую дорогу, чтобы сломать её картой.',
