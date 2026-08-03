@@ -529,6 +529,7 @@ export const sr: Strings = {
     scambioEseguitoBanca: '{nome} razmenjuje sa bankom: {dai} → {ricevi}',
     scambioEseguito: 'Razmena zaključena između {a} i {b}',
     scambioAnnullato: 'Ponuda povučena',
+    scambioRifiutato: 'Nijedan saigrač nije prihvatio razmenu',
     grandeVia: 'Veliki put prelazi na {nome} ({n} puteva)',
     grandeViaNessuno: 'Veliki put više nikome ne pripada',
     furia: 'Bes Berserkera prelazi na {nome} ({n} berserkera)',

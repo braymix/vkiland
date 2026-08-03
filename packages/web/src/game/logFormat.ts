@@ -186,6 +186,8 @@ export function describeEvent(e: GameEvent, state: NamedPlayers): string | null 
       });
     case 'scambioAnnullato':
       return it.log.scambioAnnullato;
+    case 'scambioRifiutato':
+      return it.log.scambioRifiutato;
     case 'grandeViaCambiata':
       return e.holder === null
         ? it.log.grandeViaNessuno
