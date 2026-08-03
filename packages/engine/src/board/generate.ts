@@ -39,7 +39,8 @@ function cubeDist(c: AxialCoord): number {
 function growIsland(
   rngIn: RngState,
   count: number,
-  regionRadius: number
+  regionRadius: number,
+  compact = false
 ): [AxialCoord[], RngState] {
   let rng = rngIn;
   const chosen: AxialCoord[] = [];
@@ -63,10 +64,16 @@ function growIsland(
 
   add({ q: 0, r: 0 });
   while (chosen.length < count && frontier.length > 0) {
-    // Pesi: 6 per una casella con 1 solo vicino scelto (tende a formare
-    // penisole), calando fino a 1 per una circondata da 6 (chiude i buchi solo
-    // se resta poco altro). Estrazione pesata deterministica.
-    const weights = frontier.map((c) => Math.max(1, 7 - chosenNeighbors(c)));
+    // Pesi (estrazione pesata deterministica). Due modi:
+    //  - FRASTAGLIATO (default): 6 per una casella con 1 solo vicino scelto,
+    //    calando fino a 1 con 6 vicini → penisole e golfi (bordo irregolare).
+    //  - COMPATTO (`compact`): al contrario, favorisce forte le caselle con più
+    //    vicini già scelti → riempie prima le concavità, crescendo un'isola
+    //    rotonda quasi esagonale senza golfi (di norma nessun ponte).
+    const weights = frontier.map((c) => {
+      const n = chosenNeighbors(c);
+      return compact ? (1 + n) ** 3 : Math.max(1, 7 - n);
+    });
     let total = 0;
     for (const w of weights) total += w;
     const [roll, r2] = nextInt(rng, total);
@@ -114,7 +121,15 @@ export function generateBoard(
   //    terreni/segnalini restano validi identici).
   let land: AxialCoord[];
   let topoKey: TopoKey;
-  if (shape === 'rientranze') {
+  if (shape === 'libera') {
+    // Campo libero: isola COMPATTA di `terrainPool.length` caselle, cresciuta
+    // dentro l'esagono del raggio geometrico (spec.code) scelto per contenerla.
+    // Se le caselle riempiono l'intero esagono la forma è un esagono perfetto.
+    const [grown, rngAfterShape] = growIsland(rng, spec.terrainPool.length, spec.code, true);
+    rng = rngAfterShape;
+    land = grown;
+    topoKey = shapeSignature(grown.map((c) => ({ id: hexKey(c) })));
+  } else if (shape === 'rientranze') {
     const [grown, rngAfterShape] = growIsland(
       rng,
       spec.terrainPool.length,
@@ -160,7 +175,7 @@ export function generateBoard(
   const [kinds, rngAfterPorts] = shuffle(rng, spec.portKinds);
   rng = rngAfterPorts;
   const ringIndices =
-    shape === 'rientranze'
+    shape === 'rientranze' || shape === 'libera'
       ? spreadPortIndices(topo.coastalRing.length, spec.portKinds.length)
       : spec.portRingIndices;
   const ports: Port[] = ringIndices.map((ringIdx, i) => {

@@ -127,6 +127,8 @@ export class GameRoom {
       capitale: config.capitale,
       ...(config.boardSize ? { boardSize: config.boardSize } : {}),
       ...(config.boardShape ? { boardShape: config.boardShape } : {}),
+      ...(config.hexCount != null ? { hexCount: config.hexCount } : {}),
+      ...(config.desertCount != null ? { desertCount: config.desertCount } : {}),
       // Modalità Squadra: assegnazione per-posto + colori/bersaglio dalla lobby.
       ...(config.teamMode
         ? {

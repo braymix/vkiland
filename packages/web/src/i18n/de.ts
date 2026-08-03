@@ -202,6 +202,13 @@ export const de: Strings = {
   campoGigante: 'Riesiges Feld',
   campoGiganteSpiega: '37 Felder — empfohlen für 7–8 Spieler.',
   campoRientranze: 'Mit Einbuchtungen',
+  campoLibero: 'Freies Feld',
+  campoLiberoSpiega:
+    'Wähle, wie viele Felder das Spielbrett hat ({min}–{max}): eine kompakte Insel mit so vielen Feldern. Hat Vorrang vor Größe und Form oben.',
+  numeroCaselle: 'Felder',
+  deserti: 'Wüsten',
+  desertiSpiega:
+    'Wie viele Wüsten (Tundra, ohne Zahlenchip) auf dem Brett. Mindestens 1: Der Drache startet in einer Wüste.',
   campoRientranzeSpiega:
     'Zufällig geformte Insel (Buchten, Halbinseln) mit gleich vielen Feldern: über schmale Buchten (eine Straße breit) lassen sich Brücken bauen.',
   categoriaModalita: 'Modi',

@@ -7,7 +7,7 @@ import {
   DEFAULT_TARGET_GLORY,
   MAX_PLAYERS,
   MIN_PLAYERS,
-  resolveBoardSpec,
+  resolveBoardSpecCustom,
   SAGA_DECK_COMPOSITION,
 } from './constants';
 import { rollDie, seedRng, shuffle } from './rng';
@@ -40,6 +40,17 @@ export interface NewGameOptions {
   boardSize?: BoardSizeChoice;
   /** Forma della tavola; 'rientranze' = isola casuale con golfi e ponti. Assente = esagono classico. */
   boardShape?: BoardShapeChoice;
+  /**
+   * «Campo libero»: numero TOTALE di caselle scelto a mano (compreso fra
+   * MIN_CUSTOM_HEXES e MAX_CUSTOM_HEXES). Se presente vince sulla taglia/forma
+   * preset: si genera un'isola compatta di tante caselle. Assente = taglia preset.
+   */
+  hexCount?: number;
+  /**
+   * Numero di DESERTI (tundra) della tavola; assente = default della taglia
+   * (1 piccola, 2 grande/gigante). Minimo 1 (il Drago parte da un deserto).
+   */
+  desertCount?: number;
   /**
    * Modalità Squadra: un indice di squadra per giocatore (squadre di ugual
    * dimensione, sempre pari). Assente = partita a tutti contro tutti.
@@ -84,8 +95,13 @@ export function createGame(options: NewGameOptions): GameState {
 
   // La taglia della tavola: scelta esplicita se presente, altrimenti la
   // consigliata dal numero di giocatori (2–4 piccola, 5–6 grande, 7–8 gigante).
-  const spec = resolveBoardSpec(players.length, options.boardSize);
-  const shape = options.boardShape;
+  // Le personalizzazioni (numero di caselle / di deserti) possono sostituire i
+  // sacchetti; un «campo libero» diventa la forma 'libera' (isola compatta).
+  const { spec, freeForm } = resolveBoardSpecCustom(players.length, options.boardSize, {
+    ...(options.hexCount != null ? { hexCount: options.hexCount } : {}),
+    ...(options.desertCount != null ? { desertCount: options.desertCount } : {}),
+  });
+  const shape: BoardShapeChoice | undefined = freeForm ? 'libera' : options.boardShape;
 
   // Bersaglio Punti Gloria: in squadra è «giocatori-per-squadra × valore» (il
   // valore, di default 8, è impostabile); altrimenti il valore classico.

@@ -171,6 +171,8 @@ export function randomPlayout(
     calamities?: boolean;
     capitale?: boolean;
     boardShape?: 'rientranze';
+    hexCount?: number;
+    desertCount?: number;
   } = {}
 ): PlayoutResult {
   const maxActions = opts.maxActions ?? 5000;
@@ -187,6 +189,8 @@ export function randomPlayout(
     ...(opts.calamities ? { calamities: true } : {}),
     ...(opts.capitale ? { capitale: true } : {}),
     ...(opts.boardShape ? { boardShape: opts.boardShape } : {}),
+    ...(opts.hexCount != null ? { hexCount: opts.hexCount } : {}),
+    ...(opts.desertCount != null ? { desertCount: opts.desertCount } : {}),
   });
   const actions: Action[] = [];
 

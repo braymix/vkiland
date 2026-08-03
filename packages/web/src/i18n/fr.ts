@@ -202,6 +202,13 @@ export const fr: Strings = {
   campoGigante: 'Plateau géant',
   campoGiganteSpiega: '37 cases — recommandé pour 7–8 joueurs.',
   campoRientranze: 'Avec échancrures',
+  campoLibero: 'Plateau libre',
+  campoLiberoSpiega:
+    'Choisis le nombre de cases du plateau ({min}–{max}) : une île compacte de ce nombre de cases. Prime sur la taille et la forme ci-dessus.',
+  numeroCaselle: 'Nb cases',
+  deserti: 'Déserts',
+  desertiSpiega:
+    'Combien de déserts (toundra, sans jeton) sur le plateau. Au moins 1 : le Dragon démarre sur un désert.',
   campoRientranzeSpiega:
     'Île de forme aléatoire (golfes, péninsules) avec le même nombre de cases : on peut bâtir des ponts pour franchir les golfes larges d’une route.',
   categoriaModalita: 'Modes',

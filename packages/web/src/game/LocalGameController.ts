@@ -52,6 +52,10 @@ export interface GameSetup {
   boardSize?: BoardSizeChoice;
   /** Forma della tavola; 'rientranze' = isola casuale con golfi e ponti. */
   boardShape?: BoardShapeChoice;
+  /** «Campo libero»: numero di caselle scelto a mano (vince su taglia/forma preset). */
+  hexCount?: number;
+  /** Numero di deserti (tundra); assente = default della taglia. */
+  desertCount?: number;
   /** Modalità Squadra: indice di squadra per giocatore (assente = tutti contro tutti). */
   teams?: number[];
   /** Colore di ciascuna squadra (indicizzato per squadra). Con `teams`. */

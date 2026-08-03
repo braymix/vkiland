@@ -201,6 +201,13 @@ export const nl: Strings = {
   campoGigante: 'Reuzenveld',
   campoGiganteSpiega: '37 vakken — aanbevolen voor 7–8 spelers.',
   campoRientranze: 'Met inhammen',
+  campoLibero: 'Vrij speelveld',
+  campoLiberoSpiega:
+    'Kies hoeveel vakken het bord heeft ({min}–{max}): een compact eiland met dat aantal vakken. Gaat boven de grootte en vorm hierboven.',
+  numeroCaselle: 'Vakken',
+  deserti: 'Woestijnen',
+  desertiSpiega:
+    'Hoeveel woestijnen (toendra, zonder nummerfiche) op het bord. Minstens 1: de Draak start op een woestijn.',
   campoRientranzeSpiega:
     'Eiland met willekeurige vorm (baaien, schiereilanden) met evenveel vakken: je kunt bruggen bouwen om baaien van één weg breed over te steken.',
   categoriaModalita: 'Modi',

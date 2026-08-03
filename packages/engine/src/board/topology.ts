@@ -60,10 +60,12 @@ function parseShapeKey(key: string): AxialCoord[] {
  */
 export function boardTopoKey(
   boardRadius: number,
-  boardShape: 'rientranze' | undefined,
+  boardShape: 'rientranze' | 'libera' | undefined,
   hexes: readonly { id: string }[]
 ): TopoKey {
-  return boardShape === 'rientranze' ? shapeSignature(hexes) : boardRadius;
+  // Ogni forma NON esagonale (rientranze o campo libero) porta la topologia
+  // nelle proprie caselle: si usa la firma. Solo l'esagono fisso usa il codice.
+  return boardShape ? shapeSignature(hexes) : boardRadius;
 }
 
 export interface BoardTopology {
