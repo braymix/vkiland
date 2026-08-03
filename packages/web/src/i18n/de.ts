@@ -455,7 +455,7 @@ export const de: Strings = {
     costruttoriDiSentieri: 'Platziere sofort 2 kostenlose Pfade.',
     banchetto: 'Nimm 2 Rohstoffe deiner Wahl aus der Bank.',
     tributo: 'Jeder Gegner übergibt dir ALLE seine Einheiten eines Rohstoffs.',
-    razzia: 'Lege sie auf ein Feld: Bis zu deinem nächsten Zug erhält niemand Würfel-Rohstoffe — du kassierst alles.',
+    razzia: 'Lege sie auf ein Feld: Bis zu deinem nächsten Zug gehört die Produktion DIESES Feldes dir, nicht den Besitzern.',
   },
 
   /**
@@ -528,7 +528,7 @@ export const de: Strings = {
     cartaGiocata: '{nome} spielt: {carta}',
     banchetto: '{nome} hält ein Festmahl: +{r1} und +{r2}',
     tributo: '{nome} kassiert den Tribut: {n}× {risorsa}',
-    razziaPosata: '💰 {nome} entfesselt einen Raubzug: kassiert ab jetzt die Produktion aller',
+    razziaPosata: '💰 {nome} entfesselt einen Raubzug auf ein Feld: kassiert dessen Produktion bis zum nächsten Zug',
     razziaRiscossa: '💰 Der Raubzug bringt {nome} ein: {risorse}',
     franaSpezzata: '⛰️ Ein Erdrutsch lässt einen Weg von {nome} einstürzen',
     scambioProposto: '{nome} schlägt einen Handel vor',
