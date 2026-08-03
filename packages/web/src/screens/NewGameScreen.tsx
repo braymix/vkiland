@@ -11,7 +11,7 @@
  *   host/bot/rimozione/colori/disconnessi, timer turno, pubblica/privata, seed,
  *   calamità, avvio, uscita e terminazione (dal pannello ☰ in partita).
  */
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import {
   DEFAULT_TARGET_GLORY,
   MAX_PLAYERS,
@@ -384,6 +384,26 @@ export function NewGameScreen({
     if (isOnline) patch({ teamMode: true, teamTargetPerPlayer: v });
   };
 
+  // Blocco «Modalità squadra» reso DENTRO la categoria Modalità del preset regole
+  // (accanto a calamità e battaglia). In locale è sempre modificabile; online solo
+  // per l'host prima dell'avvio.
+  const teamSlot = (
+    <TeamSettingsPanel
+      teamMode={teamMode}
+      editable={isOnline ? editable : true}
+      onToggle={applyTeamMode}
+      validTeamCounts={validTeamCounts}
+      numTeams={numTeams}
+      onPickNumTeams={applyNumTeams}
+      teamColors={teamColors}
+      onSetTeamColor={applyTeamColor}
+      teamTarget={teamTarget}
+      onSetTeamTarget={applyTeamTarget}
+      teamSizeVal={teamSizeVal}
+      teamsBalanced={teamsBalanced}
+    />
+  );
+
   /** Sceglie la tavola grande; nulla scelta = piccola (solo 2–4). A ≥5 resta sempre una grande. */
   const pickBoardSize = (choice: BoardSizeChoice) => {
     setBoardSizeTouched(true);
@@ -721,22 +741,8 @@ export function NewGameScreen({
             )}
           </div>
 
-          <TeamSettingsPanel
-            teamMode={teamMode}
-            editable
-            onToggle={applyTeamMode}
-            validTeamCounts={validTeamCounts}
-            numTeams={numTeams}
-            onPickNumTeams={applyNumTeams}
-            teamColors={teamColors}
-            onSetTeamColor={applyTeamColor}
-            teamTarget={teamTarget}
-            onSetTeamTarget={applyTeamTarget}
-            teamSizeVal={teamSizeVal}
-            teamsBalanced={teamsBalanced}
-          />
-
           <RulesPreset
+            teamSlot={teamSlot}
             online={false}
             editable
             open={rulesOpen}
@@ -970,24 +976,8 @@ export function NewGameScreen({
             </div>
           )}
 
-          {lobby && (
-            <TeamSettingsPanel
-              teamMode={teamMode}
-              editable={editable}
-              onToggle={applyTeamMode}
-              validTeamCounts={validTeamCounts}
-              numTeams={numTeams}
-              onPickNumTeams={applyNumTeams}
-              teamColors={teamColors}
-              onSetTeamColor={applyTeamColor}
-              teamTarget={teamTarget}
-              onSetTeamTarget={applyTeamTarget}
-              teamSizeVal={teamSizeVal}
-              teamsBalanced={teamsBalanced}
-            />
-          )}
-
           <RulesPreset
+            teamSlot={teamSlot}
             online
             editable={editable}
             open={rulesOpen}
@@ -1109,8 +1099,8 @@ interface TeamSettingsPanelProps {
 /** Pannello impostazioni Modalità Squadra, condiviso fra locale e online. */
 function TeamSettingsPanel(p: TeamSettingsPanelProps) {
   return (
-    <div className="rules-preset pixel-frame">
-      <label className="check" style={{ padding: 8 }}>
+    <>
+      <label className="check">
         <input
           type="checkbox"
           checked={p.teamMode}
@@ -1120,7 +1110,7 @@ function TeamSettingsPanel(p: TeamSettingsPanelProps) {
         🛡️ {it.squadra.modalita}
       </label>
       {p.teamMode && (
-        <div className="rules-body">
+        <div style={{ paddingLeft: 4 }}>
           <div style={NOTE_STYLE}>{it.squadra.spiega}</div>
           <div style={CAT_STYLE}>{it.squadra.numeroSquadre}</div>
           <div className="color-picker">
@@ -1189,7 +1179,7 @@ function TeamSettingsPanel(p: TeamSettingsPanelProps) {
           )}
         </div>
       )}
-    </div>
+    </>
   );
 }
 
@@ -1221,6 +1211,8 @@ interface RulesPresetProps {
   commitTimer: () => void;
   isPublic: boolean;
   setIsPublic: (v: boolean) => void;
+  /** Blocco «Modalità squadra», reso dentro la categoria Modalità (come calamità/battaglia). */
+  teamSlot?: ReactNode;
 }
 
 /** Preset regole richiudibile, in categorie: Punti vittoria, Modalità, Tavola, Online. */
@@ -1296,6 +1288,9 @@ function RulesPreset(p: RulesPresetProps) {
             ⚔️ {it.battaglia.conBattaglia}
           </label>
           {p.battle && <div style={NOTE_STYLE}>{it.battaglia.spiega}</div>}
+
+          {/* Modalità Squadra: un'altra «modalità» accanto a calamità e battaglia. */}
+          {p.teamSlot}
 
           {/* Categoria: Tavola (dimensione + mappa) */}
           <div style={CAT_STYLE}>{it.categoriaTavola}</div>
