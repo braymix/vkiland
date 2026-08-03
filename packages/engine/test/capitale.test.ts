@@ -54,12 +54,12 @@ function capitaleGame(): GameState {
 }
 
 describe('modalità Capitale — costruzione', () => {
-  it('il costo è 1 legname, 1 pietra, 2 orzo, 3 ferro', () => {
-    expect(BUILD_COSTS.capitale).toEqual({ legname: 1, pietra: 1, lana: 0, orzo: 2, ferro: 3 });
+  it('il costo è 1 legname, 1 pietra, 1 lana, 2 orzo, 3 ferro', () => {
+    expect(BUILD_COSTS.capitale).toEqual({ legname: 1, pietra: 1, lana: 1, orzo: 2, ferro: 3 });
   });
 
   it('evolve una Roccaforte: paga il costo, il vertice resta anche fra le roccaforti', () => {
-    let s = give(capitaleGame(), 0, { legname: 1, pietra: 1, orzo: 2, ferro: 3 });
+    let s = give(capitaleGame(), 0, { legname: 1, pietra: 1, lana: 1, orzo: 2, ferro: 3 });
     const ferroPrima = s.players[0]!.resources.ferro;
     const bancaFerroPrima = s.bank.ferro;
     s = apply(s, { type: 'costruisciCapitale', player: 0, vertex: V0_NORD });
@@ -71,14 +71,14 @@ describe('modalità Capitale — costruzione', () => {
   });
 
   it('vale 3 Punti Gloria (2 della roccaforte + 1)', () => {
-    let s = give(capitaleGame(), 0, { legname: 1, pietra: 1, orzo: 2, ferro: 3 });
+    let s = give(capitaleGame(), 0, { legname: 1, pietra: 1, lana: 1, orzo: 2, ferro: 3 });
     const prima = scoreBreakdown(s, 0).roccaforti; // roccaforte = 2
     s = apply(s, { type: 'costruisciCapitale', player: 0, vertex: V0_NORD });
     expect(scoreBreakdown(s, 0).roccaforti).toBe(prima + 1);
   });
 
   it('se ne può costruire una sola', () => {
-    let s = give(capitaleGame(), 0, { legname: 2, pietra: 2, orzo: 4, ferro: 6 });
+    let s = give(capitaleGame(), 0, { legname: 2, pietra: 2, lana: 2, orzo: 4, ferro: 6 });
     s = apply(s, { type: 'costruisciCapitale', player: 0, vertex: V0_NORD });
     // Anche promuovendo un'altra roccaforte, la seconda Capitale è vietata.
     s = mut(s, (d) => {
@@ -92,7 +92,7 @@ describe('modalità Capitale — costruzione', () => {
   });
 
   it('si costruisce solo su una propria Roccaforte, non su un villaggio', () => {
-    const s = give(capitaleGame(), 0, { legname: 1, pietra: 1, orzo: 2, ferro: 3 });
+    const s = give(capitaleGame(), 0, { legname: 1, pietra: 1, lana: 1, orzo: 2, ferro: 3 });
     const villaggio = s.players[0]!.villages[0]!;
     expectError(
       s,
@@ -102,7 +102,7 @@ describe('modalità Capitale — costruzione', () => {
   });
 
   it('è vietata se la modalità Capitale non è attiva', () => {
-    const s = mut(give(capitaleGame(), 0, { legname: 1, pietra: 1, orzo: 2, ferro: 3 }), (d) => {
+    const s = mut(give(capitaleGame(), 0, { legname: 1, pietra: 1, lana: 1, orzo: 2, ferro: 3 }), (d) => {
       d.config.capitale = false;
     });
     expectError(s, { type: 'costruisciCapitale', player: 0, vertex: V0_NORD }, 'CAPITALE_SPENTA');

@@ -83,8 +83,8 @@ export const BUILD_COSTS: Readonly<Record<Buildable, ResourceCount>> = {
   villaggio: { legname: 1, pietra: 1, lana: 1, orzo: 1, ferro: 0 },
   roccaforte: { legname: 0, pietra: 0, lana: 0, orzo: 2, ferro: 3 },
   // Capitale (modalità opzionale): evoluzione della Roccaforte.
-  // 3 ferro, 2 orzo, 1 pietra (mattone rosso), 1 legname.
-  capitale: { legname: 1, pietra: 1, lana: 0, orzo: 2, ferro: 3 },
+  // 3 ferro, 2 orzo, 1 pietra (mattone rosso), 1 legname, 1 lana (pecora).
+  capitale: { legname: 1, pietra: 1, lana: 1, orzo: 2, ferro: 3 },
   cartaSaga: { legname: 0, pietra: 0, lana: 1, orzo: 1, ferro: 1 },
 };
 

@@ -465,7 +465,7 @@ export const nl: Strings = {
     nome: '👑 Hoofdstad',
     conCapitale: 'Met hoofdstad',
     spiega:
-      'Waardeer een van je Burchten op tot Hoofdstad (1 hout, 1 steen, 2 gerst, 3 ijzer): hij is 3 Roempunten waard, levert 3 grondstoffen in plaats van 2 en kan nooit worden vernietigd. Je kunt er maar één bouwen.',
+      'Waardeer een van je Burchten op tot Hoofdstad (1 hout, 1 steen, 1 schaap, 2 gerst, 3 ijzer): hij is 3 Roempunten waard, levert 3 grondstoffen in plaats van 2 en kan nooit worden vernietigd. Je kunt er maar één bouwen.',
     scegli: 'Kies welke Burcht je opwaardeert tot Hoofdstad.',
   },
 

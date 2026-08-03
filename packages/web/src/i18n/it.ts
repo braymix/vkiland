@@ -472,7 +472,7 @@ export const it = {
     nome: '👑 Capitale',
     conCapitale: 'Con capitale',
     spiega:
-      'Evolvi una tua Roccaforte in Capitale (1 legno, 1 pietra, 2 orzo, 3 ferro): vale 3 Punti Gloria, fa prendere 3 materiali al posto di 2 e non si può mai distruggere. Se ne può costruire una sola.',
+      'Evolvi una tua Roccaforte in Capitale (1 legno, 1 pietra, 1 pecora, 2 orzo, 3 ferro): vale 3 Punti Gloria, fa prendere 3 materiali al posto di 2 e non si può mai distruggere. Se ne può costruire una sola.',
     scegli: 'Scegli quale tua Roccaforte evolvere in Capitale.',
   },
 
