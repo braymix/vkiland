@@ -75,6 +75,51 @@ describe('produzione delle risorse', () => {
     );
   });
 
+  it('il Drago blocca SOLO il suo esagono, non gli altri con lo stesso numero', () => {
+    // Scenario segnalato: due esagoni con lo STESSO segnalino numerico. Il Drago
+    // ne copre uno solo → l'altro deve continuare a produrre normalmente, e
+    // nessun altro esagono/numero uguale deve risultare bloccato.
+    const topo = getTopology();
+    const nonTundra = base.board.hexes.filter((h) => h.terrain !== 'tundra');
+    // Cerca una coppia di esagoni con lo STESSO numero e vertici DISGIUNTI (così
+    // i piazzamenti non si sovrappongono). La tavola classica ha numeri doppi.
+    let pair: { drago: typeof nonTundra[number]; libero: typeof nonTundra[number] } | null = null;
+    for (const a of nonTundra) {
+      for (const b of nonTundra) {
+        if (a.id === b.id || a.token !== b.token) continue;
+        const disjoint = !topo.hexVertices[a.id]!.some((v) => topo.hexVertices[b.id]!.includes(v));
+        if (disjoint) {
+          pair = { drago: a, libero: b };
+          break;
+        }
+      }
+      if (pair) break;
+    }
+    expect(pair, 'la tavola dovrebbe avere due esagoni con lo stesso numero').not.toBeNull();
+    const { drago, libero } = pair!;
+    const vDrago = topo.hexVertices[drago.id]![0]!;
+    const vLibero = topo.hexVertices[libero.id]![0]!;
+
+    const s = mut(base, (d) => {
+      d.board.dragonHex = drago.id; // il Drago copre SOLO questo esagono
+      d.players[0]!.villages.push(vDrago); // edificio sull'esagono col Drago…
+      d.players[0]!.villages.push(vLibero); // …e sull'altro, stesso numero
+    });
+    const resDrago = drago.terrain as Resource;
+    const resLibero = libero.terrain as Resource;
+
+    const { state: dopo } = produce(s, drago.token!);
+    if (resDrago === resLibero) {
+      // Stessa risorsa: contribuisce SOLO l'esagono libero (1); quello col Drago 0.
+      expect(dopo.players[0]!.resources[resDrago]).toBe(1);
+    } else {
+      // L'esagono col Drago NON produce; l'altro con lo stesso numero SÌ.
+      expect(dopo.players[0]!.resources[resDrago]).toBe(0);
+      expect(dopo.players[0]!.resources[resLibero]).toBe(1);
+    }
+    expectResourceInvariants(dopo);
+  });
+
   it('penuria: più richiedenti e banca insufficiente ⇒ nessuno riceve quella risorsa', () => {
     const s = mut(base, (d) => {
       d.players[0]!.villages.push(verts[0]!);
