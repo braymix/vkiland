@@ -23,7 +23,7 @@ import { flattenResources, totalResources, zeroResources } from './resources';
 import { nextInt, rollDie } from './rng';
 import { effectiveBankRatio, legalRoadEdges } from './rules';
 import { gloryPoints, scoreBreakdown } from './scoring';
-import { friendsOf, isTeamMode } from './teams';
+import { friendsOf, isTeamMode, tradeResponders } from './teams';
 import type { GameState, PlayerId, ResourceCount, SagaCard } from './types';
 import { isLegal } from './validate';
 
@@ -479,9 +479,15 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
           // Offerta DIRETTA: un rifiuto la chiude.
           state.pendingTrade = null;
         } else {
-          // Offerta alla squadra: un rifiuto è solo registrato, l'offerta resta
-          // aperta per gli altri compagni.
+          // Offerta alla squadra: un rifiuto è registrato e l'offerta resta aperta
+          // per gli altri compagni. Se TUTTI i compagni hanno ora rifiutato, si
+          // chiude da sola con un esito CHIARO (evento dedicato per il diario).
           offer.responses[me.id] = 'rifiutata';
+          const responders = tradeResponders(state.config.teams, state.players, offer);
+          if (responders.every((id) => offer.responses[id] !== undefined)) {
+            events.push({ type: 'scambioRifiutato', offerId: offer.id });
+            state.pendingTrade = null;
+          }
         }
       } else {
         offer.responses[me.id] = action.accept ? 'accettata' : 'rifiutata';

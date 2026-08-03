@@ -529,6 +529,7 @@ export const nl: Strings = {
     scambioEseguitoBanca: '{nome} ruilt met de bank: {dai} → {ricevi}',
     scambioEseguito: 'Ruil gesloten tussen {a} en {b}',
     scambioAnnullato: 'Aanbod ingetrokken',
+    scambioRifiutato: 'Geen teamgenoot accepteerde de ruil',
     grandeVia: 'De Grote Weg gaat naar {nome} ({n} paden)',
     grandeViaNessuno: 'De Grote Weg is van niemand meer',
     furia: 'De Razernij der Berserkers gaat naar {nome} ({n} berserkers)',

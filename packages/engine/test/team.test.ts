@@ -23,6 +23,7 @@ import {
 } from '../src';
 import {
   apply,
+  applyOk,
   expectError,
   expectResourceInvariants,
   give,
@@ -307,6 +308,15 @@ describe('modalità squadra — scambio «a tutta la squadra» in automatico', (
     expect(s.pendingTrade).toBeNull();
     expect(s.players[0]!.resources.lana).toBe(1);
     expect(s.players[4]!.resources.legname).toBe(1);
+  });
+
+  it("quando TUTTI i compagni rifiutano, l'offerta si chiude con un esito chiaro", () => {
+    let s = give(toMain(teamGame([0, 1, 0, 1])), 0, { legname: 1 });
+    s = apply(s, { type: 'proponiScambio', player: 0, give: rc({ legname: 1 }), receive: rc({ lana: 1 }), to: null });
+    // L'unico compagno (2) rifiuta: l'offerta si chiude ed emette l'evento dedicato.
+    const res = applyOk(s, { type: 'rispondiScambio', player: 2, offerId: s.pendingTrade!.id, accept: false });
+    expect(res.state.pendingTrade).toBeNull();
+    expect(res.events.some((e) => e.type === 'scambioRifiutato')).toBe(true);
   });
 });
 
