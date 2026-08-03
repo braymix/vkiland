@@ -201,6 +201,13 @@ export const en: Strings = {
   campoGigante: 'Giant board',
   campoGiganteSpiega: '37 tiles — recommended for 7–8 players.',
   campoRientranze: 'With inlets',
+  campoLibero: 'Custom board',
+  campoLiberoSpiega:
+    'Choose how many tiles the board has ({min}–{max}): a compact island of that many tiles. Overrides the size and shape above.',
+  numeroCaselle: 'Tiles',
+  deserti: 'Deserts',
+  desertiSpiega:
+    'How many deserts (tundra, no number token) on the board. At least 1: the Dragon starts on a desert.',
   campoRientranzeSpiega:
     'Randomly shaped island (gulfs, peninsulas) with the same number of tiles: you can build bridges to cross gulfs one road wide.',
   categoriaModalita: 'Modes',

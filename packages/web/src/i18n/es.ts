@@ -201,6 +201,13 @@ export const es: Strings = {
   campoGigante: 'Campo gigante',
   campoGiganteSpiega: '37 casillas — recomendado para 7–8 jugadores.',
   campoRientranze: 'Con entrantes',
+  campoLibero: 'Tablero libre',
+  campoLiberoSpiega:
+    'Elige cuántas casillas tiene el tablero ({min}–{max}): una isla compacta de ese número de casillas. Prevalece sobre el tamaño y la forma de arriba.',
+  numeroCaselle: 'N.º casillas',
+  deserti: 'Desiertos',
+  desertiSpiega:
+    'Cuántos desiertos (tundra, sin ficha numérica) en el tablero. Al menos 1: el Dragón empieza en un desierto.',
   campoRientranzeSpiega:
     'Isla de forma aleatoria (golfos, penínsulas) con el mismo número de casillas: puedes construir puentes para cruzar golfos de una carretera de ancho.',
   categoriaModalita: 'Modos',

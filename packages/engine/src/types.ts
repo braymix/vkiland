@@ -199,8 +199,12 @@ export type BoardSizeChoice = 'grande' | 'gigante';
  *  - 'rientranze' → isola dalla forma CASUALE e non esagonale (golfi, penisole,
  *    insenature) con lo STESSO numero di caselle della taglia, dove si possono
  *    costruire PONTI per scavalcare i golfi larghi «una strada».
+ *  - 'libera' → «campo libero»: isola COMPATTA con un numero di caselle scelto a
+ *    mano (vedi `NewGameOptions.hexCount`). La topologia si ricava dalle caselle
+ *    come per 'rientranze', ma la crescita compatta evita i golfi (di norma
+ *    nessun ponte). Valore DERIVATO: lo imposta il motore, non l'interfaccia.
  */
-export type BoardShapeChoice = 'rientranze';
+export type BoardShapeChoice = 'rientranze' | 'libera';
 
 export interface GameConfig {
   seed: string;

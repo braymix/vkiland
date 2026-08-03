@@ -209,6 +209,13 @@ export const it = {
   campoGigante: 'Campo gigante',
   campoGiganteSpiega: '37 caselle — consigliato per 7–8 giocatori.',
   campoRientranze: 'Con rientranze',
+  campoLibero: 'Campo libero',
+  campoLiberoSpiega:
+    'Scegli tu quante caselle ha la tavola ({min}–{max}): un’isola compatta di quel numero di caselle. Vince sulla taglia e sulla forma qui sopra.',
+  numeroCaselle: 'N° caselle',
+  deserti: 'Deserti',
+  desertiSpiega:
+    'Quanti deserti (tundra, senza segnalino) sulla tavola. Almeno 1: il Drago parte da un deserto.',
   campoRientranzeSpiega:
     'Isola dalla forma casuale (golfi, penisole) con lo stesso numero di caselle: si possono costruire ponti per scavalcare i golfi larghi una strada.',
   categoriaModalita: 'Modalità',

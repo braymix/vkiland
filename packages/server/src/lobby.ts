@@ -4,7 +4,13 @@
  * così la riconnessione ritrova il proprio posto.
  */
 import { randomInt } from 'node:crypto';
-import { MAX_PLAYERS, validateTeams } from '@vikiland/engine';
+import {
+  MAX_CUSTOM_HEXES,
+  MAX_PLAYERS,
+  MIN_CUSTOM_HEXES,
+  maxDesertCount,
+  validateTeams,
+} from '@vikiland/engine';
 import type { Action, BotLevel, PlayerColor, PlayerCosmetics, PlayerId } from '@vikiland/engine';
 import type {
   ApiError,
@@ -583,8 +589,18 @@ function sanitizeConfig(c: LobbyConfig): LobbyConfig {
     capitale: Boolean(c.capitale),
     // Solo 'grande' o 'gigante' sono valori validi; qualsiasi altro = consigliata.
     ...(c.boardSize === 'grande' || c.boardSize === 'gigante' ? { boardSize: c.boardSize } : {}),
-    // Forma tavola: solo 'rientranze' è un valore valido; altro = esagono classico.
+    // Forma tavola: solo 'rientranze' è un valore valido; altro = esagono classico
+    // ('libera' è derivato dal motore quando c'è hexCount, non lo sceglie il client).
     ...(c.boardShape === 'rientranze' ? { boardShape: c.boardShape } : {}),
+    // Campo libero: numero di caselle scelto a mano (clampato ai limiti); assente = preset.
+    ...(c.hexCount != null
+      ? { hexCount: clampInt(c.hexCount, MIN_CUSTOM_HEXES, MAX_CUSTOM_HEXES, MIN_CUSTOM_HEXES) }
+      : {}),
+    // Deserti scelti a mano; clamp lasco qui (≥1, serve al Drago), il motore lo
+    // ri-clampa a [1, caselle-1] della tavola effettiva alla creazione.
+    ...(c.desertCount != null
+      ? { desertCount: clampInt(c.desertCount, 1, maxDesertCount(MAX_CUSTOM_HEXES), 1) }
+      : {}),
     // Modalità Squadra: numero squadre, colori e bersaglio per-giocatore.
     ...(c.teamMode
       ? {

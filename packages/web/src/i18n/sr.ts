@@ -201,6 +201,13 @@ export const sr: Strings = {
   campoGigante: 'Džinovsko polje',
   campoGiganteSpiega: '37 polja — preporučeno za 7–8 igrača.',
   campoRientranze: 'Sa zalivima',
+  campoLibero: 'Slobodno polje',
+  campoLiberoSpiega:
+    'Izaberi koliko polja ima tabla ({min}–{max}): kompaktno ostrvo od toliko polja. Ima prednost nad veličinom i oblikom iznad.',
+  numeroCaselle: 'Polja',
+  deserti: 'Pustinje',
+  desertiSpiega:
+    'Koliko pustinja (tundra, bez žetona) na tabli. Najmanje 1: Zmaj kreće sa pustinje.',
   campoRientranzeSpiega:
     'Ostrvo nasumičnog oblika (zalivi, poluostrva) sa istim brojem polja: možeš graditi mostove da pređeš zalive široke jednu cestu.',
   categoriaModalita: 'Režimi',

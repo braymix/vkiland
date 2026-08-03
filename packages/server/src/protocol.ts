@@ -70,6 +70,16 @@ export interface LobbyConfig {
    * con lo stesso numero di caselle della taglia. Assente = esagono classico.
    */
   boardShape?: BoardShapeChoice;
+  /**
+   * «Campo libero»: numero TOTALE di caselle scelto a mano. Se presente vince
+   * sulla taglia/forma preset (isola compatta di tante caselle). Assente = preset.
+   */
+  hexCount?: number;
+  /**
+   * Numero di DESERTI (tundra); assente = default della taglia. Minimo 1
+   * (il Drago parte da un deserto).
+   */
+  desertCount?: number;
   /** Seme della mappa (opzionale: undefined = casuale). */
   seed?: string;
   /** Modalità Squadra attiva. Le squadre (per-posto) vivono in `LobbySlot.team`. */
