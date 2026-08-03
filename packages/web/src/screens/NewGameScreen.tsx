@@ -101,6 +101,7 @@ export function NewGameScreen({
   const [targetPG, setTargetPG] = useState(DEFAULT_TARGET_GLORY);
   const [calamities, setCalamities] = useState(false);
   const [battle, setBattle] = useState(false);
+  const [capitale, setCapitale] = useState(false);
   const [avoid68, setAvoid68] = useState(true);
   const [seed, setSeed] = useState('');
   const [timerRaw, setTimerRaw] = useState('');
@@ -282,6 +283,7 @@ export function NewGameScreen({
     setAvoid68(lobby.config.avoidAdjacent68);
     setCalamities(lobby.config.calamities);
     setBattle(lobby.config.battle);
+    setCapitale(lobby.config.capitale);
     // La scelta esplicita dell'host vince; se assente, la prevalorizzazione
     // automatica resta attiva (boardSizeTouched = false).
     setBoardSize(lobby.config.boardSize ?? autoBoardSize(lobby.slots.length));
@@ -325,6 +327,7 @@ export function NewGameScreen({
       isPublic: change.isPublic ?? isPublic,
       calamities: change.calamities ?? calamities,
       battle: change.battle ?? battle,
+      capitale: change.capitale ?? capitale,
       ...(boardSizeVal ? { boardSize: boardSizeVal } : {}),
       ...(boardShapeVal ? { boardShape: boardShapeVal } : {}),
       ...((change.seed ?? seed).trim() ? { seed: (change.seed ?? seed).trim() } : {}),
@@ -357,6 +360,7 @@ export function NewGameScreen({
     isPublic,
     calamities,
     battle,
+    capitale,
     ...(boardSize ? { boardSize } : {}),
     ...(boardShape ? { boardShape } : {}),
     ...(seed.trim() ? { seed: seed.trim() } : {}),
@@ -519,6 +523,7 @@ export function NewGameScreen({
       targetGloryPoints: targetPG,
       calamities,
       battle,
+      capitale,
       ...(boardSize ? { boardSize } : {}),
       ...(boardShape ? { boardShape } : {}),
       ...(teamMode && teamsBalanced
@@ -571,6 +576,7 @@ export function NewGameScreen({
     targetPG === DEFAULT_TARGET_GLORY &&
     !calamities &&
     !battle &&
+    !capitale &&
     avoid68 &&
     !seed.trim() &&
     (mode === 'locale' || (timerSec === 0 && !isPublic));
@@ -754,6 +760,8 @@ export function NewGameScreen({
             setCalamities={(v) => setCalamities(v)}
             battle={battle}
             setBattle={(v) => setBattle(v)}
+            capitale={capitale}
+            setCapitale={(v) => setCapitale(v)}
             avoid68={avoid68}
             setAvoid68={(v) => setAvoid68(v)}
             seed={seed}
@@ -995,6 +1003,11 @@ export function NewGameScreen({
               setBattle(v);
               patch({ battle: v });
             }}
+            capitale={capitale}
+            setCapitale={(v) => {
+              setCapitale(v);
+              patch({ capitale: v });
+            }}
             avoid68={avoid68}
             setAvoid68={(v) => {
               setAvoid68(v);
@@ -1195,6 +1208,8 @@ interface RulesPresetProps {
   setCalamities: (v: boolean) => void;
   battle: boolean;
   setBattle: (v: boolean) => void;
+  capitale: boolean;
+  setCapitale: (v: boolean) => void;
   avoid68: boolean;
   setAvoid68: (v: boolean) => void;
   seed: string;
@@ -1288,6 +1303,16 @@ function RulesPreset(p: RulesPresetProps) {
             ⚔️ {it.battaglia.conBattaglia}
           </label>
           {p.battle && <div style={NOTE_STYLE}>{it.battaglia.spiega}</div>}
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={p.capitale}
+              disabled={!p.editable}
+              onChange={(e) => p.setCapitale(e.target.checked)}
+            />
+            👑 {it.capitale.conCapitale}
+          </label>
+          {p.capitale && <div style={NOTE_STYLE}>{it.capitale.spiega}</div>}
 
           {/* Modalità Squadra: un'altra «modalità» accanto a calamità e battaglia. */}
           {p.teamSlot}

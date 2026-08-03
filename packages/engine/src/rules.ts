@@ -147,6 +147,8 @@ export interface BattleView {
     id: PlayerId;
     villages: VertexId[];
     strongholds: VertexId[];
+    /** Modalità Capitale: le Capitali (indistruttibili). Assente ⇒ nessuna. */
+    capitals?: VertexId[];
     roads: EdgeId[];
     initialVillages: VertexId[];
   }>;
@@ -177,8 +179,10 @@ export function battleTargets(
   for (const p of state.players) {
     if (team.has(p.id)) continue; // né sé stessi né i compagni di squadra
     const indistruttibili = new Set(p.initialVillages);
-    // Le roccaforti sono sempre attaccabili (declassate a casetta).
-    for (const v of p.strongholds) if (reached(v)) out.push(v);
+    // La Capitale (modalità Capitale) non è MAI un bersaglio.
+    const capitali = new Set(p.capitals ?? []);
+    // Le roccaforti sono sempre attaccabili (declassate a casetta), tranne la Capitale.
+    for (const v of p.strongholds) if (!capitali.has(v) && reached(v)) out.push(v);
     // Le casette solo se NON sono un insediamento iniziale.
     for (const v of p.villages) if (!indistruttibili.has(v) && reached(v)) out.push(v);
   }

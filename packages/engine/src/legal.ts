@@ -192,6 +192,17 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
           moves.push({ type: 'costruisciRoccaforte', player, vertex: v });
         }
       }
+      // Capitale (modalità Capitale): evolve una propria Roccaforte, una sola.
+      if (
+        state.config.capitale &&
+        !calamityBlocksStronghold(state) &&
+        me.capitals.length < PIECE_LIMITS.capitale &&
+        hasAtLeast(me.resources, BUILD_COSTS.capitale)
+      ) {
+        for (const v of me.strongholds) {
+          if (!me.capitals.includes(v)) moves.push({ type: 'costruisciCapitale', player, vertex: v });
+        }
+      }
       if (state.sagaDeck.length > 0 && hasAtLeast(me.resources, BUILD_COSTS.cartaSaga)) {
         moves.push({ type: 'compraCartaSaga', player });
       }

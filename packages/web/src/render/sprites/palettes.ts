@@ -42,6 +42,8 @@ export const CLASSIC_THEME: ThemePalette = {
     tronco: '#5d4327',
     roccia: '#b8ad99',
     rocciaScura: '#7c7363',
+    oro: '#f2c94c', // corona/stendardo della Capitale
+    oroScuro: '#b8860b',
     mattone: '#d9794a', // faccia del mattone (cava di Pietra, ora arancione/rossa)
     mattoneScuro: '#6b2a12', // malta/ombra tra i mattoni
     pecora: '#f3f1e7',

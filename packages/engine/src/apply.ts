@@ -378,6 +378,20 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       });
       break;
     }
+    case 'costruisciCapitale': {
+      payCost(state, me.id, BUILD_COSTS.capitale);
+      // Il vertice resta ANCHE tra le roccaforti (rete/approdi/distanza): la
+      // Capitale è solo il "di più" (produce 3, vale 3, indistruttibile).
+      me.capitals.push(action.vertex);
+      events.push({
+        type: 'costruito',
+        player: me.id,
+        kind: 'capitale',
+        position: action.vertex,
+        gratis: false,
+      });
+      break;
+    }
     case 'compraCartaSaga': {
       payCost(state, me.id, BUILD_COSTS.cartaSaga);
       const card = state.sagaDeck.pop() as SagaCard;

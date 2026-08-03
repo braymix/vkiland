@@ -6,6 +6,7 @@ export type BuildMode =
   | 'sentiero'
   | 'villaggio'
   | 'roccaforte'
+  | 'capitale'
   | 'attacca'
   | 'spezza'
   | 'assalto'
@@ -65,6 +66,7 @@ export function ActionBar(props: Props) {
         {buildButton('sentiero', it.sentiero, has('costruisciSentiero'))}
         {buildButton('villaggio', it.villaggio, has('costruisciVillaggio'))}
         {buildButton('roccaforte', it.roccaforte, has('costruisciRoccaforte'))}
+        {view.capitale && buildButton('capitale', it.capitale.nome, has('costruisciCapitale'))}
         {view.battle && buildButton('attacca', it.battaglia.attacca, has('attaccaEdificio'))}
         {view.battle && buildButton('spezza', it.battaglia.spezza, has('spezzaSentiero'))}
         <button
@@ -119,6 +121,11 @@ export function ActionBar(props: Props) {
       {!props.errorText && mode === 'razzia' && (
         <div className="phase-banner" style={{ color: 'var(--accent)' }}>
           {it.razziaScegli}
+        </div>
+      )}
+      {!props.errorText && mode === 'capitale' && (
+        <div className="phase-banner" style={{ color: 'var(--accent)' }}>
+          {it.capitale.scegli}
         </div>
       )}
       {!props.errorText &&

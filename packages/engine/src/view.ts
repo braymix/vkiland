@@ -28,6 +28,7 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
     playedBerserkers: p.playedBerserkers,
     villages: [...p.villages],
     strongholds: [...p.strongholds],
+    capitals: [...p.capitals],
     roads: [...p.roads],
     gloryPointsPublic: gloryPoints(state, p.id, false),
   }));
@@ -97,6 +98,7 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
     calamity: activeCalamity(state),
     calamitiesLeft: state.calamities ? state.calamities.deck.length : null,
     battle: state.config.battle,
+    capitale: state.config.capitale,
     ...(state.config.teams
       ? { teams: [...state.config.teams], teamColors: [...(state.config.teamColors ?? [])] }
       : {}),

@@ -58,6 +58,8 @@ export interface LobbyConfig {
   calamities: boolean;
   /** Modalità Battaglia: attacchi agli edifici avversari raggiunti. */
   battle: boolean;
+  /** Modalità Capitale: la Capitale, evoluzione della Roccaforte (una sola per clan). */
+  capitale: boolean;
   /**
    * Scelta esplicita della tavola grande ('grande' 29 caselle / 'gigante' 37);
    * assente = tavola consigliata dal numero di giocatori (piccola per 2–4).

@@ -81,6 +81,7 @@ function CostRows() {
     sentiero: it.sentiero,
     villaggio: it.villaggio,
     roccaforte: it.roccaforte,
+    capitale: it.capitale.nome,
     cartaSaga: it.compraCarta,
   };
   return (

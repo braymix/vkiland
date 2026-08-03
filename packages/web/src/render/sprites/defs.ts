@@ -56,6 +56,38 @@ export const ROCCAFORTE: SpriteDef = {
   ],
 };
 
+/**
+ * Capitale (modalità Capitale): la Roccaforte evoluta, con la corona dorata e
+ * lo stendardo del clan. Vale 3 Punti Gloria, produce 3 e non si distrugge mai.
+ */
+export const CAPITALE: SpriteDef = {
+  map: {
+    S: 'roccia',
+    s: 'rocciaScura',
+    P: 'giocatoreMain',
+    q: 'nero',
+    t: 'tronco',
+    O: 'oro',
+    o: 'oroScuro',
+  },
+  rows: [
+    '.....O.O.O......',
+    '.....OOOOO......',
+    '.....OoOoO......',
+    '.S.S..OOO...S.S.',
+    '.SSS...t....SSS.',
+    '.SsS...tPP..SsS.',
+    '.SSS...tPPP.SSS.',
+    '.SSSS.S.S.SSSSS.',
+    '.SSSSSSSSSSSSSS.',
+    '.SSqSSSSSSSSqSS.',
+    '.SSSSSOOOSSSSSS.',
+    '.SsSSSOoOSSSSsS.',
+    '.SSSSSOOOSSSSSS.',
+    '.ssssssssssssss.',
+  ],
+};
+
 /** Il Drago: piazzato sull'esagono che blocca. */
 export const DRAGO: SpriteDef = {
   map: {

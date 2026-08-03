@@ -35,6 +35,7 @@ function topoKeyOf(view: PlayerView) {
 }
 import { bakeSprite, drawDigits, drawSpriteCentered, digitsWidth } from './sprites/bake';
 import {
+  CAPITALE,
   CRISTALLO_GHIACCIO,
   DRAKKAR,
   ICONA_RISORSA,
@@ -453,7 +454,11 @@ export function renderBoard(
       drawSpriteCentered(ctx, bakeSprite('villaggio', VILLAGGIO, main), pt.x, pt.y - 2);
       if (flag) drawFlag(ctx, pt.x + 2, pt.y - 4, flag);
     }
+    // La Capitale (modalità Capitale) è ANCHE tra le roccaforti: qui si salta,
+    // perché viene disegnata a parte col suo sprite (corona dorata).
+    const capitals = new Set(p.capitals);
     for (const v of p.strongholds) {
+      if (capitals.has(v)) continue;
       const pt = vertexPoint(v, radius);
       // Skin dell'inventario del proprietario (classica se assente) + ritocchi
       // della pietra (le bandiere restano del colore del clan / della squadra).
@@ -466,6 +471,11 @@ export function renderBoard(
         pt.y - 2
       );
       if (flag) drawFlag(ctx, pt.x + 3, pt.y - 5, flag);
+    }
+    for (const v of p.capitals) {
+      const pt = vertexPoint(v, radius);
+      drawSpriteCentered(ctx, bakeSprite('capitale', CAPITALE, main), pt.x, pt.y - 3);
+      if (flag) drawFlag(ctx, pt.x + 3, pt.y - 6, flag);
     }
   }
 

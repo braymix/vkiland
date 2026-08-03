@@ -167,6 +167,9 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
         case 'costruisciRoccaforte':
           if (mode === 'roccaforte') vertices.push(m.vertex);
           break;
+        case 'costruisciCapitale':
+          if (mode === 'capitale') vertices.push(m.vertex);
+          break;
         case 'attaccaEdificio':
           if (mode === 'attacca') attackVertices.push(m.vertex);
           break;
@@ -197,6 +200,7 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
         ((a.type === 'piazzaVillaggioIniziale' ||
           (a.type === 'costruisciVillaggio' && mode === 'villaggio') ||
           (a.type === 'costruisciRoccaforte' && mode === 'roccaforte') ||
+          (a.type === 'costruisciCapitale' && mode === 'capitale') ||
           (a.type === 'attaccaEdificio' && mode === 'attacca') ||
           (a.type === 'giocaAssalto' && mode === 'assalto')) &&
           'vertex' in a &&

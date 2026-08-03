@@ -34,6 +34,8 @@ export interface NewGameOptions {
   calamities?: boolean;
   /** Modalità Battaglia: attacchi agli edifici avversari. Default false. */
   battle?: boolean;
+  /** Modalità Capitale: la Capitale, evoluzione della Roccaforte. Default false. */
+  capitale?: boolean;
   /** Scelta esplicita della tavola grande; assente = consigliata dal numero di giocatori. */
   boardSize?: BoardSizeChoice;
   /** Forma della tavola; 'rientranze' = isola casuale con golfi e ponti. Assente = esagono classico. */
@@ -102,6 +104,7 @@ export function createGame(options: NewGameOptions): GameState {
     ...(shape ? { boardShape: shape } : {}),
     calamities: options.calamities ?? false,
     battle: options.battle ?? false,
+    capitale: options.capitale ?? false,
     ...(teams ? { teams: [...teams], teamColors: [...options.teamColors!] } : {}),
   };
 
@@ -143,6 +146,7 @@ export function createGame(options: NewGameOptions): GameState {
     playedBerserkers: 0,
     villages: [],
     strongholds: [],
+    capitals: [],
     roads: [],
     initialVillages: [],
     initialRoads: [],
@@ -254,6 +258,7 @@ export function cloneState(s: GameState): GameState {
       sagaCardsBoughtThisTurn: [...p.sagaCardsBoughtThisTurn],
       villages: [...p.villages],
       strongholds: [...p.strongholds],
+      capitals: [...p.capitals],
       roads: [...p.roads],
       initialVillages: [...p.initialVillages],
       initialRoads: [...p.initialRoads],
