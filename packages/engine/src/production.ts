@@ -15,6 +15,12 @@ import type { GameState, Resource, ResourceCount } from './types';
 export function produceResources(state: GameState, total: number, events: GameEvent[]): void {
   const topo = getTopology(boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes));
   const demand = new Map<number, ResourceCount>(); // giocatore → richiesta
+  // RAZZIA: la carta è posata su UNA casella. Solo la produzione di QUELLA casella
+  // (quando esce il suo numero) è dirottata al razziatore; tutte le altre caselle,
+  // anche se hanno lo stesso numero, fruttano normalmente ai loro proprietari.
+  const raider = state.razzia ? state.razzia.player : null;
+  const razziaHex = state.razzia ? state.razzia.hex : null;
+  const razziaGain = state.razzia ? zeroResources() : null; // bottino della sola casella razziata
 
   for (const hex of state.board.hexes) {
     if (hex.token !== total) continue;
@@ -24,6 +30,7 @@ export function produceResources(state: GameState, total: number, events: GameEv
     // Calamità: materiale bloccato (×0) o raddoppiato (×2) per questo giro.
     const mult = materialMultiplier(state, res);
     if (mult === 0) continue;
+    const raided = razziaHex !== null && hex.id === razziaHex;
     for (const v of topo.hexVertices[hex.id]!) {
       for (const p of state.players) {
         let amount = 0;
@@ -33,22 +40,25 @@ export function produceResources(state: GameState, total: number, events: GameEv
         else if (p.strongholds.includes(v)) amount = 2;
         else if (p.villages.includes(v)) amount = 1;
         if (amount === 0) continue;
-        const d = demand.get(p.id) ?? zeroResources();
-        d[res] += amount * mult;
-        demand.set(p.id, d);
+        if (raided) {
+          // Produzione della casella razziata: tutta al razziatore.
+          razziaGain![res] += amount * mult;
+        } else {
+          const d = demand.get(p.id) ?? zeroResources();
+          d[res] += amount * mult;
+          demand.set(p.id, d);
+        }
       }
     }
   }
 
-  // RAZZIA: se un clan ha giocato la Razzia, la produzione di questo tiro NON va
-  // ai proprietari delle caselle — la incassa tutta il razziatore (fin dove
-  // arriva la banca). Si fondono tutte le richieste in un'unica, sua.
-  if (state.razzia) {
-    const raider = state.razzia.player;
-    const merged = zeroResources();
-    for (const d of demand.values()) for (const res of RESOURCES) merged[res] += d[res];
-    demand.clear();
-    if (totalResources(merged) > 0) demand.set(raider, merged);
+  // Il bottino della casella razziata confluisce nella richiesta del razziatore,
+  // così la penuria di banca lo tratta come un unico richiedente insieme alla sua
+  // produzione normale (edifici su altre caselle).
+  if (razziaGain && totalResources(razziaGain) > 0) {
+    const d = demand.get(raider!) ?? zeroResources();
+    for (const res of RESOURCES) d[res] += razziaGain[res];
+    demand.set(raider!, d);
   }
 
   // Penuria banca, risorsa per risorsa.
@@ -84,14 +94,31 @@ export function produceResources(state: GameState, total: number, events: GameEv
   }
 
   if (shortage.length > 0) events.push({ type: 'penuriaBanca', resources: shortage });
-  if (gains.length > 0) {
-    if (state.razzia) {
-      // Produzione dirottata: evento dedicato (nel log «la razzia frutta a …»).
-      events.push({ type: 'razziaRiscossa', player: state.razzia.player, resources: gains[0]!.resources });
+
+  // Per il razziatore separiamo il bottino della casella razziata (evento dedicato
+  // «la razzia frutta a …») dalla sua produzione normale su altre caselle. In caso
+  // di penuria di banca il bottino razziato è la parte incassata per prima.
+  const razziaRiscossa = zeroResources();
+  const normalGains: { player: number; resources: ResourceCount }[] = [];
+  for (const g of gains) {
+    if (raider !== null && g.player === raider && razziaGain) {
+      const own = zeroResources();
+      for (const res of RESOURCES) {
+        const fromRazzia = Math.min(razziaGain[res], g.resources[res]);
+        razziaRiscossa[res] = fromRazzia;
+        own[res] = g.resources[res] - fromRazzia;
+      }
+      if (totalResources(own) > 0) normalGains.push({ player: g.player, resources: own });
     } else {
-      gains.sort((a, b) => a.player - b.player);
-      events.push({ type: 'risorseProdotte', gains });
+      normalGains.push(g);
     }
+  }
+  if (normalGains.length > 0) {
+    normalGains.sort((a, b) => a.player - b.player);
+    events.push({ type: 'risorseProdotte', gains: normalGains });
+  }
+  if (totalResources(razziaRiscossa) > 0) {
+    events.push({ type: 'razziaRiscossa', player: raider!, resources: razziaRiscossa });
   }
 }
 

@@ -454,7 +454,7 @@ export const es: Strings = {
     costruttoriDiSentieri: 'Coloca de inmediato 2 caminos gratis.',
     banchetto: 'Toma 2 recursos a tu elección de la banca.',
     tributo: 'Cada rival te entrega TODAS sus unidades de un recurso.',
-    razzia: 'Colócala en una casilla: hasta tu próximo turno nadie recibe recursos de las tiradas — los cobras todos tú.',
+    razzia: 'Colócala en una casilla: hasta tu próximo turno la producción de ESA casilla es tuya, no de los propietarios.',
   },
 
   /**
@@ -527,7 +527,7 @@ export const es: Strings = {
     cartaGiocata: '{nome} juega: {carta}',
     banchetto: '{nome} celebra un banquete: +{r1} y +{r2}',
     tributo: '{nome} cobra el tributo: {n}× {risorsa}',
-    razziaPosata: '💰 {nome} desata un Saqueo: desde ahora cobra la producción de todos',
+    razziaPosata: '💰 {nome} desata un Saqueo en una casilla: cobra su producción hasta su próximo turno',
     razziaRiscossa: '💰 El Saqueo rinde a {nome}: {risorse}',
     franaSpezzata: '⛰️ Un deslizamiento derrumba un camino de {nome}',
     scambioProposto: '{nome} propone un intercambio',

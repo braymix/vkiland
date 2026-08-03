@@ -454,7 +454,7 @@ export const en: Strings = {
     costruttoriDiSentieri: 'Immediately place 2 free paths.',
     banchetto: 'Take 2 resources of your choice from the bank.',
     tributo: 'Every opponent hands you ALL their units of one resource.',
-    razzia: 'Place it on a hex: until your next turn nobody gains from the dice — you collect it all.',
+    razzia: 'Place it on a hex: until your next turn that hex’s production is yours, not the owners’.',
   },
 
   /**
@@ -527,7 +527,7 @@ export const en: Strings = {
     cartaGiocata: '{nome} plays: {carta}',
     banchetto: '{nome} feasts: +{r1} and +{r2}',
     tributo: '{nome} collects the tribute: {n}× {risorsa}',
-    razziaPosata: '💰 {nome} unleashes a Raid: from now on collects everyone’s production',
+    razziaPosata: '💰 {nome} unleashes a Raid on a hex: collects its production until their next turn',
     razziaRiscossa: '💰 The Raid pays off for {nome}: {risorse}',
     franaSpezzata: '⛰️ A landslide collapses one of {nome}’s roads',
     scambioProposto: '{nome} proposes a trade',

@@ -399,7 +399,7 @@ export const it = {
     costruttoriDiSentieri: 'Piazza subito 2 sentieri gratuiti.',
     banchetto: 'Prendi 2 risorse a scelta dalla banca.',
     tributo: 'Tutti gli avversari ti consegnano TUTTE le unità di una risorsa.',
-    razzia: 'Posala su una casella: fino al ritorno del tuo turno nessuno prende risorse dai tiri — le incassi tutte tu.',
+    razzia: 'Posala su una casella: fino al ritorno del tuo turno la produzione di QUELLA casella è tua, non dei proprietari.',
   } satisfies Record<SagaCard, string>,
 
   // --- Modalità Calamità ---
@@ -539,7 +539,7 @@ export const it = {
     cartaGiocata: '{nome} gioca: {carta}',
     banchetto: '{nome} banchetta: +{r1} e +{r2}',
     tributo: '{nome} riscuote il tributo: {n}× {risorsa}',
-    razziaPosata: '💰 {nome} scatena una Razzia: da ora incassa la produzione di tutti',
+    razziaPosata: '💰 {nome} scatena una Razzia su una casella: ne incassa la produzione fino al suo prossimo turno',
     razziaRiscossa: '💰 La Razzia frutta a {nome}: {risorse}',
     franaSpezzata: '⛰️ Una frana fa crollare una strada di {nome}',
     scambioProposto: '{nome} propone uno scambio',

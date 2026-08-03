@@ -454,7 +454,7 @@ export const sr: Strings = {
     costruttoriDiSentieri: 'Odmah postavi 2 besplatna puta.',
     banchetto: 'Uzmi 2 resursa po izboru iz banke.',
     tributo: 'Svaki protivnik ti predaje SVE svoje jedinice jednog resursa.',
-    razzia: 'Postavi je na polje: do tvog sledećeg poteza niko ne dobija resurse sa bacanja — sve uzimaš ti.',
+    razzia: 'Postavi je na polje: do tvog sledećeg poteza proizvodnja TOG polja je tvoja, a ne vlasnika.',
   },
 
   /**
@@ -527,7 +527,7 @@ export const sr: Strings = {
     cartaGiocata: '{nome} igra: {carta}',
     banchetto: '{nome} gozbuje: +{r1} i +{r2}',
     tributo: '{nome} naplaćuje danak: {n}× {risorsa}',
-    razziaPosata: '💰 {nome} pokreće Pljačku: od sada uzima proizvodnju svih',
+    razziaPosata: '💰 {nome} pokreće Pljačku na polju: uzima njegovu proizvodnju do sledećeg poteza',
     razziaRiscossa: '💰 Pljačka donosi {nome}: {risorse}',
     franaSpezzata: '⛰️ Odron ruši jedan put igrača {nome}',
     scambioProposto: '{nome} predlaže razmenu',

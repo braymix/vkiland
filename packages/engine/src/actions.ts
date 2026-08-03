@@ -136,9 +136,9 @@ export type GameEvent =
   | { type: 'tributoRiscosso'; player: PlayerId; resource: Resource; total: number }
   /** Calamità Frana: una strada marginale del giocatore con più strade è crollata. */
   | { type: 'franaSpezzata'; player: PlayerId; edge: EdgeId }
-  /** Razzia posata su una casella: da qui la produzione dei tiri è del razziatore. */
+  /** Razzia posata su una casella: da qui la produzione di QUELLA casella è del razziatore. */
   | { type: 'razziaPosata'; player: PlayerId; hex: HexId }
-  /** Una razzia attiva ha incassato la produzione di un tiro al posto di tutti. */
+  /** Una razzia attiva ha incassato la produzione della casella colpita al posto dei proprietari. */
   | { type: 'razziaRiscossa'; player: PlayerId; resources: ResourceCount }
   | { type: 'scambioProposto'; offer: TradeOffer }
   | { type: 'rispostaScambio'; player: PlayerId; offerId: number; accepted: boolean }

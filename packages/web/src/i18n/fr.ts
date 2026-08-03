@@ -455,7 +455,7 @@ export const fr: Strings = {
     costruttoriDiSentieri: 'Place aussitôt 2 chemins gratuits.',
     banchetto: 'Prends 2 ressources de ton choix dans la banque.',
     tributo: "Chaque adversaire te remet TOUTES ses unités d'une ressource.",
-    razzia: 'Pose-la sur une case : jusqu’à ton prochain tour personne ne reçoit de ressources des dés — tu encaisses tout.',
+    razzia: 'Pose-la sur une case : jusqu’à ton prochain tour la production de CETTE case est à toi, pas aux propriétaires.',
   },
 
   /**
@@ -528,7 +528,7 @@ export const fr: Strings = {
     cartaGiocata: '{nome} joue : {carta}',
     banchetto: '{nome} festoie : +{r1} et +{r2}',
     tributo: '{nome} encaisse le tribut : {n}× {risorsa}',
-    razziaPosata: '💰 {nome} déclenche une Razzia : encaisse désormais la production de tous',
+    razziaPosata: '💰 {nome} déclenche une Razzia sur une case : en encaisse la production jusqu’à son prochain tour',
     razziaRiscossa: '💰 La Razzia rapporte à {nome} : {risorse}',
     franaSpezzata: '⛰️ Un éboulement fait s’effondrer un chemin de {nome}',
     scambioProposto: '{nome} propose un échange',
