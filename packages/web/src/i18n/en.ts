@@ -465,7 +465,7 @@ export const en: Strings = {
     nome: '👑 Capital',
     conCapitale: 'With capital',
     spiega:
-      'Upgrade one of your Strongholds into a Capital (1 wood, 1 stone, 2 barley, 3 iron): it is worth 3 Glory Points, yields 3 resources instead of 2 and can never be destroyed. Only one can be built.',
+      'Upgrade one of your Strongholds into a Capital (1 wood, 1 stone, 1 sheep, 2 barley, 3 iron): it is worth 3 Glory Points, yields 3 resources instead of 2 and can never be destroyed. Only one can be built.',
     scegli: 'Choose which of your Strongholds to upgrade into the Capital.',
   },
 

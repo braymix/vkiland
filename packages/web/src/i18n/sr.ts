@@ -465,7 +465,7 @@ export const sr: Strings = {
     nome: '👑 Prestonica',
     conCapitale: 'Sa prestonicom',
     spiega:
-      'Unapredi jednu svoju Tvrđavu u Prestonicu (1 drvo, 1 kamen, 2 ječam, 3 gvožđe): vredi 3 poena slave, donosi 3 sirovine umesto 2 i nikada se ne može uništiti. Može se sagraditi samo jedna.',
+      'Unapredi jednu svoju Tvrđavu u Prestonicu (1 drvo, 1 kamen, 1 ovca, 2 ječam, 3 gvožđe): vredi 3 poena slave, donosi 3 sirovine umesto 2 i nikada se ne može uništiti. Može se sagraditi samo jedna.',
     scegli: 'Izaberi koju Tvrđavu da unaprediš u Prestonicu.',
   },
 

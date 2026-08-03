@@ -466,7 +466,7 @@ export const fr: Strings = {
     nome: '👑 Capitale',
     conCapitale: 'Avec capitale',
     spiega:
-      'Faites évoluer une de vos Forteresses en Capitale (1 bois, 1 pierre, 2 orge, 3 fer) : elle vaut 3 Points de Gloire, rapporte 3 ressources au lieu de 2 et ne peut jamais être détruite. On ne peut en construire qu’une seule.',
+      'Faites évoluer une de vos Forteresses en Capitale (1 bois, 1 pierre, 1 mouton, 2 orge, 3 fer) : elle vaut 3 Points de Gloire, rapporte 3 ressources au lieu de 2 et ne peut jamais être détruite. On ne peut en construire qu’une seule.',
     scegli: 'Choisissez la Forteresse à faire évoluer en Capitale.',
   },
 
