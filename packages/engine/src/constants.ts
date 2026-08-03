@@ -76,16 +76,20 @@ export const TOKEN_POOL_GRANDE: readonly number[] = [
   12, 12,
 ];
 
-export type Buildable = 'sentiero' | 'villaggio' | 'roccaforte' | 'cartaSaga';
+export type Buildable = 'sentiero' | 'villaggio' | 'roccaforte' | 'capitale' | 'cartaSaga';
 
 export const BUILD_COSTS: Readonly<Record<Buildable, ResourceCount>> = {
   sentiero: { legname: 1, pietra: 1, lana: 0, orzo: 0, ferro: 0 },
   villaggio: { legname: 1, pietra: 1, lana: 1, orzo: 1, ferro: 0 },
   roccaforte: { legname: 0, pietra: 0, lana: 0, orzo: 2, ferro: 3 },
+  // Capitale (modalità opzionale): evoluzione della Roccaforte.
+  // 3 ferro, 2 orzo, 1 pietra (mattone rosso), 1 legname.
+  capitale: { legname: 1, pietra: 1, lana: 0, orzo: 2, ferro: 3 },
   cartaSaga: { legname: 0, pietra: 0, lana: 1, orzo: 1, ferro: 1 },
 };
 
-export const PIECE_LIMITS = { villaggio: 5, roccaforte: 4, sentiero: 15 } as const;
+/** Se ne può costruire UNA SOLA per clan (modalità Capitale). */
+export const PIECE_LIMITS = { villaggio: 5, roccaforte: 4, capitale: 1, sentiero: 15 } as const;
 
 /**
  * Modalità Battaglia — ATTACCO PESANTE: costo per colpire una casetta o

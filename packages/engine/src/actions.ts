@@ -27,6 +27,8 @@ export type Action =
   | { type: 'costruisciSentiero'; player: PlayerId; edge: EdgeId }
   | { type: 'costruisciVillaggio'; player: PlayerId; vertex: VertexId }
   | { type: 'costruisciRoccaforte'; player: PlayerId; vertex: VertexId }
+  //   Capitale (modalità opzionale): evolve una propria Roccaforte. Una sola.
+  | { type: 'costruisciCapitale'; player: PlayerId; vertex: VertexId }
   | { type: 'compraCartaSaga'; player: PlayerId }
   // --- Battaglia (modalità opzionale) ---
   //   Attacco PESANTE: colpisci la casetta/roccaforte avversaria raggiunta.
@@ -106,7 +108,7 @@ export type GameEvent =
   | {
       type: 'costruito';
       player: PlayerId;
-      kind: 'sentiero' | 'villaggio' | 'roccaforte';
+      kind: 'sentiero' | 'villaggio' | 'roccaforte' | 'capitale';
       position: string;
       gratis: boolean;
     }

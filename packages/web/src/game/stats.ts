@@ -137,7 +137,8 @@ export function accumulateStats(stats: GameStats, e: GameEvent): void {
       if (!p) break;
       if (e.kind === 'sentiero') p.roads++;
       else if (e.kind === 'villaggio') p.villages++;
-      else p.strongholds++;
+      else if (e.kind === 'roccaforte') p.strongholds++;
+      // 'capitale' evolve una roccaforte già contata: non è un nuovo edificio.
       break;
     }
     case 'cartaSagaComprata': {

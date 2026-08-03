@@ -580,6 +580,7 @@ function sanitizeConfig(c: LobbyConfig): LobbyConfig {
     isPublic: Boolean(c.isPublic),
     calamities: Boolean(c.calamities),
     battle: Boolean(c.battle),
+    capitale: Boolean(c.capitale),
     // Solo 'grande' o 'gigante' sono valori validi; qualsiasi altro = consigliata.
     ...(c.boardSize === 'grande' || c.boardSize === 'gigante' ? { boardSize: c.boardSize } : {}),
     // Forma tavola: solo 'rientranze' è un valore valido; altro = esagono classico.

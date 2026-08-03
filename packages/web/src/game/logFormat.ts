@@ -124,8 +124,11 @@ export function describeEvent(e: GameEvent, state: NamedPlayers): string | null 
             ladro: nameOf(state, e.thief),
             vittima: nameOf(state, e.victim),
           });
-    case 'costruito':
-      return t(it.log.costruito, { nome: nameOf(state, e.player), cosa: it[e.kind] });
+    case 'costruito': {
+      // `it.capitale` è un oggetto (modalità): l'etichetta è `it.capitale.nome`.
+      const cosa = e.kind === 'capitale' ? it.capitale.nome : it[e.kind];
+      return t(it.log.costruito, { nome: nameOf(state, e.player), cosa });
+    }
     case 'edificioAttaccato':
       return t(
         e.esito === 'roccaforteDeclassata'

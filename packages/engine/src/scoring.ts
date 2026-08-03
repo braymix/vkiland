@@ -15,7 +15,8 @@ export function countHiddenHeroes(p: PlayerState): number {
 export function scoreBreakdown(state: GameState, player: PlayerId): ScoreBreakdown {
   const p = state.players[player]!;
   const villaggi = p.villages.length;
-  const roccaforti = p.strongholds.length * 2;
+  // La Capitale è ANCHE in `strongholds` (vale 2 lì) + 1 di bonus = 3 Punti Gloria.
+  const roccaforti = p.strongholds.length * 2 + p.capitals.length;
   const grandeVia = state.longestRoad.holder === player ? BONUS_GLORY : 0;
   const furia = state.largestArmy.holder === player ? BONUS_GLORY : 0;
   const eroiNascosti = countHiddenHeroes(p);

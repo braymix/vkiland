@@ -169,6 +169,7 @@ export function randomPlayout(
     nPlayers?: number;
     maxActions?: number;
     calamities?: boolean;
+    capitale?: boolean;
     boardShape?: 'rientranze';
   } = {}
 ): PlayoutResult {
@@ -184,6 +185,7 @@ export function randomPlayout(
     seed,
     players: makePlayers(nPlayers),
     ...(opts.calamities ? { calamities: true } : {}),
+    ...(opts.capitale ? { capitale: true } : {}),
     ...(opts.boardShape ? { boardShape: opts.boardShape } : {}),
   });
   const actions: Action[] = [];
@@ -219,6 +221,7 @@ export function randomPlayout(
         a.type === 'costruisciSentiero' ||
         a.type === 'costruisciVillaggio' ||
         a.type === 'costruisciRoccaforte' ||
+        a.type === 'costruisciCapitale' ||
         a.type === 'compraCartaSaga'
     );
     let pool = concrete;

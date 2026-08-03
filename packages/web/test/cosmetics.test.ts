@@ -55,6 +55,7 @@ describe('skin in una partita LOCALE (single player, nessun account richiesto)',
     targetGloryPoints: 10,
     calamities: false,
     battle: false,
+    capitale: false,
   };
 
   it('la skin del posto umano (letta dal dispositivo in SetupScreen) arriva nella vista', () => {

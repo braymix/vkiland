@@ -124,6 +124,7 @@ export class GameRoom {
       targetGloryPoints: config.targetGloryPoints,
       calamities: config.calamities,
       battle: config.battle,
+      capitale: config.capitale,
       ...(config.boardSize ? { boardSize: config.boardSize } : {}),
       ...(config.boardShape ? { boardShape: config.boardShape } : {}),
       // Modalità Squadra: assegnazione per-posto + colori/bersaglio dalla lobby.

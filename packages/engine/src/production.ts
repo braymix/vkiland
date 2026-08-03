@@ -27,8 +27,11 @@ export function produceResources(state: GameState, total: number, events: GameEv
     for (const v of topo.hexVertices[hex.id]!) {
       for (const p of state.players) {
         let amount = 0;
-        if (p.villages.includes(v)) amount = 1;
+        // La Capitale (modalità Capitale) è ANCHE in `strongholds`: si controlla
+        // prima, perché frutta 3 al posto dei 2 della Roccaforte.
+        if (p.capitals.includes(v)) amount = 3;
         else if (p.strongholds.includes(v)) amount = 2;
+        else if (p.villages.includes(v)) amount = 1;
         if (amount === 0) continue;
         const d = demand.get(p.id) ?? zeroResources();
         d[res] += amount * mult;

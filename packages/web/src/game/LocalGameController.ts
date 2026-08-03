@@ -46,6 +46,8 @@ export interface GameSetup {
   calamities: boolean;
   /** Modalità Battaglia: attacchi agli edifici avversari (default false). */
   battle: boolean;
+  /** Modalità Capitale: la Capitale, evoluzione della Roccaforte (default false). */
+  capitale: boolean;
   /** Tavola grande scelta esplicitamente; assente = consigliata dal numero di giocatori. */
   boardSize?: BoardSizeChoice;
   /** Forma della tavola; 'rientranze' = isola casuale con golfi e ponti. */
@@ -69,6 +71,7 @@ const UNDOABLE_BUILDS = new Set<Action['type']>([
   'costruisciSentiero',
   'costruisciVillaggio',
   'costruisciRoccaforte',
+  'costruisciCapitale',
   'piazzaSentieroGratis',
 ]);
 

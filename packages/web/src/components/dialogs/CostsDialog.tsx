@@ -28,6 +28,8 @@ const ROWS: RowDef[] = [
   { kind: 'sentiero', glory: 0, max: PIECE_LIMITS.sentiero },
   { kind: 'villaggio', glory: 1, max: PIECE_LIMITS.villaggio },
   { kind: 'roccaforte', glory: 2, max: PIECE_LIMITS.roccaforte },
+  // La Capitale (modalità Capitale) si mostra solo se la modalità è attiva.
+  { kind: 'capitale', glory: 3, max: PIECE_LIMITS.capitale },
   { kind: 'cartaSaga', glory: 0, max: null },
 ];
 
@@ -83,12 +85,13 @@ export function CostsDialog({
     sentiero: it.sentiero,
     villaggio: it.villaggio,
     roccaforte: it.roccaforte,
+    capitale: it.capitale.nome,
     cartaSaga: it.compraCarta,
   };
   return (
     <Dialog title={it.bugiardinoTitolo}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        {ROWS.map((row) => (
+        {ROWS.filter((row) => row.kind !== 'capitale' || view.capitale).map((row) => (
           <div key={row.kind} style={rowStyle}>
             <span>
               {label[row.kind]}
