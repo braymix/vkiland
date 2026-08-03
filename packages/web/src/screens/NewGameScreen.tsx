@@ -14,7 +14,12 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import {
   DEFAULT_TARGET_GLORY,
+  MAX_CUSTOM_HEXES,
   MAX_PLAYERS,
+  MIN_CUSTOM_HEXES,
+  defaultDesertCount,
+  maxDesertCount,
+  resolveBoardSpec,
   type BoardShapeChoice,
   type BoardSizeChoice,
   type BotLevel,
@@ -76,6 +81,21 @@ const botLevelLabel = (l: BotLevel) =>
 const autoBoardSize = (count: number): BoardSizeChoice | null =>
   count >= 7 ? 'gigante' : count >= 5 ? 'grande' : null;
 
+/** Interi arrotondati e limitati a [min, max] (con fallback al minimo se non numerico). */
+const clampInt = (n: number, min: number, max: number): number =>
+  Math.max(min, Math.min(max, Number.isFinite(n) ? Math.round(n) : min));
+
+/** Numero di caselle del «campo libero» dal testo digitato (o `fallback` se vuoto). */
+const computeHexCount = (on: boolean, raw: string, fallback: number): number | undefined =>
+  on ? clampInt(parseInt(raw, 10) || fallback, MIN_CUSTOM_HEXES, MAX_CUSTOM_HEXES) : undefined;
+
+/** Deserti dal testo digitato (o il default della taglia se vuoto), limitati a [1, caselle-1]. */
+const computeDesertCount = (raw: string, total: number): number => {
+  const def = defaultDesertCount(total);
+  const n = raw.trim() ? parseInt(raw, 10) || def : def;
+  return clampInt(n, 1, maxDesertCount(total));
+};
+
 /** Intestazione di categoria dentro il pannello regole. */
 const CAT_STYLE: CSSProperties = {
   fontSize: 9,
@@ -113,6 +133,11 @@ export function NewGameScreen({
   const [boardSizeTouched, setBoardSizeTouched] = useState(false);
   // Forma della tavola: null = esagono classico; 'rientranze' = isola con golfi.
   const [boardShape, setBoardShape] = useState<BoardShapeChoice | null>(null);
+  // Campo libero: numero di caselle scelto a mano (vince su taglia/forma preset).
+  const [liberoOn, setLiberoOn] = useState(false);
+  const [caselleRaw, setCaselleRaw] = useState('');
+  // Deserti (tundra) scelti a mano; vuoto = default della taglia (prevalorizzato).
+  const [desertiRaw, setDesertiRaw] = useState('');
   const [rulesOpen, setRulesOpen] = useState(false);
   const timerSec = Math.max(0, Math.min(600, Math.floor(Number(timerRaw) || 0)));
 
@@ -165,6 +190,21 @@ export function NewGameScreen({
 
   // Numero di giocatori corrente: posti locali (hot-seat) o slot della lobby online.
   const playerCount = mode === 'online' ? (lobby?.slots.length ?? seats.length) : seats.length;
+
+  // --- Campo personalizzabile: valori derivati (caselle e deserti) ---
+  // Caselle della taglia preset corrente (piccola 19 / grande 30 / gigante 37):
+  // è il fallback del «campo libero» e la base per il default dei deserti.
+  const presetTotal = resolveBoardSpec(playerCount, boardSize ?? undefined).terrainPool.length;
+  const hexCountVal = computeHexCount(liberoOn, caselleRaw, presetTotal);
+  const effectiveTotal = hexCountVal ?? presetTotal;
+  const defaultDeserts = defaultDesertCount(effectiveTotal);
+  const maxDeserts = maxDesertCount(effectiveTotal);
+  // Valore mostrato nel campo Deserti: il default della taglia se non digitato.
+  const desertiShown = desertiRaw !== '' ? desertiRaw : String(defaultDeserts);
+  const desertCountVal = computeDesertCount(desertiShown, effectiveTotal);
+  // Si trasmette il numero di deserti SOLO se diverso dal default (altrimenti
+  // resta il comportamento classico, byte-per-byte identico per lo stesso seme).
+  const desertCountSend = desertCountVal !== defaultDeserts ? desertCountVal : undefined;
 
   // --- Modalità Squadra: valori derivati (validi sia in locale sia online) ---
   // In online l'assegnazione dei posti alle squadre è autorevole lato server
@@ -289,6 +329,10 @@ export function NewGameScreen({
     setBoardSize(lobby.config.boardSize ?? autoBoardSize(lobby.slots.length));
     setBoardSizeTouched(lobby.config.boardSize != null);
     setBoardShape(lobby.config.boardShape ?? null);
+    // Campo libero e deserti: settaggi autorevoli dell'host.
+    setLiberoOn(lobby.config.hexCount != null);
+    setCaselleRaw(lobby.config.hexCount != null ? String(lobby.config.hexCount) : '');
+    setDesertiRaw(lobby.config.desertCount != null ? String(lobby.config.desertCount) : '');
     // Modalità squadra: settaggi autorevoli dell'host.
     setTeamMode(lobby.config.teamMode ?? false);
     setNumTeams(lobby.config.numTeams ?? 2);
@@ -317,7 +361,9 @@ export function NewGameScreen({
   const patch = (
     change: Partial<LobbyConfig>,
     boardSizeVal: BoardSizeChoice | null = boardSize,
-    boardShapeVal: BoardShapeChoice | null = boardShape
+    boardShapeVal: BoardShapeChoice | null = boardShape,
+    hexCountV: number | undefined = hexCountVal,
+    desertCountV: number | undefined = desertCountSend
   ) => {
     if (!lobby) return;
     const next: LobbyConfig = {
@@ -330,6 +376,8 @@ export function NewGameScreen({
       capitale: change.capitale ?? capitale,
       ...(boardSizeVal ? { boardSize: boardSizeVal } : {}),
       ...(boardShapeVal ? { boardShape: boardShapeVal } : {}),
+      ...(hexCountV != null ? { hexCount: hexCountV } : {}),
+      ...(desertCountV != null ? { desertCount: desertCountV } : {}),
       ...((change.seed ?? seed).trim() ? { seed: (change.seed ?? seed).trim() } : {}),
       ...teamConfigPart(change),
     };
@@ -363,6 +411,8 @@ export function NewGameScreen({
     capitale,
     ...(boardSize ? { boardSize } : {}),
     ...(boardShape ? { boardShape } : {}),
+    ...(hexCountVal != null ? { hexCount: hexCountVal } : {}),
+    ...(desertCountSend != null ? { desertCount: desertCountSend } : {}),
     ...(seed.trim() ? { seed: seed.trim() } : {}),
     ...teamConfigPart(),
   });
@@ -422,6 +472,41 @@ export function NewGameScreen({
     const nextVal: BoardShapeChoice | null = boardShape === 'rientranze' ? null : 'rientranze';
     setBoardShape(nextVal);
     if (mode === 'online') patch({}, boardSize, nextVal);
+  };
+
+  /** Attiva/disattiva il «campo libero» (numero di caselle scelto a mano). */
+  const toggleLibero = () => {
+    const nextOn = !liberoOn;
+    setLiberoOn(nextOn);
+    if (mode === 'online') {
+      const nextHex = computeHexCount(nextOn, caselleRaw, presetTotal);
+      const total = nextHex ?? presetTotal;
+      patch({}, boardSize, boardShape, nextHex, desertSendFor(desertiRaw, total));
+    }
+  };
+
+  /** Aggiorna il numero di caselle del campo libero (e in online lo propaga). */
+  const setCaselle = (v: string) => {
+    setCaselleRaw(v);
+    if (mode === 'online' && liberoOn) {
+      const nextHex = computeHexCount(true, v, presetTotal);
+      const total = nextHex ?? presetTotal;
+      patch({}, boardSize, boardShape, nextHex, desertSendFor(desertiRaw, total));
+    }
+  };
+
+  /** Aggiorna il numero di deserti (e in online lo propaga). */
+  const setDeserti = (v: string) => {
+    setDesertiRaw(v);
+    if (mode === 'online') {
+      patch({}, boardSize, boardShape, hexCountVal, desertSendFor(v, effectiveTotal));
+    }
+  };
+
+  /** Numero di deserti da TRASMETTERE dal testo digitato: assente se pari al default. */
+  const desertSendFor = (raw: string, total: number): number | undefined => {
+    const val = computeDesertCount(raw !== '' ? raw : String(defaultDesertCount(total)), total);
+    return val !== defaultDesertCount(total) ? val : undefined;
   };
 
   // --- Azioni online ---
@@ -526,6 +611,8 @@ export function NewGameScreen({
       capitale,
       ...(boardSize ? { boardSize } : {}),
       ...(boardShape ? { boardShape } : {}),
+      ...(hexCountVal != null ? { hexCount: hexCountVal } : {}),
+      ...(desertCountSend != null ? { desertCount: desertCountSend } : {}),
       ...(teamMode && teamsBalanced
         ? { teams: [...seatTeams], teamColors: teamColors.slice(0, numTeams), teamTargetPerPlayer: teamTarget }
         : {}),
@@ -770,6 +857,14 @@ export function NewGameScreen({
             onPickBoard={pickBoardSize}
             boardShape={boardShape}
             onToggleShape={toggleBoardShape}
+            liberoOn={liberoOn}
+            onToggleLibero={toggleLibero}
+            caselleRaw={caselleRaw}
+            setCaselle={setCaselle}
+            presetTotal={presetTotal}
+            desertiShown={desertiShown}
+            setDeserti={setDeserti}
+            maxDeserts={maxDeserts}
             timerRaw={timerRaw}
             setTimerRaw={setTimerRaw}
             commitTimer={() => {}}
@@ -1020,6 +1115,14 @@ export function NewGameScreen({
             onPickBoard={pickBoardSize}
             boardShape={boardShape}
             onToggleShape={toggleBoardShape}
+            liberoOn={liberoOn}
+            onToggleLibero={toggleLibero}
+            caselleRaw={caselleRaw}
+            setCaselle={setCaselle}
+            presetTotal={presetTotal}
+            desertiShown={desertiShown}
+            setDeserti={setDeserti}
+            maxDeserts={maxDeserts}
             timerRaw={timerRaw}
             setTimerRaw={setTimerRaw}
             commitTimer={() => patch({ turnTimerSec: timerSec })}
@@ -1221,6 +1324,17 @@ interface RulesPresetProps {
   /** Forma della tavola (null = esagono classico; 'rientranze' = isola con golfi). */
   boardShape: BoardShapeChoice | null;
   onToggleShape: () => void;
+  /** Campo libero: numero di caselle scelto a mano. */
+  liberoOn: boolean;
+  onToggleLibero: () => void;
+  caselleRaw: string;
+  setCaselle: (v: string) => void;
+  /** Caselle della taglia preset corrente (fallback/placeholder del campo libero). */
+  presetTotal: number;
+  /** Deserti: testo mostrato (default prevalorizzato), setter e limiti. */
+  desertiShown: string;
+  setDeserti: (v: string) => void;
+  maxDeserts: number;
   timerRaw: string;
   setTimerRaw: (v: string) => void;
   commitTimer: () => void;
@@ -1323,7 +1437,7 @@ function RulesPreset(p: RulesPresetProps) {
             <input
               type="checkbox"
               checked={p.boardSize === 'grande'}
-              disabled={!p.editable}
+              disabled={!p.editable || p.liberoOn}
               onChange={() => p.onPickBoard('grande')}
             />
             {it.campoGrande}
@@ -1333,7 +1447,7 @@ function RulesPreset(p: RulesPresetProps) {
             <input
               type="checkbox"
               checked={p.boardSize === 'gigante'}
-              disabled={!p.editable}
+              disabled={!p.editable || p.liberoOn}
               onChange={() => p.onPickBoard('gigante')}
             />
             {it.campoGigante}
@@ -1343,12 +1457,57 @@ function RulesPreset(p: RulesPresetProps) {
             <input
               type="checkbox"
               checked={p.boardShape === 'rientranze'}
-              disabled={!p.editable}
+              disabled={!p.editable || p.liberoOn}
               onChange={p.onToggleShape}
             />
             {it.campoRientranze}
           </label>
           <div style={NOTE_STYLE}>{it.campoRientranzeSpiega}</div>
+
+          {/* Campo libero: numero di caselle scelto a mano (vince su taglia/forma). */}
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={p.liberoOn}
+              disabled={!p.editable}
+              onChange={p.onToggleLibero}
+            />
+            {it.campoLibero}
+          </label>
+          {p.liberoOn && (
+            <div className="stepper-row">
+              <span style={{ fontSize: 9 }}>{it.numeroCaselle}</span>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={MIN_CUSTOM_HEXES}
+                max={MAX_CUSTOM_HEXES}
+                placeholder={String(p.presetTotal)}
+                value={p.caselleRaw}
+                disabled={!p.editable}
+                onChange={(e) => p.setCaselle(e.target.value)}
+                style={{ width: 70 }}
+              />
+            </div>
+          )}
+          <div style={NOTE_STYLE}>{t(it.campoLiberoSpiega, { min: MIN_CUSTOM_HEXES, max: MAX_CUSTOM_HEXES })}</div>
+
+          {/* Deserti (tundra): numero libero, con il default della taglia prevalorizzato. */}
+          <div className="stepper-row">
+            <span style={{ fontSize: 9 }}>{it.deserti}</span>
+            <input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={p.maxDeserts}
+              value={p.desertiShown}
+              disabled={!p.editable}
+              onChange={(e) => p.setDeserti(e.target.value)}
+              style={{ width: 70 }}
+            />
+          </div>
+          <div style={NOTE_STYLE}>{it.desertiSpiega}</div>
+
           <label className="check">
             <input
               type="checkbox"

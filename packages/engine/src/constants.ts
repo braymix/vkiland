@@ -28,9 +28,9 @@ export const TOKEN_POOL: readonly number[] = [2, 3, 3, 4, 4, 5, 5, 6, 6, 8, 8, 9
 /** 37 terreni della tavola GIGANTE (7–8 giocatori): 2 tundra (deserti), 35 produttive. */
 export const TERRAIN_POOL_GIGANTE: readonly TerrainType[] = [
   ...Array<TerrainType>(8).fill('legname'),
-  ...Array<TerrainType>(7).fill('lana'),
+  ...Array<TerrainType>(6).fill('lana'),
   ...Array<TerrainType>(8).fill('orzo'),
-  ...Array<TerrainType>(6).fill('pietra'),
+  ...Array<TerrainType>(7).fill('pietra'),
   ...Array<TerrainType>(6).fill('ferro'),
   'tundra', 'tundra',
 ];
@@ -237,6 +237,178 @@ export function resolveBoardSpec(playerCount: number, boardSize?: BoardSizeChoic
   if (boardSize === 'gigante') return GIGANTE_BOARD;
   if (boardSize === 'grande') return GRANDE_BOARD;
   return boardSpecForPlayers(playerCount);
+}
+
+// ---------------------------------------------------------------------------
+// Campo personalizzabile: numero di caselle e numero di deserti (tundra) liberi
+// ---------------------------------------------------------------------------
+
+/** Limiti del «campo libero» (numero di caselle scelto a mano). */
+export const MIN_CUSTOM_HEXES = 7; // esagono pieno di raggio 1
+export const MAX_CUSTOM_HEXES = 61; // esagono pieno di raggio 4
+
+function clampInt(value: number, min: number, max: number): number {
+  const n = Math.round(Number(value));
+  if (!Number.isFinite(n)) return min;
+  return Math.max(min, Math.min(max, n));
+}
+
+/** Numero di caselle di un esagono pieno di raggio r: 1 + 3r(r+1) (7, 19, 37, 61…). */
+function fullHexCount(r: number): number {
+  return 1 + 3 * r * (r + 1);
+}
+
+/** Raggio geometrico minimo che contiene `n` caselle (per centrare il canvas). */
+export function radiusForHexCount(n: number): number {
+  let r = 1;
+  while (fullHexCount(r) < n) r++;
+  return r;
+}
+
+/**
+ * Deserti (tundra) di DEFAULT per un campo di `total` caselle: 1 fino alla
+ * taglia della piccola, 2 come grande/gigante, 3 sui campi molto grandi. Serve
+ * a prevalorizzare il campo «Deserti» e da fallback quando non è scelto a mano.
+ */
+export function defaultDesertCount(total: number): number {
+  if (total <= 24) return 1;
+  if (total <= 45) return 2;
+  return 3;
+}
+
+/** Massimo di deserti ammessi su `total` caselle: almeno 1 produttiva deve restare. */
+export function maxDesertCount(total: number): number {
+  return Math.max(1, total - 1);
+}
+
+/** Ripartisce `total` unità fra classi coi `weights` dati (metodo del resto maggiore). */
+function apportion(total: number, weights: readonly number[]): number[] {
+  const sum = weights.reduce((a, b) => a + b, 0);
+  if (sum <= 0 || total <= 0) return weights.map(() => 0);
+  const raw = weights.map((w) => (total * w) / sum);
+  const base = raw.map((x) => Math.floor(x));
+  let rem = total - base.reduce((a, b) => a + b, 0);
+  const order = raw
+    .map((x, i) => ({ i, frac: x - Math.floor(x) }))
+    .sort((a, b) => b.frac - a.frac || a.i - b.i);
+  for (let k = 0; k < order.length && rem > 0; k++, rem--) base[order[k]!.i]!++;
+  return base;
+}
+
+/** Pesi di distribuzione delle 5 risorse produttive (come la piccola: 4/4/4/3/3). */
+const RESOURCE_WEIGHTS: readonly (readonly [Resource, number])[] = [
+  ['legname', 4],
+  ['orzo', 4],
+  ['lana', 4],
+  ['pietra', 3],
+  ['ferro', 3],
+];
+
+/**
+ * Sacchetto terreni di `total` caselle: `deserts` tundra + le restanti
+ * produttive distribuite fra le 5 risorse secondo i pesi classici (resto
+ * assegnato per resto maggiore, in ordine deterministico).
+ */
+export function buildTerrainPool(total: number, deserts: number): TerrainType[] {
+  const productive = Math.max(0, total - deserts);
+  const counts = apportion(productive, RESOURCE_WEIGHTS.map(([, w]) => w));
+  const pool: TerrainType[] = [];
+  RESOURCE_WEIGHTS.forEach(([res], i) => {
+    for (let k = 0; k < counts[i]!; k++) pool.push(res);
+  });
+  for (let k = 0; k < deserts; k++) pool.push('tundra');
+  return pool;
+}
+
+/** I 10 valori dei segnalini (2..12, mai 7) coi loro pesi «a campana» (combinazioni di 2 dadi). */
+const TOKEN_VALUES: readonly number[] = [2, 3, 4, 5, 6, 8, 9, 10, 11, 12];
+const TOKEN_WEIGHTS: readonly number[] = [1, 2, 3, 4, 5, 5, 4, 3, 2, 1];
+
+/** Sacchetto di `count` segnalini a campana (2..12, mai 7), il più bilanciato possibile. */
+export function buildTokenPool(count: number): number[] {
+  const counts = apportion(count, TOKEN_WEIGHTS);
+  const pool: number[] = [];
+  TOKEN_VALUES.forEach((v, i) => {
+    for (let k = 0; k < counts[i]!; k++) pool.push(v);
+  });
+  return pool;
+}
+
+/** Numero di approdi per un campo di `total` caselle (≈ una ogni tre caselle). */
+function portCountForHexes(total: number): number {
+  return Math.max(3, Math.round(total * 0.3));
+}
+
+/** Tipi degli approdi: ~metà generici, gli altri uno per risorsa a rotazione. */
+export function buildPortKinds(count: number): PortKind[] {
+  const generic = Math.round(count * 0.45);
+  const kinds: PortKind[] = [];
+  for (let i = 0; i < generic; i++) kinds.push('generico');
+  for (let i = 0; generic + i < count; i++) kinds.push(RESOURCES[i % RESOURCES.length]!);
+  return kinds;
+}
+
+/** Capienza della banca per un campo di `total` caselle (scala con le produttive). */
+export function customBankPerResource(total: number, deserts: number): number {
+  const productive = total - deserts;
+  return Math.round(BANK_PER_RESOURCE + Math.max(0, productive - 18) * 0.6);
+}
+
+/** Personalizzazioni della tavola indipendenti dalla taglia preset. */
+export interface BoardCustomization {
+  /** Campo libero: numero totale di caselle scelto a mano (assente = taglia preset). */
+  hexCount?: number;
+  /** Numero di deserti (tundra); assente = default della taglia. Minimo 1 (serve al Drago). */
+  desertCount?: number;
+}
+
+/** Tavola risolta: lo spec dei sacchetti + se è un «campo libero» (topologia dalle caselle). */
+export interface ResolvedBoard {
+  spec: BoardSpec;
+  /** true = isola compatta di N caselle (forma dalle caselle); false = taglia preset a esagono fisso. */
+  freeForm: boolean;
+}
+
+/**
+ * Tavola EFFETTIVA con le personalizzazioni (numero di caselle / di deserti):
+ *  - se `hexCount` è impostato si costruisce un «campo libero» (isola compatta
+ *    di quel numero di caselle, con sacchetti generati a misura);
+ *  - altrimenti si parte dalla taglia preset e, SOLO se il numero di deserti è
+ *    scelto e diverso dal naturale, se ne rigenerano terreni e segnalini
+ *    (stessa forma/topologia: cambia solo la composizione dei terreni).
+ * Senza personalizzazioni ritorna esattamente lo spec preset (partite identiche).
+ */
+export function resolveBoardSpecCustom(
+  playerCount: number,
+  boardSize: BoardSizeChoice | undefined,
+  custom: BoardCustomization = {}
+): ResolvedBoard {
+  if (typeof custom.hexCount === 'number' && Number.isFinite(custom.hexCount)) {
+    const total = clampInt(custom.hexCount, MIN_CUSTOM_HEXES, MAX_CUSTOM_HEXES);
+    const deserts = clampInt(custom.desertCount ?? defaultDesertCount(total), 1, maxDesertCount(total));
+    const spec: BoardSpec = {
+      code: radiusForHexCount(total),
+      terrainPool: buildTerrainPool(total, deserts),
+      tokenPool: buildTokenPool(total - deserts),
+      portRingIndices: [], // ignorati: il campo libero distribuisce gli approdi sull'anello reale
+      portKinds: buildPortKinds(portCountForHexes(total)),
+      bankPerResource: customBankPerResource(total, deserts),
+    };
+    return { spec, freeForm: true };
+  }
+
+  const base = resolveBoardSpec(playerCount, boardSize);
+  const total = base.terrainPool.length;
+  const natural = base.terrainPool.filter((t) => t === 'tundra').length;
+  if (custom.desertCount == null) return { spec: base, freeForm: false };
+  const deserts = clampInt(custom.desertCount, 1, maxDesertCount(total));
+  if (deserts === natural) return { spec: base, freeForm: false };
+  const spec: BoardSpec = {
+    ...base,
+    terrainPool: buildTerrainPool(total, deserts),
+    tokenPool: buildTokenPool(total - deserts),
+  };
+  return { spec, freeForm: false };
 }
 
 /**

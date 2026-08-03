@@ -3,6 +3,7 @@ import { useState } from 'react';
 import {
   RESOURCES,
   bankTradeRatio,
+  boardTopoKey,
   calamityBankFloorForCard,
   type Action,
   type PlayerView,
@@ -25,9 +26,12 @@ export function BankTradeDialog({ view, onSubmit, onClose }: Props) {
   // Rapporto EFFETTIVO: approdi + eventuale sconto della calamità del giro
   // (es. Mercato d'oro = 2:1 per tutti). Senza questo la UI resterebbe a 4:1
   // e bloccherebbe scambi in realtà legali.
+  // Chiave della topologia REALE (firma sulle isole «con rientranze» / «campo
+  // libero», codice sulle tavole fisse): serve a mappare gli approdi ai vertici.
+  const topoKey = boardTopoKey(view.boardRadius, view.boardShape, view.board.hexes);
   const effectiveRatio = (r: Resource) =>
     Math.min(
-      bankTradeRatio(view, me.id, r, view.boardRadius),
+      bankTradeRatio(view, me.id, r, topoKey),
       calamityBankFloorForCard(view.calamity, r)
     );
   const ratio = give ? effectiveRatio(give) : null;
