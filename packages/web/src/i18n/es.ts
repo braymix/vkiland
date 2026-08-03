@@ -529,6 +529,7 @@ export const es: Strings = {
     scambioEseguitoBanca: '{nome} intercambia con la banca: {dai} → {ricevi}',
     scambioEseguito: 'Intercambio cerrado entre {a} y {b}',
     scambioAnnullato: 'Oferta retirada',
+    scambioRifiutato: 'Ningún compañero aceptó el intercambio',
     grandeVia: 'El Gran Camino pasa a {nome} ({n} caminos)',
     grandeViaNessuno: 'El Gran Camino ya no pertenece a nadie',
     furia: 'La Furia de los Berserkers pasa a {nome} ({n} berserkers)',

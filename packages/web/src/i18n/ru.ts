@@ -529,6 +529,7 @@ export const ru: Strings = {
     scambioEseguitoBanca: '{nome} меняет с банком: {dai} → {ricevi}',
     scambioEseguito: 'Обмен заключён между {a} и {b}',
     scambioAnnullato: 'Предложение отозвано',
+    scambioRifiutato: 'Никто из союзников не принял обмен',
     grandeVia: 'Великий путь переходит к {nome} ({n} троп)',
     grandeViaNessuno: 'Великий путь больше никому не принадлежит',
     furia: 'Ярость берсерков переходит к {nome} ({n} берсерков)',

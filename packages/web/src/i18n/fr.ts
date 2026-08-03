@@ -530,6 +530,7 @@ export const fr: Strings = {
     scambioEseguitoBanca: '{nome} échange avec la banque : {dai} → {ricevi}',
     scambioEseguito: 'Échange conclu entre {a} et {b}',
     scambioAnnullato: 'Offre retirée',
+    scambioRifiutato: 'Aucun coéquipier n’a accepté l’échange',
     grandeVia: 'La Grande Voie passe à {nome} ({n} chemins)',
     grandeViaNessuno: "La Grande Voie n'appartient plus à personne",
     furia: 'La Fureur des Berserkers passe à {nome} ({n} berserkers)',

@@ -149,6 +149,8 @@ export type GameEvent =
       receive: ResourceCount;
     }
   | { type: 'scambioAnnullato'; offerId: number }
+  /** Offerta «a tutta la squadra» declinata da TUTTI i compagni: si chiude da sola. */
+  | { type: 'scambioRifiutato'; offerId: number }
   | { type: 'grandeViaCambiata'; holder: PlayerId | null; length: number }
   | { type: 'furiaBerserkerCambiata'; holder: PlayerId | null; count: number }
   | { type: 'vittoria'; winner: PlayerId; breakdown: ScoreBreakdown[] };

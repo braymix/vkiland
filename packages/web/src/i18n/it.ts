@@ -540,6 +540,7 @@ export const it = {
     scambioEseguitoBanca: '{nome} scambia con la banca: {dai} → {ricevi}',
     scambioEseguito: 'Scambio concluso tra {a} e {b}',
     scambioAnnullato: 'Offerta ritirata',
+    scambioRifiutato: 'Nessun compagno ha accettato lo scambio',
     grandeVia: 'La Grande Via passa a {nome} ({n} sentieri)',
     grandeViaNessuno: 'La Grande Via non appartiene più a nessuno',
     furia: 'La Furia dei Berserker passa a {nome} ({n} berserker)',

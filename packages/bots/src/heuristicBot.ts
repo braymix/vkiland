@@ -118,6 +118,50 @@ function dragonHurtsMe(view: PlayerView, me: number): boolean {
   return (perPlayer.get(me) ?? 0) > 0;
 }
 
+/**
+ * Fabbisogno e surplus di un giocatore per il suo obiettivo corrente, calcolati
+ * su risorse VISIBILI. In modalità squadra le mani dei compagni sono note, quindi
+ * il bot può ragionare sui loro bisogni per scambi utili all'intera squadra.
+ */
+function needSurplusOf(
+  view: PlayerView,
+  pid: number,
+  res: ResourceCount
+): { need: ResourceCount; surplus: ResourceCount } {
+  const hasSpot = legalVillageVertices(view, pid, viewTopoKey(view)).length > 0;
+  const { cost } = currentGoal(view, pid, BUILD_COSTS, hasSpot);
+  const need = deficit(res, cost);
+  const surplus = zeroResources();
+  for (const r of RESOURCES) surplus[r] = Math.max(0, res[r] - cost[r]);
+  return { need, surplus };
+}
+
+/** Compagni di squadra del bot (sé escluso); vuoto fuori dalla modalità squadra. */
+function teammatesOf(view: PlayerView, player: number): number[] {
+  if (!view.teams) return [];
+  const t = view.teams[player];
+  return view.players.filter((p) => p.id !== player && view.teams![p.id] === t).map((p) => p.id);
+}
+
+/** Fabbisogno e surplus COMBINATI dei compagni (dalle loro mani visibili). */
+function teamNeedSurplus(
+  view: PlayerView,
+  mates: number[]
+): { need: ResourceCount; surplus: ResourceCount } {
+  const need = zeroResources();
+  const surplus = zeroResources();
+  for (const m of mates) {
+    const res = view.players[m]?.hand?.resources;
+    if (!res) continue;
+    const ns = needSurplusOf(view, m, res);
+    for (const r of RESOURCES) {
+      need[r] += ns.need[r];
+      surplus[r] += ns.surplus[r];
+    }
+  }
+  return { need, surplus };
+}
+
 /** Tarature per livello di difficoltà. */
 interface LevelCfg {
   /** Probabilità di una mossa casuale (errori voluti). */
@@ -476,6 +520,19 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
         const danger = nearVictory(view, cfg.guardLeaderPG);
         const accept = tradeResponses.find((m) => m.accept);
         const reject = tradeResponses.find((m) => !m.accept)!;
+        // MODALITÀ SQUADRA: l'offerta viene da un compagno; si valuta il beneficio
+        // per l'INTERA SQUADRA (mai rifiutare un compagno per la classifica).
+        // Aiuto il compagno con ciò che gli serve (+2), guadagno ciò che serve a me
+        // (+1), perdo ciò che serve a me (−2): con bilancio positivo si accetta.
+        if (view.teams) {
+          const propRes = view.players[offer.from]?.hand?.resources ?? null;
+          const propNeed = propRes ? needSurplusOf(view, offer.from, propRes).need : null;
+          const help = RESOURCES.reduce((s, r) => s + offer.receive[r] * ((propNeed?.[r] ?? 0) > 0 ? 2 : 0), 0);
+          const mine = RESOURCES.reduce((s, r) => s + offer.give[r] * (need[r] > 0 ? 1 : 0), 0);
+          const loss = RESOURCES.reduce((s, r) => s + offer.receive[r] * (need[r] > 0 ? 2 : 0), 0);
+          if (accept && help + mine - loss > 0) return accept;
+          return reject;
+        }
         if (accept && gain - pay >= cfg.acceptMargin && gain > 0 && !danger.has(offer.from)) {
           return accept;
         }
@@ -677,21 +734,45 @@ export function createHeuristicBot(level: BotLevel = 'normale'): Bot {
           proposalTurn = view.turnNumber;
           proposalsThisTurn = 0;
         }
-        const othersHaveCards = view.players.some(
-          (p) => p.id !== player && p.resourceCardCount > 0
-        );
+        // In squadra la proposta va alla squadra: contano solo i compagni; fuori
+        // dalla modalità, come prima, chiunque altro con carte.
+        const mates = teammatesOf(view, player);
+        const partners = view.teams ? mates : view.players.filter((p) => p.id !== player).map((p) => p.id);
+        const othersHaveCards = partners.some((id) => view.players[id]!.resourceCardCount > 0);
         if (proposalsThisTurn < cfg.proposalsPerTurn && othersHaveCards) {
-          // Risorsa più mancante ↔ surplus più abbondante (oltre la riserva).
+          // Fuori squadra: risorsa più mancante ↔ surplus più abbondante.
+          // In squadra si preferisce CHIEDERE ciò che un compagno ha in avanzo e
+          // OFFRIRE ciò che a un compagno serve (scambio più utile all'intera squadra).
+          const useTeam = view.teams !== undefined && mates.length > 0;
+          const team = useTeam ? teamNeedSurplus(view, mates) : null;
           let wanted: Resource | null = null;
-          for (const r of RESOURCES) {
-            if (need[r] > 0 && (wanted === null || need[r] > need[wanted])) wanted = r;
+          if (team) {
+            for (const r of RESOURCES) {
+              if (need[r] > 0 && team.surplus[r] > 0 && (wanted === null || team.surplus[r] > team.surplus[wanted]))
+                wanted = r;
+            }
+          }
+          if (wanted === null) {
+            for (const r of RESOURCES) {
+              if (need[r] > 0 && (wanted === null || need[r] > need[wanted])) wanted = r;
+            }
           }
           let surplus: Resource | null = null;
-          for (const r of RESOURCES) {
-            if (r === wanted) continue;
-            const extra = my.resources[r] - cost[r];
-            if (extra >= 1 && (surplus === null || extra > my.resources[surplus] - cost[surplus])) {
-              surplus = r;
+          if (team) {
+            for (const r of RESOURCES) {
+              if (r === wanted) continue;
+              const extra = my.resources[r] - cost[r];
+              if (extra >= 1 && team.need[r] > 0 && (surplus === null || team.need[r] > team.need[surplus]))
+                surplus = r;
+            }
+          }
+          if (surplus === null) {
+            for (const r of RESOURCES) {
+              if (r === wanted) continue;
+              const extra = my.resources[r] - cost[r];
+              if (extra >= 1 && (surplus === null || extra > my.resources[surplus] - cost[surplus])) {
+                surplus = r;
+              }
             }
           }
           const key = `${view.turnNumber}:${wanted}>${surplus}`;

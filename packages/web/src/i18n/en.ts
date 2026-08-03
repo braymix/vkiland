@@ -529,6 +529,7 @@ export const en: Strings = {
     scambioEseguitoBanca: '{nome} trades with the bank: {dai} → {ricevi}',
     scambioEseguito: 'Trade closed between {a} and {b}',
     scambioAnnullato: 'Offer withdrawn',
+    scambioRifiutato: 'No teammate accepted the trade',
     grandeVia: 'The Great Road passes to {nome} ({n} paths)',
     grandeViaNessuno: 'The Great Road no longer belongs to anyone',
     furia: 'Berserker Fury passes to {nome} ({n} berserkers)',

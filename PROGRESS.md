@@ -34,9 +34,15 @@ e il selettore di squadra per posto sono condivisi fra setup locale e lobby onli
 SCAMBI DI SQUADRA: la proposta va di default a «tutta la propria squadra»
 (destinatario `to: null` ristretto ai compagni) e si conclude in AUTOMATICO appena
 un compagno accetta (nessuna conferma); si può ancora scegliere un compagno
-specifico. MANI DI SQUADRA: i compagni si vedono la mano a vicenda (risorse +
-Carte Saga) nella vista e nel pannello mano. Tutte le stringhe della modalità sono
-tradotte nelle 8 lingue (namespace `squadra`).
+specifico. Se TUTTI i compagni rifiutano l'offerta si chiude da sola con un esito
+CHIARO nel diario (evento `scambioRifiutato`). MANI DI SQUADRA: i compagni si
+vedono la mano a vicenda (risorse + Carte Saga) nella vista e nel pannello mano.
+BOT DI SQUADRA: in modalità squadra i bot valutano gli scambi per il beneficio
+dell'INTERA squadra — accettano di cedere un surplus che serve a un compagno,
+rifiutano di cedere ciò che serve anche a loro, e propongono chiedendo ciò che un
+compagno ha in avanzo e offrendo ciò che a un compagno serve (usando le mani
+visibili dei compagni). Tutte le stringhe della modalità sono tradotte nelle 8
+lingue (namespace `squadra`).
 
 **TAVOLA «CON RIENTRANZE» + PONTI** ✅ — nuova FORMA di tavola, scegliibile in
 aggiunta alla taglia (piccola/grande/gigante) con una spunta «Con rientranze»
