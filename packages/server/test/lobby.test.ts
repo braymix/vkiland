@@ -330,6 +330,38 @@ describe('LobbyManager', () => {
     expect(isApiError(manager.watch('XXXXXX', { id: 'u-x', name: 'X' }))).toBe(true);
   });
 
+  it('modalità squadra: assegnazione a rotazione, setTeam e avvio bilanciato', () => {
+    const { manager, rec } = makeManager();
+    const created = manager.create(bjorn, CFG);
+    if (isApiError(created)) throw new Error('create fallita');
+    manager.join(created.code, astrid);
+    manager.addBot(bjorn.id, 'facile'); // posto 2
+    manager.addBot(bjorn.id, 'facile'); // posto 3 → 4 posti
+
+    // L'host accende la modalità squadra (2 squadre): assegnazione a rotazione.
+    const conf = manager.updateConfig(bjorn.id, { ...CFG, teamMode: true, numTeams: 2 });
+    if (isApiError(conf)) throw new Error('updateConfig fallita');
+    expect(conf.config.teamMode).toBe(true);
+    expect(conf.slots.map((s) => s.team)).toEqual([0, 1, 0, 1]);
+
+    // Astrid (posto 1) può cambiare la PROPRIA squadra; un avversario no.
+    expect(isApiError(manager.setTeam('u-estraneo', 1, 0))).toBe(true);
+    const unbal = manager.setTeam(astrid.id, 1, 0); // → [0,0,0,1] squadre sbilanciate
+    if (isApiError(unbal)) throw new Error('setTeam fallita');
+    expect(unbal.slots.map((s) => s.team)).toEqual([0, 0, 0, 1]);
+    // Con squadre sbilanciate l'avvio è respinto.
+    expect(isApiError(manager.start(bjorn.id))).toBe(true);
+
+    // L'host ripristina il bilanciamento e avvia: la partita è a squadre.
+    manager.setTeam(bjorn.id, 1, 1); // → [0,1,0,1]
+    const started = manager.start(bjorn.id);
+    if (isApiError(started)) throw new Error('start fallita');
+    const view = rec.updates.get(bjorn.id)!.at(-1)!.view;
+    expect(view.teams).toEqual([0, 1, 0, 1]);
+    expect(view.targetGloryPoints).toBe(16); // 2 giocatori-per-squadra × 8
+    expect(view.teamColors!.length).toBeGreaterThanOrEqual(2);
+  });
+
   it('lo spettatore vede una mano solo dopo il permesso del giocatore', () => {
     const { manager, rec } = makeManager();
     const pub = manager.create(bjorn, { ...CFG, isPublic: true });

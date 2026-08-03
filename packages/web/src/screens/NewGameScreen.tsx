@@ -126,7 +126,7 @@ export function NewGameScreen({
   const [editSeat, setEditSeat] = useState<number | null>(null);
   const [startingLocal, setStartingLocal] = useState(false);
 
-  // --- Modalità Squadra (solo locale, per ora) ---
+  // --- Modalità Squadra (locale + online) ---
   const [teamMode, setTeamMode] = useState(false);
   const [numTeams, setNumTeams] = useState(2);
   const [seatTeams, setSeatTeams] = useState<number[]>([0, 1, 0]);
@@ -134,32 +134,12 @@ export function NewGameScreen({
   const [teamColors, setTeamColors] = useState<string[]>([...TEAM_PALETTE]);
   const [teamTarget, setTeamTarget] = useState(8);
 
-  // Assegnazione di default a rotazione (squadre bilanciate) finché l'utente non
-  // ritocca a mano; un cambio del numero di squadre ribilancia sempre.
+  // Assegnazione LOCALE di default a rotazione (squadre bilanciate) finché
+  // l'utente non ritocca a mano; un cambio del numero di squadre ribilancia.
   useEffect(() => {
     if (!teamsTouched) setSeatTeams(seats.map((_, i) => i % numTeams));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seats.length, numTeams, teamsTouched]);
-
-  // Numeri di squadre validi: divisori del numero di posti, da 2 in su.
-  const validTeamCounts = Array.from({ length: seats.length }, (_, i) => i + 1).filter(
-    (n) => n >= 2 && seats.length % n === 0
-  );
-  const teamSizeVal = Math.floor(seats.length / numTeams);
-  const teamSizes = Array.from({ length: numTeams }, (_, t) => seatTeams.filter((x) => x === t).length);
-  const teamsBalanced =
-    seats.length % numTeams === 0 && teamSizes.every((s) => s === teamSizes[0]) && teamSizes.every((s) => s >= 1);
-
-  const pickNumTeams = (n: number) => {
-    setNumTeams(n);
-    setTeamsTouched(false);
-  };
-  const pickSeatTeam = (i: number, t: number) => {
-    setTeamsTouched(true);
-    setSeatTeams((prev) => prev.map((v, idx) => (idx === i ? t : v)));
-  };
-  const setTeamColor = (t: number, color: string) =>
-    setTeamColors((prev) => prev.map((c, idx) => (idx === t ? color : c)));
 
   // --- Online: socket, lobby, partita ---
   const [busy, setBusy] = useState(false);
@@ -184,6 +164,28 @@ export function NewGameScreen({
 
   // Numero di giocatori corrente: posti locali (hot-seat) o slot della lobby online.
   const playerCount = mode === 'online' ? (lobby?.slots.length ?? seats.length) : seats.length;
+
+  // --- Modalità Squadra: valori derivati (validi sia in locale sia online) ---
+  // In online l'assegnazione dei posti alle squadre è autorevole lato server
+  // (`lobby.slots[].team`); in locale è lo stato `seatTeams`.
+  const teamCtxCount = mode === 'online' && lobby ? lobby.slots.length : seats.length;
+  const teamCtxAssign =
+    mode === 'online' && lobby ? lobby.slots.map((s) => s.team ?? 0) : seatTeams;
+  const validTeamCounts = Array.from({ length: teamCtxCount }, (_, i) => i + 1).filter(
+    (n) => n >= 2 && teamCtxCount % n === 0
+  );
+  const teamSizeVal = Math.floor(teamCtxCount / numTeams);
+  const teamSizes = Array.from({ length: numTeams }, (_, t) => teamCtxAssign.filter((x) => x === t).length);
+  const teamsBalanced =
+    teamCtxCount > 0 &&
+    teamCtxCount % numTeams === 0 &&
+    teamSizes.every((s) => s === teamSizes[0]) &&
+    teamSizes.every((s) => s >= 1);
+  // Assegnazione LOCALE di un posto a una squadra (l'online usa `lobby:setTeam`).
+  const pickSeatTeam = (i: number, t: number) => {
+    setTeamsTouched(true);
+    setSeatTeams((prev) => prev.map((v, idx) => (idx === i ? t : v)));
+  };
 
   const showError = (message: string) => {
     setError(message);
@@ -285,6 +287,19 @@ export function NewGameScreen({
     setBoardSize(lobby.config.boardSize ?? autoBoardSize(lobby.slots.length));
     setBoardSizeTouched(lobby.config.boardSize != null);
     setBoardShape(lobby.config.boardShape ?? null);
+    // Modalità squadra: settaggi autorevoli dell'host.
+    setTeamMode(lobby.config.teamMode ?? false);
+    setNumTeams(lobby.config.numTeams ?? 2);
+    setTeamTarget(lobby.config.teamTargetPerPlayer ?? 8);
+    if (lobby.config.teamColors) {
+      setTeamColors((prev) => {
+        const next = [...prev];
+        lobby.config.teamColors!.forEach((c, i) => {
+          next[i] = c;
+        });
+        return next;
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lobby?.code]);
 
@@ -313,11 +328,26 @@ export function NewGameScreen({
       ...(boardSizeVal ? { boardSize: boardSizeVal } : {}),
       ...(boardShapeVal ? { boardShape: boardShapeVal } : {}),
       ...((change.seed ?? seed).trim() ? { seed: (change.seed ?? seed).trim() } : {}),
+      ...teamConfigPart(change),
     };
     socketRef.current?.emit('lobby:updateConfig', next, (res) => {
       if (isApiError(res)) return showError(res.error);
       setLobby(res);
     });
+  };
+
+  // Porzione «squadra» della LobbyConfig, coerente con lo stato corrente (o col
+  // patch in arrivo). Assente quando la modalità squadra è spenta.
+  const teamConfigPart = (change: Partial<LobbyConfig> = {}): Partial<LobbyConfig> => {
+    const tm = change.teamMode ?? teamMode;
+    if (!tm) return {};
+    const nt = change.numTeams ?? numTeams;
+    return {
+      teamMode: true,
+      numTeams: nt,
+      teamColors: (change.teamColors ?? teamColors).slice(0, nt),
+      teamTargetPerPlayer: change.teamTargetPerPlayer ?? teamTarget,
+    };
   };
 
   const configFromRules = (): LobbyConfig => ({
@@ -330,7 +360,29 @@ export function NewGameScreen({
     ...(boardSize ? { boardSize } : {}),
     ...(boardShape ? { boardShape } : {}),
     ...(seed.trim() ? { seed: seed.trim() } : {}),
+    ...teamConfigPart(),
   });
+
+  // --- Handler modalità squadra (in online propagano al server via patch) ---
+  const isOnline = mode === 'online';
+  const applyTeamMode = (v: boolean) => {
+    setTeamMode(v);
+    if (isOnline) patch({ teamMode: v });
+  };
+  const applyNumTeams = (n: number) => {
+    setNumTeams(n);
+    setTeamsTouched(false);
+    if (isOnline) patch({ teamMode: true, numTeams: n });
+  };
+  const applyTeamColor = (t: number, color: string) => {
+    const next = teamColors.map((c, idx) => (idx === t ? color : c));
+    setTeamColors(next);
+    if (isOnline) patch({ teamMode: true, teamColors: next });
+  };
+  const applyTeamTarget = (v: number) => {
+    setTeamTarget(v);
+    if (isOnline) patch({ teamMode: true, teamTargetPerPlayer: v });
+  };
 
   /** Sceglie la tavola grande; nulla scelta = piccola (solo 2–4). A ≥5 resta sempre una grande. */
   const pickBoardSize = (choice: BoardSizeChoice) => {
@@ -667,82 +719,20 @@ export function NewGameScreen({
             )}
           </div>
 
-          {/* Modalità Squadra (solo locale, per ora) */}
-          <div className="rules-preset pixel-frame">
-            <label className="check" style={{ padding: 8 }}>
-              <input type="checkbox" checked={teamMode} onChange={(e) => setTeamMode(e.target.checked)} />
-              🛡️ Modalità squadra
-            </label>
-            {teamMode && (
-              <div className="rules-body">
-                <div style={NOTE_STYLE}>
-                  Strade, approdi, «La Grande Via» e «La Furia» sono di squadra. Gli scambi solo fra
-                  compagni: due per turno, uno-a-uno. Si vince coi Punti Gloria combinati della squadra.
-                </div>
-                <div style={CAT_STYLE}>Numero di squadre</div>
-                <div className="color-picker">
-                  {validTeamCounts.map((n) => (
-                    <button
-                      key={n}
-                      className={`pxbtn pxbtn--small ${numTeams === n ? '' : 'pxbtn--ghost'}`}
-                      onClick={() => pickNumTeams(n)}
-                    >
-                      {n}
-                    </button>
-                  ))}
-                </div>
-                <div style={CAT_STYLE}>Colori delle squadre</div>
-                <div className="color-picker">
-                  {Array.from({ length: numTeams }, (_, t) => (
-                    <label
-                      key={t}
-                      className="color-swatch color-swatch--custom"
-                      style={{ background: shadesFor(teamColors[t] ?? TEAM_PALETTE[t] ?? '#888').main }}
-                      title={`Colore squadra ${teamLetter(t)}`}
-                    >
-                      <span style={{ fontSize: 8, color: 'var(--bianco, #fff)' }}>{teamLetter(t)}</span>
-                      <input
-                        type="color"
-                        value={shadesFor(teamColors[t] ?? TEAM_PALETTE[t] ?? '#888').main}
-                        onChange={(e) => setTeamColor(t, e.target.value)}
-                      />
-                    </label>
-                  ))}
-                </div>
-                <div className="stepper-row">
-                  <span style={{ fontSize: 9 }}>
-                    Punti per giocatore{' '}
-                    <span style={{ color: 'var(--ink-dim)', fontSize: 8 }}>(standard 8)</span>
-                  </span>
-                  <span className="stepper">
-                    <button
-                      className="pxbtn pxbtn--ghost pxbtn--small"
-                      onClick={() => setTeamTarget(Math.max(3, teamTarget - 1))}
-                      disabled={teamTarget <= 3}
-                    >
-                      -
-                    </button>
-                    <span style={{ minWidth: 26, textAlign: 'center', color: 'var(--accent)' }}>{teamTarget}</span>
-                    <button
-                      className="pxbtn pxbtn--ghost pxbtn--small"
-                      onClick={() => setTeamTarget(Math.min(15, teamTarget + 1))}
-                      disabled={teamTarget >= 15}
-                    >
-                      +
-                    </button>
-                  </span>
-                </div>
-                <div style={NOTE_STYLE}>
-                  Bersaglio squadra: {teamSizeVal} × {teamTarget} = <b>{teamSizeVal * teamTarget}</b> punti combinati.
-                </div>
-                {!teamsBalanced && (
-                  <div style={{ fontSize: 9, color: 'var(--danger)' }}>
-                    Le squadre devono essere di ugual dimensione: assegna i posti in modo bilanciato.
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          <TeamSettingsPanel
+            teamMode={teamMode}
+            editable
+            onToggle={applyTeamMode}
+            validTeamCounts={validTeamCounts}
+            numTeams={numTeams}
+            onPickNumTeams={applyNumTeams}
+            teamColors={teamColors}
+            onSetTeamColor={applyTeamColor}
+            teamTarget={teamTarget}
+            onSetTeamTarget={applyTeamTarget}
+            teamSizeVal={teamSizeVal}
+            teamsBalanced={teamsBalanced}
+          />
 
           <RulesPreset
             online={false}
@@ -870,11 +860,12 @@ export function NewGameScreen({
           {lobby && (
             <div className="seat-list pixel-frame">
               {lobby.slots.map((slot, i) => {
-                const tag = slot.isBot
+                const baseTag = slot.isBot
                   ? it.bot
                   : slot.userId === session.userId
                     ? it.ruoloTu
                     : it.ruoloAmico;
+                const tag = teamMode ? `${baseTag} · Sq.${teamLetter(slot.team ?? 0)}` : baseTag;
                 return (
                   <div key={i}>
                     <div className={`seat-row seat-row--static ${pickerOnline === i ? 'seat-row--open' : ''}`}>
@@ -939,6 +930,27 @@ export function NewGameScreen({
                             />
                           </label>
                         </div>
+                        {teamMode && (
+                          <div className="color-picker" style={{ marginTop: 4 }}>
+                            <span style={{ fontSize: 8, color: 'var(--ink-dim)', alignSelf: 'center', marginRight: 4 }}>
+                              Squadra:
+                            </span>
+                            {Array.from({ length: numTeams }, (_, tt) => (
+                              <button
+                                key={tt}
+                                className={`color-swatch ${slot.team === tt ? 'color-swatch--active' : ''}`}
+                                style={{ background: shadesFor(teamColors[tt] ?? TEAM_PALETTE[tt] ?? '#888').main }}
+                                title={`Squadra ${teamLetter(tt)}`}
+                                onClick={() => {
+                                  socketRef.current?.emit('lobby:setTeam', i, tt);
+                                  setPickerOnline(null);
+                                }}
+                              >
+                                {teamLetter(tt)}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -952,6 +964,23 @@ export function NewGameScreen({
               {error && <div style={{ fontSize: 9, color: 'var(--danger)' }}>{error}</div>}
               {!isHost && <div style={{ fontSize: 9, color: 'var(--ink-dim)' }}>{it.inAttesaHost}</div>}
             </div>
+          )}
+
+          {lobby && (
+            <TeamSettingsPanel
+              teamMode={teamMode}
+              editable={editable}
+              onToggle={applyTeamMode}
+              validTeamCounts={validTeamCounts}
+              numTeams={numTeams}
+              onPickNumTeams={applyNumTeams}
+              teamColors={teamColors}
+              onSetTeamColor={applyTeamColor}
+              teamTarget={teamTarget}
+              onSetTeamTarget={applyTeamTarget}
+              teamSizeVal={teamSizeVal}
+              teamsBalanced={teamsBalanced}
+            />
           )}
 
           <RulesPreset
@@ -1004,7 +1033,7 @@ export function NewGameScreen({
                 <button
                   className="pxbtn newgame-start"
                   onClick={() => socketRef.current?.emit('lobby:start')}
-                  disabled={lobby.slots.length < 2}
+                  disabled={lobby.slots.length < 2 || (teamMode && !teamsBalanced)}
                 >
                   ▶ {it.avviaPartita}
                 </button>
@@ -1053,6 +1082,109 @@ function InviteCard({ code }: { code: string }) {
       <button className="pxbtn pxbtn--small" onClick={copy}>
         {copied ? it.copiato : it.copia}
       </button>
+    </div>
+  );
+}
+
+interface TeamSettingsPanelProps {
+  teamMode: boolean;
+  /** L'utente può modificare (host prima dell'avvio; sempre in locale). */
+  editable: boolean;
+  onToggle: (v: boolean) => void;
+  validTeamCounts: number[];
+  numTeams: number;
+  onPickNumTeams: (n: number) => void;
+  teamColors: string[];
+  onSetTeamColor: (t: number, color: string) => void;
+  teamTarget: number;
+  onSetTeamTarget: (v: number) => void;
+  teamSizeVal: number;
+  teamsBalanced: boolean;
+}
+
+/** Pannello impostazioni Modalità Squadra, condiviso fra locale e online. */
+function TeamSettingsPanel(p: TeamSettingsPanelProps) {
+  return (
+    <div className="rules-preset pixel-frame">
+      <label className="check" style={{ padding: 8 }}>
+        <input
+          type="checkbox"
+          checked={p.teamMode}
+          disabled={!p.editable}
+          onChange={(e) => p.onToggle(e.target.checked)}
+        />
+        🛡️ Modalità squadra
+      </label>
+      {p.teamMode && (
+        <div className="rules-body">
+          <div style={NOTE_STYLE}>
+            Strade, approdi, «La Grande Via» e «La Furia» sono di squadra. Gli scambi solo fra
+            compagni: due per turno, uno-a-uno. Si vince coi Punti Gloria combinati della squadra.
+          </div>
+          <div style={CAT_STYLE}>Numero di squadre</div>
+          <div className="color-picker">
+            {p.validTeamCounts.map((n) => (
+              <button
+                key={n}
+                className={`pxbtn pxbtn--small ${p.numTeams === n ? '' : 'pxbtn--ghost'}`}
+                disabled={!p.editable}
+                onClick={() => p.onPickNumTeams(n)}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+          <div style={CAT_STYLE}>Colori delle squadre</div>
+          <div className="color-picker">
+            {Array.from({ length: p.numTeams }, (_, t) => (
+              <label
+                key={t}
+                className="color-swatch color-swatch--custom"
+                style={{ background: shadesFor(p.teamColors[t] ?? TEAM_PALETTE[t] ?? '#888').main }}
+                title={`Colore squadra ${teamLetter(t)}`}
+              >
+                <span style={{ fontSize: 8, color: '#fff' }}>{teamLetter(t)}</span>
+                <input
+                  type="color"
+                  value={shadesFor(p.teamColors[t] ?? TEAM_PALETTE[t] ?? '#888').main}
+                  disabled={!p.editable}
+                  onChange={(e) => p.onSetTeamColor(t, e.target.value)}
+                />
+              </label>
+            ))}
+          </div>
+          <div className="stepper-row">
+            <span style={{ fontSize: 9 }}>
+              Punti per giocatore <span style={{ color: 'var(--ink-dim)', fontSize: 8 }}>(standard 8)</span>
+            </span>
+            <span className="stepper">
+              <button
+                className="pxbtn pxbtn--ghost pxbtn--small"
+                disabled={!p.editable || p.teamTarget <= 3}
+                onClick={() => p.onSetTeamTarget(Math.max(3, p.teamTarget - 1))}
+              >
+                -
+              </button>
+              <span style={{ minWidth: 26, textAlign: 'center', color: 'var(--accent)' }}>{p.teamTarget}</span>
+              <button
+                className="pxbtn pxbtn--ghost pxbtn--small"
+                disabled={!p.editable || p.teamTarget >= 15}
+                onClick={() => p.onSetTeamTarget(Math.min(15, p.teamTarget + 1))}
+              >
+                +
+              </button>
+            </span>
+          </div>
+          <div style={NOTE_STYLE}>
+            Bersaglio squadra: {p.teamSizeVal} × {p.teamTarget} = <b>{p.teamSizeVal * p.teamTarget}</b> punti combinati.
+          </div>
+          {!p.teamsBalanced && (
+            <div style={{ fontSize: 9, color: 'var(--danger)' }}>
+              Le squadre devono essere di ugual dimensione: assegna i posti in modo bilanciato.
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

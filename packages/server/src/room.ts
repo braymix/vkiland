@@ -29,6 +29,8 @@ export interface Seat {
   isBot: boolean;
   botLevel: BotLevel | null;
   color: PlayerColor;
+  /** Modalità Squadra: indice di squadra del posto (0 se non attiva). */
+  team?: number;
   /** Skin dell'account (passthrough estetico verso il motore). */
   cosmetics?: PlayerCosmetics;
 }
@@ -123,6 +125,14 @@ export class GameRoom {
       battle: config.battle,
       ...(config.boardSize ? { boardSize: config.boardSize } : {}),
       ...(config.boardShape ? { boardShape: config.boardShape } : {}),
+      // Modalità Squadra: assegnazione per-posto + colori/bersaglio dalla lobby.
+      ...(config.teamMode
+        ? {
+            teams: seats.map((s) => s.team ?? 0),
+            teamColors: config.teamColors ?? [],
+            teamTargetPerPlayer: config.teamTargetPerPlayer ?? 8,
+          }
+        : {}),
     });
     seats.forEach((s, i) => {
       if (s.isBot) this.bots.set(i, createBot(s.botLevel ?? 'normale'));

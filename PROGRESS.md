@@ -4,7 +4,7 @@
 
 ## Stato attuale
 
-**MODALITÀ SQUADRA** ✅ — nuova modalità opzionale (per ora solo locale/hot-seat,
+**MODALITÀ SQUADRA** ✅ — nuova modalità opzionale (locale/hot-seat E online;
 italiano) combinabile con TUTTE le altre (calamità, battaglia, tavole grandi e
 «con rientranze»). I giocatori si dividono in squadre di UGUAL dimensione
 (configurabili in setup: numero di squadre = un divisore del numero di posti,
@@ -26,6 +26,11 @@ contro tutti, invariata byte-per-byte (le regole geometriche ricevono un insieme
 vittoria combinata, partite complete casuali-legali anche con calamità+battaglia
 e con rientranze). HUD con i punteggi combinati per squadra; renderer con colore
 di squadra + bandierina personale; setup locale con scelta squadre/colori/bersaglio.
+ONLINE: la `LobbyConfig` porta `teamMode`/`numTeams`/`teamColors`/
+`teamTargetPerPlayer` e ogni posto ha una `team` (assegnazione a rotazione
+bilanciata, ritoccabile dal proprietario o dall'host via `lobby:setTeam`);
+l'avvio è respinto se le squadre non sono di ugual dimensione. Il pannello squadra
+e il selettore di squadra per posto sono condivisi fra setup locale e lobby online.
 
 **TAVOLA «CON RIENTRANZE» + PONTI** ✅ — nuova FORMA di tavola, scegliibile in
 aggiunta alla taglia (piccola/grande/gigante) con una spunta «Con rientranze»
