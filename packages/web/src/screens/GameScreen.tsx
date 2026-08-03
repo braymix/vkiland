@@ -247,7 +247,10 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
   const offerToMe =
     offer !== null &&
     offer.from !== viewpoint &&
-    (offer.to === null || offer.to === viewpoint) &&
+    (offer.to === viewpoint ||
+      // Offerta «a tutta la squadra»: la vedono solo i compagni (in modalità squadra).
+      (offer.to === null &&
+        (!view.teams || view.teams[offer.from] === view.teams[viewpoint]))) &&
     offer.responses[viewpoint] === undefined;
   const offerMine = offer !== null && offer.from === viewpoint && offer.to === null;
   const canAcceptOffer = legalActions.some((m) => m.type === 'rispondiScambio' && m.accept);

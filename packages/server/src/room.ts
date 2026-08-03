@@ -14,6 +14,7 @@ import {
   type BotLevel,
   type GameEvent,
   type GameState,
+  tradeResponders,
   type PlayerColor,
   type PlayerCosmetics,
   type PlayerId,
@@ -29,6 +30,8 @@ export interface Seat {
   isBot: boolean;
   botLevel: BotLevel | null;
   color: PlayerColor;
+  /** Modalità Squadra: indice di squadra del posto (0 se non attiva). */
+  team?: number;
   /** Skin dell'account (passthrough estetico verso il motore). */
   cosmetics?: PlayerCosmetics;
 }
@@ -123,6 +126,14 @@ export class GameRoom {
       battle: config.battle,
       ...(config.boardSize ? { boardSize: config.boardSize } : {}),
       ...(config.boardShape ? { boardShape: config.boardShape } : {}),
+      // Modalità Squadra: assegnazione per-posto + colori/bersaglio dalla lobby.
+      ...(config.teamMode
+        ? {
+            teams: seats.map((s) => s.team ?? 0),
+            teamColors: config.teamColors ?? [],
+            teamTargetPerPlayer: config.teamTargetPerPlayer ?? 8,
+          }
+        : {}),
     });
     seats.forEach((s, i) => {
       if (s.isBot) this.bots.set(i, createBot(s.botLevel ?? 'normale'));
@@ -338,10 +349,7 @@ export class GameRoom {
       // Il bot PROPONENTE aspetta le risposte di TUTTI prima di concludere
       // o ritirare: nessuno scambio si chiude mentre un umano ci pensa.
       if (offer && offer.from === pid) {
-        const responders =
-          offer.to === null
-            ? this.state.players.filter((p) => p.id !== pid).map((p) => p.id)
-            : [offer.to];
+        const responders = tradeResponders(this.state.config.teams, this.state.players, offer);
         // Niente «vince il primo che accetta»: il proponente conclude solo
         // quando TUTTI gli interpellati hanno risposto (gli umani compresi).
         const allResponded = responders.every((r) => offer.responses[r] !== undefined);

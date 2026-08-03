@@ -375,12 +375,13 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
         if (!isPlayerId(state, action.to) || action.to === action.player)
           return ERR.scambioNonValido;
       }
-      // Modalità squadra: solo con un compagno, uno-a-uno, al massimo due per turno.
+      // Modalità squadra: uno-a-uno, al massimo due per turno; il destinatario è
+      // tutta la squadra (`to` null) oppure un compagno specifico (mai un avversario).
       if (isTeamMode(state.config.teams)) {
         if ((state.teamTradesThisTurn ?? 0) >= 2) return ERR.troppiScambi;
         if (totalResources(action.give) !== 1 || totalResources(action.receive) !== 1)
           return ERR.scambioUnoAUno;
-        if (action.to === null || !sameTeam(state.config.teams, action.player, action.to))
+        if (action.to !== null && !sameTeam(state.config.teams, action.player, action.to))
           return ERR.scambioSoloSquadra;
       }
       return null;
@@ -391,6 +392,9 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (offer === null || offer.id !== action.offerId) return ERR.offertaInesistente;
       if (action.player === offer.from) return ERR.rispostaNonAmmessa;
       if (offer.to !== null && action.player !== offer.to) return ERR.rispostaNonAmmessa;
+      // Offerta «a tutta la squadra»: possono rispondere solo i compagni.
+      if (offer.to === null && isTeamMode(state.config.teams) && !sameTeam(state.config.teams, offer.from, action.player))
+        return ERR.rispostaNonAmmessa;
       if (offer.responses[action.player] !== undefined) return ERR.giaRisposto;
       // Per accettare, chi risponde deve possedere ciò che il proponente chiede.
       if (action.accept && !hasAtLeast(me.resources, offer.receive))

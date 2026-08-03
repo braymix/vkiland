@@ -8,6 +8,7 @@ import { activeCalamity } from './calamityRules';
 import { clonePhase } from './game';
 import { totalResources } from './resources';
 import { gloryPoints } from './scoring';
+import { friendsOf, isTeamMode } from './teams';
 import type { GameState, PlayerId, PlayerView, PublicPlayer } from './types';
 
 export type Viewer = PlayerId | 'spettatore';
@@ -30,6 +31,22 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
     roads: [...p.roads],
     gloryPointsPublic: gloryPoints(state, p.id, false),
   }));
+
+  // Modalità squadra: i compagni si vedono la MANO a vicenda (risorse + Carte
+  // Saga). Vale solo per un giocatore seduto (non per lo spettatore, che ha già
+  // il suo meccanismo di permessi).
+  if (viewer !== 'spettatore' && isTeamMode(state.config.teams)) {
+    const friends = friendsOf(state.config.teams, viewer);
+    for (const pub of players) {
+      if (pub.id === viewer || !friends.has(pub.id)) continue;
+      const ps = state.players[pub.id];
+      if (!ps) continue;
+      pub.hand = {
+        resources: { ...ps.resources },
+        sagaCards: [...ps.sagaCards, ...ps.sagaCardsBoughtThisTurn],
+      };
+    }
+  }
 
   const self = viewer === 'spettatore' ? null : state.players[viewer] ?? null;
 

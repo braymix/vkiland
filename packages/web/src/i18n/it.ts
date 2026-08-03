@@ -698,6 +698,25 @@ export const it = {
     },
   },
 
+  squadra: {
+    modalita: 'Modalità squadra',
+    spiega:
+      'Strade, approdi, «La Grande Via» e la «Furia dei Berserker» sono di squadra. ' +
+      'Gli scambi solo fra compagni: due per turno, uno-a-uno. ' +
+      'Si vince coi Punti Gloria combinati della squadra.',
+    numeroSquadre: 'Numero di squadre',
+    coloriSquadre: 'Colori delle squadre',
+    puntiPerGiocatore: 'Punti per giocatore',
+    bersaglio: 'Bersaglio squadra: {size} × {target} = {tot} punti combinati.',
+    sbilanciate: 'Le squadre devono essere di ugual dimensione: assegna i posti in modo bilanciato.',
+    squadraLabel: 'Squadra:',
+    squadraN: 'Squadra {n}',
+    coloreSquadraN: 'Colore squadra {n}',
+    sqN: 'Sq.{n}',
+    manoCompagni: 'La tua squadra',
+    scambioNota: 'In squadra: una risorsa ↔ una risorsa, con tutta la squadra o un compagno (max 2 per turno).',
+    tuttaLaSquadra: 'Tutta la squadra',
+  },
   erroreMossa: 'Mossa non valida: {motivo}',
 } as const;
 

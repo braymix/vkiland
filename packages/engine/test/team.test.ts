@@ -6,22 +6,41 @@ import {
   createGame,
   friendsOf,
   getLegalActions,
+  getPlayerView,
   getTopology,
   isLegal,
   longestRoadLength,
   nextInt,
   scoreBreakdown,
   seedRng,
+  zeroResources,
   type Action,
   type EdgeId,
   type GameState,
   type LegalMove,
   type PlayerConfig,
+  type Resource,
 } from '../src';
-import { apply, expectResourceInvariants, give, greedyDiscard, greedyGain, mut, toMain } from './helpers';
+import {
+  apply,
+  expectError,
+  expectResourceInvariants,
+  give,
+  greedyDiscard,
+  greedyGain,
+  mut,
+  toMain,
+} from './helpers';
 
-const NAMES = ['Bjorn', 'Astrid', 'Leif', 'Sigrid'];
-const PERSONAL_COLORS = ['#c0392b', '#2e6fb7', '#3e8f4e', '#d9a525'];
+/** Conteggio risorse compatto: `rc({ legname: 1 })`. */
+function rc(o: Partial<Record<Resource, number>>) {
+  return { ...zeroResources(), ...o };
+}
+
+const NAMES = ['Bjorn', 'Astrid', 'Leif', 'Sigrid', 'Ragnar', 'Freya', 'Olaf', 'Ingrid'];
+const PERSONAL_COLORS = [
+  '#c0392b', '#2e6fb7', '#3e8f4e', '#d9a525', '#e84393', '#00cec9', '#a0522d', '#7f8c8d',
+];
 const TEAM_COLORS = ['#8e44ad', '#e67e22', '#16a085', '#34495e'];
 
 function makePlayers(n: number): PlayerConfig[] {
@@ -52,6 +71,11 @@ function teamGame(teams: number[], extra: Record<string, unknown> = {}): GameSta
 
 function topoOf(s: GameState) {
   return getTopology(boardTopoKey(s.config.boardRadius, s.config.boardShape, s.board.hexes));
+}
+
+/** Partita SENZA squadre (per i confronti con la modalità classica). */
+function newGameNoTeams(): GameState {
+  return createGame({ seed: 'senza-squadre', players: makePlayers(4) });
 }
 
 describe('modalità squadra — creazione e validazione', () => {
@@ -248,6 +272,59 @@ describe('modalità squadra — scambi solo fra compagni', () => {
       to: 2,
     });
     expect(err?.code).toBe('TROPPI_SCAMBI');
+  });
+});
+
+describe('modalità squadra — scambio «a tutta la squadra» in automatico', () => {
+  it('l\'offerta aperta si conclude appena un compagno accetta (avversari esclusi)', () => {
+    let s = give(toMain(teamGame([0, 1, 0, 1])), 0, { legname: 1 });
+    s = give(s, 2, { lana: 1 });
+    // Offerta alla squadra (to: null): legname 1 ↔ lana 1.
+    s = apply(s, { type: 'proponiScambio', player: 0, give: rc({ legname: 1 }), receive: rc({ lana: 1 }), to: null });
+    // Un avversario non può rispondere a un'offerta di squadra.
+    expectError(
+      s,
+      { type: 'rispondiScambio', player: 1, offerId: s.pendingTrade!.id, accept: true },
+      'RISPOSTA_NON_AMMESSA'
+    );
+    // Il compagno accetta: lo scambio si esegue subito, senza conferma.
+    s = apply(s, { type: 'rispondiScambio', player: 2, offerId: s.pendingTrade!.id, accept: true });
+    expect(s.pendingTrade).toBeNull();
+    expect(s.players[0]!.resources.lana).toBe(1);
+    expect(s.players[0]!.resources.legname).toBe(0);
+    expect(s.players[2]!.resources.legname).toBe(1);
+    expect(s.teamTradesThisTurn).toBe(1);
+  });
+
+  it('il rifiuto di un compagno non chiude l\'offerta (resta per gli altri)', () => {
+    // 3 giocatori per squadra: 0 offre, 2 rifiuta, 4 accetta.
+    let s = give(toMain(teamGame([0, 1, 0, 1, 0, 1])), 0, { legname: 1 });
+    s = give(s, 4, { lana: 1 });
+    s = apply(s, { type: 'proponiScambio', player: 0, give: rc({ legname: 1 }), receive: rc({ lana: 1 }), to: null });
+    s = apply(s, { type: 'rispondiScambio', player: 2, offerId: s.pendingTrade!.id, accept: false });
+    expect(s.pendingTrade).not.toBeNull(); // ancora aperta
+    s = apply(s, { type: 'rispondiScambio', player: 4, offerId: s.pendingTrade!.id, accept: true });
+    expect(s.pendingTrade).toBeNull();
+    expect(s.players[0]!.resources.lana).toBe(1);
+    expect(s.players[4]!.resources.legname).toBe(1);
+  });
+});
+
+describe('modalità squadra — mano dei compagni visibile', () => {
+  it('si vede la mano dei compagni ma non quella degli avversari', () => {
+    let s = give(teamGame([0, 1, 0, 1]), 2, { orzo: 3 });
+    s = give(s, 1, { ferro: 2 });
+    const view = getPlayerView(s, 0);
+    expect(view.players[2]!.hand).toBeDefined();
+    expect(view.players[2]!.hand!.resources.orzo).toBe(3);
+    expect(view.players[1]!.hand).toBeUndefined(); // avversario: nascosto
+    expect(view.players[0]!.hand).toBeUndefined(); // sé stessi: sta in `me`
+  });
+
+  it('fuori dalla modalità squadra nessuna mano è rivelata', () => {
+    const s = give(newGameNoTeams(), 1, { orzo: 2 });
+    const view = getPlayerView(s, 0);
+    expect(view.players.every((p) => p.hand === undefined)).toBe(true);
   });
 });
 

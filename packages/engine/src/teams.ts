@@ -79,6 +79,22 @@ export function validateTeams(teams: readonly number[], playerCount: number): st
   return null;
 }
 
+/**
+ * Chi può RISPONDERE a un'offerta di scambio. Offerta diretta (`to` valorizzato)
+ * ⇒ solo quel giocatore. Offerta aperta (`to` null) ⇒ tutti gli avversari nelle
+ * partite classiche; SOLO i compagni in modalità squadra («tutta la squadra»).
+ */
+export function tradeResponders(
+  teams: readonly number[] | undefined,
+  players: ReadonlyArray<{ id: PlayerId }>,
+  offer: { from: PlayerId; to: PlayerId | null }
+): PlayerId[] {
+  if (offer.to !== null) return [offer.to];
+  const base = players.filter((p) => p.id !== offer.from).map((p) => p.id);
+  if (!isTeamMode(teams)) return base;
+  return base.filter((id) => sameTeam(teams, offer.from, id));
+}
+
 /** Giocatori-per-squadra (dimensione di una squadra); 1 fuori dalla modalità. */
 export function teamSize(teams: readonly number[] | undefined): number {
   if (!isTeamMode(teams)) return 1;

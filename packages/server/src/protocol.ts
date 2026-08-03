@@ -70,6 +70,14 @@ export interface LobbyConfig {
   boardShape?: BoardShapeChoice;
   /** Seme della mappa (opzionale: undefined = casuale). */
   seed?: string;
+  /** Modalità Squadra attiva. Le squadre (per-posto) vivono in `LobbySlot.team`. */
+  teamMode?: boolean;
+  /** Numero di squadre (di ugual dimensione). Usato solo con `teamMode`. */
+  numTeams?: number;
+  /** Colore di ciascuna squadra (indicizzato per squadra). Usato solo con `teamMode`. */
+  teamColors?: string[];
+  /** Bersaglio Punti Gloria PER GIOCATORE in squadra (default 8; combinato = ×giocatori-per-squadra). */
+  teamTargetPerPlayer?: number;
 }
 
 /** Riga della lista delle partite pubbliche aperte. */
@@ -125,6 +133,8 @@ export interface LobbySlot {
   color: PlayerColor;
   /** Connessione socket attiva (per mostrare chi è presente). */
   connected: boolean;
+  /** Modalità Squadra: indice di squadra di questo posto (0 se non attiva). */
+  team: number;
 }
 
 export interface LobbyState {
@@ -206,6 +216,8 @@ export interface ClientToServerEvents {
   'lobby:removeSlot': (index: number) => void;
   /** Cambia il colore di un posto (il proprio sempre; i bot solo l'host). */
   'lobby:setColor': (index: number, color: PlayerColor) => void;
+  /** Modalità Squadra: assegna un posto a una squadra (il proprio, oppure l'host per tutti). */
+  'lobby:setTeam': (index: number, team: number) => void;
   'lobby:start': () => void;
   /** Solo l'host: chiude la partita/lobby per TUTTI, anche a partita in corso. */
   'lobby:terminate': () => void;

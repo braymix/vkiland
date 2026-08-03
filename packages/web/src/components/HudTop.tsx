@@ -141,7 +141,8 @@ export function HudTop({
               const col = shadesFor(view.teamColors![teamIdx] ?? '#888').main;
               return (
                 <span key={teamIdx} style={{ color: col, fontWeight: 700 }}>
-                  🛡️ Sq.{String.fromCharCode(65 + teamIdx)}: {total}/{view.targetGloryPoints}
+                  🛡️ {t(it.squadra.sqN, { n: String.fromCharCode(65 + teamIdx) })}: {total}/
+                  {view.targetGloryPoints}
                 </span>
               );
             })}

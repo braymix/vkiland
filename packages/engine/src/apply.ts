@@ -458,8 +458,10 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
         offerId: offer.id,
         accepted: action.accept,
       });
-      if (offer.to !== null) {
-        // Offerta diretta: l'accettazione esegue subito, il rifiuto chiude.
+      // In modalità squadra anche l'offerta APERTA (a tutta la squadra) si conclude
+      // in AUTOMATICO: il primo compagno che accetta esegue subito lo scambio.
+      const autoExecute = offer.to !== null || isTeamMode(state.config.teams);
+      if (autoExecute) {
         if (action.accept) {
           transferBetweenPlayers(state, offer.from, me.id, offer.give);
           transferBetweenPlayers(state, me.id, offer.from, offer.receive);
@@ -472,8 +474,15 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
             receive: { ...offer.receive },
           });
           countTeamTrade(state);
+          state.pendingTrade = null;
+        } else if (offer.to !== null) {
+          // Offerta DIRETTA: un rifiuto la chiude.
+          state.pendingTrade = null;
+        } else {
+          // Offerta alla squadra: un rifiuto è solo registrato, l'offerta resta
+          // aperta per gli altri compagni.
+          offer.responses[me.id] = 'rifiutata';
         }
-        state.pendingTrade = null;
       } else {
         offer.responses[me.id] = action.accept ? 'accettata' : 'rifiutata';
       }
