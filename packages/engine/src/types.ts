@@ -16,8 +16,9 @@ export type SagaCard =
   /**
    * RAZZIA (carta sviluppo, SEMPRE nel mazzo: 3 copie). Si gioca posandola su
    * una casella, che si illumina del colore del razziatore. Da quel momento e
-   * fino al RITORNO del suo turno la produzione di OGNI tiro è dirottata:
-   * nessuno prende le proprie risorse, le incassa tutte il razziatore.
+   * fino al RITORNO del suo turno la produzione di QUELLA casella (quando esce
+   * il suo numero) è dirottata: i proprietari non prendono nulla, la incassa
+   * tutta il razziatore. Le altre caselle fruttano normalmente.
    */
   | 'razzia'
   /**
@@ -87,12 +88,12 @@ export interface CalamityState {
 
 /**
  * RAZZIA in corso (carta sviluppo omonima). Un clan l'ha giocata su una
- * casella: fino al ritorno del SUO turno tutta la produzione dei tiri va a lui.
+ * casella: fino al ritorno del SUO turno la produzione di QUELLA casella va a lui.
  */
 export interface RazziaState {
-  /** Chi ha giocato la Razzia: incassa tutta la produzione finché è attiva. */
+  /** Chi ha giocato la Razzia: incassa la produzione della casella colpita finché è attiva. */
   player: PlayerId;
-  /** Casella su cui è posata: si illumina del colore del razziatore. */
+  /** Casella colpita: si illumina del colore del razziatore ed è la sola dirottata. */
   hex: HexId;
 }
 /**
@@ -392,8 +393,8 @@ export interface GameState {
   /** Modalità Calamità: mazzo + carta del giro. Assente nelle partite standard. */
   calamities?: CalamityState;
   /**
-   * RAZZIA attiva (carta sviluppo): dirotta al razziatore la produzione di
-   * tutti i tiri finché non torna il suo turno. Assente/null = nessuna razzia.
+   * RAZZIA attiva (carta sviluppo): dirotta al razziatore la produzione della
+   * casella colpita finché non torna il suo turno. Assente/null = nessuna razzia.
    */
   razzia?: RazziaState | null;
 }
@@ -512,7 +513,7 @@ export interface PlayerView {
   teamColors?: string[];
   /**
    * RAZZIA in corso (carta sviluppo): la casella `hex` va illuminata del colore
-   * del razziatore e la produzione dei tiri è tutta sua. null = nessuna razzia.
+   * del razziatore e la sua produzione è tutta sua. null = nessuna razzia.
    */
   razzia: RazziaState | null;
 }

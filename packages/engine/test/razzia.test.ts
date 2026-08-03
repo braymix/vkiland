@@ -101,31 +101,31 @@ describe('Razzia — validazione', () => {
   });
 });
 
-describe('Razzia — produzione dirottata', () => {
+describe('Razzia — produzione dirottata (solo la casella colpita)', () => {
   const base = clearHands(newGame(4, 'razzia-prod'));
   const { hex, verts, resource } = hexFixture(base);
 
-  it('il razziatore incassa la produzione di TUTTI, gli altri nulla', () => {
+  it('il razziatore incassa la produzione della casella razziata, i proprietari nulla', () => {
     const s = mut(base, (d) => {
       d.players[1]!.villages.push(verts[0]!); // 1 risorsa
       d.players[2]!.strongholds.push(verts[2]!); // 2 risorse
-      d.razzia = { player: 0, hex: hex.id === '0,0' ? verts[0]! : '0,0' }; // casella qualsiasi
+      d.razzia = { player: 0, hex: hex.id }; // razzia POSATA sulla casella che produce
     });
     const { state: dopo, events } = produce(s, hex.token!);
     expect(dopo.players[0]!.resources[resource]).toBe(3); // 1 + 2, tutto al razziatore
     expect(dopo.players[1]!.resources[resource]).toBe(0);
     expect(dopo.players[2]!.resources[resource]).toBe(0);
-    // Evento dedicato al posto di risorseProdotte.
+    // Evento dedicato al posto di risorseProdotte (nessuna produzione normale qui).
     expect(events.some((e) => e.type === 'razziaRiscossa' && e.player === 0)).toBe(true);
     expect(events.some((e) => e.type === 'risorseProdotte')).toBe(false);
     expectResourceInvariants(dopo);
   });
 
-  it('anche la produzione del razziatore stesso resta sua (nessun doppione)', () => {
+  it('anche la produzione del razziatore stesso sulla casella colpita resta sua (nessun doppione)', () => {
     const s = mut(base, (d) => {
       d.players[0]!.villages.push(verts[0]!);
       d.players[1]!.villages.push(verts[2]!);
-      d.razzia = { player: 0, hex: '0,0' };
+      d.razzia = { player: 0, hex: hex.id };
     });
     const { state: dopo } = produce(s, hex.token!);
     expect(dopo.players[0]!.resources[resource]).toBe(2); // la sua + quella di p1
@@ -138,11 +138,60 @@ describe('Razzia — produzione dirottata', () => {
       d.players[1]!.villages.push(verts[0]!);
       d.players[2]!.villages.push(verts[2]!);
       d.bank[resource] = 1; // ne servirebbero 2
-      d.razzia = { player: 0, hex: '0,0' };
+      d.razzia = { player: 0, hex: hex.id };
     });
     const { state: dopo } = produce(s, hex.token!);
     expect(dopo.players[0]!.resources[resource]).toBe(1);
     expect(dopo.bank[resource]).toBe(0);
+  });
+
+  it('la razzia su un’ALTRA casella non tocca questa produzione', () => {
+    // Razzia posata su una casella che NON produce a questo tiro: i proprietari
+    // delle caselle incassano regolarmente, il razziatore non prende nulla.
+    const topo = getTopology();
+    const other = base.board.hexes.find(
+      (h) => h.id !== hex.id && !topo.hexVertices[h.id]!.some((v) => v === verts[0] || v === verts[2])
+    )!.id;
+    const s = mut(base, (d) => {
+      d.players[1]!.villages.push(verts[0]!); // 1 risorsa
+      d.players[2]!.strongholds.push(verts[2]!); // 2 risorse
+      d.razzia = { player: 0, hex: other };
+    });
+    const { state: dopo, events } = produce(s, hex.token!);
+    expect(dopo.players[0]!.resources[resource]).toBe(0);
+    expect(dopo.players[1]!.resources[resource]).toBe(1);
+    expect(dopo.players[2]!.resources[resource]).toBe(2);
+    expect(events.some((e) => e.type === 'razziaRiscossa')).toBe(false);
+    expect(events.some((e) => e.type === 'risorseProdotte')).toBe(true);
+    expectResourceInvariants(dopo);
+  });
+
+  it('con due caselle dello stesso numero, dirotta solo quella razziata', () => {
+    const topo = getTopology();
+    // Due caselle produttive distinte, stesso numero e vertici non condivisi.
+    const prod = base.board.hexes.filter((h) => h.terrain !== 'tundra' && h.token !== null);
+    let a = prod[0]!, b = prod[0]!;
+    outer: for (const x of prod)
+      for (const y of prod) {
+        if (x.id === y.id || x.token !== y.token) continue;
+        if (topo.hexVertices[x.id]!.some((v) => topo.hexVertices[y.id]!.includes(v))) continue;
+        a = x;
+        b = y;
+        break outer;
+      }
+    expect(a.id).not.toBe(b.id); // il fixture deve offrire una coppia valida
+    const vA = topo.hexVertices[a.id]![0]!;
+    const vB = topo.hexVertices[b.id]![0]!;
+    const s = mut(base, (d) => {
+      d.players[1]!.villages.push(vA); // sulla casella razziata
+      d.players[1]!.villages.push(vB); // sulla casella gemella (stesso numero, non razziata)
+      d.razzia = { player: 0, hex: a.id };
+    });
+    const { state: dopo } = produce(s, a.token!);
+    // La produzione di A va al razziatore; quella di B resta al proprietario.
+    expect(dopo.players[0]!.resources[a.terrain as Resource]).toBe(1); // bottino della sola A
+    expect(dopo.players[1]!.resources[b.terrain as Resource]).toBeGreaterThanOrEqual(1); // B fruttata a p1
+    expectResourceInvariants(dopo);
   });
 });
 

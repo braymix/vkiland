@@ -454,7 +454,7 @@ export const nl: Strings = {
     costruttoriDiSentieri: 'Plaats meteen 2 gratis paden.',
     banchetto: 'Neem 2 grondstoffen naar keuze uit de bank.',
     tributo: 'Elke tegenstander geeft je AL zijn eenheden van één grondstof.',
-    razzia: 'Leg hem op een vak: tot je volgende beurt krijgt niemand grondstoffen van de worpen — jij int alles.',
+    razzia: 'Leg hem op een vak: tot je volgende beurt is de productie van DAT vak van jou, niet van de eigenaars.',
   },
 
   /**
@@ -527,7 +527,7 @@ export const nl: Strings = {
     cartaGiocata: '{nome} speelt: {carta}',
     banchetto: '{nome} houdt een feestmaal: +{r1} en +{r2}',
     tributo: '{nome} int het tribuut: {n}× {risorsa}',
-    razziaPosata: '💰 {nome} ontketent een Rooftocht: int voortaan ieders productie',
+    razziaPosata: '💰 {nome} ontketent een Rooftocht op een vak: int de productie ervan tot de volgende beurt',
     razziaRiscossa: '💰 De Rooftocht levert {nome} op: {risorse}',
     franaSpezzata: '⛰️ Een aardverschuiving laat een weg van {nome} instorten',
     scambioProposto: '{nome} stelt een ruil voor',
