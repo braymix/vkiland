@@ -582,5 +582,24 @@ export const es: Strings = {
     },
   },
 
+  squadra: {
+    modalita: 'Modo equipo',
+    spiega:
+      'Los caminos, los puertos, «El Gran Camino» y la «Furia de los Berserkers» son del equipo. ' +
+      'Los intercambios solo entre compañeros: dos por turno, uno por uno. ' +
+      'Se gana con los Puntos de Gloria combinados del equipo.',
+    numeroSquadre: 'Número de equipos',
+    coloriSquadre: 'Colores de los equipos',
+    puntiPerGiocatore: 'Puntos por jugador',
+    bersaglio: 'Objetivo del equipo: {size} × {target} = {tot} puntos combinados.',
+    sbilanciate: 'Los equipos deben ser del mismo tamaño: reparte los puestos de forma equilibrada.',
+    squadraLabel: 'Equipo:',
+    squadraN: 'Equipo {n}',
+    coloreSquadraN: 'Color del equipo {n}',
+    sqN: 'Eq.{n}',
+    manoCompagni: 'Tu equipo',
+    scambioNota: 'En equipo: un recurso ↔ un recurso, con todo el equipo o un compañero (máx. 2 por turno).',
+    tuttaLaSquadra: 'Todo el equipo',
+  },
   erroreMossa: 'Movimiento no válido: {motivo}',
 };

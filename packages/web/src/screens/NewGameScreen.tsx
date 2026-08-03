@@ -619,7 +619,9 @@ export function NewGameScreen({
                 : i === 0
                   ? it.ruoloTu
                   : it.ruoloAmico;
-              const tag = teamMode ? `${baseTag} · Sq.${teamLetter(seatTeams[i] ?? 0)}` : baseTag;
+              const tag = teamMode
+                ? `${baseTag} · ${t(it.squadra.sqN, { n: teamLetter(seatTeams[i] ?? 0) })}`
+                : baseTag;
               return (
                 <div key={i}>
                   <button
@@ -692,17 +694,17 @@ export function NewGameScreen({
                       {teamMode && (
                         <div className="color-picker" style={{ marginTop: 4 }}>
                           <span style={{ fontSize: 8, color: 'var(--ink-dim)', alignSelf: 'center', marginRight: 4 }}>
-                            Squadra:
+                            {it.squadra.squadraLabel}
                           </span>
-                          {Array.from({ length: numTeams }, (_, t) => (
+                          {Array.from({ length: numTeams }, (_, ti) => (
                             <button
-                              key={t}
-                              className={`color-swatch ${seatTeams[i] === t ? 'color-swatch--active' : ''}`}
-                              style={{ background: shadesFor(teamColors[t] ?? TEAM_PALETTE[t] ?? '#888').main }}
-                              title={`Squadra ${teamLetter(t)}`}
-                              onClick={() => pickSeatTeam(i, t)}
+                              key={ti}
+                              className={`color-swatch ${seatTeams[i] === ti ? 'color-swatch--active' : ''}`}
+                              style={{ background: shadesFor(teamColors[ti] ?? TEAM_PALETTE[ti] ?? '#888').main }}
+                              title={t(it.squadra.squadraN, { n: teamLetter(ti) })}
+                              onClick={() => pickSeatTeam(i, ti)}
                             >
-                              {teamLetter(t)}
+                              {teamLetter(ti)}
                             </button>
                           ))}
                         </div>
@@ -865,7 +867,9 @@ export function NewGameScreen({
                   : slot.userId === session.userId
                     ? it.ruoloTu
                     : it.ruoloAmico;
-                const tag = teamMode ? `${baseTag} · Sq.${teamLetter(slot.team ?? 0)}` : baseTag;
+                const tag = teamMode
+                  ? `${baseTag} · ${t(it.squadra.sqN, { n: teamLetter(slot.team ?? 0) })}`
+                  : baseTag;
                 return (
                   <div key={i}>
                     <div className={`seat-row seat-row--static ${pickerOnline === i ? 'seat-row--open' : ''}`}>
@@ -933,14 +937,14 @@ export function NewGameScreen({
                         {teamMode && (
                           <div className="color-picker" style={{ marginTop: 4 }}>
                             <span style={{ fontSize: 8, color: 'var(--ink-dim)', alignSelf: 'center', marginRight: 4 }}>
-                              Squadra:
+                              {it.squadra.squadraLabel}
                             </span>
                             {Array.from({ length: numTeams }, (_, tt) => (
                               <button
                                 key={tt}
                                 className={`color-swatch ${slot.team === tt ? 'color-swatch--active' : ''}`}
                                 style={{ background: shadesFor(teamColors[tt] ?? TEAM_PALETTE[tt] ?? '#888').main }}
-                                title={`Squadra ${teamLetter(tt)}`}
+                                title={t(it.squadra.squadraN, { n: teamLetter(tt) })}
                                 onClick={() => {
                                   socketRef.current?.emit('lobby:setTeam', i, tt);
                                   setPickerOnline(null);
@@ -1113,15 +1117,12 @@ function TeamSettingsPanel(p: TeamSettingsPanelProps) {
           disabled={!p.editable}
           onChange={(e) => p.onToggle(e.target.checked)}
         />
-        🛡️ Modalità squadra
+        🛡️ {it.squadra.modalita}
       </label>
       {p.teamMode && (
         <div className="rules-body">
-          <div style={NOTE_STYLE}>
-            Strade, approdi, «La Grande Via» e «La Furia» sono di squadra. Gli scambi solo fra
-            compagni: due per turno, uno-a-uno. Si vince coi Punti Gloria combinati della squadra.
-          </div>
-          <div style={CAT_STYLE}>Numero di squadre</div>
+          <div style={NOTE_STYLE}>{it.squadra.spiega}</div>
+          <div style={CAT_STYLE}>{it.squadra.numeroSquadre}</div>
           <div className="color-picker">
             {p.validTeamCounts.map((n) => (
               <button
@@ -1134,28 +1135,29 @@ function TeamSettingsPanel(p: TeamSettingsPanelProps) {
               </button>
             ))}
           </div>
-          <div style={CAT_STYLE}>Colori delle squadre</div>
+          <div style={CAT_STYLE}>{it.squadra.coloriSquadre}</div>
           <div className="color-picker">
-            {Array.from({ length: p.numTeams }, (_, t) => (
+            {Array.from({ length: p.numTeams }, (_, ti) => (
               <label
-                key={t}
+                key={ti}
                 className="color-swatch color-swatch--custom"
-                style={{ background: shadesFor(p.teamColors[t] ?? TEAM_PALETTE[t] ?? '#888').main }}
-                title={`Colore squadra ${teamLetter(t)}`}
+                style={{ background: shadesFor(p.teamColors[ti] ?? TEAM_PALETTE[ti] ?? '#888').main }}
+                title={t(it.squadra.coloreSquadraN, { n: teamLetter(ti) })}
               >
-                <span style={{ fontSize: 8, color: '#fff' }}>{teamLetter(t)}</span>
+                <span style={{ fontSize: 8, color: '#fff' }}>{teamLetter(ti)}</span>
                 <input
                   type="color"
-                  value={shadesFor(p.teamColors[t] ?? TEAM_PALETTE[t] ?? '#888').main}
+                  value={shadesFor(p.teamColors[ti] ?? TEAM_PALETTE[ti] ?? '#888').main}
                   disabled={!p.editable}
-                  onChange={(e) => p.onSetTeamColor(t, e.target.value)}
+                  onChange={(e) => p.onSetTeamColor(ti, e.target.value)}
                 />
               </label>
             ))}
           </div>
           <div className="stepper-row">
             <span style={{ fontSize: 9 }}>
-              Punti per giocatore <span style={{ color: 'var(--ink-dim)', fontSize: 8 }}>(standard 8)</span>
+              {it.squadra.puntiPerGiocatore}{' '}
+              <span style={{ color: 'var(--ink-dim)', fontSize: 8 }}>{t(it.standardN, { n: 8 })}</span>
             </span>
             <span className="stepper">
               <button
@@ -1176,12 +1178,14 @@ function TeamSettingsPanel(p: TeamSettingsPanelProps) {
             </span>
           </div>
           <div style={NOTE_STYLE}>
-            Bersaglio squadra: {p.teamSizeVal} × {p.teamTarget} = <b>{p.teamSizeVal * p.teamTarget}</b> punti combinati.
+            {t(it.squadra.bersaglio, {
+              size: p.teamSizeVal,
+              target: p.teamTarget,
+              tot: p.teamSizeVal * p.teamTarget,
+            })}
           </div>
           {!p.teamsBalanced && (
-            <div style={{ fontSize: 9, color: 'var(--danger)' }}>
-              Le squadre devono essere di ugual dimensione: assegna i posti in modo bilanciato.
-            </div>
+            <div style={{ fontSize: 9, color: 'var(--danger)' }}>{it.squadra.sbilanciate}</div>
           )}
         </div>
       )}

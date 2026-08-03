@@ -14,6 +14,7 @@ import {
   type BotLevel,
   type GameEvent,
   type GameState,
+  tradeResponders,
   type PlayerColor,
   type PlayerCosmetics,
   type PlayerId,
@@ -348,10 +349,7 @@ export class GameRoom {
       // Il bot PROPONENTE aspetta le risposte di TUTTI prima di concludere
       // o ritirare: nessuno scambio si chiude mentre un umano ci pensa.
       if (offer && offer.from === pid) {
-        const responders =
-          offer.to === null
-            ? this.state.players.filter((p) => p.id !== pid).map((p) => p.id)
-            : [offer.to];
+        const responders = tradeResponders(this.state.config.teams, this.state.players, offer);
         // Niente «vince il primo che accetta»: il proponente conclude solo
         // quando TUTTI gli interpellati hanno risposto (gli umani compresi).
         const allResponded = responders.every((r) => offer.responses[r] !== undefined);

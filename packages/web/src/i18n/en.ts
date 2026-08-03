@@ -705,5 +705,24 @@ export const en: Strings = {
       },
     },
   },
+  squadra: {
+    modalita: 'Team mode',
+    spiega:
+      'Roads, ports, «The Great Road» and the «Berserker Fury» are shared by the team. ' +
+      'Trades only between teammates: two per turn, one for one. ' +
+      'You win with the team’s combined Glory Points.',
+    numeroSquadre: 'Number of teams',
+    coloriSquadre: 'Team colours',
+    puntiPerGiocatore: 'Points per player',
+    bersaglio: 'Team target: {size} × {target} = {tot} combined points.',
+    sbilanciate: 'Teams must be the same size: assign the seats evenly.',
+    squadraLabel: 'Team:',
+    squadraN: 'Team {n}',
+    coloreSquadraN: 'Team colour {n}',
+    sqN: 'T.{n}',
+    manoCompagni: 'Your team',
+    scambioNota: 'In a team: one resource ↔ one resource, with the whole team or a teammate (max 2 per turn).',
+    tuttaLaSquadra: 'The whole team',
+  },
   erroreMossa: 'Invalid move: {motivo}',
 };

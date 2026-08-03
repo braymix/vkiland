@@ -101,6 +101,7 @@ export {
   distinctTeams,
   validateTeams,
   teamSize,
+  tradeResponders,
 } from './teams';
 export { seedRng, nextU32, nextInt, rollDie, shuffle, type RngState } from './rng';
 

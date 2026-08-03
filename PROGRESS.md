@@ -31,6 +31,12 @@ ONLINE: la `LobbyConfig` porta `teamMode`/`numTeams`/`teamColors`/
 bilanciata, ritoccabile dal proprietario o dall'host via `lobby:setTeam`);
 l'avvio è respinto se le squadre non sono di ugual dimensione. Il pannello squadra
 e il selettore di squadra per posto sono condivisi fra setup locale e lobby online.
+SCAMBI DI SQUADRA: la proposta va di default a «tutta la propria squadra»
+(destinatario `to: null` ristretto ai compagni) e si conclude in AUTOMATICO appena
+un compagno accetta (nessuna conferma); si può ancora scegliere un compagno
+specifico. MANI DI SQUADRA: i compagni si vedono la mano a vicenda (risorse +
+Carte Saga) nella vista e nel pannello mano. Tutte le stringhe della modalità sono
+tradotte nelle 8 lingue (namespace `squadra`).
 
 **TAVOLA «CON RIENTRANZE» + PONTI** ✅ — nuova FORMA di tavola, scegliibile in
 aggiunta alla taglia (piccola/grande/gigante) con una spunta «Con rientranze»

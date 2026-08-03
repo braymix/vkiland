@@ -25,7 +25,7 @@ import {
   roadBattleTargets,
   vertexFreeWithDistance,
 } from './rules';
-import { friendsOf } from './teams';
+import { friendsOf, isTeamMode, tradeResponders } from './teams';
 import type { GameState, PlayerId, Resource } from './types';
 
 export function getLegalActions(state: GameState, player: PlayerId): LegalMove[] {
@@ -140,7 +140,9 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
       if (offer !== null) {
         // Con uno scambio pendente sono ammesse solo le azioni di risposta.
         if (player === offer.from) {
-          if (offer.to === null) {
+          // Offerta aperta CLASSICA: il proponente sceglie con chi concludere. In
+          // modalità squadra invece si conclude in automatico (nessun confermaScambio).
+          if (offer.to === null && !isTeamMode(state.config.teams)) {
             for (const p of state.players) {
               if (offer.responses[p.id] === 'accettata' && hasAtLeast(p.resources, offer.receive)) {
                 moves.push({ type: 'confermaScambio', player, offerId: offer.id, with: p.id });
@@ -149,7 +151,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
           }
           moves.push({ type: 'annullaScambio', player, offerId: offer.id });
         } else if (
-          (offer.to === null || offer.to === player) &&
+          tradeResponders(state.config.teams, state.players, offer).includes(player) &&
           offer.responses[player] === undefined
         ) {
           if (hasAtLeast(me.resources, offer.receive)) {

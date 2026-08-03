@@ -690,5 +690,24 @@ export const nl: Strings = {
       },
     },
   },
+  squadra: {
+    modalita: 'Teammodus',
+    spiega:
+      'Wegen, havens, «De Grote Weg» en de «Razernij der Berserkers» zijn van het team. ' +
+      'Ruilen alleen tussen teamgenoten: twee per beurt, één om één. ' +
+      'Je wint met de gecombineerde Roempunten van het team.',
+    numeroSquadre: 'Aantal teams',
+    coloriSquadre: 'Teamkleuren',
+    puntiPerGiocatore: 'Punten per speler',
+    bersaglio: 'Teamdoel: {size} × {target} = {tot} gecombineerde punten.',
+    sbilanciate: 'Teams moeten even groot zijn: verdeel de plaatsen gelijk.',
+    squadraLabel: 'Team:',
+    squadraN: 'Team {n}',
+    coloreSquadraN: 'Teamkleur {n}',
+    sqN: 'T.{n}',
+    manoCompagni: 'Jouw team',
+    scambioNota: 'In een team: één grondstof ↔ één grondstof, met het hele team of een teamgenoot (max. 2 per beurt).',
+    tuttaLaSquadra: 'Het hele team',
+  },
   erroreMossa: 'Ongeldige zet: {motivo}',
 };

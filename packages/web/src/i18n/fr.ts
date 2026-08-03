@@ -582,5 +582,24 @@ export const fr: Strings = {
       fine: { titolo: 'Tu es prêt, Viking !', testo: 'C’est tout ! Tu peux revoir chaque règle dans le « Livre des Sagas » depuis le menu. Maintenant, à toi de jouer : largue les amarres !' },
     },
   },
+  squadra: {
+    modalita: 'Mode équipe',
+    spiega:
+      'Les routes, les ports, « La Grande Voie » et la « Fureur des Berserkers » sont à l’équipe. ' +
+      'Les échanges uniquement entre coéquipiers : deux par tour, un contre un. ' +
+      'On gagne avec les Points de Gloire combinés de l’équipe.',
+    numeroSquadre: 'Nombre d’équipes',
+    coloriSquadre: 'Couleurs des équipes',
+    puntiPerGiocatore: 'Points par joueur',
+    bersaglio: 'Objectif d’équipe : {size} × {target} = {tot} points combinés.',
+    sbilanciate: 'Les équipes doivent être de taille égale : répartissez les places équitablement.',
+    squadraLabel: 'Équipe :',
+    squadraN: 'Équipe {n}',
+    coloreSquadraN: 'Couleur de l’équipe {n}',
+    sqN: 'Éq.{n}',
+    manoCompagni: 'Ton équipe',
+    scambioNota: 'En équipe : une ressource ↔ une ressource, avec toute l’équipe ou un coéquipier (max 2 par tour).',
+    tuttaLaSquadra: 'Toute l’équipe',
+  },
   erroreMossa: 'Coup invalide : {motivo}',
 };
