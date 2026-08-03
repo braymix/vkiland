@@ -12,6 +12,7 @@ import {
 } from './constants';
 import { rollDie, seedRng, shuffle } from './rng';
 import { rientranzeRegionRadius } from './board/coords';
+import { distinctTeams, isTeamMode, teamSize, validateTeams } from './teams';
 import type {
   BoardShapeChoice,
   BoardSizeChoice,
@@ -37,6 +38,18 @@ export interface NewGameOptions {
   boardSize?: BoardSizeChoice;
   /** Forma della tavola; 'rientranze' = isola casuale con golfi e ponti. Assente = esagono classico. */
   boardShape?: BoardShapeChoice;
+  /**
+   * Modalità Squadra: un indice di squadra per giocatore (squadre di ugual
+   * dimensione, sempre pari). Assente = partita a tutti contro tutti.
+   */
+  teams?: number[];
+  /** Colore di ciascuna squadra (indicizzato per indice di squadra). Richiesto con `teams`. */
+  teamColors?: string[];
+  /**
+   * Modalità Squadra: bersaglio di Punti Gloria PER GIOCATORE (default 8). Il
+   * bersaglio COMBINATO della squadra è `giocatori-per-squadra × questo valore`.
+   */
+  teamTargetPerPlayer?: number;
 }
 
 export function createGame(options: NewGameOptions): GameState {
@@ -52,22 +65,44 @@ export function createGame(options: NewGameOptions): GameState {
     throw new Error('createGame: i colori dei giocatori devono essere tutti diversi');
   }
 
+  // Modalità Squadra (opzionale): valida l'assegnazione e i colori di squadra.
+  const teams = options.teams;
+  if (teams) {
+    const msg = validateTeams(teams, players.length);
+    if (msg) throw new Error('createGame: ' + msg);
+    const groups = distinctTeams(teams);
+    const teamColors = options.teamColors;
+    for (const g of groups) {
+      if (!teamColors?.[g]) throw new Error('createGame: serve un colore per ogni squadra');
+    }
+    if (new Set(groups.map((g) => teamColors![g])).size !== groups.length) {
+      throw new Error('createGame: i colori delle squadre devono essere tutti diversi');
+    }
+  }
+
   // La taglia della tavola: scelta esplicita se presente, altrimenti la
   // consigliata dal numero di giocatori (2–4 piccola, 5–6 grande, 7–8 gigante).
   const spec = resolveBoardSpec(players.length, options.boardSize);
   const shape = options.boardShape;
 
+  // Bersaglio Punti Gloria: in squadra è «giocatori-per-squadra × valore» (il
+  // valore, di default 8, è impostabile); altrimenti il valore classico.
+  const targetGloryPoints = teams
+    ? teamSize(teams) * (options.teamTargetPerPlayer ?? 8)
+    : options.targetGloryPoints ?? DEFAULT_TARGET_GLORY;
+
   const config: GameConfig = {
     seed,
     players: players.map((p) => ({ ...p })),
     avoidAdjacent68: options.avoidAdjacent68 ?? true,
-    targetGloryPoints: options.targetGloryPoints ?? DEFAULT_TARGET_GLORY,
+    targetGloryPoints,
     // Con le rientranze la tavola è un'isola dentro un esagono più ampio: il
     // raggio geometrico cresce di un anello, così il canvas la contiene tutta.
     boardRadius: shape === 'rientranze' ? rientranzeRegionRadius(spec.code) : spec.code,
     ...(shape ? { boardShape: shape } : {}),
     calamities: options.calamities ?? false,
     battle: options.battle ?? false,
+    ...(teams ? { teams: [...teams], teamColors: [...options.teamColors!] } : {}),
   };
 
   let rng = seedRng(seed);
@@ -175,6 +210,7 @@ export function createGame(options: NewGameOptions): GameState {
     longestRoad: { holder: null, length: 0 },
     largestArmy: { holder: null, count: 0 },
     ...(calamities ? { calamities } : {}),
+    ...(isTeamMode(config.teams) ? { teamTradesThisTurn: 0 } : {}),
   };
 }
 
@@ -236,6 +272,7 @@ export function cloneState(s: GameState): GameState {
       : null,
     longestRoad: { ...s.longestRoad },
     largestArmy: { ...s.largestArmy },
+    ...(s.teamTradesThisTurn !== undefined ? { teamTradesThisTurn: s.teamTradesThisTurn } : {}),
     // Le carte calamità sono immutabili: si clona l'array, non le carte.
     ...(s.calamities
       ? { calamities: { deck: [...s.calamities.deck], current: s.calamities.current } }

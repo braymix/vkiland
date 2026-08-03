@@ -20,6 +20,7 @@ import {
   overlappingResources,
   totalResources,
 } from './resources';
+import { friendsOf, isTeamMode, sameTeam } from './teams';
 import {
   buildingOwnerAt,
   effectiveBankRatio,
@@ -104,6 +105,19 @@ const ERR = {
     'FRANA_NON_VALIDA',
     'La frana può far crollare solo una tua strada marginale (mai una delle due iniziali).'
   ),
+  // --- Squadra ---
+  scambioSoloSquadra: err(
+    'SCAMBIO_SOLO_SQUADRA',
+    'In modalità squadra gli scambi si fanno solo con un compagno di squadra.'
+  ),
+  scambioUnoAUno: err(
+    'SCAMBIO_UNO_A_UNO',
+    'In modalità squadra gli scambi sono uno-a-uno: una risorsa per una risorsa.'
+  ),
+  troppiScambi: err(
+    'TROPPI_SCAMBI',
+    'In modalità squadra puoi fare al massimo due scambi per turno.'
+  ),
 } as const;
 
 function isPlayerId(state: GameState, id: unknown): id is PlayerId {
@@ -122,7 +136,9 @@ function attackTargetError(
   radius: TopoKey
 ): ValidationError | null {
   const owner = buildingOwnerAt(state, vertex);
-  if (owner === null || owner === player) return ERR.bersaglioNonRaggiunto;
+  // In modalità squadra i compagni non sono bersagli (né sé stessi).
+  if (owner === null || friendsOf(state.config.teams, player).has(owner))
+    return ERR.bersaglioNonRaggiunto;
   const topo = getTopology(radius);
   const reached = (topo.vertexEdges[vertex] ?? []).some((e) => state.players[player]!.roads.includes(e));
   if (!reached) return ERR.bersaglioNonRaggiunto;
@@ -144,7 +160,8 @@ function roadAttackTargetError(
   radius: TopoKey
 ): ValidationError | null {
   const owner = roadOwnerAt(state, edge);
-  if (owner === null || owner === player) return ERR.sentieroNonRaggiunto;
+  if (owner === null || friendsOf(state.config.teams, player).has(owner))
+    return ERR.sentieroNonRaggiunto;
   const topo = getTopology(radius);
   const vs = topo.edgeVertices[edge];
   if (!vs) return ERR.sentieroNonRaggiunto;
@@ -169,6 +186,9 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
   const radius = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes);
   const topo = getTopology(radius);
   const me = state.players[action.player]!;
+  // Modalità squadra: i compagni (sé compreso). Fuori dalla modalità è {player},
+  // quindi tutte le regole geometriche restano identiche alle partite classiche.
+  const friends = friendsOf(state.config.teams, action.player);
 
   switch (action.type) {
     // ----------------------------------------------------------- setup
@@ -243,7 +263,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (!(action.edge in topo.edgeVertices)) return ERR.spigoloNonValido;
       if (roadOwnerAt(state, action.edge) !== null) return ERR.spigoloOccupato;
       if (me.roads.length >= PIECE_LIMITS.sentiero) return ERR.pezziEsauriti;
-      if (!roadConnects(state, action.player, action.edge, radius)) return ERR.nonConnesso;
+      if (!roadConnects(state, action.player, action.edge, radius, friends)) return ERR.nonConnesso;
       if (!hasAtLeast(me.resources, BUILD_COSTS.sentiero)) return ERR.risorseInsufficienti;
       return null;
     }
@@ -253,8 +273,10 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (!(action.vertex in topo.vertexEdges)) return ERR.verticeNonValido;
       if (buildingOwnerAt(state, action.vertex) !== null) return ERR.verticeOccupato;
       if (!vertexFreeWithDistance(state, action.vertex, radius)) return ERR.distanza;
-      // Connettività: serve un proprio sentiero che tocchi il vertice.
-      const connected = topo.vertexEdges[action.vertex]!.some((e) => me.roads.includes(e));
+      // Connettività: serve un sentiero PROPRIO o di un compagno che tocchi il vertice.
+      const connected = topo.vertexEdges[action.vertex]!.some((e) =>
+        state.players.some((p) => friends.has(p.id) && p.roads.includes(e))
+      );
       if (!connected) return ERR.nonConnesso;
       if (me.villages.length >= PIECE_LIMITS.villaggio) return ERR.pezziEsauriti;
       if (!hasAtLeast(me.resources, BUILD_COSTS.villaggio)) return ERR.risorseInsufficienti;
@@ -353,6 +375,15 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
         if (!isPlayerId(state, action.to) || action.to === action.player)
           return ERR.scambioNonValido;
       }
+      // Modalità squadra: uno-a-uno, al massimo due per turno; il destinatario è
+      // tutta la squadra (`to` null) oppure un compagno specifico (mai un avversario).
+      if (isTeamMode(state.config.teams)) {
+        if ((state.teamTradesThisTurn ?? 0) >= 2) return ERR.troppiScambi;
+        if (totalResources(action.give) !== 1 || totalResources(action.receive) !== 1)
+          return ERR.scambioUnoAUno;
+        if (action.to !== null && !sameTeam(state.config.teams, action.player, action.to))
+          return ERR.scambioSoloSquadra;
+      }
       return null;
     }
     case 'rispondiScambio': {
@@ -361,6 +392,9 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (offer === null || offer.id !== action.offerId) return ERR.offertaInesistente;
       if (action.player === offer.from) return ERR.rispostaNonAmmessa;
       if (offer.to !== null && action.player !== offer.to) return ERR.rispostaNonAmmessa;
+      // Offerta «a tutta la squadra»: possono rispondere solo i compagni.
+      if (offer.to === null && isTeamMode(state.config.teams) && !sameTeam(state.config.teams, offer.from, action.player))
+        return ERR.rispostaNonAmmessa;
       if (offer.responses[action.player] !== undefined) return ERR.giaRisposto;
       // Per accettare, chi risponde deve possedere ciò che il proponente chiede.
       if (action.accept && !hasAtLeast(me.resources, offer.receive))
@@ -420,7 +454,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (!(action.edge in topo.edgeVertices)) return ERR.spigoloNonValido;
       if (roadOwnerAt(state, action.edge) !== null) return ERR.spigoloOccupato;
       if (me.roads.length >= PIECE_LIMITS.sentiero) return ERR.pezziEsauriti;
-      if (!roadConnects(state, action.player, action.edge, radius)) return ERR.nonConnesso;
+      if (!roadConnects(state, action.player, action.edge, radius, friends)) return ERR.nonConnesso;
       return null;
     }
     case 'giocaBanchetto': {

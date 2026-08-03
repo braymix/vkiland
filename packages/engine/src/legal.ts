@@ -25,6 +25,7 @@ import {
   roadBattleTargets,
   vertexFreeWithDistance,
 } from './rules';
+import { friendsOf, isTeamMode, tradeResponders } from './teams';
 import type { GameState, PlayerId, Resource } from './types';
 
 export function getLegalActions(state: GameState, player: PlayerId): LegalMove[] {
@@ -33,6 +34,8 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
   const moves: LegalMove[] = [];
   if (player < 0 || player >= state.players.length) return moves;
   const me = state.players[player]!;
+  // Modalità squadra: rete in comune coi compagni (fuori dalla modalità è {player}).
+  const friends = friendsOf(state.config.teams, player);
 
   switch (state.phase.type) {
     case 'gameOver':
@@ -92,7 +95,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
 
     case 'calamityRoads': {
       if (player !== state.phase.queue[0]) return moves;
-      for (const e of legalRoadEdges(state, player, radius)) {
+      for (const e of legalRoadEdges(state, player, radius, friends)) {
         moves.push({ type: 'piazzaSentieroGratis', player, edge: e });
       }
       return moves;
@@ -126,7 +129,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
 
     case 'freeRoads': {
       if (player !== state.currentPlayer) return moves;
-      for (const e of legalRoadEdges(state, player, radius)) {
+      for (const e of legalRoadEdges(state, player, radius, friends)) {
         moves.push({ type: 'piazzaSentieroGratis', player, edge: e });
       }
       return moves;
@@ -137,7 +140,9 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
       if (offer !== null) {
         // Con uno scambio pendente sono ammesse solo le azioni di risposta.
         if (player === offer.from) {
-          if (offer.to === null) {
+          // Offerta aperta CLASSICA: il proponente sceglie con chi concludere. In
+          // modalità squadra invece si conclude in automatico (nessun confermaScambio).
+          if (offer.to === null && !isTeamMode(state.config.teams)) {
             for (const p of state.players) {
               if (offer.responses[p.id] === 'accettata' && hasAtLeast(p.resources, offer.receive)) {
                 moves.push({ type: 'confermaScambio', player, offerId: offer.id, with: p.id });
@@ -146,7 +151,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
           }
           moves.push({ type: 'annullaScambio', player, offerId: offer.id });
         } else if (
-          (offer.to === null || offer.to === player) &&
+          tradeResponders(state.config.teams, state.players, offer).includes(player) &&
           offer.responses[player] === undefined
         ) {
           if (hasAtLeast(me.resources, offer.receive)) {
@@ -166,7 +171,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
         hasAtLeast(me.resources, BUILD_COSTS.sentiero) &&
         me.roads.length < PIECE_LIMITS.sentiero
       ) {
-        for (const e of legalRoadEdges(state, player, radius)) {
+        for (const e of legalRoadEdges(state, player, radius, friends)) {
           moves.push({ type: 'costruisciSentiero', player, edge: e });
         }
       }
@@ -174,7 +179,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
         hasAtLeast(me.resources, BUILD_COSTS.villaggio) &&
         me.villages.length < PIECE_LIMITS.villaggio
       ) {
-        for (const v of legalVillageVertices(state, player, radius)) {
+        for (const v of legalVillageVertices(state, player, radius, friends)) {
           moves.push({ type: 'costruisciVillaggio', player, vertex: v });
         }
       }
@@ -193,25 +198,25 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
 
       // Battaglia — attacco pesante: colpisci gli edifici avversari raggiunti.
       if (state.config.battle && hasAtLeast(me.resources, ATTACK_COST_EDIFICIO)) {
-        for (const v of battleTargets(state, player, radius)) {
+        for (const v of battleTargets(state, player, radius, friends)) {
           moves.push({ type: 'attaccaEdificio', player, vertex: v });
         }
       }
       // Battaglia — attacco leggero: spezza le strade avversarie all'estremità.
       if (state.config.battle && hasAtLeast(me.resources, ATTACK_COST_SENTIERO)) {
-        for (const e of roadBattleTargets(state, player, radius)) {
+        for (const e of roadBattleTargets(state, player, radius, friends)) {
           moves.push({ type: 'spezzaSentiero', player, edge: e });
         }
       }
       // Battaglia: la carta ASSALTO attacca gratis (stessi bersagli pesanti).
       if (state.config.battle && canPlaySagaCard(state, player, 'assalto')) {
-        for (const v of battleTargets(state, player, radius)) {
+        for (const v of battleTargets(state, player, radius, friends)) {
           moves.push({ type: 'giocaAssalto', player, vertex: v });
         }
       }
       // Battaglia: la carta ASSALTO LEGGERO spezza gratis (stesse strade).
       if (state.config.battle && canPlaySagaCard(state, player, 'assaltoLeggero')) {
-        for (const e of roadBattleTargets(state, player, radius)) {
+        for (const e of roadBattleTargets(state, player, radius, friends)) {
           moves.push({ type: 'giocaAssaltoLeggero', player, edge: e });
         }
       }

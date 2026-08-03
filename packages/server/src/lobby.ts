@@ -4,7 +4,7 @@
  * così la riconnessione ritrova il proprio posto.
  */
 import { randomInt } from 'node:crypto';
-import { MAX_PLAYERS } from '@vikiland/engine';
+import { MAX_PLAYERS, validateTeams } from '@vikiland/engine';
 import type { Action, BotLevel, PlayerColor, PlayerCosmetics, PlayerId } from '@vikiland/engine';
 import type {
   ApiError,
@@ -54,6 +54,8 @@ interface Slot {
   botLevel: BotLevel | null;
   color: PlayerColor;
   connected: boolean;
+  /** Modalità Squadra: indice di squadra del posto (0 di default). */
+  team: number;
 }
 
 /** Primo colore della palette non ancora usato nella lobby. */
@@ -68,6 +70,8 @@ export interface Lobby {
   slots: Slot[];
   started: boolean;
   room: GameRoom | null;
+  /** Modalità Squadra: l'host ha assegnato le squadre a mano? (disattiva il ribilanciamento). */
+  teamsTouched: boolean;
 }
 
 export interface LobbyManagerCallbacks {
@@ -111,14 +115,24 @@ export class LobbyManager {
       hostUserId: user.id,
       config: sanitizeConfig(config),
       slots: [
-        { userId: user.id, name: user.name, isBot: false, botLevel: null, color: PALETTE[0]!, connected: true },
+        { userId: user.id, name: user.name, isBot: false, botLevel: null, color: PALETTE[0]!, connected: true, team: 0 },
       ],
       started: false,
       room: null,
+      teamsTouched: false,
     };
     this.lobbies.set(code, lobby);
     this.userLobby.set(user.id, code);
     return this.toState(lobby);
+  }
+
+  /** Ribilancia le squadre a rotazione (posto i → squadra i%N) se l'host non le ha toccate. */
+  private rebalanceTeams(lobby: Lobby): void {
+    if (lobby.teamsTouched) return;
+    const n = Math.max(2, lobby.config.numTeams ?? 2);
+    lobby.slots.forEach((s, i) => {
+      s.team = i % n;
+    });
   }
 
   join(codeRaw: string, user: LobbyUser): Result {
@@ -145,7 +159,9 @@ export class LobbyManager {
       botLevel: null,
       color: firstFreeColor(lobby.slots),
       connected: true,
+      team: 0,
     });
+    this.rebalanceTeams(lobby);
     this.userLobby.set(user.id, code);
     this.broadcast(lobby);
     return this.toState(lobby);
@@ -188,7 +204,31 @@ export class LobbyManager {
       botLevel: level,
       color: firstFreeColor(lobby.slots),
       connected: true,
+      team: 0,
     });
+    this.rebalanceTeams(lobby);
+    this.broadcast(lobby);
+    return this.toState(lobby);
+  }
+
+  /**
+   * Modalità Squadra: assegna un posto a una squadra. Può farlo il proprietario
+   * del posto oppure l'host (per tutti). Segna le squadre come "toccate" così il
+   * ribilanciamento automatico non le sovrascrive.
+   */
+  setTeam(userId: string, index: number, team: number): Result {
+    const lobby = this.lobbyOfUser(userId);
+    if (!lobby) return { error: 'Non sei in una lobby' };
+    if (lobby.started) return { error: 'Partita già iniziata' };
+    const slot = lobby.slots[index];
+    if (!slot) return { error: 'Posto inesistente' };
+    const isHost = lobby.hostUserId === userId;
+    const isOwn = slot.userId === userId;
+    if (!isOwn && !isHost) return { error: 'Non puoi cambiare questa squadra' };
+    const n = Math.max(2, lobby.config.numTeams ?? 2);
+    if (!Number.isInteger(team) || team < 0 || team >= n) return { error: 'Squadra non valida' };
+    lobby.teamsTouched = true;
+    slot.team = team;
     this.broadcast(lobby);
     return this.toState(lobby);
   }
@@ -228,7 +268,14 @@ export class LobbyManager {
     if (!lobby) return { error: 'Non sei in una lobby' };
     if (lobby.hostUserId !== userId) return { error: 'Solo l’host può farlo' };
     if (lobby.started) return { error: 'Partita già iniziata' };
+    const prevNumTeams = lobby.config.numTeams ?? 2;
+    const prevTeamMode = lobby.config.teamMode ?? false;
     lobby.config = sanitizeConfig(config);
+    // Un cambio del numero di squadre (o l'accensione della modalità) ribilancia.
+    const numTeamsChanged = (lobby.config.numTeams ?? 2) !== prevNumTeams;
+    const teamModeOn = (lobby.config.teamMode ?? false) && !prevTeamMode;
+    if (numTeamsChanged || teamModeOn) lobby.teamsTouched = false;
+    this.rebalanceTeams(lobby);
     this.broadcast(lobby);
     return this.toState(lobby);
   }
@@ -246,6 +293,7 @@ export class LobbyManager {
       this.callbacks.userRemoved(slot.userId, lobby.code, 'Sei stato rimosso dalla lobby');
     }
     lobby.slots.splice(index, 1);
+    this.rebalanceTeams(lobby);
     this.broadcast(lobby);
     return this.toState(lobby);
   }
@@ -257,6 +305,13 @@ export class LobbyManager {
     if (lobby.started) return { error: 'Partita già iniziata' };
     if (lobby.slots.length < 2) return { error: 'Servono almeno 2 giocatori' };
 
+    // Modalità Squadra: le squadre devono essere di ugual dimensione.
+    if (lobby.config.teamMode) {
+      const teams = lobby.slots.map((s) => s.team);
+      const msg = validateTeams(teams, lobby.slots.length);
+      if (msg) return { error: msg };
+    }
+
     const seats: Seat[] = lobby.slots.map((s) => {
       // Skin dell'inventario: lette dall'account ADESSO, così una modifica
       // fatta in lobby vale già per questa partita. I bot restano classici.
@@ -267,6 +322,7 @@ export class LobbyManager {
         isBot: s.isBot,
         botLevel: s.botLevel,
         color: s.color,
+        team: s.team,
         ...(cosmetics ? { cosmetics } : {}),
       };
     });
@@ -504,7 +560,19 @@ export class LobbyManager {
   }
 }
 
+/** Colori di default delle squadre (fino a 8). */
+const TEAM_PALETTE_DEFAULT = ['#8e44ad', '#e67e22', '#16a085', '#34495e', '#c0392b', '#2e6fb7', '#3e8f4e', '#d9a525'];
+
+function sanitizeTeamColors(colors: unknown, numTeams: number): string[] {
+  const arr = Array.isArray(colors) ? colors : [];
+  return Array.from({ length: numTeams }, (_, t) => {
+    const c = typeof arr[t] === 'string' ? String(arr[t]).toLowerCase() : '';
+    return isHexColor(c) ? c : TEAM_PALETTE_DEFAULT[t % TEAM_PALETTE_DEFAULT.length]!;
+  });
+}
+
 function sanitizeConfig(c: LobbyConfig): LobbyConfig {
+  const numTeams = clampInt(c.numTeams, 2, MAX_SLOTS, 2);
   const base: LobbyConfig = {
     avoidAdjacent68: Boolean(c.avoidAdjacent68),
     targetGloryPoints: clampInt(c.targetGloryPoints, 5, 20, 10),
@@ -516,6 +584,15 @@ function sanitizeConfig(c: LobbyConfig): LobbyConfig {
     ...(c.boardSize === 'grande' || c.boardSize === 'gigante' ? { boardSize: c.boardSize } : {}),
     // Forma tavola: solo 'rientranze' è un valore valido; altro = esagono classico.
     ...(c.boardShape === 'rientranze' ? { boardShape: c.boardShape } : {}),
+    // Modalità Squadra: numero squadre, colori e bersaglio per-giocatore.
+    ...(c.teamMode
+      ? {
+          teamMode: true,
+          numTeams,
+          teamColors: sanitizeTeamColors(c.teamColors, numTeams),
+          teamTargetPerPlayer: clampInt(c.teamTargetPerPlayer, 3, 15, 8),
+        }
+      : {}),
   };
   return c.seed?.trim() ? { ...base, seed: c.seed.trim() } : base;
 }

@@ -42,6 +42,11 @@ import { TutorialScreen } from './TutorialScreen';
 
 const BOT_NAMES = ['Astrid', 'Leif', 'Sigrid', 'Ragnhild', 'Olaf', 'Freya'];
 
+/** Colori di default delle squadre (fino a 4 squadre). */
+const TEAM_PALETTE = ['#8e44ad', '#e67e22', '#16a085', '#34495e'];
+/** Lettera identificativa di una squadra (A, B, C, …). */
+const teamLetter = (t: number) => String.fromCharCode(65 + t);
+
 type Mode = 'locale' | 'online';
 
 interface LocalSeat {
@@ -121,6 +126,21 @@ export function NewGameScreen({
   const [editSeat, setEditSeat] = useState<number | null>(null);
   const [startingLocal, setStartingLocal] = useState(false);
 
+  // --- Modalità Squadra (locale + online) ---
+  const [teamMode, setTeamMode] = useState(false);
+  const [numTeams, setNumTeams] = useState(2);
+  const [seatTeams, setSeatTeams] = useState<number[]>([0, 1, 0]);
+  const [teamsTouched, setTeamsTouched] = useState(false);
+  const [teamColors, setTeamColors] = useState<string[]>([...TEAM_PALETTE]);
+  const [teamTarget, setTeamTarget] = useState(8);
+
+  // Assegnazione LOCALE di default a rotazione (squadre bilanciate) finché
+  // l'utente non ritocca a mano; un cambio del numero di squadre ribilancia.
+  useEffect(() => {
+    if (!teamsTouched) setSeatTeams(seats.map((_, i) => i % numTeams));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seats.length, numTeams, teamsTouched]);
+
   // --- Online: socket, lobby, partita ---
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -144,6 +164,28 @@ export function NewGameScreen({
 
   // Numero di giocatori corrente: posti locali (hot-seat) o slot della lobby online.
   const playerCount = mode === 'online' ? (lobby?.slots.length ?? seats.length) : seats.length;
+
+  // --- Modalità Squadra: valori derivati (validi sia in locale sia online) ---
+  // In online l'assegnazione dei posti alle squadre è autorevole lato server
+  // (`lobby.slots[].team`); in locale è lo stato `seatTeams`.
+  const teamCtxCount = mode === 'online' && lobby ? lobby.slots.length : seats.length;
+  const teamCtxAssign =
+    mode === 'online' && lobby ? lobby.slots.map((s) => s.team ?? 0) : seatTeams;
+  const validTeamCounts = Array.from({ length: teamCtxCount }, (_, i) => i + 1).filter(
+    (n) => n >= 2 && teamCtxCount % n === 0
+  );
+  const teamSizeVal = Math.floor(teamCtxCount / numTeams);
+  const teamSizes = Array.from({ length: numTeams }, (_, t) => teamCtxAssign.filter((x) => x === t).length);
+  const teamsBalanced =
+    teamCtxCount > 0 &&
+    teamCtxCount % numTeams === 0 &&
+    teamSizes.every((s) => s === teamSizes[0]) &&
+    teamSizes.every((s) => s >= 1);
+  // Assegnazione LOCALE di un posto a una squadra (l'online usa `lobby:setTeam`).
+  const pickSeatTeam = (i: number, t: number) => {
+    setTeamsTouched(true);
+    setSeatTeams((prev) => prev.map((v, idx) => (idx === i ? t : v)));
+  };
 
   const showError = (message: string) => {
     setError(message);
@@ -245,6 +287,19 @@ export function NewGameScreen({
     setBoardSize(lobby.config.boardSize ?? autoBoardSize(lobby.slots.length));
     setBoardSizeTouched(lobby.config.boardSize != null);
     setBoardShape(lobby.config.boardShape ?? null);
+    // Modalità squadra: settaggi autorevoli dell'host.
+    setTeamMode(lobby.config.teamMode ?? false);
+    setNumTeams(lobby.config.numTeams ?? 2);
+    setTeamTarget(lobby.config.teamTargetPerPlayer ?? 8);
+    if (lobby.config.teamColors) {
+      setTeamColors((prev) => {
+        const next = [...prev];
+        lobby.config.teamColors!.forEach((c, i) => {
+          next[i] = c;
+        });
+        return next;
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lobby?.code]);
 
@@ -273,11 +328,26 @@ export function NewGameScreen({
       ...(boardSizeVal ? { boardSize: boardSizeVal } : {}),
       ...(boardShapeVal ? { boardShape: boardShapeVal } : {}),
       ...((change.seed ?? seed).trim() ? { seed: (change.seed ?? seed).trim() } : {}),
+      ...teamConfigPart(change),
     };
     socketRef.current?.emit('lobby:updateConfig', next, (res) => {
       if (isApiError(res)) return showError(res.error);
       setLobby(res);
     });
+  };
+
+  // Porzione «squadra» della LobbyConfig, coerente con lo stato corrente (o col
+  // patch in arrivo). Assente quando la modalità squadra è spenta.
+  const teamConfigPart = (change: Partial<LobbyConfig> = {}): Partial<LobbyConfig> => {
+    const tm = change.teamMode ?? teamMode;
+    if (!tm) return {};
+    const nt = change.numTeams ?? numTeams;
+    return {
+      teamMode: true,
+      numTeams: nt,
+      teamColors: (change.teamColors ?? teamColors).slice(0, nt),
+      teamTargetPerPlayer: change.teamTargetPerPlayer ?? teamTarget,
+    };
   };
 
   const configFromRules = (): LobbyConfig => ({
@@ -290,7 +360,29 @@ export function NewGameScreen({
     ...(boardSize ? { boardSize } : {}),
     ...(boardShape ? { boardShape } : {}),
     ...(seed.trim() ? { seed: seed.trim() } : {}),
+    ...teamConfigPart(),
   });
+
+  // --- Handler modalità squadra (in online propagano al server via patch) ---
+  const isOnline = mode === 'online';
+  const applyTeamMode = (v: boolean) => {
+    setTeamMode(v);
+    if (isOnline) patch({ teamMode: v });
+  };
+  const applyNumTeams = (n: number) => {
+    setNumTeams(n);
+    setTeamsTouched(false);
+    if (isOnline) patch({ teamMode: true, numTeams: n });
+  };
+  const applyTeamColor = (t: number, color: string) => {
+    const next = teamColors.map((c, idx) => (idx === t ? color : c));
+    setTeamColors(next);
+    if (isOnline) patch({ teamMode: true, teamColors: next });
+  };
+  const applyTeamTarget = (v: number) => {
+    setTeamTarget(v);
+    if (isOnline) patch({ teamMode: true, teamTargetPerPlayer: v });
+  };
 
   /** Sceglie la tavola grande; nulla scelta = piccola (solo 2–4). A ≥5 resta sempre una grande. */
   const pickBoardSize = (choice: BoardSizeChoice) => {
@@ -409,6 +501,9 @@ export function NewGameScreen({
       battle,
       ...(boardSize ? { boardSize } : {}),
       ...(boardShape ? { boardShape } : {}),
+      ...(teamMode && teamsBalanced
+        ? { teams: [...seatTeams], teamColors: teamColors.slice(0, numTeams), teamTargetPerPlayer: teamTarget }
+        : {}),
     });
   };
 
@@ -519,11 +614,14 @@ export function NewGameScreen({
         <div className="newgame-body">
           <div className="seat-list pixel-frame">
             {seats.map((s, i) => {
-              const tag = s.isBot
+              const baseTag = s.isBot
                 ? `${it.bot} · ${botLevelLabel(s.botLevel)}`
                 : i === 0
                   ? it.ruoloTu
                   : it.ruoloAmico;
+              const tag = teamMode
+                ? `${baseTag} · ${t(it.squadra.sqN, { n: teamLetter(seatTeams[i] ?? 0) })}`
+                : baseTag;
               return (
                 <div key={i}>
                   <button
@@ -593,6 +691,24 @@ export function NewGameScreen({
                           />
                         </label>
                       </div>
+                      {teamMode && (
+                        <div className="color-picker" style={{ marginTop: 4 }}>
+                          <span style={{ fontSize: 8, color: 'var(--ink-dim)', alignSelf: 'center', marginRight: 4 }}>
+                            {it.squadra.squadraLabel}
+                          </span>
+                          {Array.from({ length: numTeams }, (_, ti) => (
+                            <button
+                              key={ti}
+                              className={`color-swatch ${seatTeams[i] === ti ? 'color-swatch--active' : ''}`}
+                              style={{ background: shadesFor(teamColors[ti] ?? TEAM_PALETTE[ti] ?? '#888').main }}
+                              title={t(it.squadra.squadraN, { n: teamLetter(ti) })}
+                              onClick={() => pickSeatTeam(i, ti)}
+                            >
+                              {teamLetter(ti)}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -604,6 +720,21 @@ export function NewGameScreen({
               </button>
             )}
           </div>
+
+          <TeamSettingsPanel
+            teamMode={teamMode}
+            editable
+            onToggle={applyTeamMode}
+            validTeamCounts={validTeamCounts}
+            numTeams={numTeams}
+            onPickNumTeams={applyNumTeams}
+            teamColors={teamColors}
+            onSetTeamColor={applyTeamColor}
+            teamTarget={teamTarget}
+            onSetTeamTarget={applyTeamTarget}
+            teamSizeVal={teamSizeVal}
+            teamsBalanced={teamsBalanced}
+          />
 
           <RulesPreset
             online={false}
@@ -635,7 +766,7 @@ export function NewGameScreen({
           <button
             className="pxbtn newgame-start"
             onClick={() => void startLocal()}
-            disabled={humanCount === 0 || startingLocal}
+            disabled={humanCount === 0 || startingLocal || (teamMode && !teamsBalanced)}
           >
             ▶ {it.avvia}
           </button>
@@ -731,11 +862,14 @@ export function NewGameScreen({
           {lobby && (
             <div className="seat-list pixel-frame">
               {lobby.slots.map((slot, i) => {
-                const tag = slot.isBot
+                const baseTag = slot.isBot
                   ? it.bot
                   : slot.userId === session.userId
                     ? it.ruoloTu
                     : it.ruoloAmico;
+                const tag = teamMode
+                  ? `${baseTag} · ${t(it.squadra.sqN, { n: teamLetter(slot.team ?? 0) })}`
+                  : baseTag;
                 return (
                   <div key={i}>
                     <div className={`seat-row seat-row--static ${pickerOnline === i ? 'seat-row--open' : ''}`}>
@@ -800,6 +934,27 @@ export function NewGameScreen({
                             />
                           </label>
                         </div>
+                        {teamMode && (
+                          <div className="color-picker" style={{ marginTop: 4 }}>
+                            <span style={{ fontSize: 8, color: 'var(--ink-dim)', alignSelf: 'center', marginRight: 4 }}>
+                              {it.squadra.squadraLabel}
+                            </span>
+                            {Array.from({ length: numTeams }, (_, tt) => (
+                              <button
+                                key={tt}
+                                className={`color-swatch ${slot.team === tt ? 'color-swatch--active' : ''}`}
+                                style={{ background: shadesFor(teamColors[tt] ?? TEAM_PALETTE[tt] ?? '#888').main }}
+                                title={t(it.squadra.squadraN, { n: teamLetter(tt) })}
+                                onClick={() => {
+                                  socketRef.current?.emit('lobby:setTeam', i, tt);
+                                  setPickerOnline(null);
+                                }}
+                              >
+                                {teamLetter(tt)}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -813,6 +968,23 @@ export function NewGameScreen({
               {error && <div style={{ fontSize: 9, color: 'var(--danger)' }}>{error}</div>}
               {!isHost && <div style={{ fontSize: 9, color: 'var(--ink-dim)' }}>{it.inAttesaHost}</div>}
             </div>
+          )}
+
+          {lobby && (
+            <TeamSettingsPanel
+              teamMode={teamMode}
+              editable={editable}
+              onToggle={applyTeamMode}
+              validTeamCounts={validTeamCounts}
+              numTeams={numTeams}
+              onPickNumTeams={applyNumTeams}
+              teamColors={teamColors}
+              onSetTeamColor={applyTeamColor}
+              teamTarget={teamTarget}
+              onSetTeamTarget={applyTeamTarget}
+              teamSizeVal={teamSizeVal}
+              teamsBalanced={teamsBalanced}
+            />
           )}
 
           <RulesPreset
@@ -865,7 +1037,7 @@ export function NewGameScreen({
                 <button
                   className="pxbtn newgame-start"
                   onClick={() => socketRef.current?.emit('lobby:start')}
-                  disabled={lobby.slots.length < 2}
+                  disabled={lobby.slots.length < 2 || (teamMode && !teamsBalanced)}
                 >
                   ▶ {it.avviaPartita}
                 </button>
@@ -914,6 +1086,109 @@ function InviteCard({ code }: { code: string }) {
       <button className="pxbtn pxbtn--small" onClick={copy}>
         {copied ? it.copiato : it.copia}
       </button>
+    </div>
+  );
+}
+
+interface TeamSettingsPanelProps {
+  teamMode: boolean;
+  /** L'utente può modificare (host prima dell'avvio; sempre in locale). */
+  editable: boolean;
+  onToggle: (v: boolean) => void;
+  validTeamCounts: number[];
+  numTeams: number;
+  onPickNumTeams: (n: number) => void;
+  teamColors: string[];
+  onSetTeamColor: (t: number, color: string) => void;
+  teamTarget: number;
+  onSetTeamTarget: (v: number) => void;
+  teamSizeVal: number;
+  teamsBalanced: boolean;
+}
+
+/** Pannello impostazioni Modalità Squadra, condiviso fra locale e online. */
+function TeamSettingsPanel(p: TeamSettingsPanelProps) {
+  return (
+    <div className="rules-preset pixel-frame">
+      <label className="check" style={{ padding: 8 }}>
+        <input
+          type="checkbox"
+          checked={p.teamMode}
+          disabled={!p.editable}
+          onChange={(e) => p.onToggle(e.target.checked)}
+        />
+        🛡️ {it.squadra.modalita}
+      </label>
+      {p.teamMode && (
+        <div className="rules-body">
+          <div style={NOTE_STYLE}>{it.squadra.spiega}</div>
+          <div style={CAT_STYLE}>{it.squadra.numeroSquadre}</div>
+          <div className="color-picker">
+            {p.validTeamCounts.map((n) => (
+              <button
+                key={n}
+                className={`pxbtn pxbtn--small ${p.numTeams === n ? '' : 'pxbtn--ghost'}`}
+                disabled={!p.editable}
+                onClick={() => p.onPickNumTeams(n)}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+          <div style={CAT_STYLE}>{it.squadra.coloriSquadre}</div>
+          <div className="color-picker">
+            {Array.from({ length: p.numTeams }, (_, ti) => (
+              <label
+                key={ti}
+                className="color-swatch color-swatch--custom"
+                style={{ background: shadesFor(p.teamColors[ti] ?? TEAM_PALETTE[ti] ?? '#888').main }}
+                title={t(it.squadra.coloreSquadraN, { n: teamLetter(ti) })}
+              >
+                <span style={{ fontSize: 8, color: '#fff' }}>{teamLetter(ti)}</span>
+                <input
+                  type="color"
+                  value={shadesFor(p.teamColors[ti] ?? TEAM_PALETTE[ti] ?? '#888').main}
+                  disabled={!p.editable}
+                  onChange={(e) => p.onSetTeamColor(ti, e.target.value)}
+                />
+              </label>
+            ))}
+          </div>
+          <div className="stepper-row">
+            <span style={{ fontSize: 9 }}>
+              {it.squadra.puntiPerGiocatore}{' '}
+              <span style={{ color: 'var(--ink-dim)', fontSize: 8 }}>{t(it.standardN, { n: 8 })}</span>
+            </span>
+            <span className="stepper">
+              <button
+                className="pxbtn pxbtn--ghost pxbtn--small"
+                disabled={!p.editable || p.teamTarget <= 3}
+                onClick={() => p.onSetTeamTarget(Math.max(3, p.teamTarget - 1))}
+              >
+                -
+              </button>
+              <span style={{ minWidth: 26, textAlign: 'center', color: 'var(--accent)' }}>{p.teamTarget}</span>
+              <button
+                className="pxbtn pxbtn--ghost pxbtn--small"
+                disabled={!p.editable || p.teamTarget >= 15}
+                onClick={() => p.onSetTeamTarget(Math.min(15, p.teamTarget + 1))}
+              >
+                +
+              </button>
+            </span>
+          </div>
+          <div style={NOTE_STYLE}>
+            {t(it.squadra.bersaglio, {
+              size: p.teamSizeVal,
+              target: p.teamTarget,
+              tot: p.teamSizeVal * p.teamTarget,
+            })}
+          </div>
+          {!p.teamsBalanced && (
+            <div style={{ fontSize: 9, color: 'var(--danger)' }}>{it.squadra.sbilanciate}</div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

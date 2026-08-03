@@ -262,6 +262,11 @@ io.on('connection', (socket: AnySocket) => {
     if (isApiError(res)) socket.emit('lobby:error', res);
   });
 
+  socket.on('lobby:setTeam', (index, team) => {
+    const res = lobbies.setTeam(userId, Number(index), Number(team));
+    if (isApiError(res)) socket.emit('lobby:error', res);
+  });
+
   socket.on('lobby:start', () => {
     const res = lobbies.start(userId);
     if (isApiError(res)) socket.emit('lobby:error', res);

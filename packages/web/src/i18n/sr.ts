@@ -582,5 +582,24 @@ export const sr: Strings = {
     },
   },
 
+  squadra: {
+    modalita: 'Timski režim',
+    spiega:
+      'Putevi, luke, «Veliki put» i «Bes Berserkera» pripadaju timu. ' +
+      'Razmene samo među saigračima: dve po potezu, jedan za jedan. ' +
+      'Pobeđuje se sa zbirnim Poenima Slave tima.',
+    numeroSquadre: 'Broj timova',
+    coloriSquadre: 'Boje timova',
+    puntiPerGiocatore: 'Poena po igraču',
+    bersaglio: 'Cilj tima: {size} × {target} = {tot} zbirnih poena.',
+    sbilanciate: 'Timovi moraju biti iste veličine: rasporedi mesta ravnomerno.',
+    squadraLabel: 'Tim:',
+    squadraN: 'Tim {n}',
+    coloreSquadraN: 'Boja tima {n}',
+    sqN: 'T.{n}',
+    manoCompagni: 'Tvoj tim',
+    scambioNota: 'U timu: jedan resurs ↔ jedan resurs, sa celim timom ili saigračem (najviše 2 po potezu).',
+    tuttaLaSquadra: 'Ceo tim',
+  },
   erroreMossa: 'Nevažeći potez: {motivo}',
 };

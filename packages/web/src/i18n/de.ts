@@ -583,5 +583,24 @@ export const de: Strings = {
     },
   },
 
+  squadra: {
+    modalita: 'Team-Modus',
+    spiega:
+      'Straßen, Häfen, «Die Große Straße» und die «Berserkerwut» gehören dem Team. ' +
+      'Tauschgeschäfte nur zwischen Teamgefährten: zwei pro Zug, eins zu eins. ' +
+      'Man gewinnt mit den gemeinsamen Ruhmespunkten des Teams.',
+    numeroSquadre: 'Anzahl der Teams',
+    coloriSquadre: 'Teamfarben',
+    puntiPerGiocatore: 'Punkte pro Spieler',
+    bersaglio: 'Teamziel: {size} × {target} = {tot} gemeinsame Punkte.',
+    sbilanciate: 'Die Teams müssen gleich groß sein: verteile die Plätze ausgewogen.',
+    squadraLabel: 'Team:',
+    squadraN: 'Team {n}',
+    coloreSquadraN: 'Teamfarbe {n}',
+    sqN: 'T.{n}',
+    manoCompagni: 'Dein Team',
+    scambioNota: 'Im Team: ein Rohstoff ↔ ein Rohstoff, mit dem ganzen Team oder einem Gefährten (max. 2 pro Zug).',
+    tuttaLaSquadra: 'Das ganze Team',
+  },
   erroreMossa: 'Ungültiger Zug: {motivo}',
 };

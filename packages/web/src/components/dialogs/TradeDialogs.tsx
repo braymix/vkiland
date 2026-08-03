@@ -34,17 +34,31 @@ export function ProposeTradeDialog({
   onClose: () => void;
 }) {
   const me = view.me!;
+  // Modalità squadra: scambi 1↔1 con «tutta la propria squadra» (default) o con
+  // un compagno specifico. L'elenco dei destinatari è filtrato ai soli compagni.
+  const teamMode = !!view.teams;
+  const myTeam = view.teams?.[me.id];
+  const recipients = view.players.filter(
+    (p) => p.id !== me.id && (!teamMode || view.teams![p.id] === myTeam)
+  );
   const [give, setGive] = useState(zeroResources());
   const [receive, setReceive] = useState(zeroResources());
   const [to, setTo] = useState<number | null>(null);
   const overlapping = RESOURCES.some((r) => give[r] > 0 && receive[r] > 0);
+  const oneToOne = totalResources(give) === 1 && totalResources(receive) === 1;
   const valid =
     totalResources(give) > 0 &&
     totalResources(receive) > 0 &&
     !overlapping &&
-    hasAtLeast(me.resources, give);
+    hasAtLeast(me.resources, give) &&
+    (!teamMode || oneToOne);
   return (
     <Dialog title={it.proponiScambio}>
+      {teamMode && (
+        <div style={{ fontSize: 8, color: 'var(--ink-dim)', lineHeight: 1.5 }}>
+          {it.squadra.scambioNota}
+        </div>
+      )}
       <div style={{ fontSize: 9, color: 'var(--ink-dim)' }}>{it.dai}</div>
       <ResourceStepper value={give} onChange={setGive} max={me.resources} />
       <div style={{ fontSize: 9, color: 'var(--ink-dim)' }}>{it.ricevi}</div>
@@ -55,14 +69,12 @@ export function ProposeTradeDialog({
           value={to === null ? 'tutti' : String(to)}
           onChange={(e) => setTo(e.target.value === 'tutti' ? null : Number(e.target.value))}
         >
-          <option value="tutti">{it.tutti}</option>
-          {view.players
-            .filter((p) => p.id !== me.id)
-            .map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name}
-              </option>
-            ))}
+          <option value="tutti">{teamMode ? it.squadra.tuttaLaSquadra : it.tutti}</option>
+          {recipients.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
         </select>
       </div>
       <div className="dialog-buttons">

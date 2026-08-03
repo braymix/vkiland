@@ -117,10 +117,46 @@ export function HudTop({
           </button>
         )}
       </div>
+      {/* Modalità squadra: punteggi COMBINATI per squadra (bersaglio di squadra). */}
+      {view.teams && view.teamColors && (
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 8,
+            fontSize: 9,
+            marginTop: 4,
+            marginBottom: 2,
+          }}
+        >
+          {[...new Set(view.teams)]
+            .sort((a, b) => a - b)
+            .map((teamIdx) => {
+              const members = view.players.filter((p) => view.teams![p.id] === teamIdx);
+              const total = members.reduce(
+                (sum, p) =>
+                  sum + (view.me && p.id === view.me.id ? view.me.gloryPointsTotal : p.gloryPointsPublic),
+                0
+              );
+              const col = shadesFor(view.teamColors![teamIdx] ?? '#888').main;
+              return (
+                <span key={teamIdx} style={{ color: col, fontWeight: 700 }}>
+                  🛡️ {t(it.squadra.sqN, { n: String.fromCharCode(65 + teamIdx) })}: {total}/
+                  {view.targetGloryPoints}
+                </span>
+              );
+            })}
+        </div>
+      )}
       <div>
         {/* Strip nell'ORDINE DI GIOCO deciso dai dadi, non per posto. */}
         {view.turnOrder.map((pid) => view.players[pid]!).map((p) => {
-          const colors = shadesFor(p.color);
+          // In squadra il chip prende il colore della squadra (le costruzioni sono
+          // di squadra); resta la lettera-squadra come promemoria.
+          const teamIdx = view.teams ? view.teams[p.id] : undefined;
+          const chipColor =
+            teamIdx !== undefined && view.teamColors ? view.teamColors[teamIdx] ?? p.color : p.color;
+          const colors = shadesFor(chipColor);
           const isCurrent = p.id === view.currentPlayer;
           const pg =
             view.me && p.id === view.me.id ? view.me.gloryPointsTotal : p.gloryPointsPublic;
@@ -129,6 +165,9 @@ export function HudTop({
               <span className="player-chip" style={{ background: colors.main }} />
               <span className="player-name">
                 {p.name}
+                {teamIdx !== undefined && (
+                  <span style={{ color: 'var(--ink-dim)' }}> ({String.fromCharCode(65 + teamIdx)})</span>
+                )}
                 {p.isBot ? <span style={{ color: 'var(--ink-dim)' }}> (bot)</span> : ''}
               </span>
               {view.longestRoad.holder === p.id && <span className="badge">VIA</span>}

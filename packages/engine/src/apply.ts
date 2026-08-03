@@ -23,6 +23,7 @@ import { flattenResources, totalResources, zeroResources } from './resources';
 import { nextInt, rollDie } from './rng';
 import { effectiveBankRatio, legalRoadEdges } from './rules';
 import { gloryPoints, scoreBreakdown } from './scoring';
+import { friendsOf, isTeamMode } from './teams';
 import type { GameState, PlayerId, ResourceCount, SagaCard } from './types';
 import { isLegal } from './validate';
 
@@ -38,6 +39,8 @@ function beginTurn(state: GameState, events: GameEvent[]): void {
   if (state.razzia && state.currentPlayer === state.razzia.player) {
     state.razzia = null;
   }
+  // Modalità squadra: il conto degli scambi (max 2) riparte a ogni turno.
+  if (isTeamMode(state.config.teams)) state.teamTradesThisTurn = 0;
   events.push({
     type: 'turnoIniziato',
     player: state.currentPlayer,
@@ -55,7 +58,7 @@ function advanceCalamityRoads(state: GameState): void {
   const radius = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes);
   const canPlace = (pid: PlayerId): boolean =>
     state.players[pid]!.roads.length < PIECE_LIMITS.sentiero &&
-    legalRoadEdges(state, pid, radius).length > 0;
+    legalRoadEdges(state, pid, radius, friendsOf(state.config.teams, pid)).length > 0;
 
   const current = state.phase.queue[0]!;
   const remaining = state.phase.remaining - 1;
@@ -183,13 +186,25 @@ function resolveDragonArrival(state: GameState, cause: 'sette' | 'berserker' | '
 function checkVictory(state: GameState, events: GameEvent[]): void {
   if (state.phase.type === 'gameOver' || state.phase.type === 'setup') return;
   const pid = state.currentPlayer;
-  if (gloryPoints(state, pid, true) >= state.config.targetGloryPoints) {
+  // In modalità squadra si vince coi Punti Gloria COMBINATI della squadra; il
+  // "vincitore" annunciato è il giocatore di turno (un membro della squadra).
+  const total = isTeamMode(state.config.teams)
+    ? [...friendsOf(state.config.teams, pid)].reduce((s, m) => s + gloryPoints(state, m, true), 0)
+    : gloryPoints(state, pid, true);
+  if (total >= state.config.targetGloryPoints) {
     state.phase = { type: 'gameOver', winner: pid };
     events.push({
       type: 'vittoria',
       winner: pid,
       breakdown: state.players.map((p) => scoreBreakdown(state, p.id)),
     });
+  }
+}
+
+/** Modalità squadra: registra uno scambio fra compagni concluso in questo turno. */
+function countTeamTrade(state: GameState): void {
+  if (isTeamMode(state.config.teams)) {
+    state.teamTradesThisTurn = (state.teamTradesThisTurn ?? 0) + 1;
   }
 }
 
@@ -443,8 +458,10 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
         offerId: offer.id,
         accepted: action.accept,
       });
-      if (offer.to !== null) {
-        // Offerta diretta: l'accettazione esegue subito, il rifiuto chiude.
+      // In modalità squadra anche l'offerta APERTA (a tutta la squadra) si conclude
+      // in AUTOMATICO: il primo compagno che accetta esegue subito lo scambio.
+      const autoExecute = offer.to !== null || isTeamMode(state.config.teams);
+      if (autoExecute) {
         if (action.accept) {
           transferBetweenPlayers(state, offer.from, me.id, offer.give);
           transferBetweenPlayers(state, me.id, offer.from, offer.receive);
@@ -456,8 +473,16 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
             give: { ...offer.give },
             receive: { ...offer.receive },
           });
+          countTeamTrade(state);
+          state.pendingTrade = null;
+        } else if (offer.to !== null) {
+          // Offerta DIRETTA: un rifiuto la chiude.
+          state.pendingTrade = null;
+        } else {
+          // Offerta alla squadra: un rifiuto è solo registrato, l'offerta resta
+          // aperta per gli altri compagni.
+          offer.responses[me.id] = 'rifiutata';
         }
-        state.pendingTrade = null;
       } else {
         offer.responses[me.id] = action.accept ? 'accettata' : 'rifiutata';
       }
@@ -475,6 +500,7 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
         give: { ...offer.give },
         receive: { ...offer.receive },
       });
+      countTeamTrade(state);
       state.pendingTrade = null;
       break;
     }
@@ -501,7 +527,7 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       const remaining = Math.min(2, PIECE_LIMITS.sentiero - me.roads.length);
       state.phase = { type: 'freeRoads', remaining };
       // Se non c'è nessun piazzamento legale la carta si esaurisce subito.
-      if (legalRoadEdges(state, me.id, boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes)).length === 0) state.phase = { type: 'main' };
+      if (legalRoadEdges(state, me.id, boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes), friendsOf(state.config.teams, me.id)).length === 0) state.phase = { type: 'main' };
       break;
     }
     case 'piazzaSentieroGratis': {
@@ -516,7 +542,7 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       recomputeGrandeVia(state, events);
       if (state.phase.type === 'freeRoads') {
         const remaining = state.phase.remaining - 1;
-        if (remaining <= 0 || legalRoadEdges(state, me.id, boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes)).length === 0) {
+        if (remaining <= 0 || legalRoadEdges(state, me.id, boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes), friendsOf(state.config.teams, me.id)).length === 0) {
           state.phase = { type: 'main' };
         } else {
           state.phase = { type: 'freeRoads', remaining };

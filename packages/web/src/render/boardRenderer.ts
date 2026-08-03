@@ -389,6 +389,35 @@ function drawRoad(
   }
 }
 
+/**
+ * Colore di una costruzione: in modalità squadra il colore PRINCIPALE è quello
+ * della squadra e il colore personale del giocatore diventa una «bandiera».
+ * Fuori dalla modalità squadra la bandiera è null (aspetto classico).
+ */
+function pieceColorsFor(
+  view: PlayerView,
+  pid: number
+): { main: PlayerColor; flag: PlayerColor | null } {
+  const personal = view.players[pid]?.color ?? '#c0392b';
+  if (view.teams && view.teamColors) {
+    const team = view.teams[pid];
+    const main = (team !== undefined ? view.teamColors[team] : undefined) ?? personal;
+    return { main, flag: personal };
+  }
+  return { main: personal, flag: null };
+}
+
+/** Bandierina del colore PERSONALE sopra una costruzione (solo modalità squadra). */
+function drawFlag(ctx: CanvasRenderingContext2D, x: number, y: number, color: PlayerColor): void {
+  const s = shadesFor(color);
+  ctx.fillStyle = s.dark;
+  ctx.fillRect(x, y - 9, 1, 9); // asta
+  ctx.fillStyle = s.main;
+  ctx.fillRect(x + 1, y - 9, 4, 3); // drappo
+  ctx.fillStyle = s.dark;
+  ctx.fillRect(x + 1, y - 6, 4, 1); // ombra sotto il drappo
+}
+
 export function renderBoard(
   canvas: HTMLCanvasElement,
   view: PlayerView,
@@ -409,29 +438,34 @@ export function renderBoard(
   }
   ctx.drawImage(staticCanvas, 0, 0);
 
-  // Sentieri di tutti i giocatori.
+  // Sentieri di tutti i giocatori. In modalità squadra sono TUTTI del colore
+  // della squadra (le strade sono in comune).
   for (const p of view.players) {
-    for (const e of p.roads) drawRoad(ctx, e, p.color, radius);
+    const { main } = pieceColorsFor(view, p.id);
+    for (const e of p.roads) drawRoad(ctx, e, main, radius);
   }
 
-  // Edifici.
+  // Edifici: colore principale della squadra + bandierina personale.
   for (const p of view.players) {
+    const { main, flag } = pieceColorsFor(view, p.id);
     for (const v of p.villages) {
       const pt = vertexPoint(v, radius);
-      drawSpriteCentered(ctx, bakeSprite('villaggio', VILLAGGIO, p.color), pt.x, pt.y - 2);
+      drawSpriteCentered(ctx, bakeSprite('villaggio', VILLAGGIO, main), pt.x, pt.y - 2);
+      if (flag) drawFlag(ctx, pt.x + 2, pt.y - 4, flag);
     }
     for (const v of p.strongholds) {
       const pt = vertexPoint(v, radius);
       // Skin dell'inventario del proprietario (classica se assente) + ritocchi
-      // della pietra (le bandiere restano del colore del clan).
+      // della pietra (le bandiere restano del colore del clan / della squadra).
       const skin = strongholdSkin(p.cosmetics?.stronghold);
       const ov = strongholdOverrides(p.cosmetics?.strongholdColors);
       drawSpriteCentered(
         ctx,
-        bakeSprite(`roccaforte-${skin.id}`, skin.def, p.color, 1, ov),
+        bakeSprite(`roccaforte-${skin.id}`, skin.def, main, 1, ov),
         pt.x,
         pt.y - 2
       );
+      if (flag) drawFlag(ctx, pt.x + 3, pt.y - 5, flag);
     }
   }
 
