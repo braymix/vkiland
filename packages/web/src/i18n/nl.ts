@@ -566,6 +566,11 @@ export const nl: Strings = {
     sezioneGioco: 'Hoe te spelen',
     sezioneOnline: 'Online spelen',
     seiClan: 'In deze demo ben jij de {colore} clan.',
+    sezioneEsempio: 'Voorbeeldpartij',
+    afferri: 'Met dit dorp pak je:',
+    puntaNuove: 'Je mikt op deze nieuwe grondstoffen:',
+    secondoAggiunge: 'Het tweede dorp voegt toe:',
+    soloNumeriNuovi: 'nieuwe getallen (zelfde grondstof)',
     haiTirato: 'Je gooide {d1} + {d2} = {tot}!',
     haiRicevuto: 'Je ontving:',
     niente: 'deze keer niets',
@@ -661,6 +666,48 @@ export const nl: Strings = {
         testo:
           'De eerste clan die op de eigen beurt 10 Roempunten haalt, wint. Zo zou het eiland er aan ' +
           'het einde uit kunnen zien: vol dorpen, burchten en paden.',
+      },
+      esempioIntro: {
+        titolo: 'Een uitgelegde voorbeeldpartij',
+        testo:
+          'Nu een echte partij, maar uitgelegd: bij elke zet zeg ik je WAAROM die loont. Je leert de beste plek te kiezen, ' +
+          'met wegen nieuwe getallen en materialen te bereiken, en grondstoffen om te zetten in je doelen.',
+      },
+      valutare: {
+        titolo: 'Eerste zet: lees het eiland',
+        testo:
+          'Kijk naar de gemarkeerde kruispunten: dat zijn de sterkste. Een goede plek raakt waarschijnlijke getallen ' +
+          '(de stippen: 6 en 8 komen heel vaak) en VERSCHILLENDE grondstoffen, zodat je bij elke worp iets produceert. Neem het overzicht voordat je plaatst.',
+      },
+      postoMigliore: {
+        titolo: 'Kies de beste plek',
+        testo:
+          'Hier plaats je: het kruispunt met de meeste opbrengst. Van deze hexen pak je de grondstoffen hieronder telkens ' +
+          'als hun getallen vallen. Het is de motor van je partij: kies goed, want hij blijft tot het einde bij je.',
+      },
+      stradeEspansione: {
+        titolo: 'Reik uit met wegen',
+        testo:
+          'Eén dorp is niet genoeg. Verleng de weg naar het gemarkeerde kruispunt: het brengt NIEUWE getallen en materialen ' +
+          'die je nog niet produceert. Wegen zijn je armen — strek ze naar waar je iets mist.',
+      },
+      secondoPosto: {
+        titolo: 'Het tweede dorp maakt de motor af',
+        testo:
+          'Kies bij je tweede plaatsing een kruispunt dat de ontbrekende grondstoffen dekt: zo komt er bij elke worp iets ' +
+          'binnen. Een goede mix (hout en steen om te bouwen, gerst en wol om te groeien) houdt je altijd in het spel.',
+      },
+      obiettivi: {
+        titolo: 'Zet grondstoffen om in doelen',
+        testo:
+          'Nu heb je een plan: met hout en steen verleng je wegen en win je “De Grote Weg”; met gerst, wol en ijzer ' +
+          'promoveer je dorpen tot burchten en koop je Sagakaarten. Elke zet moet je dichter bij de 10 Roempunten brengen.',
+      },
+      risultato: {
+        titolo: 'Het resultaat',
+        testo:
+          'Hier leidt de redenering heen: een eiland vol met jouw wegen, dorpen en burchten. Wie de plekken goed kiest, ' +
+          'gericht uitbreidt en de doelen in het oog houdt, bereikt als eerste 10 punten. Nu is het jouw beurt!',
       },
       onlineIntro: {
         titolo: 'Online spelen met vrienden',

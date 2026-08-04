@@ -12,6 +12,7 @@ import {
   flattenResources,
   RESOURCES,
   type Buildable,
+  type Resource,
   type SagaCard,
 } from '@vikiland/engine';
 import { it, t, useLang } from '../i18n';
@@ -24,16 +25,20 @@ import { buildDemo, DEMO_SEED, DEMO_YOU_COLOR, type DemoData } from '../game/dem
 type StepId =
   | 'intro' | 'isola' | 'setupVillaggio' | 'setupSentiero' | 'altri' | 'secondoVillaggio'
   | 'tiraDadi' | 'produzione' | 'costruire' | 'drago' | 'carteSaga' | 'scambi' | 'bonus' | 'vittoria'
+  | 'esempioIntro' | 'valutare' | 'postoMigliore' | 'stradeEspansione' | 'secondoPosto' | 'obiettivi' | 'risultato'
   | 'onlineIntro' | 'serverFreddo' | 'account' | 'creaEntra' | 'lobby' | 'onlinePartita' | 'fine';
 
 const GAME_STEPS: StepId[] = [
   'intro', 'isola', 'setupVillaggio', 'setupSentiero', 'altri', 'secondoVillaggio',
   'tiraDadi', 'produzione', 'costruire', 'drago', 'carteSaga', 'scambi', 'bonus', 'vittoria',
 ];
+const ESEMPIO_STEPS: StepId[] = [
+  'esempioIntro', 'valutare', 'postoMigliore', 'stradeEspansione', 'secondoPosto', 'obiettivi', 'risultato',
+];
 const ONLINE_STEPS: StepId[] = [
   'onlineIntro', 'serverFreddo', 'account', 'creaEntra', 'lobby', 'onlinePartita', 'fine',
 ];
-const ALL_STEPS: StepId[] = [...GAME_STEPS, ...ONLINE_STEPS];
+const ALL_STEPS: StepId[] = [...GAME_STEPS, ...ESEMPIO_STEPS, ...ONLINE_STEPS];
 
 const SAGA_KINDS: SagaCard[] = ['berserker', 'sagaDegliEroi', 'costruttoriDiSentieri', 'banchetto', 'tributo', 'razzia'];
 const sagaCount = (card: SagaCard) => SAGA_DECK_COMPOSITION.filter((c) => c === card).length;
@@ -69,6 +74,34 @@ function boardFor(id: StepId, d: DemoData): { view: DemoData['island']; targets:
       return { view: d.rolled.view, targets: { hexes: [d.dragonHex] } };
     case 'bonus':
     case 'vittoria':
+      return { view: d.finalView, targets: {} };
+    // ── Esempio di partita ragionato ──────────────────────────────────────
+    case 'esempioIntro':
+      return { view: d.island, targets: {} };
+    case 'valutare':
+      return { view: d.island, targets: { vertices: d.strategy.topSpots } };
+    case 'postoMigliore':
+      return {
+        view: d.village1.view,
+        targets: { vertices: [d.village1.vertex], hexes: d.strategy.firstHexes },
+      };
+    case 'stradeEspansione':
+      return {
+        view: d.road1.view,
+        targets: {
+          vertices: [d.village1.vertex, d.strategy.expansion.targetVertex],
+          edges: [d.road1.edge, d.strategy.expansion.targetEdge],
+          hexes: d.strategy.expansion.newHexes,
+        },
+      };
+    case 'secondoPosto':
+      return {
+        view: d.secondVillage.view,
+        targets: { vertices: [d.secondVillage.vertex], hexes: d.secondVillage.producingHexes },
+      };
+    case 'obiettivi':
+      return { view: d.setupDone.view, targets: { hexes: d.setupDone.myProducingHexes } };
+    case 'risultato':
       return { view: d.finalView, targets: {} };
     default:
       return null; // passi «online»: niente tavola
@@ -115,6 +148,24 @@ function SagaList() {
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+/** Riga «etichetta + icone risorsa», usata dall'esempio ragionato. */
+function ResBadges({ label, resources, empty }: { label: string; resources: Resource[]; empty?: string }) {
+  return (
+    <div className="demo-gain">
+      <span>{label}</span>
+      {resources.length > 0 ? (
+        <span className="demo-gain-icons">
+          {resources.map((r) => (
+            <ResIcon key={r} r={r} scale={2} />
+          ))}
+        </span>
+      ) : (
+        <span className="demo-cost-note">{empty ?? it.demo.niente}</span>
+      )}
     </div>
   );
 }
@@ -167,6 +218,20 @@ function StepExtra({ id, d }: { id: StepId; d: DemoData }) {
           ))}
         </div>
       );
+    case 'postoMigliore':
+      return <ResBadges label={it.demo.afferri} resources={d.strategy.firstResources} />;
+    case 'stradeEspansione':
+      return (
+        <ResBadges
+          label={it.demo.puntaNuove}
+          resources={d.strategy.expansion.newResources}
+          empty={it.demo.soloNumeriNuovi}
+        />
+      );
+    case 'secondoPosto':
+      return <ResBadges label={it.demo.secondoAggiunge} resources={d.strategy.secondNewResources} />;
+    case 'obiettivi':
+      return <CostRows />;
     default:
       return null;
   }
@@ -305,7 +370,11 @@ export function DemoScreen({
     return () => clearTimeout(timer);
   }, [auto, idx, last]);
 
-  const section: 'game' | 'online' = GAME_STEPS.includes(id) ? 'game' : 'online';
+  const section: 'game' | 'esempio' | 'online' = GAME_STEPS.includes(id)
+    ? 'game'
+    : ESEMPIO_STEPS.includes(id)
+      ? 'esempio'
+      : 'online';
   const progress = ((idx + 1) / ALL_STEPS.length) * 100;
 
   return (
@@ -321,8 +390,14 @@ export function DemoScreen({
             {it.demo.sezioneGioco}
           </button>
           <button
-            className={`demo-tab ${section === 'online' ? 'demo-tab--on' : ''}`}
+            className={`demo-tab ${section === 'esempio' ? 'demo-tab--on' : ''}`}
             onClick={() => go(GAME_STEPS.length)}
+          >
+            {it.demo.sezioneEsempio}
+          </button>
+          <button
+            className={`demo-tab ${section === 'online' ? 'demo-tab--on' : ''}`}
+            onClick={() => go(GAME_STEPS.length + ESEMPIO_STEPS.length)}
           >
             {it.demo.sezioneOnline}
           </button>

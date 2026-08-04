@@ -567,6 +567,11 @@ export const fr: Strings = {
     sezioneGioco: 'Comment on joue',
     sezioneOnline: 'Jouer en ligne',
     seiClan: 'Dans cette démo, tu es le clan {colore}.',
+    sezioneEsempio: 'Partie d’exemple',
+    afferri: 'Avec ce village, tu récoltes :',
+    puntaNuove: 'Tu vises ces nouvelles ressources :',
+    secondoAggiunge: 'Le deuxième village ajoute :',
+    soloNumeriNuovi: 'de nouveaux numéros (même ressource)',
     haiTirato: 'Tu as fait {d1} + {d2} = {tot} !',
     haiRicevuto: 'Tu as reçu :',
     niente: 'rien, cette fois-ci',
@@ -589,6 +594,48 @@ export const fr: Strings = {
       scambi: { titolo: 'Les échanges', testo: 'Il te manque une ressource ? Échange avec la banque (4:1), avec les ports (3:1 ou 2:1) ou propose un échange aux autres joueurs pendant ton tour.' },
       bonus: { titolo: 'Les bonus et les points cachés', testo: 'La Grande Voie (la plus longue chaîne de chemins) et la Fureur des Berserkers (le plus de cartes Berserker jouées) valent 2 Points de Gloire chacune. La Saga des Héros vaut 1 point secret : attention aux surprises !' },
       vittoria: { titolo: 'Gagner la partie', testo: 'Le premier clan qui atteint 10 Points de Gloire pendant son tour gagne. Voici à quoi pourrait ressembler l’île en fin de partie : pleine de villages, de forteresses et de chemins.' },
+      esempioIntro: {
+        titolo: 'Une partie d’exemple raisonnée',
+        testo:
+          'Maintenant une vraie partie, mais expliquée : à chaque coup je te dis POURQUOI il est bon. Tu apprendras à ' +
+          'choisir le meilleur emplacement, à viser de nouveaux numéros et matériaux avec les chemins, et à transformer les ressources en objectifs.',
+      },
+      valutare: {
+        titolo: 'Premier coup : lis l’île',
+        testo:
+          'Regarde les croisements en surbrillance : ce sont les plus forts. Un bon emplacement touche des numéros ' +
+          'probables (les points : le 6 et le 8 sortent très souvent) et des ressources DIFFÉRENTES, pour produire à chaque lancer. Fais le tour avant de placer.',
+      },
+      postoMigliore: {
+        titolo: 'Choisis le meilleur emplacement',
+        testo:
+          'Tu places ici : c’est le croisement qui produit le plus. De ces hexagones tu récoltes les ressources ci-dessous ' +
+          'chaque fois que leurs numéros sortent. C’est le moteur de ta partie : choisis bien, car il reste avec toi jusqu’au bout.',
+      },
+      stradeEspansione: {
+        titolo: 'Vise avec les chemins',
+        testo:
+          'Un village seul ne suffit pas. Prolonge le chemin vers le croisement en surbrillance : il apporte de NOUVEAUX ' +
+          'numéros et matériaux que tu ne produis pas encore. Les chemins sont tes bras — tends-les là où il te manque quelque chose.',
+      },
+      secondoPosto: {
+        titolo: 'Le deuxième village complète le moteur',
+        testo:
+          'Au deuxième placement, choisis un croisement qui couvre les ressources manquantes : ainsi quelque chose entre ' +
+          'à chaque lancer. Un bon mélange (bois et pierre pour bâtir, orge et laine pour grandir) te garde toujours dans la partie.',
+      },
+      obiettivi: {
+        titolo: 'Transforme les ressources en objectifs',
+        testo:
+          'Tu as maintenant un plan : avec le bois et la pierre tu prolonges les chemins et remportes « La Grande Voie » ; ' +
+          'avec l’orge, la laine et le fer tu améliores les villages en forteresses et achètes des Cartes Saga. Chaque coup doit te rapprocher des 10 Points de Gloire.',
+      },
+      risultato: {
+        titolo: 'Le résultat',
+        testo:
+          'Voilà où mène le raisonnement : une île pleine de tes chemins, villages et forteresses. Qui choisit bien les ' +
+          'emplacements, s’étend avec méthode et vise les objectifs atteint 10 points le premier. À toi de jouer !',
+      },
       onlineIntro: { titolo: 'Jouer en ligne avec les amis', testo: 'Depuis le menu « En ligne », tu joues avec de vraies personnes, chacune sur son propre appareil. L’arbitre, c’est le serveur : il valide chaque coup avec les mêmes règles, impossible de tricher.' },
       serverFreddo: { titolo: 'Sois patient : le serveur se réveille', testo: 'Important : le serveur gratuit se met « en hibernation » quand personne ne joue. La PREMIÈRE connexion peut prendre de 30 à 60 secondes pour le réveiller — c’est normal, il suffit d’attendre. Une coche verte te prévient quand il est prêt.' },
       account: { titolo: '1. Crée un compte', testo: 'Il suffit d’un nom d’utilisateur (ce sera aussi ton nom en jeu) et d’un mot de passe d’au moins 8 caractères. Pas d’e-mail : il ne sert à rien et nous ne le demandons pas.' },
