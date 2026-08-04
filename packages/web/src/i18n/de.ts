@@ -607,6 +607,8 @@ export const de: Strings = {
       'Man gewinnt mit den gemeinsamen Ruhmespunkten des Teams.',
     numeroSquadre: 'Anzahl der Teams',
     coloriSquadre: 'Teamfarben',
+    coloriNomiSquadre: 'Teamfarben und -namen',
+    nomeSquadra: 'Teamname (optional)',
     puntiPerGiocatore: 'Punkte pro Spieler',
     bersaglio: 'Teamziel: {size} × {target} = {tot} gemeinsame Punkte.',
     sbilanciate: 'Die Teams müssen gleich groß sein: verteile die Plätze ausgewogen.',

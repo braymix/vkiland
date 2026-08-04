@@ -60,6 +60,8 @@ export interface GameSetup {
   teams?: number[];
   /** Colore di ciascuna squadra (indicizzato per squadra). Con `teams`. */
   teamColors?: string[];
+  /** Nome di ciascuna squadra (facoltativo); voce vuota ⇒ la UI usa «Squadra A/B/…». */
+  teamNames?: string[];
   /** Modalità Squadra: bersaglio Punti Gloria per giocatore (default 8). */
   teamTargetPerPlayer?: number;
 }

@@ -25,7 +25,10 @@ contro tutti, invariata byte-per-byte (le regole geometriche ricevono un insieme
 (connettività, Grande Via/Furia combinate, approdi, scambi 2×/1:1/solo-squadra,
 vittoria combinata, partite complete casuali-legali anche con calamità+battaglia
 e con rientranze). HUD con i punteggi combinati per squadra; renderer con colore
-di squadra + bandierina personale; setup locale con scelta squadre/colori/bersaglio.
+di squadra + bandierina personale; setup locale con scelta squadre/colori/nomi/bersaglio.
+NOMI DELLE SQUADRE: ogni squadra può avere un nome (facoltativo, `config.teamNames`
+indicizzato per squadra, propagato anche online via `LobbyConfig.teamNames`); dove
+manca, HUD, banner e schermata di vittoria ripiegano su «Squadra A/B/…».
 SCHERMATA DI VITTORIA: in modalità squadra a vincere è la SQUADRA (nome + colore
 di squadra), non il singolo che piazza l'ultimo pezzo; la classifica è per squadra
 coi totali COMBINATI e «La Grande Via»/«La Furia» mostrate a livello di squadra

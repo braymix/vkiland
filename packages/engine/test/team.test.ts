@@ -106,6 +106,25 @@ describe('modalità squadra — creazione e validazione', () => {
       createGame({ seed: 'x', players: makePlayers(4), teams: [0, 1, 0, 1] })
     ).toThrow(/colore per ogni squadra/);
   });
+
+  it('conserva i nomi di squadra (ripuliti) e li espone nella vista', () => {
+    const s = teamGame([0, 1, 0, 1], { teamNames: ['  Draghi  ', 'Lupi'] });
+    // Ripuliti (trim) e indicizzati per squadra.
+    expect(s.config.teamNames).toEqual(['Draghi', 'Lupi']);
+    const view = getPlayerView(s, 0);
+    expect(view.teamNames).toEqual(['Draghi', 'Lupi']);
+  });
+
+  it('senza nomi non aggiunge `teamNames` (la UI userà «Squadra A/B»)', () => {
+    const s = teamGame([0, 1, 0, 1]);
+    expect(s.config.teamNames).toBeUndefined();
+    expect(getPlayerView(s, 0).teamNames).toBeUndefined();
+  });
+
+  it('ignora un array di soli nomi vuoti', () => {
+    const s = teamGame([0, 1, 0, 1], { teamNames: ['', '   '] });
+    expect(s.config.teamNames).toBeUndefined();
+  });
 });
 
 describe('modalità squadra — strade in comune (connettività)', () => {

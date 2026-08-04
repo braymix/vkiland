@@ -729,6 +729,8 @@ export const en: Strings = {
       'You win with the team’s combined Glory Points.',
     numeroSquadre: 'Number of teams',
     coloriSquadre: 'Team colours',
+    coloriNomiSquadre: 'Team colours and names',
+    nomeSquadra: 'Team name (optional)',
     puntiPerGiocatore: 'Points per player',
     bersaglio: 'Team target: {size} × {target} = {tot} combined points.',
     sbilanciate: 'Teams must be the same size: assign the seats evenly.',

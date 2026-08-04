@@ -88,6 +88,8 @@ export interface LobbyConfig {
   numTeams?: number;
   /** Colore di ciascuna squadra (indicizzato per squadra). Usato solo con `teamMode`. */
   teamColors?: string[];
+  /** Nome di ciascuna squadra (facoltativo, indicizzato per squadra). Usato solo con `teamMode`. */
+  teamNames?: string[];
   /** Bersaglio Punti Gloria PER GIOCATORE in squadra (default 8; combinato = ×giocatori-per-squadra). */
   teamTargetPerPlayer?: number;
 }

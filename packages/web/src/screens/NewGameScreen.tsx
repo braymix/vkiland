@@ -36,6 +36,7 @@ import { isApiError } from '@vikiland/server/protocol';
 import { it, t } from '../i18n';
 import type { GameSetup } from '../game/LocalGameController';
 import { getLocalCosmetics } from '../game/localCosmetics';
+import { teamLabelShort } from '../game/teamLabel';
 import { apiGetCosmetics, connectSocket, type OnlineSession, type ServerSocket } from '../online/connection';
 import { RemoteGameController } from '../online/RemoteGameController';
 import { FREE_PALETTE, shadesFor } from '../render/sprites/palettes';
@@ -158,6 +159,7 @@ export function NewGameScreen({
   const [seatTeams, setSeatTeams] = useState<number[]>([0, 1, 0]);
   const [teamsTouched, setTeamsTouched] = useState(false);
   const [teamColors, setTeamColors] = useState<string[]>([...TEAM_PALETTE]);
+  const [teamNames, setTeamNames] = useState<string[]>(['', '', '', '']);
   const [teamTarget, setTeamTarget] = useState(8);
 
   // Assegnazione LOCALE di default a rotazione (squadre bilanciate) finché
@@ -346,6 +348,15 @@ export function NewGameScreen({
         return next;
       });
     }
+    if (lobby.config.teamNames) {
+      setTeamNames((prev) => {
+        const next = [...prev];
+        lobby.config.teamNames!.forEach((nm, i) => {
+          next[i] = nm;
+        });
+        return next;
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lobby?.code]);
 
@@ -397,6 +408,7 @@ export function NewGameScreen({
       teamMode: true,
       numTeams: nt,
       teamColors: (change.teamColors ?? teamColors).slice(0, nt),
+      teamNames: (change.teamNames ?? teamNames).slice(0, nt),
       teamTargetPerPlayer: change.teamTargetPerPlayer ?? teamTarget,
     };
   };
@@ -433,6 +445,14 @@ export function NewGameScreen({
     setTeamColors(next);
     if (isOnline) patch({ teamMode: true, teamColors: next });
   };
+  const applyTeamName = (t: number, name: string) => {
+    const capped = name.slice(0, 24);
+    const next = Array.from({ length: Math.max(teamNames.length, t + 1) }, (_, idx) =>
+      idx === t ? capped : teamNames[idx] ?? ''
+    );
+    setTeamNames(next);
+    if (isOnline) patch({ teamMode: true, teamNames: next });
+  };
   const applyTeamTarget = (v: number) => {
     setTeamTarget(v);
     if (isOnline) patch({ teamMode: true, teamTargetPerPlayer: v });
@@ -451,6 +471,8 @@ export function NewGameScreen({
       onPickNumTeams={applyNumTeams}
       teamColors={teamColors}
       onSetTeamColor={applyTeamColor}
+      teamNames={teamNames}
+      onSetTeamName={applyTeamName}
       teamTarget={teamTarget}
       onSetTeamTarget={applyTeamTarget}
       teamSizeVal={teamSizeVal}
@@ -614,7 +636,12 @@ export function NewGameScreen({
       ...(hexCountVal != null ? { hexCount: hexCountVal } : {}),
       ...(desertCountSend != null ? { desertCount: desertCountSend } : {}),
       ...(teamMode && teamsBalanced
-        ? { teams: [...seatTeams], teamColors: teamColors.slice(0, numTeams), teamTargetPerPlayer: teamTarget }
+        ? {
+            teams: [...seatTeams],
+            teamColors: teamColors.slice(0, numTeams),
+            teamNames: teamNames.slice(0, numTeams),
+            teamTargetPerPlayer: teamTarget,
+          }
         : {}),
     });
   };
@@ -733,7 +760,7 @@ export function NewGameScreen({
                   ? it.ruoloTu
                   : it.ruoloAmico;
               const tag = teamMode
-                ? `${baseTag} · ${t(it.squadra.sqN, { n: teamLetter(seatTeams[i] ?? 0) })}`
+                ? `${baseTag} · ${teamLabelShort(teamNames, seatTeams[i] ?? 0)}`
                 : baseTag;
               return (
                 <div key={i}>
@@ -977,7 +1004,7 @@ export function NewGameScreen({
                     ? it.ruoloTu
                     : it.ruoloAmico;
                 const tag = teamMode
-                  ? `${baseTag} · ${t(it.squadra.sqN, { n: teamLetter(slot.team ?? 0) })}`
+                  ? `${baseTag} · ${teamLabelShort(teamNames, slot.team ?? 0)}`
                   : baseTag;
                 return (
                   <div key={i}>
@@ -1206,6 +1233,8 @@ interface TeamSettingsPanelProps {
   onPickNumTeams: (n: number) => void;
   teamColors: string[];
   onSetTeamColor: (t: number, color: string) => void;
+  teamNames: string[];
+  onSetTeamName: (t: number, name: string) => void;
   teamTarget: number;
   onSetTeamTarget: (v: number) => void;
   teamSizeVal: number;
@@ -1241,23 +1270,35 @@ function TeamSettingsPanel(p: TeamSettingsPanelProps) {
               </button>
             ))}
           </div>
-          <div style={CAT_STYLE}>{it.squadra.coloriSquadre}</div>
-          <div className="color-picker">
+          <div style={CAT_STYLE}>{it.squadra.coloriNomiSquadre}</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {Array.from({ length: p.numTeams }, (_, ti) => (
-              <label
-                key={ti}
-                className="color-swatch color-swatch--custom"
-                style={{ background: shadesFor(p.teamColors[ti] ?? TEAM_PALETTE[ti] ?? '#888').main }}
-                title={t(it.squadra.coloreSquadraN, { n: teamLetter(ti) })}
-              >
-                <span style={{ fontSize: 8, color: '#fff' }}>{teamLetter(ti)}</span>
+              <div key={ti} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <label
+                  className="color-swatch color-swatch--custom"
+                  style={{ background: shadesFor(p.teamColors[ti] ?? TEAM_PALETTE[ti] ?? '#888').main }}
+                  title={t(it.squadra.coloreSquadraN, { n: teamLetter(ti) })}
+                >
+                  <span style={{ fontSize: 8, color: '#fff' }}>{teamLetter(ti)}</span>
+                  <input
+                    type="color"
+                    value={shadesFor(p.teamColors[ti] ?? TEAM_PALETTE[ti] ?? '#888').main}
+                    disabled={!p.editable}
+                    onChange={(e) => p.onSetTeamColor(ti, e.target.value)}
+                  />
+                </label>
                 <input
-                  type="color"
-                  value={shadesFor(p.teamColors[ti] ?? TEAM_PALETTE[ti] ?? '#888').main}
+                  type="text"
+                  value={p.teamNames[ti] ?? ''}
+                  placeholder={t(it.squadra.squadraN, { n: teamLetter(ti) })}
+                  title={it.squadra.nomeSquadra}
+                  aria-label={t(it.squadra.coloreSquadraN, { n: teamLetter(ti) })}
+                  maxLength={24}
                   disabled={!p.editable}
-                  onChange={(e) => p.onSetTeamColor(ti, e.target.value)}
+                  onChange={(e) => p.onSetTeamName(ti, e.target.value)}
+                  style={{ flex: 1, fontSize: 9, minWidth: 0 }}
                 />
-              </label>
+              </div>
             ))}
           </div>
           <div className="stepper-row">

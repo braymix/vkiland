@@ -7,7 +7,8 @@ import {
   distinctTeams,
   type GameState,
 } from '@vikiland/engine';
-import { it, t } from '../i18n';
+import { it } from '../i18n';
+import { teamLabel as teamLabelFor } from '../game/teamLabel';
 import { shadesFor } from '../render/sprites/palettes';
 import { ConfettiCanvas } from '../components/ConfettiCanvas';
 import { UiIcon } from '../components/icons';
@@ -32,8 +33,8 @@ export function VictoryScreen({ state, stats, onExit, onRematch }: Props) {
   const teams = state.config.teams;
   const teamMode = isTeamMode(teams);
   const teamColors = state.config.teamColors ?? [];
-  const teamLabel = (idx: number): string =>
-    t(it.squadra.squadraN, { n: String.fromCharCode(65 + idx) });
+  const teamNames = state.config.teamNames;
+  const teamLabel = (idx: number): string => teamLabelFor(teamNames, idx);
 
   // Modalità squadra: a VINCERE è la SQUADRA, non la persona che ha piazzato
   // l'ultimo pezzo. Aggreghiamo i punteggi dei compagni così «La Grande Via» e
