@@ -277,6 +277,61 @@ export const tutorialEn: TutorialChapter[] = [
     ],
   },
   {
+    chip: 'Modes',
+    title: 'The game modes',
+    blocks: [
+      {
+        t: 'p',
+        text:
+          'On top of the classic game, in the setup you can switch on one or more ' +
+          'optional modes that change the rules. They mix freely and work both ' +
+          'locally and online.',
+      },
+      { t: 'h', text: '⚡ Calamities' },
+      {
+        t: 'p',
+        text:
+          'Each round a card changes the rules for that round only — good and bad ' +
+          'effects, in random order: doubled or blocked resources, a hibernating ' +
+          'Dragon, discounted trades, gifts and raids. When the deck runs out, ' +
+          'things go back to normal.',
+      },
+      { t: 'h', text: '👑 Capital' },
+      {
+        t: 'p',
+        text:
+          'Upgrade one of your Strongholds into a Capital (1 wood, 1 stone, ' +
+          '1 sheep, 2 barley, 3 iron): it is worth 3 GP, yields 3 resources instead ' +
+          'of 2 and can never be destroyed. Only one can be built.',
+      },
+      { t: 'h', text: '⚔️ Battle' },
+      {
+        t: 'p',
+        text:
+          'When one of your paths reaches an opponent’s network you can attack it. ' +
+          'Heavy attack (2 wood, 1 stone, 1 sheep, 2 iron): destroys a house or ' +
+          'downgrades a stronghold to a house. Light attack (2 wood, 2 iron): breaks ' +
+          'an opponent path, but only the ones at the tip. The two starting houses ' +
+          'are indestructible, unless they become strongholds.',
+      },
+      { t: 'h', text: '🛡️ Team' },
+      {
+        t: 'p',
+        text:
+          'Players split into teams of equal size. Roads and ports are shared, «The ' +
+          'Great Road» and the «Berserker Fury» belong to the team and trades happen ' +
+          'only between teammates (one for one, max two per turn). You win when the ' +
+          'team’s COMBINED Glory Points reach the target.',
+      },
+      {
+        t: 'tip',
+        text:
+          'Switch the modes on from «Edit rules» in the game setup. You can also mix ' +
+          'them: try Team + Calamities for a truly unpredictable saga!',
+      },
+    ],
+  },
+  {
     chip: 'App',
     title: 'Using the app',
     blocks: [

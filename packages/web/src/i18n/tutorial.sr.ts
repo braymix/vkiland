@@ -277,6 +277,61 @@ export const tutorialSr: TutorialChapter[] = [
     ],
   },
   {
+    chip: 'Režimi',
+    title: 'Režimi igre',
+    blocks: [
+      {
+        t: 'p',
+        text:
+          'Pored klasične partije, u podešavanjima možeš uključiti jedan ili više ' +
+          'opcionih režima koji menjaju pravila. Slobodno se kombinuju i važe i ' +
+          'lokalno i onlajn.',
+      },
+      { t: 'h', text: '⚡ Nedaće' },
+      {
+        t: 'p',
+        text:
+          'Svakog kruga jedna karta menja pravila samo za taj krug — dobri i loši ' +
+          'efekti, nasumičnim redom: udvostručene ili blokirane sirovine, Zmaj u ' +
+          'zimskom snu, jeftinije razmene, darovi i pljačke. Kad se špil potroši, ' +
+          'sve se vraća u normalu.',
+      },
+      { t: 'h', text: '👑 Prestonica' },
+      {
+        t: 'p',
+        text:
+          'Unapredi jednu svoju Tvrđavu u Prestonicu (1 drvo, 1 kamen, 1 ovca, ' +
+          '2 ječam, 3 gvožđe): vredi 3 PS, donosi 3 sirovine umesto 2 i nikada se ne ' +
+          'može uništiti. Može se sagraditi samo jedna.',
+      },
+      { t: 'h', text: '⚔️ Bitka' },
+      {
+        t: 'p',
+        text:
+          'Kada jedan od tvojih puteva dosegne mrežu protivnika, možeš je napasti. ' +
+          'Teški napad (2 drveta, 1 kamen, 1 ovca, 2 gvožđa): ruši kuću ili degradira ' +
+          'utvrđenje u kuću. Laki napad (2 drveta, 2 gvožđa): lomi protivnički put, ' +
+          'ali samo one na kraju. Dve početne kuće su neuništive, osim ako ne postanu ' +
+          'utvrđenja.',
+      },
+      { t: 'h', text: '🛡️ Tim' },
+      {
+        t: 'p',
+        text:
+          'Igrači se dele u timove jednake veličine. Putevi i luke su zajednički, ' +
+          '«Veliki put» i «Bes Berserkera» pripadaju timu, a razmene se odvijaju samo ' +
+          'među saigračima (jedan za jedan, najviše dve po potezu). Pobeđuje se kada ' +
+          'ZBIRNI Poeni Slave tima dostignu cilj.',
+      },
+      {
+        t: 'tip',
+        text:
+          'Režime uključuješ preko «Izmeni pravila» u podešavanju partije. Možeš ih i ' +
+          'mešati: probaj Tim + Nedaće za zaista nepredvidivu sagu!',
+      },
+    ],
+  },
+  {
     chip: 'Aplikacija',
     title: 'Korišćenje aplikacije',
     blocks: [
