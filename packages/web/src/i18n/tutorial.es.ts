@@ -277,6 +277,63 @@ export const tutorialEs: TutorialChapter[] = [
     ],
   },
   {
+    chip: 'Modos',
+    title: 'Los modos de juego',
+    blocks: [
+      {
+        t: 'p',
+        text:
+          'Además de la partida clásica, en la configuración puedes activar uno o ' +
+          'más modos opcionales que cambian las reglas. Se combinan libremente y ' +
+          'valen tanto en local como en línea.',
+      },
+      { t: 'h', text: '⚡ Calamidades' },
+      {
+        t: 'p',
+        text:
+          'Cada ronda una carta cambia las reglas solo por esa ronda — efectos ' +
+          'buenos y malos, en orden aleatorio: materiales duplicados o bloqueados, ' +
+          'Dragón en letargo, intercambios rebajados, regalos y saqueos. Cuando el ' +
+          'mazo se acaba, todo vuelve a la normalidad.',
+      },
+      { t: 'h', text: '👑 Capital' },
+      {
+        t: 'p',
+        text:
+          'Convierte una de tus Fortalezas en Capital (1 madera, 1 piedra, 1 oveja, ' +
+          '2 cebada, 3 hierro): vale 3 PG, produce 3 materiales en vez de 2 y nunca ' +
+          'se puede destruir. Solo se puede construir una.',
+      },
+      { t: 'h', text: '⚔️ Batalla' },
+      {
+        t: 'p',
+        text:
+          'Cuando uno de tus caminos alcanza la red de un rival puedes atacarla. ' +
+          'Ataque pesado (2 madera, 1 piedra, 1 oveja, 2 hierro): destruye una casa ' +
+          'o degrada una fortaleza a casa. Ataque ligero (2 madera, 2 hierro): rompe ' +
+          'un camino rival, pero solo los del extremo. Las dos casas iniciales son ' +
+          'indestructibles, salvo que se conviertan en fortalezas.',
+      },
+      { t: 'h', text: '🛡️ Equipo' },
+      {
+        t: 'p',
+        text:
+          'Los jugadores se reparten en equipos de igual tamaño. Los caminos y los ' +
+          'puertos son comunes, «El Gran Camino» y la «Furia de los Berserkers» son ' +
+          'del equipo y los intercambios solo entre compañeros (uno por uno, máx. ' +
+          'dos por turno). Se gana cuando los Puntos de Gloria COMBINADOS del equipo ' +
+          'alcanzan el objetivo.',
+      },
+      {
+        t: 'tip',
+        text:
+          'Activa los modos desde «Editar reglas» en la configuración de la partida. ' +
+          'También puedes mezclarlos: ¡prueba Equipo + Calamidades para una saga de ' +
+          'verdad impredecible!',
+      },
+    ],
+  },
+  {
     chip: 'App',
     title: 'Usar la app',
     blocks: [

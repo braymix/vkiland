@@ -275,6 +275,63 @@ export const tutorialNl: TutorialChapter[] = [
     ],
   },
   {
+    chip: 'Modi',
+    title: 'De spelmodi',
+    blocks: [
+      {
+        t: 'p',
+        text:
+          'Naast het klassieke spel kun je in de instellingen een of meer optionele ' +
+          'modi inschakelen die de regels veranderen. Ze zijn vrij te combineren en ' +
+          'gelden zowel lokaal als online.',
+      },
+      { t: 'h', text: '⚡ Rampen' },
+      {
+        t: 'p',
+        text:
+          'Elke ronde verandert een kaart de regels alleen voor die ronde — goede en ' +
+          'slechte effecten, in willekeurige volgorde: verdubbelde of geblokkeerde ' +
+          'grondstoffen, een winterslapende Draak, goedkopere ruilen, geschenken en ' +
+          'plundertochten. Als de stapel op is, wordt alles weer normaal.',
+      },
+      { t: 'h', text: '👑 Hoofdstad' },
+      {
+        t: 'p',
+        text:
+          'Waardeer een van je Burchten op tot Hoofdstad (1 hout, 1 steen, 1 schaap, ' +
+          '2 gerst, 3 ijzer): hij is 3 RP waard, levert 3 grondstoffen in plaats van ' +
+          '2 en kan nooit worden vernietigd. Je kunt er maar één bouwen.',
+      },
+      { t: 'h', text: '⚔️ Strijd' },
+      {
+        t: 'p',
+        text:
+          'Als een van jouw wegen het netwerk van een tegenstander bereikt, kun je ' +
+          'het aanvallen. Zware aanval (2 hout, 1 steen, 1 schaap, 2 ijzer): verwoest ' +
+          'een huis of degradeert een bolwerk tot huis. Lichte aanval (2 hout, ' +
+          '2 ijzer): breekt een weg van de tegenstander, maar alleen die aan het ' +
+          'uiteinde. De twee starthuizen zijn onverwoestbaar, tenzij ze bolwerken ' +
+          'worden.',
+      },
+      { t: 'h', text: '🛡️ Team' },
+      {
+        t: 'p',
+        text:
+          'De spelers verdelen zich in teams van gelijke grootte. Wegen en havens ' +
+          'zijn gedeeld, «De Grote Weg» en de «Razernij der Berserkers» zijn van het ' +
+          'team en ruilen gebeurt alleen tussen teamgenoten (één om één, max twee per ' +
+          'beurt). Je wint wanneer de GECOMBINEERDE Roempunten van het team het doel ' +
+          'bereiken.',
+      },
+      {
+        t: 'tip',
+        text:
+          'Schakel de modi in via «Regels bewerken» in de spelinstellingen. Je kunt ' +
+          'ze ook mengen: probeer Team + Rampen voor een echt onvoorspelbare saga!',
+      },
+    ],
+  },
+  {
     chip: 'App',
     title: 'De app gebruiken',
     blocks: [

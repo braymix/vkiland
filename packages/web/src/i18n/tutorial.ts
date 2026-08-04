@@ -307,6 +307,63 @@ const tutorialIt: TutorialChapter[] = [
     ],
   },
   {
+    chip: 'Modalità',
+    title: 'Le modalità di gioco',
+    blocks: [
+      {
+        t: 'p',
+        text:
+          'Oltre alla partita classica, nel setup puoi attivare una o più modalità ' +
+          'opzionali che cambiano le regole. Si combinano liberamente fra loro e ' +
+          'valgono sia in locale sia online.',
+      },
+      { t: 'h', text: '⚡ Calamità' },
+      {
+        t: 'p',
+        text:
+          'Ogni giro una carta cambia le regole solo per quel giro — effetti buoni ' +
+          'e cattivi, in ordine casuale: materiali raddoppiati o bloccati, Drago in ' +
+          'letargo, scambi scontati, doni e razzie. Quando il mazzo finisce si torna ' +
+          'alla normalità.',
+      },
+      { t: 'h', text: '👑 Capitale' },
+      {
+        t: 'p',
+        text:
+          'Evolvi una tua Roccaforte in Capitale (1 legname, 1 pietra, 1 lana, ' +
+          '2 orzo, 3 ferro): vale 3 PG, produce 3 risorse invece di 2 e non si può ' +
+          'mai distruggere. Se ne costruisce una sola.',
+      },
+      { t: 'h', text: '⚔️ Battaglia' },
+      {
+        t: 'p',
+        text:
+          'Quando un tuo sentiero raggiunge la rete di un avversario puoi attaccarla. ' +
+          'Attacco pesante (2 legname, 1 pietra, 1 lana, 2 ferro): distrugge una ' +
+          'casetta o declassa una roccaforte a casetta. Attacco leggero (2 legname, ' +
+          '2 ferro): spezza un sentiero avversario, ma solo quelli all’estremità. Le ' +
+          'due case iniziali sono indistruttibili, finché non diventano roccaforti.',
+      },
+      { t: 'h', text: '🛡️ Squadra' },
+      {
+        t: 'p',
+        text:
+          'I giocatori si dividono in squadre di ugual dimensione. Strade e approdi ' +
+          'sono in comune, «La Grande Via» e «La Furia dei Berserker» sono di squadra ' +
+          'e gli scambi avvengono solo fra compagni (uno-a-uno, max due per turno). ' +
+          'Si vince quando i Punti Gloria COMBINATI della squadra raggiungono il ' +
+          'bersaglio.',
+      },
+      {
+        t: 'tip',
+        text:
+          'Attivi le modalità da «Modifica regole» nel setup della partita. Puoi ' +
+          'anche mescolarle: prova Squadra + Calamità per una saga davvero ' +
+          'imprevedibile!',
+      },
+    ],
+  },
+  {
     chip: 'App',
     title: 'Usare l’app',
     blocks: [

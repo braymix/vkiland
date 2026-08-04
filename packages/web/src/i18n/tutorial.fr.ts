@@ -277,6 +277,64 @@ export const tutorialFr: TutorialChapter[] = [
     ],
   },
   {
+    chip: 'Modes',
+    title: 'Les modes de jeu',
+    blocks: [
+      {
+        t: 'p',
+        text:
+          'En plus de la partie classique, dans la configuration tu peux activer un ' +
+          'ou plusieurs modes optionnels qui changent les règles. Ils se combinent ' +
+          'librement et valent aussi bien en local qu’en ligne.',
+      },
+      { t: 'h', text: '⚡ Calamités' },
+      {
+        t: 'p',
+        text:
+          'Chaque tour, une carte change les règles seulement pour ce tour — effets ' +
+          'bons et mauvais, dans un ordre aléatoire : ressources doublées ou ' +
+          'bloquées, Dragon en hibernation, échanges réduits, dons et razzias. Quand ' +
+          'la pioche est vide, tout redevient normal.',
+      },
+      { t: 'h', text: '👑 Capitale' },
+      {
+        t: 'p',
+        text:
+          'Fais évoluer une de tes Forteresses en Capitale (1 bois, 1 pierre, ' +
+          '1 mouton, 2 orge, 3 fer) : elle vaut 3 PG, rapporte 3 ressources au lieu ' +
+          'de 2 et ne peut jamais être détruite. On ne peut en construire qu’une.',
+      },
+      { t: 'h', text: '⚔️ Bataille' },
+      {
+        t: 'p',
+        text:
+          'Quand un de tes chemins atteint le réseau d’un adversaire, tu peux ' +
+          'l’attaquer. Attaque lourde (2 bois, 1 pierre, 1 mouton, 2 fer) : détruit ' +
+          'une maison ou rétrograde une forteresse en maison. Attaque légère (2 bois, ' +
+          '2 fer) : casse un chemin adverse, mais seulement ceux au bout. Les deux ' +
+          'maisons de départ sont indestructibles, sauf si elles deviennent des ' +
+          'forteresses.',
+      },
+      { t: 'h', text: '🛡️ Équipe' },
+      {
+        t: 'p',
+        text:
+          'Les joueurs se répartissent en équipes de taille égale. Les routes et les ' +
+          'ports sont communs, « La Grande Voie » et la « Fureur des Berserkers » ' +
+          'sont à l’équipe et les échanges se font uniquement entre coéquipiers (un ' +
+          'contre un, max deux par tour). On gagne quand les Points de Gloire ' +
+          'COMBINÉS de l’équipe atteignent l’objectif.',
+      },
+      {
+        t: 'tip',
+        text:
+          'Active les modes depuis « Modifier les règles » dans la configuration de ' +
+          'la partie. Tu peux aussi les mélanger : essaie Équipe + Calamités pour une ' +
+          'saga vraiment imprévisible !',
+      },
+    ],
+  },
+  {
     chip: 'Appli',
     title: "Utiliser l'appli",
     blocks: [
