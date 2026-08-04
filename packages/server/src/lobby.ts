@@ -577,6 +577,14 @@ function sanitizeTeamColors(colors: unknown, numTeams: number): string[] {
   });
 }
 
+/** Nomi di squadra: stringhe ripulite e limitate (voce vuota = usa il default). */
+function sanitizeTeamNames(names: unknown, numTeams: number): string[] {
+  const arr = Array.isArray(names) ? names : [];
+  return Array.from({ length: numTeams }, (_, t) =>
+    typeof arr[t] === 'string' ? String(arr[t]).trim().slice(0, 24) : ''
+  );
+}
+
 function sanitizeConfig(c: LobbyConfig): LobbyConfig {
   const numTeams = clampInt(c.numTeams, 2, MAX_SLOTS, 2);
   const base: LobbyConfig = {
@@ -607,6 +615,7 @@ function sanitizeConfig(c: LobbyConfig): LobbyConfig {
           teamMode: true,
           numTeams,
           teamColors: sanitizeTeamColors(c.teamColors, numTeams),
+          teamNames: sanitizeTeamNames(c.teamNames, numTeams),
           teamTargetPerPlayer: clampInt(c.teamTargetPerPlayer, 3, 15, 8),
         }
       : {}),

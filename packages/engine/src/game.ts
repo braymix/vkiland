@@ -58,6 +58,8 @@ export interface NewGameOptions {
   teams?: number[];
   /** Colore di ciascuna squadra (indicizzato per indice di squadra). Richiesto con `teams`. */
   teamColors?: string[];
+  /** Nome di ciascuna squadra (facoltativo); voce vuota ⇒ la UI usa «Squadra A/B/…». */
+  teamNames?: string[];
   /**
    * Modalità Squadra: bersaglio di Punti Gloria PER GIOCATORE (default 8). Il
    * bersaglio COMBINATO della squadra è `giocatori-per-squadra × questo valore`.
@@ -121,7 +123,23 @@ export function createGame(options: NewGameOptions): GameState {
     calamities: options.calamities ?? false,
     battle: options.battle ?? false,
     capitale: options.capitale ?? false,
-    ...(teams ? { teams: [...teams], teamColors: [...options.teamColors!] } : {}),
+    ...(teams
+      ? {
+          teams: [...teams],
+          teamColors: [...options.teamColors!],
+          // I nomi sono facoltativi: si conservano solo se ne è stato dato almeno
+          // uno (voci vuote restano vuote ⇒ la UI ripiega su «Squadra A/B/…»).
+          ...(options.teamNames && options.teamNames.some((n) => n?.trim())
+            ? {
+                // Indicizzati per indice di squadra (come `teamColors`).
+                teamNames: Array.from(
+                  { length: distinctTeams(teams).at(-1)! + 1 },
+                  (_, g) => (options.teamNames?.[g] ?? '').trim().slice(0, 24)
+                ),
+              }
+            : {}),
+        }
+      : {}),
   };
 
   let rng = seedRng(seed);

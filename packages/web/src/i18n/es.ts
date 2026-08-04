@@ -606,6 +606,8 @@ export const es: Strings = {
       'Se gana con los Puntos de Gloria combinados del equipo.',
     numeroSquadre: 'Número de equipos',
     coloriSquadre: 'Colores de los equipos',
+    coloriNomiSquadre: 'Colores y nombres de los equipos',
+    nomeSquadra: 'Nombre del equipo (opcional)',
     puntiPerGiocatore: 'Puntos por jugador',
     bersaglio: 'Objetivo del equipo: {size} × {target} = {tot} puntos combinados.',
     sbilanciate: 'Los equipos deben ser del mismo tamaño: reparte los puestos de forma equilibrada.',

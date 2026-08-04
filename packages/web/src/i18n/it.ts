@@ -723,6 +723,8 @@ export const it = {
       'Si vince coi Punti Gloria combinati della squadra.',
     numeroSquadre: 'Numero di squadre',
     coloriSquadre: 'Colori delle squadre',
+    coloriNomiSquadre: 'Colori e nomi delle squadre',
+    nomeSquadra: 'Nome squadra (facoltativo)',
     puntiPerGiocatore: 'Punti per giocatore',
     bersaglio: 'Bersaglio squadra: {size} × {target} = {tot} punti combinati.',
     sbilanciate: 'Le squadre devono essere di ugual dimensione: assegna i posti in modo bilanciato.',

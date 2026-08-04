@@ -257,6 +257,12 @@ export interface GameConfig {
    * `teams`.
    */
   teamColors?: string[];
+  /**
+   * Nome di ciascuna squadra (indicizzato per squadra). Facoltativo: dove manca
+   * (voce vuota o array assente) la UI ripiega su «Squadra A/B/…». Presente solo
+   * con `teams`.
+   */
+  teamNames?: string[];
 }
 
 export interface PlayerState {
@@ -515,6 +521,8 @@ export interface PlayerView {
   teams?: number[];
   /** Colore di ciascuna squadra (per la resa: colore principale delle costruzioni). */
   teamColors?: string[];
+  /** Nome di ciascuna squadra; voce vuota/assente ⇒ la UI usa «Squadra A/B/…». */
+  teamNames?: string[];
   /**
    * RAZZIA in corso (carta sviluppo): la casella `hex` va illuminata del colore
    * del razziatore e la sua produzione è tutta sua. null = nessuna razzia.
