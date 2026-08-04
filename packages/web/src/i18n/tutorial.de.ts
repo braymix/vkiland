@@ -278,6 +278,63 @@ export const tutorialDe: TutorialChapter[] = [
     ],
   },
   {
+    chip: 'Modi',
+    title: 'Die Spielmodi',
+    blocks: [
+      {
+        t: 'p',
+        text:
+          'Zusätzlich zum klassischen Spiel kannst du in der Einrichtung einen oder ' +
+          'mehrere optionale Modi einschalten, die die Regeln ändern. Sie lassen ' +
+          'sich frei kombinieren und gelten lokal wie online.',
+      },
+      { t: 'h', text: '⚡ Katastrophen' },
+      {
+        t: 'p',
+        text:
+          'Jede Runde ändert eine Karte die Regeln nur für diese Runde — gute und ' +
+          'schlechte Effekte, in zufälliger Reihenfolge: verdoppelte oder blockierte ' +
+          'Rohstoffe, Drache im Winterschlaf, günstigere Tauschgeschäfte, Geschenke ' +
+          'und Raubzüge. Ist der Stapel leer, wird alles wieder normal.',
+      },
+      { t: 'h', text: '👑 Hauptstadt' },
+      {
+        t: 'p',
+        text:
+          'Baue eine deiner Festungen zur Hauptstadt aus (1 Holz, 1 Stein, 1 Schaf, ' +
+          '2 Gerste, 3 Eisen): Sie ist 3 RP wert, bringt 3 Rohstoffe statt 2 und ' +
+          'kann nie zerstört werden. Es kann nur eine gebaut werden.',
+      },
+      { t: 'h', text: '⚔️ Schlacht' },
+      {
+        t: 'p',
+        text:
+          'Wenn einer deiner Pfade das Netz eines Gegners erreicht, kannst du es ' +
+          'angreifen. Schwerer Angriff (2 Holz, 1 Stein, 1 Schaf, 2 Eisen): zerstört ' +
+          'ein Haus oder stuft eine Festung zum Haus herab. Leichter Angriff (2 Holz, ' +
+          '2 Eisen): zerbricht einen gegnerischen Pfad, aber nur die am Ende. Die ' +
+          'beiden Starthäuser sind unzerstörbar, außer sie werden zu Festungen.',
+      },
+      { t: 'h', text: '🛡️ Team' },
+      {
+        t: 'p',
+        text:
+          'Die Spieler teilen sich in Teams gleicher Größe. Straßen und Häfen sind ' +
+          'gemeinsam, «Die Große Straße» und die «Berserkerwut» gehören dem Team und ' +
+          'Tauschgeschäfte finden nur zwischen Teamgefährten statt (eins zu eins, ' +
+          'max. zwei pro Zug). Man gewinnt, wenn die GEMEINSAMEN Ruhmespunkte des ' +
+          'Teams das Ziel erreichen.',
+      },
+      {
+        t: 'tip',
+        text:
+          'Die Modi schaltest du über «Regeln bearbeiten» in der Spieleinrichtung ' +
+          'ein. Du kannst sie auch mischen: Probier Team + Katastrophen für eine ' +
+          'richtig unvorhersehbare Saga!',
+      },
+    ],
+  },
+  {
     chip: 'App',
     title: 'Die App benutzen',
     blocks: [
