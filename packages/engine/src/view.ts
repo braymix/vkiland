@@ -100,7 +100,11 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
     battle: state.config.battle,
     capitale: state.config.capitale,
     ...(state.config.teams
-      ? { teams: [...state.config.teams], teamColors: [...(state.config.teamColors ?? [])] }
+      ? {
+          teams: [...state.config.teams],
+          teamColors: [...(state.config.teamColors ?? [])],
+          ...(state.config.teamNames ? { teamNames: [...state.config.teamNames] } : {}),
+        }
       : {}),
     razzia: state.razzia ? { ...state.razzia } : null,
   };

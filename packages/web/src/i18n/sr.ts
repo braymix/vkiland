@@ -606,6 +606,8 @@ export const sr: Strings = {
       'Pobeđuje se sa zbirnim Poenima Slave tima.',
     numeroSquadre: 'Broj timova',
     coloriSquadre: 'Boje timova',
+    coloriNomiSquadre: 'Boje i imena timova',
+    nomeSquadra: 'Ime tima (opciono)',
     puntiPerGiocatore: 'Poena po igraču',
     bersaglio: 'Cilj tima: {size} × {target} = {tot} zbirnih poena.',
     sbilanciate: 'Timovi moraju biti iste veličine: rasporedi mesta ravnomerno.',

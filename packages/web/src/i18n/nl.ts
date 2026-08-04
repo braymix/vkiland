@@ -714,6 +714,8 @@ export const nl: Strings = {
       'Je wint met de gecombineerde Roempunten van het team.',
     numeroSquadre: 'Aantal teams',
     coloriSquadre: 'Teamkleuren',
+    coloriNomiSquadre: 'Teamkleuren en -namen',
+    nomeSquadra: 'Teamnaam (optioneel)',
     puntiPerGiocatore: 'Punten per speler',
     bersaglio: 'Teamdoel: {size} × {target} = {tot} gecombineerde punten.',
     sbilanciate: 'Teams moeten even groot zijn: verdeel de plaatsen gelijk.',

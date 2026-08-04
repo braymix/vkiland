@@ -606,6 +606,8 @@ export const ru: Strings = {
       'Побеждают по суммарным Очкам Славы команды.',
     numeroSquadre: 'Число команд',
     coloriSquadre: 'Цвета команд',
+    coloriNomiSquadre: 'Цвета и названия команд',
+    nomeSquadra: 'Название команды (необязательно)',
     puntiPerGiocatore: 'Очков на игрока',
     bersaglio: 'Цель команды: {size} × {target} = {tot} суммарных очков.',
     sbilanciate: 'Команды должны быть равного размера: распределите места поровну.',

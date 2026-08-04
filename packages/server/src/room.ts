@@ -134,6 +134,7 @@ export class GameRoom {
         ? {
             teams: seats.map((s) => s.team ?? 0),
             teamColors: config.teamColors ?? [],
+            ...(config.teamNames ? { teamNames: config.teamNames } : {}),
             teamTargetPerPlayer: config.teamTargetPerPlayer ?? 8,
           }
         : {}),
