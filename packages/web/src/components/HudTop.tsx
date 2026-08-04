@@ -42,8 +42,17 @@ function phaseMessage(view: PlayerView): string {
       return it.calamita.titolo;
     case 'main':
       return t(it.faseMain, { nome });
-    case 'gameOver':
-      return t(it.vittoriaTitolo, { nome: view.players[view.phase.winner]?.name ?? '' });
+    case 'gameOver': {
+      // In squadra vince la SQUADRA: nel titolo si annuncia la squadra, non il
+      // singolo che ha piazzato l'ultimo pezzo.
+      const winner = view.phase.winner;
+      const teamIdx = view.teams ? view.teams[winner] : undefined;
+      const winnerLabel =
+        teamIdx !== undefined
+          ? t(it.squadra.squadraN, { n: String.fromCharCode(65 + teamIdx) })
+          : view.players[winner]?.name ?? '';
+      return t(it.vittoriaTitolo, { nome: winnerLabel });
+    }
   }
 }
 
