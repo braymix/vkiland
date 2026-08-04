@@ -566,6 +566,11 @@ export const en: Strings = {
     sezioneGioco: 'How to play',
     sezioneOnline: 'Playing online',
     seiClan: 'In this demo you are the {colore} clan.',
+    sezioneEsempio: 'Example game',
+    afferri: 'With this village you grab:',
+    puntaNuove: 'You aim for these new resources:',
+    secondoAggiunge: 'The second village adds:',
+    soloNumeriNuovi: 'new numbers (same resource)',
     haiTirato: 'You rolled {d1} + {d2} = {tot}!',
     haiRicevuto: 'You received:',
     niente: 'nothing this time',
@@ -671,6 +676,48 @@ export const en: Strings = {
           'The first clan to reach 10 Glory Points on their own turn wins. ' +
           'Here’s how the isle might look at the end of the game: full of ' +
           'villages, strongholds and paths.',
+      },
+      esempioIntro: {
+        titolo: 'A worked example game',
+        testo:
+          'Now a real game, but explained: on every move I tell you WHY it pays off. You’ll learn to pick the best ' +
+          'spot, to reach new numbers and materials with roads, and to turn resources into your goals.',
+      },
+      valutare: {
+        titolo: 'First move: read the island',
+        testo:
+          'Look at the highlighted crossings: they’re the strongest. A good spot touches likely numbers (the dots: 6 and ' +
+          '8 come up very often) and DIFFERENT resources, so you produce something on every roll. Size it up before you place.',
+      },
+      postoMigliore: {
+        titolo: 'Pick the best spot',
+        testo:
+          'You place here: it’s the crossing with the most output. From these hexes you grab the resources shown below ' +
+          'every time their numbers come up. It’s your game’s engine: choose well, because it stays with you to the end.',
+      },
+      stradeEspansione: {
+        titolo: 'Reach out with roads',
+        testo:
+          'One village isn’t enough. Extend the path toward the highlighted crossing: it brings NEW numbers and materials ' +
+          'you don’t produce yet. Roads are your arms — stretch them toward what you’re missing.',
+      },
+      secondoPosto: {
+        titolo: 'The second village completes your engine',
+        testo:
+          'On your second placement pick a crossing that covers the missing resources: that way something comes in on ' +
+          'every roll. A good mix (wood and stone to build, barley and wool to grow) keeps you always in the game.',
+      },
+      obiettivi: {
+        titolo: 'Turn resources into goals',
+        testo:
+          'Now you have a plan: with wood and stone you extend roads and claim “The Great Road”; with barley, wool and ' +
+          'iron you upgrade villages into strongholds and buy Saga Cards. Every move should bring you closer to 10 Glory Points.',
+      },
+      risultato: {
+        titolo: 'The payoff',
+        testo:
+          'Here’s where the reasoning leads: an island full of your roads, villages and strongholds. Whoever picks spots ' +
+          'well, expands with purpose and keeps the goals in sight reaches 10 points first. Now it’s your turn!',
       },
       onlineIntro: {
         titolo: 'Playing online with friends',

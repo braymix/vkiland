@@ -566,6 +566,11 @@ export const es: Strings = {
     sezioneGioco: 'Cómo se juega',
     sezioneOnline: 'Jugar en línea',
     seiClan: 'En esta demo eres el clan {colore}.',
+    sezioneEsempio: 'Partida de ejemplo',
+    afferri: 'Con esta aldea consigues:',
+    puntaNuove: 'Apuntas a estos recursos nuevos:',
+    secondoAggiunge: 'La segunda aldea añade:',
+    soloNumeriNuovi: 'números nuevos (mismo recurso)',
     haiTirato: '¡Has sacado {d1} + {d2} = {tot}!',
     haiRicevuto: 'Has recibido:',
     niente: 'nada, esta vez',
@@ -588,6 +593,48 @@ export const es: Strings = {
       scambi: { titolo: 'Los intercambios', testo: '¿Te falta un recurso? Intercambia con la banca (4:1), con los puertos (3:1 o 2:1) o propón un intercambio a los demás jugadores durante tu turno.' },
       bonus: { titolo: 'Los bonus y los puntos ocultos', testo: 'El Gran Camino (la cadena de caminos más larga) y la Furia de los Berserkers (más cartas Berserker jugadas) valen 2 Puntos de Gloria cada uno. La Saga de los Héroes vale 1 punto secreto: ¡ojo con las sorpresas!' },
       vittoria: { titolo: 'Ganar la partida', testo: 'Gana el primer clan que alcanza 10 Puntos de Gloria en su propio turno. Así podría verse la isla al final de la partida: llena de aldeas, fortalezas y caminos.' },
+      esempioIntro: {
+        titolo: 'Una partida de ejemplo razonada',
+        testo:
+          'Ahora una partida de verdad, pero explicada: en cada jugada te digo POR QUÉ conviene. Aprenderás a elegir el ' +
+          'mejor sitio, a apuntar con los caminos a números y materiales nuevos, y a convertir los recursos en tus objetivos.',
+      },
+      valutare: {
+        titolo: 'Primera jugada: lee la isla',
+        testo:
+          'Mira los cruces resaltados: son los más fuertes. Un buen sitio toca números probables (los puntos: el 6 y el 8 ' +
+          'salen muchísimo) y recursos DISTINTOS, así produces algo en cada tirada. Échale un buen vistazo antes de colocar.',
+      },
+      postoMigliore: {
+        titolo: 'Elige el mejor sitio',
+        testo:
+          'Colocas aquí: es el cruce con más producción. De estos hexágonos consigues los recursos de abajo cada vez que ' +
+          'salen sus números. Es el motor de tu partida: elígelo bien, porque te acompaña hasta el final.',
+      },
+      stradeEspansione: {
+        titolo: 'Apunta con los caminos',
+        testo:
+          'Una aldea sola no basta. Prolonga el camino hacia el cruce resaltado: te trae números y materiales NUEVOS que ' +
+          'aún no produces. Los caminos son tus brazos — extiéndelos hacia lo que te falta.',
+      },
+      secondoPosto: {
+        titolo: 'La segunda aldea completa el motor',
+        testo:
+          'En la segunda colocación elige un cruce que cubra los recursos que faltan: así en cada tirada entra algo. Una ' +
+          'buena mezcla (madera y piedra para construir, cebada y lana para crecer) te mantiene siempre en juego.',
+      },
+      obiettivi: {
+        titolo: 'Convierte los recursos en objetivos',
+        testo:
+          'Ahora tienes un plan: con madera y piedra prolongas caminos y te llevas «El Gran Camino»; con cebada, lana y ' +
+          'hierro subes las aldeas a fortalezas y compras Cartas de Saga. Cada jugada debe acercarte a los 10 Puntos de Gloria.',
+      },
+      risultato: {
+        titolo: 'El resultado',
+        testo:
+          'Aquí lleva el razonamiento: una isla llena de tus caminos, aldeas y fortalezas. Quien elige bien los sitios, se ' +
+          'expande con criterio y apunta a los objetivos llega primero a 10 puntos. ¡Ahora te toca a ti!',
+      },
       onlineIntro: { titolo: 'Jugar en línea con los amigos', testo: 'Desde el menú «En línea» juegas con personas reales, cada una desde su propio dispositivo. El árbitro es el servidor: valida cada movimiento con las mismas reglas, así es imposible hacer trampas.' },
       serverFreddo: { titolo: 'Ten paciencia: el servidor se despierta', testo: 'Importante: el servidor gratuito entra «en letargo» cuando nadie juega. La PRIMERA conexión puede tardar de 30 a 60 segundos en despertarlo: es normal, basta con esperar. Una marca verde te avisa cuando está listo.' },
       account: { titolo: '1. Crea una cuenta', testo: 'Basta con un nombre de usuario (que será también tu nombre en el juego) y una contraseña de al menos 8 caracteres. Sin correo electrónico: no hace falta y no lo pedimos.' },

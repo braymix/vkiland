@@ -43,4 +43,28 @@ describe('buildDemo', () => {
     expect(d.dragonHex).toMatch(/-?\d+,-?\d+/);
     expect(d.finalView.players.some((p) => p.gloryPointsPublic >= 10)).toBe(true);
   });
+
+  it('l’esempio ragionato è coerente e deterministico', () => {
+    const d = buildDemo(DEMO_SEED);
+    const s = d.strategy;
+    // Tre «posti migliori»; il primo è proprio il villaggio scelto dalla demo.
+    expect(s.topSpots).toHaveLength(3);
+    expect(s.topSpots[0]).toBe(d.village1.vertex);
+    // Il primo villaggio afferra almeno una risorsa (esagoni produttivi coerenti).
+    expect(s.firstResources.length).toBeGreaterThan(0);
+    expect(s.firstHexes.length).toBe(s.firstNumbers.length);
+    // L'espansione punta a un incrocio diverso dal villaggio di partenza…
+    expect(s.expansion.targetVertex).not.toBe(d.village1.vertex);
+    // …e il suo spigolo-obiettivo tocca davvero quel bersaglio.
+    const target = s.expansion.targetVertex;
+    expect(d.road1.view.board.hexes.length).toBe(19);
+    // Un id di vertice è la tripla di esagoni giunti da «;» (es. «0,0;1,0;0,1»).
+    expect(target.split(';')).toHaveLength(3);
+    // Deterministica: stesso seme ⇒ stessa strategia.
+    const b = buildDemo(DEMO_SEED);
+    expect(b.strategy.topSpots).toEqual(s.topSpots);
+    expect(b.strategy.expansion.targetVertex).toBe(s.expansion.targetVertex);
+    expect(b.strategy.expansion.targetEdge).toBe(s.expansion.targetEdge);
+    expect(b.strategy.secondNewResources).toEqual(s.secondNewResources);
+  });
 });
