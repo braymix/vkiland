@@ -26,6 +26,10 @@ contro tutti, invariata byte-per-byte (le regole geometriche ricevono un insieme
 vittoria combinata, partite complete casuali-legali anche con calamità+battaglia
 e con rientranze). HUD con i punteggi combinati per squadra; renderer con colore
 di squadra + bandierina personale; setup locale con scelta squadre/colori/bersaglio.
+SCHERMATA DI VITTORIA: in modalità squadra a vincere è la SQUADRA (nome + colore
+di squadra), non il singolo che piazza l'ultimo pezzo; la classifica è per squadra
+coi totali COMBINATI e «La Grande Via»/«La Furia» mostrate a livello di squadra
+(stesso banner anche nell'HUD di fine partita).
 ONLINE: la `LobbyConfig` porta `teamMode`/`numTeams`/`teamColors`/
 `teamTargetPerPlayer` e ogni posto ha una `team` (assegnazione a rotazione
 bilanciata, ritoccabile dal proprietario o dall'host via `lobby:setTeam`);
