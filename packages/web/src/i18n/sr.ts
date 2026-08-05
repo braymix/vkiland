@@ -566,6 +566,11 @@ export const sr: Strings = {
     sezioneGioco: 'Kako se igra',
     sezioneOnline: 'Igranje onlajn',
     seiClan: 'U ovom demou ti si {colore} klan.',
+    sezioneEsempio: 'Primer partije',
+    afferri: 'Sa ovim selom uzimaš:',
+    puntaNuove: 'Ciljaš na ove nove sirovine:',
+    secondoAggiunge: 'Drugo selo dodaje:',
+    soloNumeriNuovi: 'novi brojevi (ista sirovina)',
     haiTirato: 'Bacio si {d1} + {d2} = {tot}!',
     haiRicevuto: 'Dobio si:',
     niente: 'ništa, ovog puta',
@@ -588,6 +593,48 @@ export const sr: Strings = {
       scambi: { titolo: 'Razmene', testo: 'Fali ti neki resurs? Razmeni sa bankom (4:1), sa pristaništima (3:1 ili 2:1) ili ponudi razmenu ostalim igračima tokom svog poteza.' },
       bonus: { titolo: 'Bonusi i skriveni poeni', testo: 'Veliki put (najduži niz puteva) i Bes Berserkera (najviše odigranih karata Berserker) vrede po 2 poena slave. Sage o herojima vrede 1 tajni poen: pazi na iznenađenja!' },
       vittoria: { titolo: 'Pobeda u partiji', testo: 'Pobeđuje prvi klan koji dostigne 10 poena slave u sopstvenom potezu. Evo kako bi ostrvo moglo da izgleda na kraju partije: puno sela, utvrđenja i puteva.' },
+      esempioIntro: {
+        titolo: 'Objašnjen primer partije',
+        testo:
+          'Sada prava partija, ali objašnjena: uz svaki potez kažem ti ZAŠTO se isplati. Naučićeš da biraš najbolje mesto, ' +
+          'da putevima stigneš do novih brojeva i materijala i da sirovine pretvoriš u svoje ciljeve.',
+      },
+      valutare: {
+        titolo: 'Prvi potez: pročitaj ostrvo',
+        testo:
+          'Pogledaj označene raskrsnice: one su najjače. Dobro mesto dodiruje verovatne brojeve (tačke: 6 i 8 padaju vrlo ' +
+          'često) i RAZLIČITE sirovine, da bi na svakom bacanju nešto proizveo. Osmotri sve pre nego što postaviš.',
+      },
+      postoMigliore: {
+        titolo: 'Izaberi najbolje mesto',
+        testo:
+          'Ovde postavljaš: to je raskrsnica sa najviše proizvodnje. Sa ovih polja uzimaš sirovine ispod svaki put kad ' +
+          'padnu njihovi brojevi. To je motor tvoje partije: biraj dobro, jer ostaje uz tebe do kraja.',
+      },
+      stradeEspansione: {
+        titolo: 'Pruži se putevima',
+        testo:
+          'Jedno selo nije dovoljno. Produži put ka označenoj raskrsnici: donosi NOVE brojeve i materijale koje još ne ' +
+          'proizvodiš. Putevi su tvoje ruke — pruži ih tamo gde ti nešto nedostaje.',
+      },
+      secondoPosto: {
+        titolo: 'Drugo selo dovršava motor',
+        testo:
+          'Pri drugom postavljanju izaberi raskrsnicu koja pokriva sirovine koje fale: tako na svakom bacanju nešto ulazi. ' +
+          'Dobra mešavina (drvo i kamen za gradnju, ječam i vuna za rast) drži te uvek u igri.',
+      },
+      obiettivi: {
+        titolo: 'Pretvori sirovine u ciljeve',
+        testo:
+          'Sada imaš plan: drvetom i kamenom produžavaš puteve i osvajaš „Veliki put“; ječmom, vunom i gvožđem unapređuješ ' +
+          'sela u utvrđenja i kupuješ Karte Saga. Svaki potez treba da te približi ka 10 Poena slave.',
+      },
+      risultato: {
+        titolo: 'Rezultat',
+        testo:
+          'Evo kuda vodi razmišljanje: ostrvo puno tvojih puteva, sela i utvrđenja. Ko dobro bira mesta, širi se s planom i ' +
+          'cilja na ciljeve, prvi stiže do 10 poena. Sada je red na tebe!',
+      },
       onlineIntro: { titolo: 'Igranje onlajn sa prijateljima', testo: 'Iz menija „Onlajn“ igraš sa stvarnim osobama, svako sa svog uređaja. Sudija je server: proverava svaki potez po istim pravilima, tako da je nemoguće varati.' },
       serverFreddo: { titolo: 'Strpi se: server se budi', testo: 'Važno: besplatni server pada „u zimski san“ kada niko ne igra. PRVO povezivanje može da potraje od 30 do 60 sekundi da bi se probudio — to je normalno, samo sačekaj. Zelena kvačica te obaveštava kada je spreman.' },
       account: { titolo: '1. Napravi nalog', testo: 'Dovoljni su korisničko ime (biće ujedno i tvoje ime u igri) i lozinka od najmanje 8 znakova. Bez imejla: ne treba nam i ne tražimo ga.' },

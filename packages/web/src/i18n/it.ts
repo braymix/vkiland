@@ -577,8 +577,13 @@ export const it = {
     salta: 'Salta',
     auto: 'Auto',
     sezioneGioco: 'Come si gioca',
+    sezioneEsempio: 'Esempio di partita',
     sezioneOnline: 'Giocare online',
     seiClan: 'In questa demo sei il clan {colore}.',
+    afferri: 'Con questo villaggio afferri:',
+    puntaNuove: 'Punti a queste risorse nuove:',
+    secondoAggiunge: 'Il secondo villaggio aggiunge:',
+    soloNumeriNuovi: 'numeri nuovi (stessa risorsa)',
     haiTirato: 'Hai tirato {d1} + {d2} = {tot}!',
     haiRicevuto: 'Hai ricevuto:',
     niente: 'niente, questa volta',
@@ -670,6 +675,48 @@ export const it = {
         testo:
           'Vince il primo clan che raggiunge 10 Punti Gloria nel proprio turno. Ecco come potrebbe presentarsi ' +
           'l’isola a fine partita: piena di villaggi, roccaforti e sentieri.',
+      },
+      esempioIntro: {
+        titolo: 'Esempio di partita ragionato',
+        testo:
+          'Ora una partita vera, ma spiegata: a ogni mossa ti dico PERCHÉ conviene. Imparerai a scegliere il posto ' +
+          'migliore, a puntare con le strade a numeri e materiali nuovi, e a trasformare le risorse nei tuoi obiettivi.',
+      },
+      valutare: {
+        titolo: 'Prima mossa: valuta l’isola',
+        testo:
+          'Guarda gli incroci evidenziati: sono i più forti. Un buon posto tocca numeri probabili (i puntini: 6 e 8 ' +
+          'escono spessissimo) e risorse DIVERSE, così produci qualcosa a ogni tiro. Fatti il colpo d’occhio prima di piazzare.',
+      },
+      postoMigliore: {
+        titolo: 'Scegli il posto migliore',
+        testo:
+          'Piazzi qui: è l’incrocio con più produzione. Da questi esagoni afferri le risorse qui sotto ogni volta che ' +
+          'escono i loro numeri. È il motore della tua partita: sceglilo bene, perché resta con te fino alla fine.',
+      },
+      stradeEspansione: {
+        titolo: 'Punta con le strade',
+        testo:
+          'Un villaggio da solo non basta. Prolunga il sentiero verso l’incrocio evidenziato: ti porta numeri e ' +
+          'materiali NUOVI che ancora non produci. Le strade sono le tue braccia — allungale dove c’è ciò che ti manca.',
+      },
+      secondoPosto: {
+        titolo: 'Il secondo villaggio completa il motore',
+        testo:
+          'Al secondo piazzamento scegli un incrocio che copre le risorse mancanti: così a ogni tiro qualcosa entra. ' +
+          'Un buon mix (legname e pietra per costruire, orzo e lana per crescere) ti tiene sempre in gioco.',
+      },
+      obiettivi: {
+        titolo: 'Trasforma le risorse in obiettivi',
+        testo:
+          'Adesso hai un piano: con legname e pietra allunghi le strade e conquisti «La Grande Via»; con orzo, lana e ' +
+          'ferro potenzi i villaggi in roccaforti e compri Carte Saga. Ogni mossa deve avvicinarti ai 10 Punti Gloria.',
+      },
+      risultato: {
+        titolo: 'Il risultato',
+        testo:
+          'Ecco dove porta il ragionamento: un’isola piena delle tue strade, villaggi e roccaforti. Chi sceglie bene i ' +
+          'posti, espande con criterio e punta agli obiettivi arriva per primo a 10 punti. Ora tocca a te!',
       },
       onlineIntro: {
         titolo: 'Giocare online con gli amici',

@@ -567,6 +567,11 @@ export const de: Strings = {
     sezioneGioco: 'So wird gespielt',
     sezioneOnline: 'Online spielen',
     seiClan: 'In dieser Demo bist du der Clan {colore}.',
+    sezioneEsempio: 'Beispielpartie',
+    afferri: 'Mit diesem Dorf schnappst du dir:',
+    puntaNuove: 'Du zielst auf diese neuen Rohstoffe:',
+    secondoAggiunge: 'Das zweite Dorf bringt dazu:',
+    soloNumeriNuovi: 'neue Zahlen (gleicher Rohstoff)',
     haiTirato: 'Du hast {d1} + {d2} = {tot} gewürfelt!',
     haiRicevuto: 'Du hast erhalten:',
     niente: 'diesmal nichts',
@@ -589,6 +594,48 @@ export const de: Strings = {
       scambi: { titolo: 'Der Handel', testo: 'Dir fehlt ein Rohstoff? Handle mit der Bank (4:1), mit den Häfen (3:1 oder 2:1) oder schlage den anderen Spielern während deines Zuges einen Handel vor.' },
       bonus: { titolo: 'Die Boni und die verborgenen Punkte', testo: 'Die Große Straße (die längste Kette aus Pfaden) und die Berserkerwut (die meisten ausgespielten Berserker-Karten) sind je 2 Ruhmespunkte wert. Die Heldensaga zählt 1 geheimen Punkt: Achte auf Überraschungen!' },
       vittoria: { titolo: 'Die Partie gewinnen', testo: 'Es gewinnt der erste Clan, der in seinem Zug 10 Ruhmespunkte erreicht. So könnte die Insel am Spielende aussehen: voller Dörfer, Festungen und Pfade.' },
+      esempioIntro: {
+        titolo: 'Eine erklärte Beispielpartie',
+        testo:
+          'Jetzt eine echte Partie, aber erklärt: bei jedem Zug sage ich dir, WARUM er sich lohnt. Du lernst, den besten ' +
+          'Platz zu wählen, mit Wegen neue Zahlen und Rohstoffe zu erreichen und Rohstoffe in deine Ziele zu verwandeln.',
+      },
+      valutare: {
+        titolo: 'Erster Zug: lies die Insel',
+        testo:
+          'Sieh dir die markierten Kreuzungen an: das sind die stärksten. Ein guter Platz berührt wahrscheinliche Zahlen ' +
+          '(die Punkte: 6 und 8 kommen sehr oft) und VERSCHIEDENE Rohstoffe, damit du bei jedem Wurf etwas erzeugst. Verschaff dir den Überblick, bevor du setzt.',
+      },
+      postoMigliore: {
+        titolo: 'Wähle den besten Platz',
+        testo:
+          'Hier setzt du: die Kreuzung mit der höchsten Produktion. Aus diesen Feldern schnappst du dir die unten ' +
+          'gezeigten Rohstoffe, sooft ihre Zahlen fallen. Das ist der Motor deiner Partie: wähle gut, denn er bleibt bis zum Schluss.',
+      },
+      stradeEspansione: {
+        titolo: 'Greif mit Wegen aus',
+        testo:
+          'Ein Dorf allein reicht nicht. Verlängere den Weg zur markierten Kreuzung: sie bringt NEUE Zahlen und Rohstoffe, ' +
+          'die du noch nicht erzeugst. Wege sind deine Arme — streck sie dorthin, wo dir etwas fehlt.',
+      },
+      secondoPosto: {
+        titolo: 'Das zweite Dorf vollendet den Motor',
+        testo:
+          'Wähle beim zweiten Setzen eine Kreuzung, die die fehlenden Rohstoffe abdeckt: so kommt bei jedem Wurf etwas ' +
+          'herein. Eine gute Mischung (Holz und Stein zum Bauen, Gerste und Wolle zum Wachsen) hält dich immer im Spiel.',
+      },
+      obiettivi: {
+        titolo: 'Verwandle Rohstoffe in Ziele',
+        testo:
+          'Jetzt hast du einen Plan: mit Holz und Stein verlängerst du Wege und holst „Die Große Straße“; mit Gerste, Wolle ' +
+          'und Eisen baust du Dörfer zu Festungen aus und kaufst Saga-Karten. Jeder Zug soll dich den 10 Ruhmespunkten näherbringen.',
+      },
+      risultato: {
+        titolo: 'Das Ergebnis',
+        testo:
+          'Hierhin führt das Nachdenken: eine Insel voller deiner Wege, Dörfer und Festungen. Wer die Plätze gut wählt, ' +
+          'gezielt ausbaut und die Ziele im Blick behält, erreicht als Erster 10 Punkte. Jetzt bist du dran!',
+      },
       onlineIntro: { titolo: 'Online mit Freunden spielen', testo: 'Über das Menü „Online“ spielst du mit echten Leuten, jeder auf seinem eigenen Gerät. Der Schiedsrichter ist der Server: Er prüft jeden Zug mit denselben Regeln, sodass Schummeln unmöglich ist.' },
       serverFreddo: { titolo: 'Hab Geduld: Der Server wacht auf', testo: 'Wichtig: Der kostenlose Server geht „in den Winterschlaf“, wenn niemand spielt. Die ERSTE Verbindung kann 30 bis 60 Sekunden dauern, um ihn aufzuwecken — das ist normal, du musst nur warten. Ein grünes Häkchen sagt dir Bescheid, wenn er bereit ist.' },
       account: { titolo: '1. Erstelle ein Konto', testo: 'Du brauchst nur einen Benutzernamen (er ist zugleich dein Name im Spiel) und ein Passwort mit mindestens 8 Zeichen. Keine E-Mail: Sie ist nicht nötig, und wir fragen nicht danach.' },
