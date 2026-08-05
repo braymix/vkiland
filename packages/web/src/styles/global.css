@@ -589,8 +589,14 @@ button {
   justify-content: center;
 }
 .fullscreen-map .board-wrap {
-  width: 90vmin;
-  height: 90vmin;
+  /* La tavola non è quadrata: si ingrandisce al MASSIMO rettangolo con le sue
+     proporzioni (--board-ar = larghezza/altezza, impostata da FullscreenMap)
+     che entra nello schermo — riempie la larghezza in verticale, l'altezza in
+     orizzontale. Prima era un quadrato 90vmin, più PICCOLO della tavola in
+     pagina su mobile: «l'ingrandimento non si vedeva». Fallback 1 se assente. */
+  width: min(96vw, calc(96dvh * var(--board-ar, 1)));
+  aspect-ratio: var(--board-ar, 1);
+  height: auto;
   border: none;
   background: transparent;
 }
