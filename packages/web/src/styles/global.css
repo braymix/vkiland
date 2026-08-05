@@ -123,13 +123,21 @@ button {
   display: grid;
   width: 100%;
   gap: 8px;
-  grid-template-columns: 1fr;
+  /* minmax(0, …) invece di 1fr: senza il minimo 0 la traccia si allarga per
+     contenere un figlio troppo largo (es. nome-squadra lungo), sfondando lo
+     schermo su mobile. */
+  grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
     'hud'
     'board'
     'actions'
     'hand'
     'log';
+}
+/* Ogni area può restringersi sotto la larghezza del suo contenuto: così un
+   testo lungo si tronca invece di allargare tutta la pagina. */
+.game-layout > * {
+  min-width: 0;
 }
 /* Modalità Calamità: si inserisce una riga «banner» sotto l'HUD, così la carta
    attiva sta subito in alto (senza questa variante il banner non ha area e il
@@ -146,7 +154,7 @@ button {
 }
 @media (min-width: 900px) {
   .game-layout {
-    grid-template-columns: 320px 1fr;
+    grid-template-columns: 320px minmax(0, 1fr);
     grid-template-areas:
       'hud board'
       'hand board'
@@ -212,6 +220,10 @@ button {
 }
 .player-name {
   flex: 1;
+  /* Senza min-width:0 un figlio flex non scende sotto la larghezza del proprio
+     contenuto: con un nome-squadra lungo la riga non si accorciava e l'ellissi
+     non scattava, allargando l'HUD oltre lo schermo. */
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
