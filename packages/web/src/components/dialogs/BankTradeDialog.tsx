@@ -5,6 +5,7 @@ import {
   bankTradeRatio,
   boardTopoKey,
   calamityBankFloorForCard,
+  friendsOf,
   type Action,
   type PlayerView,
   type Resource,
@@ -29,9 +30,14 @@ export function BankTradeDialog({ view, onSubmit, onClose }: Props) {
   // Chiave della topologia REALE (firma sulle isole «con rientranze» / «campo
   // libero», codice sulle tavole fisse): serve a mappare gli approdi ai vertici.
   const topoKey = boardTopoKey(view.boardRadius, view.boardShape, view.board.hexes);
+  // In modalità squadra gli approdi sono in comune: si contano gli edifici di
+  // TUTTI i compagni (friendsOf ⇒ {me} fuori dalla modalità, quindi invariato).
+  // Senza questo la UI mostrerebbe il rapporto del solo giocatore e bloccherebbe
+  // scambi in realtà legali grazie all'approdo di un compagno.
+  const friends = friendsOf(view.teams, me.id);
   const effectiveRatio = (r: Resource) =>
     Math.min(
-      bankTradeRatio(view, me.id, r, topoKey),
+      bankTradeRatio(view, me.id, r, topoKey, friends),
       calamityBankFloorForCard(view.calamity, r)
     );
   const ratio = give ? effectiveRatio(give) : null;
