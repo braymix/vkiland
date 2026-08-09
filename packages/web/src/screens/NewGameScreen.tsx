@@ -39,6 +39,8 @@ import { getLocalCosmetics } from '../game/localCosmetics';
 import { teamLabelShort } from '../game/teamLabel';
 import { apiGetCosmetics, connectSocket, type OnlineSession, type ServerSocket } from '../online/connection';
 import { RemoteGameController } from '../online/RemoteGameController';
+import { useChat } from '../online/useChat';
+import { ChatPanel } from '../components/ChatPanel';
 import { FREE_PALETTE, shadesFor } from '../render/sprites/palettes';
 import { TUTORIAL_ONLINE_CHAPTER } from '../i18n/tutorial';
 import { AddBotDialog } from '../components/dialogs/AddBotDialog';
@@ -186,6 +188,8 @@ export function NewGameScreen({
   const controllerRef = useRef<RemoteGameController | null>(null);
   const connectedOnce = useRef(false);
   const [gameKey, setGameKey] = useState(0);
+  // Chat online: la cronologia vive qui, così sopravvive al passaggio lobby→partita.
+  const chat = useChat(socketRef.current);
 
   const isHost = lobby === null || lobby.hostUserId === session?.userId;
   const editable = isHost && (lobby === null || !lobby.started);
@@ -668,13 +672,16 @@ export function NewGameScreen({
           : null,
     };
     return (
-      <GameScreen
-        key={gameKey}
-        makeController={() => controller}
-        onExit={leaveLobby}
-        onRematch={null}
-        manage={manage}
-      />
+      <>
+        <GameScreen
+          key={gameKey}
+          makeController={() => controller}
+          onExit={leaveLobby}
+          onRematch={null}
+          manage={manage}
+        />
+        <ChatPanel chat={chat} myUserId={session?.userId ?? ''} />
+      </>
     );
   }
 
@@ -1182,6 +1189,11 @@ export function NewGameScreen({
             </button>
           )}
         </div>
+      )}
+
+      {/* Chat della lobby: disponibile appena si entra in una stanza (spettatori inclusi). */}
+      {mode === 'online' && session && (lobby || spectating) && (
+        <ChatPanel chat={chat} myUserId={session.userId} />
       )}
 
       {addBotOpen && (

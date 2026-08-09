@@ -281,6 +281,11 @@ io.on('connection', (socket: AnySocket) => {
   socket.on('game:refresh', () => lobbies.refreshGame(userId));
   socket.on('game:undo', () => lobbies.handleUndo(userId));
 
+  socket.on('chat:send', (text) => {
+    const res = lobbies.chat({ id: userId, name }, String(text ?? ''));
+    if (res) io.to(`lobby:${res.code}`).emit('chat:message', res.message);
+  });
+
   socket.on('disconnect', () => {
     const sockets = userSockets.get(userId);
     sockets?.delete(socket);

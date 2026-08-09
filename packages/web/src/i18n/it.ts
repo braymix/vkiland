@@ -120,6 +120,17 @@ export const it = {
     spettatoreTag: 'Spettatore',
   },
 
+  // Chat di partita (online)
+  chat: {
+    titolo: 'Chat',
+    apri: 'Apri la chat',
+    chiudi: 'Chiudi la chat',
+    placeholder: 'Scrivi un messaggio…',
+    invia: 'Invia',
+    vuota: 'Ancora nessun messaggio. Rompi il ghiaccio!',
+    tu: 'Tu',
+  },
+
   // Gestione account
   account: 'Account',
 

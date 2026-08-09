@@ -14,6 +14,7 @@ import {
 import type { Action, BotLevel, PlayerColor, PlayerCosmetics, PlayerId } from '@vikiland/engine';
 import type {
   ApiError,
+  ChatMessage,
   GameUpdate,
   HandRequest,
   LobbyConfig,
@@ -31,6 +32,8 @@ const CODE_LEN = 6;
 /** Posti massimi in una lobby (allineato al motore: 2–8 giocatori). */
 const MAX_SLOTS = MAX_PLAYERS;
 const BOT_NAMES = ['Astrid', 'Leif', 'Sigrid', 'Ragnhild', 'Olaf', 'Freya'];
+/** Lunghezza massima di un messaggio di chat (troncato lato server). */
+const CHAT_MAX_LEN = 300;
 /**
  * Ordine dei colori di DEFAULT del clan (palette libera: ognuno può poi
  * sceglierne uno qualsiasi col selettore). I primi sono i classici, così le
@@ -105,6 +108,8 @@ export class LobbyManager {
   private readonly userSpectating = new Map<string, string>();
   /** Spettatore → nome (per il popup di richiesta mano al giocatore). */
   private readonly spectatorNames = new Map<string, string>();
+  /** Id progressivo dei messaggi di chat (chiave stabile lato client). */
+  private chatCounter = 0;
 
   constructor(
     private readonly callbacks: LobbyManagerCallbacks,
@@ -472,6 +477,46 @@ export class LobbyManager {
   lobbyOfSpectator(userId: string): Lobby | null {
     const code = this.userSpectating.get(userId);
     return code ? (this.lobbies.get(code) ?? null) : null;
+  }
+
+  // -- chat --------------------------------------------------------------------
+
+  /**
+   * Prepara un messaggio di chat per la stanza dell'utente (come giocatore
+   * seduto o come spettatore). Ritorna il codice della stanza e il messaggio
+   * pronto da inoltrare, oppure null se l'utente non è in alcuna stanza o il
+   * testo è vuoto. Il testo è ripulito (spazi collassati) e troncato.
+   */
+  chat(user: LobbyUser, textRaw: string): { code: string; message: ChatMessage } | null {
+    const text = String(textRaw ?? '').replace(/\s+/g, ' ').trim().slice(0, CHAT_MAX_LEN);
+    if (!text) return null;
+
+    let seat: PlayerId = -1;
+    let color: PlayerColor | undefined;
+    let spectator = false;
+    let lobby = this.lobbyOfUser(user.id);
+    if (lobby) {
+      const idx = lobby.slots.findIndex((s) => s.userId === user.id);
+      if (idx < 0) return null;
+      seat = idx;
+      color = lobby.slots[idx]!.color;
+    } else {
+      lobby = this.lobbyOfSpectator(user.id);
+      if (!lobby) return null;
+      spectator = true;
+    }
+
+    const message: ChatMessage = {
+      id: ++this.chatCounter,
+      userId: user.id,
+      name: user.name,
+      seat,
+      spectator,
+      text,
+      ts: Date.now(),
+      ...(color ? { color } : {}),
+    };
+    return { code: lobby.code, message };
   }
 
   private spectatorsOf(code: string): number {

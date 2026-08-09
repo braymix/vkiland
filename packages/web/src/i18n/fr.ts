@@ -114,6 +114,17 @@ export const fr: Strings = {
     spettatoreTag: 'Spectateur',
   },
 
+  // Chat de partie (en ligne)
+  chat: {
+    titolo: 'Chat',
+    apri: 'Ouvrir le chat',
+    chiudi: 'Fermer le chat',
+    placeholder: 'Écris un message…',
+    invia: 'Envoyer',
+    vuota: 'Aucun message pour l’instant. Brise la glace !',
+    tu: 'Toi',
+  },
+
   // Account management
   account: 'Compte',
 

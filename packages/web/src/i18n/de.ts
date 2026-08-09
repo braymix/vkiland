@@ -114,6 +114,17 @@ export const de: Strings = {
     spettatoreTag: 'Zuschauer',
   },
 
+  // Spielchat (online)
+  chat: {
+    titolo: 'Chat',
+    apri: 'Chat öffnen',
+    chiudi: 'Chat schließen',
+    placeholder: 'Nachricht schreiben…',
+    invia: 'Senden',
+    vuota: 'Noch keine Nachrichten. Brich das Eis!',
+    tu: 'Du',
+  },
+
   // Account management
   account: 'Konto',
 

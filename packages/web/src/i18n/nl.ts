@@ -114,6 +114,17 @@ export const nl: Strings = {
     spettatoreTag: 'Toeschouwer',
   },
 
+  // Spelchat (online)
+  chat: {
+    titolo: 'Chat',
+    apri: 'Chat openen',
+    chiudi: 'Chat sluiten',
+    placeholder: 'Typ een bericht…',
+    invia: 'Verstuur',
+    vuota: 'Nog geen berichten. Breek het ijs!',
+    tu: 'Jij',
+  },
+
   // Accountbeheer
   account: 'Account',
 
