@@ -114,6 +114,17 @@ export const es: Strings = {
     spettatoreTag: 'Espectador',
   },
 
+  // Chat de partida (online)
+  chat: {
+    titolo: 'Chat',
+    apri: 'Abrir el chat',
+    chiudi: 'Cerrar el chat',
+    placeholder: 'Escribe un mensaje…',
+    invia: 'Enviar',
+    vuota: 'Aún no hay mensajes. ¡Rompe el hielo!',
+    tu: 'Tú',
+  },
+
   // Account management
   account: 'Cuenta',
 
