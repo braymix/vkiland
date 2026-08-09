@@ -196,6 +196,34 @@ export interface ActionRejected {
 }
 
 // ---------------------------------------------------------------------------
+// Chat di partita (lobby + gioco in corso)
+// ---------------------------------------------------------------------------
+
+/**
+ * Messaggio di chat inoltrato dal server a tutti i presenti nella stanza
+ * (giocatori seduti e spettatori). Il testo è già ripulito e limitato lato
+ * server; il client si limita a mostrarlo.
+ */
+export interface ChatMessage {
+  /** Id progressivo assegnato dal server (chiave stabile per la lista). */
+  id: number;
+  /** Autore (per riconoscere «i miei» messaggi lato client). */
+  userId: string;
+  /** Nome mostrato del mittente. */
+  name: string;
+  /** Posto del mittente (0…n-1) oppure -1 se è uno spettatore. */
+  seat: PlayerId;
+  /** Colore del clan del mittente (assente per gli spettatori). */
+  color?: PlayerColor;
+  /** true = il mittente sta guardando la partita da spettatore. */
+  spectator: boolean;
+  /** Testo del messaggio (ripulito e troncato dal server). */
+  text: string;
+  /** Momento dell'invio (epoch ms). */
+  ts: number;
+}
+
+// ---------------------------------------------------------------------------
 // Mappa eventi socket (server → client e client → server)
 // ---------------------------------------------------------------------------
 
@@ -207,6 +235,8 @@ export interface ServerToClientEvents {
   'game:rejected': (r: ActionRejected) => void;
   /** Uno spettatore chiede di vedere la tua mano: mostra il popup di permesso. */
   'spectator:handRequest': (req: HandRequest) => void;
+  /** Nuovo messaggio di chat da mostrare (per tutti i presenti nella stanza). */
+  'chat:message': (msg: ChatMessage) => void;
 }
 
 export interface ClientToServerEvents {
@@ -244,6 +274,8 @@ export interface ClientToServerEvents {
   'spectator:requestHand': (seat: PlayerId) => void;
   /** Giocatore: risponde alla richiesta di uno spettatore (permette o nega). */
   'spectator:respondHand': (spectatorId: string, allow: boolean) => void;
+  /** Invia un messaggio di chat alla stanza (lobby o partita in corso). */
+  'chat:send': (text: string) => void;
 }
 
 export function isApiError(x: unknown): x is ApiError {

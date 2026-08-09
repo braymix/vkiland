@@ -400,4 +400,42 @@ describe('LobbyManager', () => {
     manager.stopWatch(spec.id);
     expect(manager.lobbyOfSpectator(spec.id)).toBeNull();
   });
+
+  it('la chat instrada i messaggi di giocatori e spettatori con posto e colore', () => {
+    const { manager } = makeManager();
+    const pub = manager.create(bjorn, { ...CFG, isPublic: true });
+    if (isApiError(pub)) throw new Error('create fallita');
+    manager.join(pub.code, astrid);
+
+    // Giocatore seduto: seat e colore del suo posto, non spettatore.
+    const fromBjorn = manager.chat(bjorn, '  ciao   a   tutti  ');
+    expect(fromBjorn).not.toBeNull();
+    expect(fromBjorn!.code).toBe(pub.code);
+    expect(fromBjorn!.message.seat).toBe(0);
+    expect(fromBjorn!.message.spectator).toBe(false);
+    expect(fromBjorn!.message.color).toBe(pub.slots[0]!.color);
+    // Spazi collassati e stringa ripulita.
+    expect(fromBjorn!.message.text).toBe('ciao a tutti');
+    // Astrid (posto 1) ottiene il suo seat.
+    expect(manager.chat(astrid, 'ehi')!.message.seat).toBe(1);
+
+    // Testo vuoto (solo spazi) → nessun messaggio.
+    expect(manager.chat(bjorn, '   ')).toBeNull();
+    // Chi non è in nessuna stanza non può scrivere.
+    expect(manager.chat({ id: 'u-nessuno', name: 'Nessuno' }, 'ciao')).toBeNull();
+
+    // La chat funziona anche a partita avviata e per gli spettatori.
+    manager.start(bjorn.id);
+    const spec = { id: 'u-spec', name: 'Occhio' };
+    manager.watch(pub.code, spec);
+    const fromSpec = manager.chat(spec, 'che bella mossa');
+    expect(fromSpec).not.toBeNull();
+    expect(fromSpec!.code).toBe(pub.code);
+    expect(fromSpec!.message.spectator).toBe(true);
+    expect(fromSpec!.message.seat).toBe(-1);
+    expect(fromSpec!.message.color).toBeUndefined();
+
+    // Gli id sono progressivi e crescenti.
+    expect(fromSpec!.message.id).toBeGreaterThan(fromBjorn!.message.id);
+  });
 });

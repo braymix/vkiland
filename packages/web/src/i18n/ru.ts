@@ -114,6 +114,17 @@ export const ru: Strings = {
     spettatoreTag: 'Зритель',
   },
 
+  // Чат партии (онлайн)
+  chat: {
+    titolo: 'Чат',
+    apri: 'Открыть чат',
+    chiudi: 'Закрыть чат',
+    placeholder: 'Напишите сообщение…',
+    invia: 'Отправить',
+    vuota: 'Пока нет сообщений. Начните первым!',
+    tu: 'Вы',
+  },
+
   // Account management
   account: 'Аккаунт',
 

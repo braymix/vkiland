@@ -114,6 +114,17 @@ export const en: Strings = {
     spettatoreTag: 'Spectator',
   },
 
+  // Game chat (online)
+  chat: {
+    titolo: 'Chat',
+    apri: 'Open chat',
+    chiudi: 'Close chat',
+    placeholder: 'Type a message…',
+    invia: 'Send',
+    vuota: 'No messages yet. Break the ice!',
+    tu: 'You',
+  },
+
   // Account management
   account: 'Account',
 

@@ -114,6 +114,17 @@ export const sr: Strings = {
     spettatoreTag: 'Gledalac',
   },
 
+  // Ćaskanje u partiji (onlajn)
+  chat: {
+    titolo: 'Ćaskanje',
+    apri: 'Otvori ćaskanje',
+    chiudi: 'Zatvori ćaskanje',
+    placeholder: 'Napišite poruku…',
+    invia: 'Pošalji',
+    vuota: 'Još nema poruka. Probij led!',
+    tu: 'Ti',
+  },
+
   // Account management
   account: 'Nalog',
 

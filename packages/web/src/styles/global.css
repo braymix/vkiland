@@ -2208,3 +2208,99 @@ html[data-lang='ru'] .welcome-title {
   flex-wrap: wrap;
   gap: 8px;
 }
+
+/* ---- Chat di partita (online) ---- */
+/* Sopra mappa (80) e dialoghi (50/60), sotto tutorial (85), vittoria e dadi. */
+.chat-fab {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 70;
+  padding: 10px 12px;
+  font-size: 16px;
+}
+.chat-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--danger);
+  color: #fff;
+  font-size: 8px;
+  border: 2px solid var(--bg-deep);
+  border-radius: 9px;
+}
+.chat-window {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 70;
+  width: min(320px, calc(100vw - 24px));
+  max-height: min(60dvh, 460px);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+}
+.chat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--accent);
+  font-size: 10px;
+}
+.chat-list {
+  flex: 1;
+  min-height: 120px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 2px;
+}
+.chat-empty {
+  color: var(--ink-dim);
+  font-size: 8px;
+  line-height: 1.8;
+  text-align: center;
+  margin: auto 0;
+}
+.chat-msg {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 9px;
+  line-height: 1.6;
+  word-break: break-word;
+}
+.chat-msg-name {
+  font-size: 8px;
+  text-transform: uppercase;
+}
+.chat-msg-spec {
+  color: var(--ink-dim);
+}
+.chat-msg-text {
+  color: var(--ink);
+}
+.chat-msg--mine .chat-msg-text {
+  color: var(--ink);
+  align-self: flex-start;
+}
+.chat-msg--mine {
+  align-items: flex-end;
+  text-align: right;
+}
+.chat-form {
+  display: flex;
+  gap: 6px;
+}
+.chat-form input {
+  flex: 1;
+  min-width: 0;
+}
