@@ -120,6 +120,37 @@ describe('produzione delle risorse', () => {
     expectResourceInvariants(dopo);
   });
 
+  it('un vertice fra DUE caselle con lo stesso numero frutta ENTRAMBE le risorse', () => {
+    // Scenario segnalato: un insediamento al confine di due caselle che portano
+    // lo STESSO segnalino (es. 4-legname e 4-pietra) deve incassare 1 di ciascuna
+    // quando esce quel numero, non solo la prima. Si cerca sul campo un vertice
+    // con due caselle produttive di pari numero e terreni diversi.
+    const topo = getTopology();
+    const byId = new Map(base.board.hexes.map((h) => [h.id, h]));
+    let found: { vertex: string; token: number; a: Resource; b: Resource } | null = null;
+    for (const v of topo.vertices) {
+      const land = topo.vertexLandHexes[v]!.map((id) => byId.get(id)!).filter(
+        (h) => h.terrain !== 'tundra' && h.token !== null
+      );
+      const pair = land.find((a) =>
+        land.some((b) => b !== a && b.token === a.token && b.terrain !== a.terrain)
+      );
+      if (!pair) continue;
+      const other = land.find(
+        (b) => b !== pair && b.token === pair.token && b.terrain !== pair.terrain
+      )!;
+      found = { vertex: v, token: pair.token!, a: pair.terrain as Resource, b: other.terrain as Resource };
+      break;
+    }
+    expect(found, 'il seme di test dovrebbe offrire un vertice a doppio numero').not.toBeNull();
+    const { vertex, token, a, b } = found!;
+    const s = mut(base, (d) => d.players[0]!.villages.push(vertex));
+    const { state: dopo } = produce(s, token);
+    expect(dopo.players[0]!.resources[a]).toBe(1);
+    expect(dopo.players[0]!.resources[b]).toBe(1);
+    expectResourceInvariants(dopo);
+  });
+
   it('penuria: più richiedenti e banca insufficiente ⇒ nessuno riceve quella risorsa', () => {
     const s = mut(base, (d) => {
       d.players[0]!.villages.push(verts[0]!);
