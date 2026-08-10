@@ -157,6 +157,20 @@ function fillHex(ctx: CanvasRenderingContext2D, cx: number, cy: number, fill: st
   }
 }
 
+/**
+ * Vela scura su un esagono, usando la STESSA maschera pixel di `fillHex`: serve
+ * a segnalare la casella BLOCCATA dal Drago (non produce quando esce il suo
+ * numero), così si capisce a colpo d'occhio perché quel terreno non ha fruttato.
+ */
+function shadeHex(ctx: CanvasRenderingContext2D, cx: number, cy: number, rgba: string): void {
+  ctx.fillStyle = rgba;
+  for (let dy = -HEX_CORNER_Y; dy <= HEX_CORNER_Y; dy++) {
+    const hw = hexHalfWidthAt(dy);
+    if (hw <= 0) continue;
+    ctx.fillRect(cx - hw, cy + dy, hw * 2, 1);
+  }
+}
+
 /** Disco del segnalino numerico con cifre grandi e tacche di probabilità. */
 const TOKEN_R = 10;
 function tokenHalfWidthAt(dy: number): number {
@@ -438,6 +452,14 @@ export function renderBoard(
     staticKey = key;
   }
   ctx.drawImage(staticCanvas, 0, 0);
+
+  // Casella BLOCCATA dal Drago: una vela scura sopra il terreno (sotto strade,
+  // edifici e Drago) chiarisce che quel numero NON frutta finché il Drago è lì —
+  // anche con le skin del Drago che non somigliano al ladro classico.
+  {
+    const c = hexCenterById(view.board.dragonHex, radius);
+    shadeHex(ctx, c.x, c.y, 'rgba(8,12,22,0.42)');
+  }
 
   // Sentieri di tutti i giocatori. In modalità squadra sono TUTTI del colore
   // della squadra (le strade sono in comune).
