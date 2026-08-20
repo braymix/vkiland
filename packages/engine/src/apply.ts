@@ -145,8 +145,6 @@ function applyTurnStartHeroGains(state: GameState, events: GameEvent[]): void {
   const gain = zeroResources();
   if (def.donoResource) {
     gain[def.donoResource] = Math.min(2, state.bank[def.donoResource]);
-  } else if (def.id === 'allfather') {
-    for (const r of RESOURCES) gain[r] = Math.min(1, state.bank[r]);
   } else {
     return;
   }
