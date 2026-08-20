@@ -14,6 +14,7 @@ import {
   calamityDragonFrozen,
 } from './calamityRules';
 import { ATTACK_COST_EDIFICIO, ATTACK_COST_SENTIERO, BUILD_COSTS, PIECE_LIMITS, RESOURCES } from './constants';
+import { effectivePieceLimit, hasHero, heroUsesLeft } from './heroes';
 import { hasAtLeast, totalResources } from './resources';
 import {
   battleTargets,
@@ -26,7 +27,7 @@ import {
   vertexFreeWithDistance,
 } from './rules';
 import { friendsOf, isTeamMode, tradeResponders } from './teams';
-import type { GameState, PlayerId, Resource } from './types';
+import type { EdgeId, GameState, PlayerId, PortKind, Resource } from './types';
 
 export function getLegalActions(state: GameState, player: PlayerId): LegalMove[] {
   const radius = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes);
@@ -51,7 +52,19 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
         }
       } else {
         const last = state.phase.lastVillage!;
-        for (const e of topo.vertexEdges[last]!) {
+        const maxRoads = state.config.heroes && me.hero === 'apripista' ? 2 : 1;
+        const isFirst = (state.phase.roadsLeft ?? 1) === maxRoads;
+        // Il primo sentiero parte dal villaggio; con l'Apripista (Vegard) i
+        // successivi possono estendere anche dai sentieri iniziali già posati.
+        const candidate = new Set<EdgeId>(topo.vertexEdges[last] ?? []);
+        if (!isFirst) {
+          for (const e of me.roads) {
+            for (const v of topo.edgeVertices[e] ?? []) {
+              for (const e2 of topo.vertexEdges[v] ?? []) candidate.add(e2);
+            }
+          }
+        }
+        for (const e of candidate) {
           const occupied = state.players.some((p) => p.roads.includes(e));
           if (!occupied) moves.push({ type: 'piazzaSentieroIniziale', player, edge: e });
         }
@@ -169,7 +182,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
       if (
         !calamityBlocksRoad(state) &&
         hasAtLeast(me.resources, BUILD_COSTS.sentiero) &&
-        me.roads.length < PIECE_LIMITS.sentiero
+        me.roads.length < effectivePieceLimit(state, player, 'sentiero')
       ) {
         for (const e of legalRoadEdges(state, player, radius, friends)) {
           moves.push({ type: 'costruisciSentiero', player, edge: e });
@@ -177,7 +190,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
       }
       if (
         hasAtLeast(me.resources, BUILD_COSTS.villaggio) &&
-        me.villages.length < PIECE_LIMITS.villaggio
+        me.villages.length < effectivePieceLimit(state, player, 'villaggio')
       ) {
         for (const v of legalVillageVertices(state, player, radius, friends)) {
           moves.push({ type: 'costruisciVillaggio', player, vertex: v });
@@ -186,7 +199,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
       if (
         !calamityBlocksStronghold(state) &&
         hasAtLeast(me.resources, BUILD_COSTS.roccaforte) &&
-        me.strongholds.length < PIECE_LIMITS.roccaforte
+        me.strongholds.length < effectivePieceLimit(state, player, 'roccaforte')
       ) {
         for (const v of me.villages) {
           moves.push({ type: 'costruisciRoccaforte', player, vertex: v });
@@ -261,7 +274,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
       }
       if (
         canPlaySagaCard(state, player, 'costruttoriDiSentieri') &&
-        me.roads.length < PIECE_LIMITS.sentiero
+        me.roads.length < effectivePieceLimit(state, player, 'sentiero')
       ) {
         moves.push({ type: 'giocaCostruttori', player });
       }
@@ -281,6 +294,35 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
       // Razzia: si posa su una casella qualsiasi della tavola.
       if (canPlaySagaCard(state, player, 'razzia')) {
         for (const h of state.board.hexes) moves.push({ type: 'giocaRazzia', player, hex: h.id });
+      }
+
+      // Modalità Eroi — abilità attivabili nella fase principale.
+      if (state.config.heroes) {
+        // Njord: trasforma un proprio approdo (uno per ogni tipo diverso).
+        if (hasHero(state, player, 'mutaporto') && heroUsesLeft(state, player, 'mutaporto') > 0) {
+          const kinds: PortKind[] = ['generico', ...RESOURCES];
+          for (const port of state.board.ports) {
+            const vs = topo.edgeVertices[port.edge] ?? [];
+            const owns = vs.some((v) => me.villages.includes(v) || me.strongholds.includes(v));
+            if (!owns) continue;
+            for (const kind of kinds) {
+              if (kind !== port.kind) {
+                moves.push({ type: 'eroeMutaporto', player, edge: port.edge as EdgeId, kind });
+              }
+            }
+          }
+        }
+        // Gest: scambio 2-a-1 con la banca.
+        if (hasHero(state, player, 'mercante') && heroUsesLeft(state, player, 'mercante') > 0) {
+          for (const give of RESOURCES) {
+            if (me.resources[give] < 2) continue;
+            for (const receive of RESOURCES) {
+              if (receive !== give && state.bank[receive] >= 1) {
+                moves.push({ type: 'eroeMercante', player, give, receive });
+              }
+            }
+          }
+        }
       }
 
       moves.push({ type: 'fineTurno', player });

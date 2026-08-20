@@ -23,6 +23,7 @@ import {
   type BoardSizeChoice,
   type GameEvent,
   type GameState,
+  type HeroId,
   type PlayerConfig,
   tradeResponders,
   type PlayerId,
@@ -48,6 +49,10 @@ export interface GameSetup {
   battle: boolean;
   /** Modalità Capitale: la Capitale, evoluzione della Roccaforte (default false). */
   capitale: boolean;
+  /** Modalità Eroi: ogni clan gioca con un eroe (default false). */
+  heroes?: boolean;
+  /** Modalità Eroi: l'eroe scelto da ciascun giocatore, indicizzato come `players`. */
+  heroAssignments?: (HeroId | null)[];
   /** Tavola grande scelta esplicitamente; assente = consigliata dal numero di giocatori. */
   boardSize?: BoardSizeChoice;
   /** Forma della tavola; 'rientranze' = isola casuale con golfi e ponti. */

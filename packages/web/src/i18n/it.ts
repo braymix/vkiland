@@ -486,6 +486,33 @@ export const it = {
   },
 
   // --- Modalità Capitale ---
+  // --- Modalità Eroi ---
+  eroi: {
+    conEroi: 'Con eroi',
+    spiega:
+      'Ogni clan sceglie un eroe con un’abilità speciale (comune, non comune, rara o leggendaria). Salvo diversa indicazione, ogni abilità si attiva una volta per turno.',
+    scegliTitolo: 'Scegli il tuo eroe',
+    scegliPer: 'Eroe di {nome}',
+    nessuno: 'Nessun eroe',
+    scegli: 'Scegli eroe',
+    cambia: 'Cambia',
+    conferma: 'Conferma',
+    usiRimasti: 'Usi rimasti: {n}',
+    abilita: 'Abilità eroe',
+    usaMercante: 'Mercante: scambio 2:1',
+    usaMutaporto: 'Signore dei Mari: trasforma approdo',
+    mutaportoScegli: 'Tocca un tuo approdo sulla mappa da trasformare.',
+    mutaportoTipo: 'In che approdo trasformarlo?',
+    mercanteTitolo: 'Mercante Errante — scambio 2 a 1',
+    esaurita: 'Abilità esaurita',
+    rarita: {
+      comune: 'Comune',
+      nonComune: 'Non comune',
+      rara: 'Rara',
+      leggendaria: 'Leggendaria',
+    },
+  },
+
   capitale: {
     nome: '👑 Capitale',
     conCapitale: 'Con capitale',
