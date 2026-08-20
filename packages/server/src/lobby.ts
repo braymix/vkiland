@@ -5,13 +5,15 @@
  */
 import { randomInt } from 'node:crypto';
 import {
+  ALL_HEROES,
+  HERO_REGISTRY,
   MAX_CUSTOM_HEXES,
   MAX_PLAYERS,
   MIN_CUSTOM_HEXES,
   maxDesertCount,
   validateTeams,
 } from '@vikiland/engine';
-import type { Action, BotLevel, PlayerColor, PlayerCosmetics, PlayerId } from '@vikiland/engine';
+import type { Action, BotLevel, HeroId, PlayerColor, PlayerCosmetics, PlayerId } from '@vikiland/engine';
 import type {
   ApiError,
   ChatMessage,
@@ -65,11 +67,28 @@ interface Slot {
   connected: boolean;
   /** Modalità Squadra: indice di squadra del posto (0 di default). */
   team: number;
+  /** Modalità Eroi: eroe scelto dal posto (null = nessuno). */
+  hero: HeroId | null;
 }
 
 /** Primo colore della palette non ancora usato nella lobby. */
 function firstFreeColor(slots: Slot[]): PlayerColor {
   return PALETTE.find((c) => !slots.some((s) => s.color === c)) ?? PALETTE[0]!;
+}
+
+/** Un eroe casuale (per prevalorizzare i posti quando la modalità Eroi è attiva). */
+function randomHero(): HeroId {
+  return ALL_HEROES[Math.floor(Math.random() * ALL_HEROES.length)]!.id;
+}
+
+/** Eroe iniziale di un posto: casuale se la modalità Eroi è attiva, altrimenti nessuno. */
+function defaultHero(config: LobbyConfig): HeroId | null {
+  return config.heroes ? randomHero() : null;
+}
+
+/** Validazione lato server: `null` oppure un id d'eroe reale. */
+function isValidHero(h: unknown): h is HeroId | null {
+  return h === null || (typeof h === 'string' && h in HERO_REGISTRY);
 }
 
 export interface Lobby {
@@ -126,7 +145,16 @@ export class LobbyManager {
       hostUserId: user.id,
       config: sanitizeConfig(config),
       slots: [
-        { userId: user.id, name: user.name, isBot: false, botLevel: null, color: PALETTE[0]!, connected: true, team: 0 },
+        {
+          userId: user.id,
+          name: user.name,
+          isBot: false,
+          botLevel: null,
+          color: PALETTE[0]!,
+          connected: true,
+          team: 0,
+          hero: defaultHero(sanitizeConfig(config)),
+        },
       ],
       started: false,
       room: null,
@@ -171,6 +199,7 @@ export class LobbyManager {
       color: firstFreeColor(lobby.slots),
       connected: true,
       team: 0,
+      hero: defaultHero(lobby.config),
     });
     this.rebalanceTeams(lobby);
     this.userLobby.set(user.id, code);
@@ -216,6 +245,7 @@ export class LobbyManager {
       color: firstFreeColor(lobby.slots),
       connected: true,
       team: 0,
+      hero: defaultHero(lobby.config),
     });
     this.rebalanceTeams(lobby);
     this.broadcast(lobby);
@@ -240,6 +270,26 @@ export class LobbyManager {
     if (!Number.isInteger(team) || team < 0 || team >= n) return { error: 'Squadra non valida' };
     lobby.teamsTouched = true;
     slot.team = team;
+    this.broadcast(lobby);
+    return this.toState(lobby);
+  }
+
+  /**
+   * Modalità Eroi: sceglie l'eroe di un posto. Può farlo il proprietario del
+   * posto (il proprio) oppure l'host (anche per i bot). `null` = nessun eroe.
+   */
+  setHero(userId: string, index: number, hero: HeroId | null): Result {
+    const lobby = this.lobbyOfUser(userId);
+    if (!lobby) return { error: 'Non sei in una lobby' };
+    if (lobby.started) return { error: 'Partita già iniziata' };
+    if (!lobby.config.heroes) return { error: 'La modalità Eroi non è attiva' };
+    const slot = lobby.slots[index];
+    if (!slot) return { error: 'Posto inesistente' };
+    const isHost = lobby.hostUserId === userId;
+    const isOwn = slot.userId === userId;
+    if (!isOwn && !(isHost && slot.isBot)) return { error: 'Non puoi scegliere questo eroe' };
+    if (!isValidHero(hero)) return { error: 'Eroe non valido' };
+    slot.hero = hero;
     this.broadcast(lobby);
     return this.toState(lobby);
   }
@@ -282,6 +332,11 @@ export class LobbyManager {
     const prevNumTeams = lobby.config.numTeams ?? 2;
     const prevTeamMode = lobby.config.teamMode ?? false;
     lobby.config = sanitizeConfig(config);
+    // Modalità Eroi: accendendola, i posti senza eroe ne ricevono uno casuale
+    // (modificabile); spegnendola gli eroi restano ma sono ignorati all'avvio.
+    if (lobby.config.heroes) {
+      for (const s of lobby.slots) if (!s.hero) s.hero = randomHero();
+    }
     // Un cambio del numero di squadre (o l'accensione della modalità) ribilancia.
     const numTeamsChanged = (lobby.config.numTeams ?? 2) !== prevNumTeams;
     const teamModeOn = (lobby.config.teamMode ?? false) && !prevTeamMode;
@@ -334,6 +389,7 @@ export class LobbyManager {
         botLevel: s.botLevel,
         color: s.color,
         team: s.team,
+        ...(lobby.config.heroes ? { hero: s.hero ?? randomHero() } : {}),
         ...(cosmetics ? { cosmetics } : {}),
       };
     });
@@ -640,6 +696,7 @@ function sanitizeConfig(c: LobbyConfig): LobbyConfig {
     calamities: Boolean(c.calamities),
     battle: Boolean(c.battle),
     capitale: Boolean(c.capitale),
+    ...(c.heroes ? { heroes: true } : {}),
     // Solo 'grande' o 'gigante' sono valori validi; qualsiasi altro = consigliata.
     ...(c.boardSize === 'grande' || c.boardSize === 'gigante' ? { boardSize: c.boardSize } : {}),
     // Forma tavola: solo 'rientranze' è un valore valido; altro = esagono classico

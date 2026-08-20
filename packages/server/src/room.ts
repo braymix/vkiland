@@ -14,6 +14,7 @@ import {
   type BotLevel,
   type GameEvent,
   type GameState,
+  type HeroId,
   tradeResponders,
   type PlayerColor,
   type PlayerCosmetics,
@@ -32,6 +33,8 @@ export interface Seat {
   color: PlayerColor;
   /** Modalità Squadra: indice di squadra del posto (0 se non attiva). */
   team?: number;
+  /** Modalità Eroi: eroe scelto dal posto. */
+  hero?: HeroId | null;
   /** Skin dell'account (passthrough estetico verso il motore). */
   cosmetics?: PlayerCosmetics;
 }
@@ -125,6 +128,10 @@ export class GameRoom {
       calamities: config.calamities,
       battle: config.battle,
       capitale: config.capitale,
+      // Modalità Eroi: eroe per-posto scelto in lobby.
+      ...(config.heroes
+        ? { heroes: true, heroAssignments: seats.map((s) => s.hero ?? null) }
+        : {}),
       ...(config.boardSize ? { boardSize: config.boardSize } : {}),
       ...(config.boardShape ? { boardShape: config.boardShape } : {}),
       ...(config.hexCount != null ? { hexCount: config.hexCount } : {}),
