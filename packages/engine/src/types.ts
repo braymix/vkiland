@@ -3,6 +3,7 @@
  * serializzabile per il salvataggio, il replay e l'invio in rete (Fase 3).
  */
 import type { RngState } from './rng';
+import type { HeroId } from './heroes';
 
 export type Resource = 'legname' | 'pietra' | 'lana' | 'orzo' | 'ferro';
 export type TerrainType = Resource | 'tundra';
@@ -244,6 +245,12 @@ export interface GameConfig {
    */
   capitale: boolean;
   /**
+   * MODALITÀ EROI (opzionale): ogni clan gioca con un EROE (vedi `heroes.ts`)
+   * dalle abilità passive o attivabili. L'eroe scelto è in `PlayerState.hero`.
+   * false = partita standard senza eroi.
+   */
+  heroes: boolean;
+  /**
    * MODALITÀ SQUADRA (opzionale): un indice di squadra per giocatore
    * (`teams[i]` = squadra del giocatore i). Le squadre sono di ugual dimensione.
    * In squadra strade/approdi/Grande Via/Furia sono in comune e gli scambi solo
@@ -298,6 +305,17 @@ export interface PlayerState {
    * non li può mai far crollare: si spezzano solo le strade costruite dopo.
    */
   initialRoads: EdgeId[];
+  /**
+   * MODALITÀ EROI: l'eroe scelto dal clan (assente fuori dalla modalità). La sua
+   * abilità è interpretata dal motore consultando `heroes.ts`.
+   */
+  hero?: HeroId;
+  /**
+   * MODALITÀ EROI: usi rimasti delle abilità a consumo «per partita»
+   * (es. { mutaporto: 1 } per Njord, { mercante: 4 } per Gest). Assente se
+   * l'eroe non ha abilità a consumo.
+   */
+  heroUses?: Record<string, number>;
   // PUNTO DI ESTENSIONE: qui in Fase 4 verrà aggiunto un campo opzionale
   // `cosmetics` (id palette/skin scelti dal giocatore) che l'engine si limita
   // a trasportare senza interpretarlo.
@@ -321,6 +339,12 @@ export type Phase =
       expecting: 'villaggio' | 'sentiero';
       /** Ultimo villaggio piazzato: il sentiero iniziale deve toccarlo. */
       lastVillage: VertexId | null;
+      /**
+       * MODALITÀ EROI (Apripista): sentieri iniziali ancora da piazzare per la
+       * casa corrente prima di passare al giocatore successivo. Assente = 1
+       * (comportamento classico); con Vegard vale 2.
+       */
+      roadsLeft?: number;
     }
   | { type: 'preRoll' }
   | {
@@ -407,6 +431,12 @@ export interface GameState {
    * casella colpita finché non torna il suo turno. Assente/null = nessuna razzia.
    */
   razzia?: RazziaState | null;
+  /**
+   * MODALITÀ EROI (Comandante Ulfar): spostamenti del Drago ancora dovuti per il
+   * Berserker appena giocato (2 → 1 → esaurito). Assente/0 = comportamento
+   * classico (un solo spostamento).
+   */
+  heroBerserkerMovesLeft?: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -455,6 +485,8 @@ export interface PublicPlayer {
   roads: EdgeId[];
   /** Punti Gloria visibili (esclusi gli Eroi nascosti). */
   gloryPointsPublic: number;
+  /** MODALITÀ EROI: l'eroe scelto dal clan (pubblico: lo vedono tutti). */
+  hero?: HeroId;
   /** Skin del giocatore (pubbliche: le vedono tutti sul tabellone). */
   cosmetics?: PlayerCosmetics;
   /**
@@ -474,6 +506,8 @@ export interface PrivateSelf {
   sagaCardsBoughtThisTurn: SagaCard[];
   /** Punti totali inclusi gli Eroi nascosti. */
   gloryPointsTotal: number;
+  /** MODALITÀ EROI: usi rimasti delle proprie abilità a consumo (assente se nessuna). */
+  heroUses?: Record<string, number>;
 }
 
 /**
@@ -513,6 +547,8 @@ export interface PlayerView {
   battle: boolean;
   /** Modalità Capitale attiva: la UI abilita la costruzione della Capitale. */
   capitale: boolean;
+  /** Modalità Eroi attiva: la UI mostra gli eroi e le loro abilità attivabili. */
+  heroes: boolean;
   /**
    * Modalità Squadra: indice di squadra per giocatore (come `config.teams`).
    * Assente = partita a tutti contro tutti. La UI la usa per i colori e per

@@ -14,6 +14,7 @@ import {
   calamityDragonFrozen,
 } from './calamityRules';
 import { ATTACK_COST_EDIFICIO, ATTACK_COST_SENTIERO, BUILD_COSTS, PIECE_LIMITS, RESOURCES } from './constants';
+import { effectivePieceLimit, hasHero, heroUsesLeft } from './heroes';
 import {
   hasAtLeast,
   isValidResourceCount,
@@ -126,6 +127,15 @@ const ERR = {
     'TROPPI_SCAMBI',
     'In modalità squadra puoi fare al massimo due scambi per turno.'
   ),
+  // --- Eroi ---
+  eroiSpenti: err('EROI_SPENTI', 'La modalità Eroi non è attiva in questa partita.'),
+  abilitaNonTua: err('ABILITA_NON_TUA', 'Il tuo eroe non ha questa abilità.'),
+  abilitaEsaurita: err('ABILITA_ESAURITA', 'Hai esaurito gli usi di questa abilità.'),
+  approdoNonTuo: err(
+    'APPRODO_NON_TUO',
+    'Puoi trasformare solo un approdo su cui hai una tua costruzione.'
+  ),
+  approdoUguale: err('APPRODO_UGUALE', 'L’approdo è già di questo tipo.'),
 } as const;
 
 function isPlayerId(state: GameState, id: unknown): id is PlayerId {
@@ -217,10 +227,22 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (action.player !== state.setupOrder[state.setupIndex]) return ERR.nonIlTuoTurno;
       if (!(action.edge in topo.edgeVertices)) return ERR.spigoloNonValido;
       if (roadOwnerAt(state, action.edge) !== null) return ERR.spigoloOccupato;
-      // Deve toccare il villaggio appena piazzato.
+      // Il PRIMO sentiero deve toccare il villaggio appena piazzato. Con
+      // l'Apripista (Vegard) i sentieri successivi possono estendere la propria
+      // rete iniziale (villaggio o un sentiero già posato per questa casa).
+      const maxRoads = state.config.heroes && me.hero === 'apripista' ? 2 : 1;
+      const isFirstSetupRoad = (state.phase.roadsLeft ?? 1) === maxRoads;
       const lastVillage = state.phase.lastVillage;
-      if (lastVillage === null || !topo.edgeVertices[action.edge]!.includes(lastVillage))
-        return ERR.nonConnesso;
+      const eVerts = topo.edgeVertices[action.edge]!;
+      if (isFirstSetupRoad) {
+        if (lastVillage === null || !eVerts.includes(lastVillage)) return ERR.nonConnesso;
+      } else {
+        const touchesVillage = lastVillage !== null && eVerts.includes(lastVillage);
+        const touchesOwnRoad = eVerts.some((v) =>
+          (topo.vertexEdges[v] ?? []).some((e) => me.roads.includes(e))
+        );
+        if (!touchesVillage && !touchesOwnRoad) return ERR.nonConnesso;
+      }
       return null;
     }
 
@@ -272,7 +294,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (calamityBlocksRoad(state)) return ERR.calamitaSentiero;
       if (!(action.edge in topo.edgeVertices)) return ERR.spigoloNonValido;
       if (roadOwnerAt(state, action.edge) !== null) return ERR.spigoloOccupato;
-      if (me.roads.length >= PIECE_LIMITS.sentiero) return ERR.pezziEsauriti;
+      if (me.roads.length >= effectivePieceLimit(state, action.player, 'sentiero')) return ERR.pezziEsauriti;
       if (!roadConnects(state, action.player, action.edge, radius, friends)) return ERR.nonConnesso;
       if (!hasAtLeast(me.resources, BUILD_COSTS.sentiero)) return ERR.risorseInsufficienti;
       return null;
@@ -288,7 +310,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
         state.players.some((p) => friends.has(p.id) && p.roads.includes(e))
       );
       if (!connected) return ERR.nonConnesso;
-      if (me.villages.length >= PIECE_LIMITS.villaggio) return ERR.pezziEsauriti;
+      if (me.villages.length >= effectivePieceLimit(state, action.player, 'villaggio')) return ERR.pezziEsauriti;
       if (!hasAtLeast(me.resources, BUILD_COSTS.villaggio)) return ERR.risorseInsufficienti;
       return null;
     }
@@ -297,7 +319,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (guard) return guard;
       if (calamityBlocksStronghold(state)) return ERR.calamitaRoccaforte;
       if (!me.villages.includes(action.vertex)) return ERR.verticeNonValido;
-      if (me.strongholds.length >= PIECE_LIMITS.roccaforte) return ERR.pezziEsauriti;
+      if (me.strongholds.length >= effectivePieceLimit(state, action.player, 'roccaforte')) return ERR.pezziEsauriti;
       if (!hasAtLeast(me.resources, BUILD_COSTS.roccaforte)) return ERR.risorseInsufficienti;
       return null;
     }
@@ -463,7 +485,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (calamityBlocksSaga(state)) return ERR.calamitaSaga;
       if (state.devCardPlayedThisTurn) return ERR.cartaGiaGiocata;
       if (!me.sagaCards.includes('costruttoriDiSentieri')) return ERR.cartaNonDisponibile;
-      if (me.roads.length >= PIECE_LIMITS.sentiero) return ERR.pezziEsauriti;
+      if (me.roads.length >= effectivePieceLimit(state, action.player, 'sentiero')) return ERR.pezziEsauriti;
       return null;
     }
     case 'piazzaSentieroGratis': {
@@ -477,7 +499,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       }
       if (!(action.edge in topo.edgeVertices)) return ERR.spigoloNonValido;
       if (roadOwnerAt(state, action.edge) !== null) return ERR.spigoloOccupato;
-      if (me.roads.length >= PIECE_LIMITS.sentiero) return ERR.pezziEsauriti;
+      if (me.roads.length >= effectivePieceLimit(state, action.player, 'sentiero')) return ERR.pezziEsauriti;
       if (!roadConnects(state, action.player, action.edge, radius, friends)) return ERR.nonConnesso;
       return null;
     }
@@ -514,6 +536,36 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (state.phase.type !== 'calamityFrana') return ERR.faseErrata;
       if (action.player !== state.phase.player) return ERR.nonIlTuoTurno;
       if (!franaTargets(me, radius).includes(action.edge)) return ERR.franaNonValida;
+      return null;
+    }
+
+    // ----------------------------------------------------------- Modalità Eroi
+    case 'eroeMutaporto': {
+      const guard = mainPhaseGuard(state, action.player);
+      if (guard) return guard;
+      if (!state.config.heroes) return ERR.eroiSpenti;
+      if (!hasHero(state, action.player, 'mutaporto')) return ERR.abilitaNonTua;
+      if (heroUsesLeft(state, action.player, 'mutaporto') <= 0) return ERR.abilitaEsaurita;
+      const port = state.board.ports.find((p) => p.edge === action.edge);
+      if (!port) return ERR.approdoNonTuo;
+      // Possiede l'approdo chi ha un edificio su uno dei 2 vertici dello spigolo.
+      const vs = topo.edgeVertices[action.edge] ?? [];
+      const owns = vs.some((v) => me.villages.includes(v) || me.strongholds.includes(v));
+      if (!owns) return ERR.approdoNonTuo;
+      if (!RESOURCES.includes(action.kind as never) && action.kind !== 'generico')
+        return ERR.approdoUguale;
+      if (action.kind === port.kind) return ERR.approdoUguale;
+      return null;
+    }
+    case 'eroeMercante': {
+      const guard = mainPhaseGuard(state, action.player);
+      if (guard) return guard;
+      if (!state.config.heroes) return ERR.eroiSpenti;
+      if (!hasHero(state, action.player, 'mercante')) return ERR.abilitaNonTua;
+      if (heroUsesLeft(state, action.player, 'mercante') <= 0) return ERR.abilitaEsaurita;
+      if (action.give === action.receive) return ERR.scambioNonValido;
+      if (me.resources[action.give] < 2) return ERR.risorseInsufficienti;
+      if (state.bank[action.receive] < 1) return ERR.bancaVuota;
       return null;
     }
 

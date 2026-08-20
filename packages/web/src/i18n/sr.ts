@@ -479,6 +479,33 @@ export const sr: Strings = {
    * EASTER EGG: bots griping when the Dragon blocks them — just like at a real
    * table, where someone always takes it personally.
    */
+  // --- Heroes mode ---
+  eroi: {
+    conEroi: 'With heroes',
+    spiega:
+      'Each clan picks a hero with a special ability (common, uncommon, rare or legendary). Unless stated otherwise, each ability activates once per turn.',
+    scegliTitolo: 'Choose your hero',
+    scegliPer: '{nome}’s hero',
+    nessuno: 'No hero',
+    scegli: 'Choose hero',
+    cambia: 'Change',
+    conferma: 'Confirm',
+    usiRimasti: 'Uses left: {n}',
+    abilita: 'Hero ability',
+    usaMercante: 'Trader: 2:1 trade',
+    usaMutaporto: 'Sea Lord: transform harbour',
+    mutaportoScegli: 'Tap one of your harbours on the map to transform it.',
+    mutaportoTipo: 'Transform it into which harbour?',
+    mercanteTitolo: 'Wandering Trader — 2-for-1 trade',
+    esaurita: 'Ability used up',
+    rarita: {
+      comune: 'Common',
+      nonComune: 'Uncommon',
+      rara: 'Rare',
+      leggendaria: 'Legendary',
+    },
+  },
+
   capitale: {
     nome: '👑 Prestonica',
     conCapitale: 'Sa prestonicom',

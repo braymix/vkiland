@@ -20,9 +20,12 @@ import {
   defaultDesertCount,
   maxDesertCount,
   resolveBoardSpec,
+  ALL_HEROES,
+  heroDef,
   type BoardShapeChoice,
   type BoardSizeChoice,
   type BotLevel,
+  type HeroId,
   type PlayerColor,
   type PlayerCosmetics,
 } from '@vikiland/engine';
@@ -44,11 +47,16 @@ import { ChatPanel } from '../components/ChatPanel';
 import { FREE_PALETTE, shadesFor } from '../render/sprites/palettes';
 import { TUTORIAL_ONLINE_CHAPTER } from '../i18n/tutorial';
 import { AddBotDialog } from '../components/dialogs/AddBotDialog';
+import { HeroPicker } from '../components/HeroPicker';
+import { HeroArt } from '../components/HeroArt';
 import type { ManageInfo } from '../components/ManageSheet';
 import { GameScreen } from './GameScreen';
 import { TutorialScreen } from './TutorialScreen';
 
 const BOT_NAMES = ['Astrid', 'Leif', 'Sigrid', 'Ragnhild', 'Olaf', 'Freya'];
+
+/** Un eroe casuale (per prevalorizzare i posti quando si attiva la modalità Eroi). */
+const randomHero = (): HeroId => ALL_HEROES[Math.floor(Math.random() * ALL_HEROES.length)]!.id;
 
 /** Colori di default delle squadre (fino a 4 squadre). */
 const TEAM_PALETTE = ['#8e44ad', '#e67e22', '#16a085', '#34495e'];
@@ -125,6 +133,10 @@ export function NewGameScreen({
   const [calamities, setCalamities] = useState(false);
   const [battle, setBattle] = useState(false);
   const [capitale, setCapitale] = useState(false);
+  // Modalità Eroi (per ora solo in locale): eroe scelto per ogni posto.
+  const [heroesMode, setHeroesMode] = useState(false);
+  const [seatHeroes, setSeatHeroes] = useState<(HeroId | null)[]>([null, null, null]);
+  const [heroPickerSeat, setHeroPickerSeat] = useState<number | null>(null);
   const [avoid68, setAvoid68] = useState(true);
   const [seed, setSeed] = useState('');
   const [timerRaw, setTimerRaw] = useState('');
@@ -170,6 +182,21 @@ export function NewGameScreen({
     if (!teamsTouched) setSeatTeams(seats.map((_, i) => i % numTeams));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seats.length, numTeams, teamsTouched]);
+
+  // Modalità Eroi: mantiene l'array degli eroi allineato ai posti (i nuovi posti
+  // ricevono un eroe casuale quando la modalità è attiva).
+  useEffect(() => {
+    setSeatHeroes((prev) => seats.map((_, i) => prev[i] ?? (heroesMode ? randomHero() : null)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seats.length, heroesMode]);
+
+  /** Attiva/disattiva la modalità Eroi (solo locale), prevalorizzando gli eroi. */
+  const applyHeroesMode = (v: boolean) => {
+    setHeroesMode(v);
+    if (v) setSeatHeroes((prev) => seats.map((_, i) => prev[i] ?? randomHero()));
+  };
+  const setSeatHero = (i: number, hero: HeroId | null) =>
+    setSeatHeroes((prev) => prev.map((h, idx) => (idx === i ? hero : h)));
 
   // --- Online: socket, lobby, partita ---
   const [busy, setBusy] = useState(false);
@@ -635,6 +662,9 @@ export function NewGameScreen({
       calamities,
       battle,
       capitale,
+      ...(heroesMode
+        ? { heroes: true, heroAssignments: seats.map((_, i) => seatHeroes[i] ?? randomHero()) }
+        : {}),
       ...(boardSize ? { boardSize } : {}),
       ...(boardShape ? { boardShape } : {}),
       ...(hexCountVal != null ? { hexCount: hexCountVal } : {}),
@@ -698,6 +728,7 @@ export function NewGameScreen({
     !calamities &&
     !battle &&
     !capitale &&
+    !heroesMode &&
     avoid68 &&
     !seed.trim() &&
     (mode === 'locale' || (timerSec === 0 && !isPublic));
@@ -856,6 +887,38 @@ export function NewGameScreen({
                           ))}
                         </div>
                       )}
+                      {heroesMode && (
+                        <div
+                          style={{
+                            marginTop: 6,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8,
+                          }}
+                        >
+                          {seatHeroes[i] && (
+                            <HeroArt
+                              hero={seatHeroes[i]!}
+                              size={36}
+                              emblem={heroDef(seatHeroes[i])?.emblem}
+                            />
+                          )}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 9, color: 'var(--accent)' }}>
+                              {seatHeroes[i] ? heroDef(seatHeroes[i])?.name : it.eroi.nessuno}
+                            </div>
+                            <div style={{ fontSize: 8, color: 'var(--ink-dim)' }}>
+                              {seatHeroes[i] ? heroDef(seatHeroes[i])?.ability : ''}
+                            </div>
+                          </div>
+                          <button
+                            className="pxbtn pxbtn--ghost pxbtn--small"
+                            onClick={() => setHeroPickerSeat(i)}
+                          >
+                            {seatHeroes[i] ? it.eroi.cambia : it.eroi.scegli}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -883,6 +946,8 @@ export function NewGameScreen({
             setBattle={(v) => setBattle(v)}
             capitale={capitale}
             setCapitale={(v) => setCapitale(v)}
+            heroesMode={heroesMode}
+            setHeroesMode={applyHeroesMode}
             avoid68={avoid68}
             setAvoid68={(v) => setAvoid68(v)}
             seed={seed}
@@ -1137,6 +1202,8 @@ export function NewGameScreen({
               setCapitale(v);
               patch({ capitale: v });
             }}
+            heroesMode={heroesMode}
+            setHeroesMode={applyHeroesMode}
             avoid68={avoid68}
             setAvoid68={(v) => {
               setAvoid68(v);
@@ -1209,6 +1276,14 @@ export function NewGameScreen({
         <TutorialScreen
           initialChapter={TUTORIAL_ONLINE_CHAPTER}
           onClose={() => setTutorialOpen(false)}
+        />
+      )}
+      {heroPickerSeat !== null && (
+        <HeroPicker
+          title={t(it.eroi.scegliPer, { nome: seats[heroPickerSeat]?.name ?? '' })}
+          current={seatHeroes[heroPickerSeat] ?? null}
+          onPick={(hero) => setSeatHero(heroPickerSeat, hero)}
+          onClose={() => setHeroPickerSeat(null)}
         />
       )}
     </div>
@@ -1366,6 +1441,9 @@ interface RulesPresetProps {
   setBattle: (v: boolean) => void;
   capitale: boolean;
   setCapitale: (v: boolean) => void;
+  /** Modalità Eroi (solo locale). */
+  heroesMode: boolean;
+  setHeroesMode: (v: boolean) => void;
   avoid68: boolean;
   setAvoid68: (v: boolean) => void;
   seed: string;
@@ -1480,6 +1558,20 @@ function RulesPreset(p: RulesPresetProps) {
             👑 {it.capitale.conCapitale}
           </label>
           {p.capitale && <div style={NOTE_STYLE}>{it.capitale.spiega}</div>}
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={p.heroesMode}
+              disabled={!p.editable || p.online}
+              onChange={(e) => p.setHeroesMode(e.target.checked)}
+            />
+            🛡️ {it.eroi.conEroi}
+          </label>
+          {p.online ? (
+            <div style={NOTE_STYLE}>{it.eroi.spiega}</div>
+          ) : (
+            p.heroesMode && <div style={NOTE_STYLE}>{it.eroi.spiega}</div>
+          )}
 
           {/* Modalità Squadra: un'altra «modalità» accanto a calamità e battaglia. */}
           {p.teamSlot}

@@ -7,12 +7,14 @@ import {
   DEFAULT_TARGET_GLORY,
   MAX_PLAYERS,
   MIN_PLAYERS,
+  RESOURCES,
   resolveBoardSpecCustom,
   SAGA_DECK_COMPOSITION,
 } from './constants';
 import { rollDie, seedRng, shuffle } from './rng';
 import { rientranzeRegionRadius } from './board/coords';
 import { distinctTeams, isTeamMode, teamSize, validateTeams } from './teams';
+import { heroDef, type HeroId } from './heroes';
 import type {
   BoardShapeChoice,
   BoardSizeChoice,
@@ -36,6 +38,14 @@ export interface NewGameOptions {
   battle?: boolean;
   /** Modalità Capitale: la Capitale, evoluzione della Roccaforte. Default false. */
   capitale?: boolean;
+  /** Modalità Eroi: ogni clan gioca con un eroe. Default false. */
+  heroes?: boolean;
+  /**
+   * Modalità Eroi: l'eroe scelto da ciascun giocatore, indicizzato come
+   * `players`. Una voce può essere assente/null (nessun eroe per quel clan).
+   * Ignorato se `heroes` è false.
+   */
+  heroAssignments?: (HeroId | null | undefined)[];
   /** Scelta esplicita della tavola grande; assente = consigliata dal numero di giocatori. */
   boardSize?: BoardSizeChoice;
   /** Forma della tavola; 'rientranze' = isola casuale con golfi e ponti. Assente = esagono classico. */
@@ -123,6 +133,7 @@ export function createGame(options: NewGameOptions): GameState {
     calamities: options.calamities ?? false,
     battle: options.battle ?? false,
     capitale: options.capitale ?? false,
+    heroes: options.heroes ?? false,
     ...(teams
       ? {
           teams: [...teams],
@@ -170,21 +181,39 @@ export function createGame(options: NewGameOptions): GameState {
   Object.freeze(board.ports);
   for (const p of board.ports) Object.freeze(p);
 
-  const playerStates: PlayerState[] = config.players.map((p, id) => ({
-    id,
-    name: p.name,
-    color: p.color,
-    resources: { legname: 0, pietra: 0, lana: 0, orzo: 0, ferro: 0 },
-    sagaCards: [],
-    sagaCardsBoughtThisTurn: [],
-    playedBerserkers: 0,
-    villages: [],
-    strongholds: [],
-    capitals: [],
-    roads: [],
-    initialVillages: [],
-    initialRoads: [],
-  }));
+  const playerStates: PlayerState[] = config.players.map((p, id) => {
+    const state: PlayerState = {
+      id,
+      name: p.name,
+      color: p.color,
+      resources: { legname: 0, pietra: 0, lana: 0, orzo: 0, ferro: 0 },
+      sagaCards: [],
+      sagaCardsBoughtThisTurn: [],
+      playedBerserkers: 0,
+      villages: [],
+      strongholds: [],
+      capitals: [],
+      roads: [],
+      initialVillages: [],
+      initialRoads: [],
+    };
+    // Modalità Eroi: assegna l'eroe scelto, inizializza gli usi «per partita» e
+    // applica i bonus di inizio partita (Astrid: 2 di ogni materiale).
+    if (config.heroes) {
+      const hero = options.heroAssignments?.[id] ?? undefined;
+      const def = heroDef(hero);
+      if (hero && def) {
+        state.hero = hero;
+        if (def.useKey && def.usesPerGame) {
+          state.heroUses = { [def.useKey]: def.usesPerGame };
+        }
+        if (hero === 'erede') {
+          for (const r of RESOURCES) state.resources[r] += 2;
+        }
+      }
+    }
+    return state;
+  });
 
   // L'ORDINE DI PARTENZA si decide coi dadi (deterministico dal seed): tutti
   // tirano, il totale più alto inizia; i pareggi si ritirano solo tra i pari.
@@ -225,13 +254,13 @@ export function createGame(options: NewGameOptions): GameState {
     rngState: rng,
     board,
     players: playerStates,
-    bank: {
-      legname: spec.bankPerResource,
-      pietra: spec.bankPerResource,
-      lana: spec.bankPerResource,
-      orzo: spec.bankPerResource,
-      ferro: spec.bankPerResource,
-    },
+    // La banca parte piena; gli eroi «Erede» (Astrid) hanno già preso 2 di ogni
+    // materiale, quindi si scala dalla banca per conservare il totale in gioco.
+    bank: (() => {
+      const eredi = playerStates.filter((p) => p.hero === 'erede').length;
+      const start = spec.bankPerResource - eredi * 2;
+      return { legname: start, pietra: start, lana: start, orzo: start, ferro: start };
+    })(),
     sagaDeck,
     currentPlayer: setupOrder[0]!,
     turnNumber: 0,
@@ -296,6 +325,8 @@ export function cloneState(s: GameState): GameState {
       roads: [...p.roads],
       initialVillages: [...p.initialVillages],
       initialRoads: [...p.initialRoads],
+      ...(p.hero ? { hero: p.hero } : {}),
+      ...(p.heroUses ? { heroUses: { ...p.heroUses } } : {}),
     })),
     bank: { ...s.bank },
     sagaDeck: [...s.sagaDeck],
@@ -318,5 +349,8 @@ export function cloneState(s: GameState): GameState {
       : {}),
     // La razzia attiva è un piccolo record: si clona a parte per non condividerlo.
     ...(s.razzia ? { razzia: { ...s.razzia } } : {}),
+    ...(s.heroBerserkerMovesLeft !== undefined
+      ? { heroBerserkerMovesLeft: s.heroBerserkerMovesLeft }
+      : {}),
   };
 }

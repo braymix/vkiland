@@ -31,6 +31,8 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
     capitals: [...p.capitals],
     roads: [...p.roads],
     gloryPointsPublic: gloryPoints(state, p.id, false),
+    // Modalità Eroi: l'eroe è pubblico (lo vedono tutti al tavolo).
+    ...(p.hero ? { hero: p.hero } : {}),
   }));
 
   // Modalità squadra: i compagni si vedono la MANO a vicenda (risorse + Carte
@@ -68,6 +70,7 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
           sagaCards: [...self.sagaCards],
           sagaCardsBoughtThisTurn: [...self.sagaCardsBoughtThisTurn],
           gloryPointsTotal: gloryPoints(state, self.id, true),
+          ...(self.heroUses ? { heroUses: { ...self.heroUses } } : {}),
         }
       : null,
     currentPlayer: state.currentPlayer,
@@ -99,6 +102,7 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
     calamitiesLeft: state.calamities ? state.calamities.deck.length : null,
     battle: state.config.battle,
     capitale: state.config.capitale,
+    heroes: state.config.heroes,
     ...(state.config.teams
       ? {
           teams: [...state.config.teams],
