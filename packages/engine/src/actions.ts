@@ -7,12 +7,14 @@ import type {
   EdgeId,
   HexId,
   PlayerId,
+  PortKind,
   Resource,
   ResourceCount,
   SagaCard,
   TradeOffer,
   VertexId,
 } from './types';
+import type { HeroId } from './heroes';
 
 export type Action =
   // --- Setup a serpentina ---
@@ -66,6 +68,11 @@ export type Action =
   | { type: 'guadagnaCalamita'; player: PlayerId; resources: ResourceCount }
   // --- Calamità Frana: il giocatore con più strade sceglie quale marginale far crollare ---
   | { type: 'franaSentiero'; player: PlayerId; edge: EdgeId }
+  // --- Modalità Eroi ---
+  //   Njord (Signore dei Mari): trasforma un proprio approdo in un altro tipo.
+  | { type: 'eroeMutaporto'; player: PlayerId; edge: EdgeId; kind: PortKind }
+  //   Gest (Mercante Errante): scambio 2-a-1 con la banca (fino a 4 volte a partita).
+  | { type: 'eroeMercante'; player: PlayerId; give: Resource; receive: Resource }
   // --- Fine turno ---
   | { type: 'fineTurno'; player: PlayerId };
 
@@ -153,6 +160,10 @@ export type GameEvent =
   | { type: 'scambioAnnullato'; offerId: number }
   /** Offerta «a tutta la squadra» declinata da TUTTI i compagni: si chiude da sola. */
   | { type: 'scambioRifiutato'; offerId: number }
+  /** Modalità Eroi (Njord): un approdo è stato trasformato in un altro tipo. */
+  | { type: 'portoTrasformato'; player: PlayerId; edge: EdgeId; kind: PortKind }
+  /** Modalità Eroi: un'abilità di inizio turno ha fruttato materiali (es. il Dono). */
+  | { type: 'eroeGuadagno'; player: PlayerId; hero: HeroId; resources: ResourceCount }
   | { type: 'grandeViaCambiata'; holder: PlayerId | null; length: number }
   | { type: 'furiaBerserkerCambiata'; holder: PlayerId | null; count: number }
   | { type: 'vittoria'; winner: PlayerId; breakdown: ScoreBreakdown[] };

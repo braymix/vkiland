@@ -24,6 +24,7 @@ import { nextInt, rollDie } from './rng';
 import { effectiveBankRatio, legalRoadEdges } from './rules';
 import { gloryPoints, scoreBreakdown } from './scoring';
 import { friendsOf, isTeamMode, tradeResponders } from './teams';
+import { effectivePieceLimit, heroDef } from './heroes';
 import type { GameState, PlayerId, ResourceCount, SagaCard } from './types';
 import { isLegal } from './validate';
 
@@ -41,11 +42,16 @@ function beginTurn(state: GameState, events: GameEvent[]): void {
   }
   // Modalità squadra: il conto degli scambi (max 2) riparte a ogni turno.
   if (isTeamMode(state.config.teams)) state.teamTradesThisTurn = 0;
+  // Modalità Eroi: azzera il contatore dei doppi spostamenti del Berserker.
+  delete state.heroBerserkerMovesLeft;
   events.push({
     type: 'turnoIniziato',
     player: state.currentPlayer,
     turnNumber: state.turnNumber,
   });
+  // Modalità Eroi: abilità di inizio turno (Dono +2 di un materiale, Odino +1
+  // di ognuno), risolte prima dell'eventuale calamità del giro.
+  applyTurnStartHeroGains(state, events);
   if (state.calamities && state.currentPlayer === state.turnOrder[0]) {
     if (revealCalamity(state, events)) return; // fase interattiva prima del tiro
   }
@@ -57,7 +63,7 @@ function advanceCalamityRoads(state: GameState): void {
   if (state.phase.type !== 'calamityRoads') return;
   const radius = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes);
   const canPlace = (pid: PlayerId): boolean =>
-    state.players[pid]!.roads.length < PIECE_LIMITS.sentiero &&
+    state.players[pid]!.roads.length < effectivePieceLimit(state, pid, 'sentiero') &&
     legalRoadEdges(state, pid, radius, friendsOf(state.config.teams, pid)).length > 0;
 
   const current = state.phase.queue[0]!;
@@ -127,6 +133,47 @@ function resolveRoadAttack(
   recomputeGrandeVia(state, events);
 }
 
+/**
+ * Modalità Eroi — abilità di inizio turno del giocatore di turno. Il «Dono»
+ * (eroi comuni) frutta 2 del proprio materiale; Odino (leggendario) 1 di ogni
+ * materiale. Si prende dalla banca, senza superarne le scorte.
+ */
+function applyTurnStartHeroGains(state: GameState, events: GameEvent[]): void {
+  if (!state.config.heroes) return;
+  const me = state.players[state.currentPlayer]!;
+  const def = heroDef(me.hero);
+  if (!def) return;
+  const gain = zeroResources();
+  if (def.donoResource) {
+    gain[def.donoResource] = Math.min(2, state.bank[def.donoResource]);
+  } else if (def.id === 'allfather') {
+    for (const r of RESOURCES) gain[r] = Math.min(1, state.bank[r]);
+  } else {
+    return;
+  }
+  if (totalResources(gain) === 0) return;
+  for (const r of RESOURCES) {
+    me.resources[r] += gain[r];
+    state.bank[r] -= gain[r];
+  }
+  events.push({ type: 'eroeGuadagno', player: me.id, hero: def.id, resources: gain });
+}
+
+/**
+ * Modalità Eroi (Comandante Ulfar): dopo aver risolto uno spostamento del Drago
+ * causato da un Berserker, se restano spostamenti dovuti si torna alla fase
+ * `moveDragon`; altrimenti si prosegue normalmente.
+ */
+function finishDragonCycle(state: GameState, cause: 'sette' | 'berserker' | 'calamita'): void {
+  if (cause === 'berserker' && (state.heroBerserkerMovesLeft ?? 0) > 1) {
+    state.heroBerserkerMovesLeft = (state.heroBerserkerMovesLeft ?? 0) - 1;
+    state.phase = { type: 'moveDragon', cause: 'berserker' };
+    return;
+  }
+  delete state.heroBerserkerMovesLeft;
+  afterDragonPhase(state);
+}
+
 /** Paga un costo: dal giocatore alla banca. */
 function payCost(state: GameState, player: PlayerId, cost: ResourceCount): void {
   const p = state.players[player]!;
@@ -172,7 +219,7 @@ function stealCandidates(state: GameState, mover: PlayerId): PlayerId[] {
 function resolveDragonArrival(state: GameState, cause: 'sette' | 'berserker' | 'calamita'): void {
   const candidates = stealCandidates(state, state.currentPlayer);
   if (candidates.length === 0) {
-    afterDragonPhase(state);
+    finishDragonCycle(state, cause);
   } else {
     state.phase = { type: 'steal', candidates, cause };
   }
@@ -233,7 +280,9 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       if (state.setupIndex >= state.players.length) {
         produceForSetupVillage(state, me.id, action.vertex, events);
       }
-      state.phase = { type: 'setup', expecting: 'sentiero', lastVillage: action.vertex };
+      // Modalità Eroi (Apripista Vegard): 2 sentieri iniziali per casa invece di uno.
+      const roadsLeft = state.config.heroes && me.hero === 'apripista' ? 2 : 1;
+      state.phase = { type: 'setup', expecting: 'sentiero', lastVillage: action.vertex, roadsLeft };
       break;
     }
     case 'piazzaSentieroIniziale': {
@@ -247,6 +296,19 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
         position: action.edge,
         gratis: true,
       });
+      // Apripista: restano sentieri iniziali per questa casa? Si resta sul
+      // giocatore (stessa fase) senza avanzare la serpentina.
+      const remainingSetupRoads =
+        (state.phase.type === 'setup' ? state.phase.roadsLeft ?? 1 : 1) - 1;
+      if (remainingSetupRoads > 0) {
+        state.phase = {
+          type: 'setup',
+          expecting: 'sentiero',
+          lastVillage: state.phase.type === 'setup' ? state.phase.lastVillage : null,
+          roadsLeft: remainingSetupRoads,
+        };
+        break;
+      }
       state.setupIndex += 1;
       if (state.setupIndex >= state.setupOrder.length) {
         // Setup completato: comincia chi ha vinto il tiro per l'ordine (1° giro:
@@ -325,6 +387,7 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       break;
     }
     case 'ruba': {
+      const cause = state.phase.type === 'steal' ? state.phase.cause : 'sette';
       const victim = state.players[action.target]!;
       const pool = flattenResources(victim.resources);
       const [idx, rng] = nextInt(state.rngState, pool.length);
@@ -333,7 +396,7 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       victim.resources[stolen] -= 1;
       me.resources[stolen] += 1;
       events.push({ type: 'risorsaRubata', thief: me.id, victim: victim.id, resource: stolen });
-      afterDragonPhase(state);
+      finishDragonCycle(state, cause);
       break;
     }
 
@@ -537,6 +600,8 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       state.devCardPlayedThisTurn = true;
       events.push({ type: 'cartaSagaGiocata', player: me.id, card: 'berserker' });
       recomputeFuria(state, me.id, events);
+      // Modalità Eroi (Comandante Ulfar): il Drago si sposta due volte.
+      if (state.config.heroes && me.hero === 'comandante') state.heroBerserkerMovesLeft = 2;
       state.phase = { type: 'moveDragon', cause: 'berserker' };
       break;
     }
@@ -544,7 +609,7 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       removeCard(me.sagaCards, 'costruttoriDiSentieri');
       state.devCardPlayedThisTurn = true;
       events.push({ type: 'cartaSagaGiocata', player: me.id, card: 'costruttoriDiSentieri' });
-      const remaining = Math.min(2, PIECE_LIMITS.sentiero - me.roads.length);
+      const remaining = Math.min(2, effectivePieceLimit(state, me.id, 'sentiero') - me.roads.length);
       state.phase = { type: 'freeRoads', remaining };
       // Se non c'è nessun piazzamento legale la carta si esaurisce subito.
       if (legalRoadEdges(state, me.id, boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes), friendsOf(state.config.teams, me.id)).length === 0) state.phase = { type: 'main' };
@@ -645,6 +710,36 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       events.push({ type: 'franaSpezzata', player: me.id, edge: action.edge });
       recomputeGrandeVia(state, events);
       state.phase = rollTimePhase(state);
+      break;
+    }
+
+    // ----------------------------------------------------------- Modalità Eroi
+    case 'eroeMutaporto': {
+      // Njord: trasforma un proprio approdo. Gli approdi sono congelati alla
+      // creazione: si sostituisce l'intero array con una copia modificata.
+      const ratio: 2 | 3 = action.kind === 'generico' ? 3 : 2;
+      state.board = {
+        ...state.board,
+        ports: state.board.ports.map((p) =>
+          p.edge === action.edge ? { ...p, kind: action.kind, ratio } : p
+        ),
+      };
+      if (me.heroUses) me.heroUses.mutaporto = (me.heroUses.mutaporto ?? 0) - 1;
+      events.push({ type: 'portoTrasformato', player: me.id, edge: action.edge, kind: action.kind });
+      break;
+    }
+    case 'eroeMercante': {
+      // Gest: scambio 2-a-1 con la banca (consumo di un uso «per partita»).
+      me.resources[action.give] -= 2;
+      state.bank[action.give] += 2;
+      state.bank[action.receive] -= 1;
+      me.resources[action.receive] += 1;
+      if (me.heroUses) me.heroUses.mercante = (me.heroUses.mercante ?? 0) - 1;
+      const give = zeroResources();
+      give[action.give] = 2;
+      const receive = zeroResources();
+      receive[action.receive] = 1;
+      events.push({ type: 'scambioEseguito', kind: 'banca', from: me.id, to: null, give, receive });
       break;
     }
 

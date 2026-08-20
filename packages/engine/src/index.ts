@@ -102,6 +102,21 @@ export {
 } from './calamityRules';
 export { longestRoadLength } from './longestRoad';
 export { scoreBreakdown, gloryPoints, countHiddenHeroes } from './scoring';
+// Modalità Eroi: registro e query pure (bot, UI e resa/pixel art).
+export {
+  HERO_REGISTRY,
+  ALL_HEROES,
+  RARITY_ORDER,
+  heroDef,
+  heroOf,
+  hasHero,
+  heroUsesLeft,
+  effectivePieceLimit,
+  setupRoadsPerVillage,
+  type HeroId,
+  type HeroRarity,
+  type HeroDef,
+} from './heroes';
 // Modalità Squadra: query pure (bot, UI e resa).
 export {
   isTeamMode,
