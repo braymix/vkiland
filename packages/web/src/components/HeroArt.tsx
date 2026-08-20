@@ -51,8 +51,6 @@ const HERO_PALETTES: Readonly<Record<HeroId, Palette>> = {
   apripista: { H: '#9c6b3f', A: '#6b4526', B: '#3a2416', S: SKIN },
   maestro: { H: '#b06a2c', A: '#7a4518', B: '#4a3020', S: SKIN },
   comandante: { H: '#7a5c8f', A: '#4d3a5c', B: '#2b2030', S: SKIN },
-  erede: { H: '#d4af37', A: '#9a7d1e', B: '#6a4a20', S: SKIN },
-  allfather: { H: '#c0c6cf', A: '#8890a0', B: '#c9c2b0', S: SKIN },
 };
 
 function colorFor(role: string, pal: Palette): string | null {
