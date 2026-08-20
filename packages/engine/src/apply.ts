@@ -12,7 +12,6 @@ import {
   ATTACK_COST_SENTIERO,
   BUILD_COSTS,
   HAND_LIMIT,
-  PIECE_LIMITS,
   RESOURCES,
 } from './constants';
 import { cloneState } from './game';

@@ -479,6 +479,33 @@ export const nl: Strings = {
    * EASTER EGG: bots die mopperen als de Draak hen blokkeert — net als aan een
    * echte tafel, waar iemand het altijd persoonlijk opvat.
    */
+  // --- Heroes mode ---
+  eroi: {
+    conEroi: 'With heroes',
+    spiega:
+      'Each clan picks a hero with a special ability (common, uncommon, rare or legendary). Unless stated otherwise, each ability activates once per turn.',
+    scegliTitolo: 'Choose your hero',
+    scegliPer: '{nome}’s hero',
+    nessuno: 'No hero',
+    scegli: 'Choose hero',
+    cambia: 'Change',
+    conferma: 'Confirm',
+    usiRimasti: 'Uses left: {n}',
+    abilita: 'Hero ability',
+    usaMercante: 'Trader: 2:1 trade',
+    usaMutaporto: 'Sea Lord: transform harbour',
+    mutaportoScegli: 'Tap one of your harbours on the map to transform it.',
+    mutaportoTipo: 'Transform it into which harbour?',
+    mercanteTitolo: 'Wandering Trader — 2-for-1 trade',
+    esaurita: 'Ability used up',
+    rarita: {
+      comune: 'Common',
+      nonComune: 'Uncommon',
+      rara: 'Rare',
+      leggendaria: 'Legendary',
+    },
+  },
+
   capitale: {
     nome: '👑 Hoofdstad',
     conCapitale: 'Met hoofdstad',

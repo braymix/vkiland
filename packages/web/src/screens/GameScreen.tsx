@@ -12,6 +12,8 @@ import { CalamityBanner } from '../components/CalamityBanner';
 import { CalamityRevealedModal } from '../components/CalamityRevealedModal';
 import { GameLog } from '../components/GameLog';
 import { HandPanel } from '../components/HandPanel';
+import { HeroBar } from '../components/HeroBar';
+import { HeroDialog } from '../components/dialogs/HeroDialog';
 import { HudTop } from '../components/HudTop';
 import { BankTradeDialog } from '../components/dialogs/BankTradeDialog';
 import { CalamityGainDialog } from '../components/dialogs/CalamityGainDialog';
@@ -61,6 +63,7 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
   const [proposeOpen, setProposeOpen] = useState(false);
   const [cardsOpen, setCardsOpen] = useState(false);
   const [buildingsOpen, setBuildingsOpen] = useState(false);
+  const [heroOpen, setHeroOpen] = useState(false);
   const [costsOpen, setCostsOpen] = useState(false);
   const [tutorialOpen, setTutorialOpen] = useState(false);
   const [mapFullscreen, setMapFullscreen] = useState(false);
@@ -100,6 +103,7 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
       setCardsOpen(false);
       setBuildingsOpen(false);
       setCostsOpen(false);
+      setHeroOpen(false);
     }
   }, [handoff]);
 
@@ -136,6 +140,7 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
       setBankOpen(false);
       setProposeOpen(false);
       setCardsOpen(false);
+      setHeroOpen(false);
     }
   };
 
@@ -261,6 +266,12 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
 
   const gameOver = snap.finalState !== null;
 
+  // Modalità Eroi: c'è un'abilità eroe attivabile ORA dal giocatore di turno?
+  const hasHeroAbility =
+    isMyTurn &&
+    view.pendingTrade === null &&
+    legalActions.some((m) => m.type === 'eroeMercante' || m.type === 'eroeMutaporto');
+
   return (
     <div className="screen">
       <div
@@ -321,6 +332,9 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
               }}
               errorText={error}
             />
+            {view.heroes && (
+              <HeroBar view={view} onOpenHero={hasHeroAbility ? () => setHeroOpen(true) : undefined} />
+            )}
             <HandPanel
               view={view}
               onOpenCards={() => setCardsOpen(true)}
@@ -403,6 +417,14 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
         />
       )}
       {buildingsOpen && <BuildingsDialog view={view} onClose={() => setBuildingsOpen(false)} />}
+      {heroOpen && (
+        <HeroDialog
+          view={view}
+          legalActions={legalActions}
+          onSubmit={dispatch}
+          onClose={() => setHeroOpen(false)}
+        />
+      )}
       {costsOpen && (
         <CostsDialog
           view={view}

@@ -1,16 +1,19 @@
 import { describe, it, expect } from 'vitest';
 import {
-  applyAction,
   createGame,
   getLegalActions,
   getPlayerView,
   getTopology,
   boardTopoKey,
   effectivePieceLimit,
+  nextInt,
+  seedRng,
   HERO_REGISTRY,
   ALL_HEROES,
+  type Action,
   type GameState,
   type HeroId,
+  type LegalMove,
 } from '../src';
 import {
   apply,
@@ -20,9 +23,10 @@ import {
   expectError,
   expectResourceInvariants,
   give,
+  greedyDiscard,
+  greedyGain,
   makePlayers,
   mut,
-  toMain,
 } from './helpers';
 
 /** Partita in modalità Eroi con ordine normalizzato 0..n-1. */
@@ -230,6 +234,56 @@ describe('eroe non comune — Gest (Mercante: scambio 2-a-1, 4 volte a partita)'
     expect(view0.me!.heroUses!.mercante).toBe(4);
     expect(view0.players[0]!.hero).toBe('mercante');
     expect(view0.players[1]!.hero).toBe('donoOrzo');
+  });
+});
+
+describe('partita completa in modalità Eroi', () => {
+  it('gioca fino alla fine rispettando gli invarianti (mosse casuali-legali)', () => {
+    const heroes = ALL_HEROES.map((h) => h.id);
+    let rng = seedRng('eroi-playout');
+    let state = createGame({
+      seed: 'eroi-playout',
+      players: makePlayers(4),
+      heroes: true,
+      heroAssignments: [heroes[5]!, heroes[9]!, heroes[0]!, heroes[11]!], // Njord, Ulfar, Bjornar, Odino
+    });
+    let steps = 0;
+    while (state.phase.type !== 'gameOver' && steps < 4000) {
+      const all: LegalMove[] = [];
+      for (const p of state.players) all.push(...getLegalActions(state, p.id));
+      const concrete: Action[] = [];
+      for (const m of all) {
+        if (m.type === 'scartaDescr') {
+          concrete.push({ type: 'scarta', player: m.player, resources: greedyDiscard(state, m.player, m.amount) });
+        } else if (m.type === 'guadagnaDescr') {
+          concrete.push({ type: 'guadagnaCalamita', player: m.player, resources: greedyGain(state, m.amount) });
+        } else if (m.type === 'proponiScambioDescr') {
+          continue;
+        } else {
+          concrete.push(m);
+        }
+      }
+      // Preferisci le costruzioni per garantire la terminazione.
+      const builds = concrete.filter(
+        (a) =>
+          a.type === 'costruisciSentiero' ||
+          a.type === 'costruisciVillaggio' ||
+          a.type === 'costruisciRoccaforte' ||
+          a.type === 'compraCartaSaga'
+      );
+      let pool = concrete;
+      if (builds.length > 0) {
+        const [coin, r] = nextInt(rng, 2);
+        rng = r;
+        if (coin === 1) pool = builds;
+      }
+      const [idx, r2] = nextInt(rng, pool.length);
+      rng = r2;
+      state = apply(state, pool[idx]!);
+      expectResourceInvariants(state);
+      steps++;
+    }
+    expect(state.phase.type).toBe('gameOver');
   });
 });
 
