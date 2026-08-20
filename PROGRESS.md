@@ -272,7 +272,8 @@ vichinghi e mostra l'avviso «Campo piccolo/grande». Test: `largeBoard.test.ts`
      letture sincrone dalla memoria (interfaccia `Storage` invariata → auth e
      lobby non toccati), scritture propagate al DB in background e in ordine,
      con log degli errori (un singhiozzo del DB non blocca il gioco). Tabelle
-     create da sole al primo avvio; partite finite append-only (JSONB).
+     create da sole al primo avvio; lo storico delle partite non viene salvato
+     (la vecchia tabella `finished_games` viene eliminata all'avvio).
      `DATABASE_SSL=true` per host TLS. Verificato end-to-end su un PostgreSQL
      reale (dati sopravvivono a riconnessione/deploy) + test con DB finto
      (`storagePg.test.ts`)
@@ -283,8 +284,8 @@ vichinghi e mostra l'avviso «Campo piccolo/grande». Test: `largeBoard.test.ts`
      con scambio automatico per evitare duplicati (5 colori, viola incluso)
 - ✅ `GameRoom` autoritativa: i client mandano `Action` come intenzioni, il
      server valida con lo stesso engine e rimanda a ciascun posto la SUA
-     vista filtrata + eventi filtrati; bot sul server; partite finite
-     salvate come seed+action_log (replay deterministico)
+     vista filtrata + eventi filtrati; bot sul server (lo storico delle
+     partite non viene salvato)
 - ✅ Timer di turno opzionale (60/120s): allo scadere il server gioca la
      mossa di default (`defaultAction.ts`) — la partita non si blocca mai
 - ✅ Client: interfaccia `GameController` comune; `RemoteGameController`

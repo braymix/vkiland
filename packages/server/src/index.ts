@@ -67,7 +67,6 @@ const lobbies = new LobbyManager({
   sendUpdate: (userId, update) => io.to(`user:${userId}`).emit('game:update', update),
   sendRejected: (userId, message, generation) =>
     io.to(`user:${userId}`).emit('game:rejected', { message, generation }),
-  gameFinished: (record) => storage.appendFinishedGame(record),
   // All'avvio della partita ogni posto umano riceve le skin del suo account.
   getCosmetics: (userId) => storage.getUserById(userId)?.cosmetics,
   // Gli spettatori ricevono la vista filtrata sullo stesso canale del gioco.
