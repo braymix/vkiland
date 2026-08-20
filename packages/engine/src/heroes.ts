@@ -26,11 +26,7 @@ export type HeroId =
   | 'mercante'
   | 'apripista'
   | 'maestro'
-  | 'comandante'
-  // Rara.
-  | 'erede'
-  // Leggendaria.
-  | 'allfather';
+  | 'comandante';
 
 export interface HeroDef {
   id: HeroId;
@@ -147,30 +143,13 @@ export const HERO_REGISTRY: Readonly<Record<HeroId, HeroDef>> = {
     emblem: '🐺',
     description: 'Quando giochi un Berserker sposti il Drago due volte (due spostamenti e due furti).',
   },
-
-  // --- Rara ---
-  erede: {
-    id: 'erede',
-    name: 'Astrid',
-    ability: 'Erede dei Re',
-    rarity: 'rara',
-    emblem: '👑',
-    description: 'All’inizio della partita guadagni 2 di ogni materiale.',
-  },
-
-  // --- Leggendaria ---
-  allfather: {
-    id: 'allfather',
-    name: 'Odino',
-    ability: 'Padre di Tutti',
-    rarity: 'leggendaria',
-    emblem: '🦅',
-    description: 'All’inizio di ogni tuo turno guadagni 1 di ogni materiale.',
-  },
 };
 
-/** Tutti gli eroi in ordine di rarità (per la schermata di scelta). */
-export const RARITY_ORDER: readonly HeroRarity[] = ['comune', 'nonComune', 'rara', 'leggendaria'];
+/**
+ * Rarità con eroi disponibili, in ordine (per la schermata di scelta). Per ora
+ * ci si ferma a «non comune»: niente eroi troppo forti.
+ */
+export const RARITY_ORDER: readonly HeroRarity[] = ['comune', 'nonComune'];
 
 export const ALL_HEROES: readonly HeroDef[] = Object.values(HERO_REGISTRY);
 

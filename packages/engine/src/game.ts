@@ -7,7 +7,6 @@ import {
   DEFAULT_TARGET_GLORY,
   MAX_PLAYERS,
   MIN_PLAYERS,
-  RESOURCES,
   resolveBoardSpecCustom,
   SAGA_DECK_COMPOSITION,
 } from './constants';
@@ -207,9 +206,6 @@ export function createGame(options: NewGameOptions): GameState {
         if (def.useKey && def.usesPerGame) {
           state.heroUses = { [def.useKey]: def.usesPerGame };
         }
-        if (hero === 'erede') {
-          for (const r of RESOURCES) state.resources[r] += 2;
-        }
       }
     }
     return state;
@@ -254,13 +250,13 @@ export function createGame(options: NewGameOptions): GameState {
     rngState: rng,
     board,
     players: playerStates,
-    // La banca parte piena; gli eroi «Erede» (Astrid) hanno già preso 2 di ogni
-    // materiale, quindi si scala dalla banca per conservare il totale in gioco.
-    bank: (() => {
-      const eredi = playerStates.filter((p) => p.hero === 'erede').length;
-      const start = spec.bankPerResource - eredi * 2;
-      return { legname: start, pietra: start, lana: start, orzo: start, ferro: start };
-    })(),
+    bank: {
+      legname: spec.bankPerResource,
+      pietra: spec.bankPerResource,
+      lana: spec.bankPerResource,
+      orzo: spec.bankPerResource,
+      ferro: spec.bankPerResource,
+    },
     sagaDeck,
     currentPlayer: setupOrder[0]!,
     turnNumber: 0,

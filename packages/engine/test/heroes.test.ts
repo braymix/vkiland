@@ -65,7 +65,7 @@ function toMainInPlace(s: GameState): void {
 
 describe('registro eroi', () => {
   it('ogni eroe ha nome, abilità e rarità coerenti; i «Dono» hanno una risorsa', () => {
-    expect(ALL_HEROES.length).toBe(12);
+    expect(ALL_HEROES.length).toBe(10);
     for (const h of ALL_HEROES) {
       expect(HERO_REGISTRY[h.id]).toBe(h);
       expect(h.name.length).toBeGreaterThan(0);
@@ -96,31 +96,6 @@ describe('eroe comune — Dono (+2 a inizio turno)', () => {
     for (const r of ['legname', 'pietra', 'lana', 'orzo', 'ferro'] as const) {
       expect(res.state.players[1]!.resources[r]).toBe(0);
     }
-  });
-});
-
-describe('eroe leggendario — Odino (+1 di ogni materiale a inizio turno)', () => {
-  it('il portatore guadagna 1 di ogni materiale', () => {
-    let s = heroGame(['allfather', null]);
-    s = autoSetup(s);
-    s = clearHands(s);
-    const res = beginTurnOf(s, 0);
-    for (const r of ['legname', 'pietra', 'lana', 'orzo', 'ferro'] as const) {
-      expect(res.state.players[0]!.resources[r]).toBe(1);
-    }
-    expectResourceInvariants(res.state);
-  });
-});
-
-describe('eroe raro — Astrid (Erede: 2 di ogni materiale a inizio partita)', () => {
-  it('parte con 2 di ogni materiale, scalati dalla banca', () => {
-    const s = heroGame(['erede', null]);
-    for (const r of ['legname', 'pietra', 'lana', 'orzo', 'ferro'] as const) {
-      expect(s.players[0]!.resources[r]).toBe(2);
-      expect(s.players[1]!.resources[r]).toBe(0);
-      expect(s.bank[r]).toBe(17); // 19 - 2
-    }
-    expectResourceInvariants(s);
   });
 });
 
@@ -245,7 +220,7 @@ describe('partita completa in modalità Eroi', () => {
       seed: 'eroi-playout',
       players: makePlayers(4),
       heroes: true,
-      heroAssignments: [heroes[5]!, heroes[9]!, heroes[0]!, heroes[11]!], // Njord, Ulfar, Bjornar, Odino
+      heroAssignments: [heroes[5]!, heroes[9]!, heroes[0]!, heroes[7]!], // Njord, Ulfar, Bjornar, Vegard
     });
     let steps = 0;
     while (state.phase.type !== 'gameOver' && steps < 4000) {
