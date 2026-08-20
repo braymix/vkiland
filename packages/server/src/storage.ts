@@ -8,7 +8,7 @@
  */
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import type { PlayerCosmetics } from '@vikiland/engine';
+import type { PlayerCosmetics, PlayerProgression } from '@vikiland/engine';
 
 export interface UserRecord {
   id: string;
@@ -19,6 +19,8 @@ export interface UserRecord {
   createdAt: number;
   /** Inventario: skin scelte dall'account (Drago, roccaforti). */
   cosmetics?: PlayerCosmetics;
+  /** Progressione: casse, frammenti, eroi sbloccati e flag «tester». */
+  progression?: PlayerProgression;
 }
 
 export interface SessionRecord {
@@ -79,6 +81,16 @@ export class JsonFileStorage implements Storage {
         };
       }
       return raw;
+    });
+    // Casse: ogni account creato PRIMA di questa funzionalità (quindi senza
+    // progressione salvata) diventa «tester» — ha ogni eroe già disponibile,
+    // come ringraziamento. I nuovi account nascono già con una progressione.
+    this.db.users = this.db.users.map((u) => {
+      if (u.progression === undefined) {
+        touched = true;
+        return { ...u, progression: { tester: true } };
+      }
+      return u;
     });
     if (touched) this.flush();
   }

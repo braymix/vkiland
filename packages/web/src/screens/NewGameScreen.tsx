@@ -28,6 +28,7 @@ import {
   type HeroId,
   type PlayerColor,
   type PlayerCosmetics,
+  type PlayerProgression,
 } from '@vikiland/engine';
 import type {
   LobbyConfig,
@@ -75,6 +76,10 @@ interface LocalSeat {
 interface Props {
   /** Sessione online: se assente, l'online chiede di accedere. */
   session: OnlineSession | null;
+  /** Progressione: quali eroi sono sbloccati (scelta eroe bloccata/consentita). */
+  progression: PlayerProgression;
+  /** Fine partita al 100%: assegna la cassa (inoltrata alla GameScreen online). */
+  onGameComplete: () => void;
   initialMode: Mode;
   onBack: () => void;
   /** Avvio locale: l'App monta la GameScreen locale. */
@@ -120,6 +125,8 @@ const NOTE_STYLE: CSSProperties = { fontSize: 8, color: 'var(--ink-dim)', lineHe
 
 export function NewGameScreen({
   session,
+  progression,
+  onGameComplete,
   initialMode,
   onBack,
   onStartLocal,
@@ -709,6 +716,7 @@ export function NewGameScreen({
         <GameScreen
           key={gameKey}
           makeController={() => controller}
+          onGameComplete={onGameComplete}
           onExit={leaveLobby}
           onRematch={null}
           manage={manage}
@@ -1327,6 +1335,7 @@ export function NewGameScreen({
             if (isOnline) socketRef.current?.emit('lobby:setHero', heroPickerSeat, hero);
             else setSeatHero(heroPickerSeat, hero);
           }}
+          progression={progression}
           onClose={() => setHeroPickerSeat(null)}
         />
       )}

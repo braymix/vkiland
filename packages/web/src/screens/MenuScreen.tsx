@@ -1,6 +1,7 @@
 /** Schermata iniziale (dopo l'entrata): l'hub da cui si raggiunge tutto. */
 import { useState } from 'react';
 import { it } from '../i18n';
+import { inv } from '../i18n/inventory';
 import { Dialog } from '../components/dialogs/Dialog';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
@@ -10,6 +11,7 @@ const AUTHOR_EMAIL = 'michelepanarotto00@gmail.com';
 
 export function MenuScreen({
   hasAccount,
+  isTester,
   onNewGame,
   onLibro,
   onInventory,
@@ -17,6 +19,8 @@ export function MenuScreen({
   onDemo,
 }: {
   hasAccount: boolean;
+  /** Account «tester»: nei riconoscimenti riceve un ringraziamento speciale. */
+  isTester: boolean;
   onNewGame: () => void;
   onLibro: () => void;
   onInventory: () => void;
@@ -24,6 +28,12 @@ export function MenuScreen({
   onDemo: () => void;
 }) {
   const [creditsOpen, setCreditsOpen] = useState(false);
+  // Popup di ringraziamento: appare aprendo i riconoscimenti se sei un tester.
+  const [testerOpen, setTesterOpen] = useState(false);
+  const openCredits = () => {
+    setCreditsOpen(true);
+    if (isTester) setTesterOpen(true);
+  };
   return (
     <div className="screen" style={{ justifyContent: 'center' }}>
       {/* Pulsante «a parte», in alto a destra: lancia il tour interattivo passo-passo. */}
@@ -64,9 +74,27 @@ export function MenuScreen({
       <LanguageSwitcher />
 
       {/* Riconoscimenti: piccolo link in fondo che apre un popup con l'autore. */}
-      <button className="credits-link" onClick={() => setCreditsOpen(true)}>
+      <button className="credits-link" onClick={openCredits}>
         ⚑ {it.crediti}
       </button>
+
+      {/* Ringraziamento ai tester: appare SOPRA i riconoscimenti. */}
+      {testerOpen && (
+        <Dialog title={inv.testerTitolo}>
+          <div className="credits-box">
+            <div className="credits-logo" aria-hidden="true">
+              🛡️
+            </div>
+            <p className="credits-invite">{inv.testerMessaggio}</p>
+            <div className="credits-thanks">{inv.testerExtra}</div>
+          </div>
+          <div className="dialog-buttons">
+            <button className="pxbtn" onClick={() => setTesterOpen(false)}>
+              {inv.chiudi}
+            </button>
+          </div>
+        </Dialog>
+      )}
 
       {creditsOpen && (
         <Dialog title={it.crediti}>

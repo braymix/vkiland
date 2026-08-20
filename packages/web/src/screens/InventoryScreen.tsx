@@ -10,10 +10,36 @@
  * restano del colore del clan, servono a riconoscerlo).
  */
 import { useEffect, useRef, useState } from 'react';
-import type { PlayerCosmetics } from '@vikiland/engine';
+import {
+  ALL_HEROES,
+  RARITY_ORDER,
+  FRAGMENTS_PER_HERO,
+  CHEST_DISCOUNT_ACTIVE,
+  MAX_CHESTS,
+  chestReady,
+  chestRemainingMs,
+  fragmentsOf,
+  heroDef,
+  isHeroUnlocked,
+  type PlayerCosmetics,
+  type PlayerProgression,
+  type ChestSlot,
+  type ChestOpenResult,
+  type HeroRarity,
+} from '@vikiland/engine';
 import { it } from '../i18n';
+import { inv } from '../i18n/inventory';
 import { getLocalCosmetics, setLocalCosmetics } from '../game/localCosmetics';
-import { apiGetCosmetics, apiSetCosmetics, loadSession, type OnlineSession } from '../online/connection';
+import { getLocalProgression, openChestAndSave } from '../game/progression';
+import {
+  apiGetCosmetics,
+  apiGetProgression,
+  apiSetCosmetics,
+  loadSession,
+  type OnlineSession,
+} from '../online/connection';
+import { HeroArt } from '../components/HeroArt';
+import { Dialog } from '../components/dialogs/Dialog';
 import { spriteDataURL } from '../render/sprites/bake';
 import {
   DRAGON_SKINS,
@@ -28,6 +54,127 @@ import type { ColorOverrides } from '../render/sprites/bake';
 
 /** Le roccaforti in anteprima si tingono di un colore di esempio (rosso classico). */
 const PREVIEW_COLOR = '#c0392b';
+
+/** Colore per rarità (come nella scelta eroe). */
+const RARITY_COLOR: Record<HeroRarity, string> = {
+  comune: '#9aa0a6',
+  nonComune: '#3fa34d',
+  rara: '#3f7fd6',
+  leggendaria: '#d4af37',
+};
+
+/** Millisecondi → «H:MM:SS» per il conto alla rovescia del caricamento. */
+function fmtRemaining(ms: number): string {
+  const s = Math.ceil(ms / 1000);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+}
+
+/** Best-effort: notifica di sistema allo sblocco di un eroe (se già concesso il permesso). */
+function notifyUnlock(heroName: string): void {
+  try {
+    if (typeof Notification === 'undefined') return;
+    const show = () => new Notification(inv.notSbloccoTitolo, { body: inv.notSblocco(heroName) });
+    if (Notification.permission === 'granted') show();
+    else if (Notification.permission !== 'denied')
+      void Notification.requestPermission().then((p) => {
+        if (p === 'granted') show();
+      });
+  } catch {
+    /* Notifiche non disponibili: resta comunque il popup in-app. */
+  }
+}
+
+/** Una cassa in lavorazione: in caricamento (con timer) o pronta da aprire. */
+function ChestSlotCard({
+  chest,
+  now,
+  busy,
+  onOpen,
+}: {
+  chest: ChestSlot;
+  now: number;
+  busy: boolean;
+  onOpen: () => void;
+}) {
+  const ready = chestReady(chest, now);
+  const remaining = chestRemainingMs(chest, now);
+  return (
+    <div className={`chest-card ${ready ? 'chest-card--ready' : ''}`}>
+      <div className="chest-emoji" aria-hidden="true">
+        {ready ? '🎁' : '📦'}
+      </div>
+      {ready ? (
+        <button className="pxbtn pxbtn--small" disabled={busy} onClick={onOpen}>
+          {inv.cassaApri}
+        </button>
+      ) : (
+        <>
+          <div className="chest-state">{inv.cassaCarica}</div>
+          <div className="chest-timer">{inv.restano(fmtRemaining(remaining))}</div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/** Collezione eroi: per rarità, sbloccati/bloccati col progresso dei frammenti. */
+function HeroCollection({ prog }: { prog: PlayerProgression }) {
+  const rarityLabel = (r: HeroRarity): string =>
+    r === 'comune'
+      ? it.eroi.rarita.comune
+      : r === 'nonComune'
+        ? it.eroi.rarita.nonComune
+        : r === 'rara'
+          ? it.eroi.rarita.rara
+          : it.eroi.rarita.leggendaria;
+  return (
+    <>
+      {RARITY_ORDER.map((rarity) => {
+        const heroes = ALL_HEROES.filter((h) => h.rarity === rarity);
+        if (heroes.length === 0) return null;
+        return (
+          <div key={rarity} className="hero-collection">
+            <div className="hero-collection-rarity" style={{ color: RARITY_COLOR[rarity] }}>
+              {rarityLabel(rarity)}
+            </div>
+            <div className="hero-collection-grid">
+              {heroes.map((h) => {
+                const unlocked = isHeroUnlocked(prog, h.id);
+                const frags = fragmentsOf(prog, h.id);
+                return (
+                  <div key={h.id} className={`hero-cell ${unlocked ? '' : 'hero-cell--locked'}`}>
+                    <div style={{ position: 'relative' }}>
+                      <HeroArt hero={h.id} size={40} emblem={h.emblem} />
+                      {!unlocked && (
+                        <span className="hero-cell-lock" aria-hidden="true">
+                          🔒
+                        </span>
+                      )}
+                    </div>
+                    <div className="hero-cell-name">{h.name}</div>
+                    <div className="hero-cell-state">
+                      {unlocked
+                        ? `✓ ${inv.sbloccato}`
+                        : inv.frammenti(frags, FRAGMENTS_PER_HERO)}
+                    </div>
+                    {!unlocked && (
+                      <div className="hero-cell-bar">
+                        <span style={{ width: `${(frags / FRAGMENTS_PER_HERO) * 100}%` }} />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </>
+  );
+}
 
 function SkinCard({
   opt,
@@ -105,6 +252,52 @@ export function InventoryScreen({ onBack }: { onBack: () => void }) {
   // salvataggio ritardato (debounce) usa sempre il valore aggiornato.
   const sessionRef = useRef<OnlineSession | null>(null);
   sessionRef.current = session;
+
+  // --- Progressione (casse, frammenti, eroi) — indipendente dai cosmetici ---
+  const [prog, setProg] = useState<PlayerProgression | null>(null);
+  const [progSession, setProgSession] = useState<OnlineSession | null>(null);
+  const progSessionRef = useRef<OnlineSession | null>(null);
+  progSessionRef.current = progSession;
+  const [now, setNow] = useState(() => Date.now());
+  const [openResult, setOpenResult] = useState<ChestOpenResult | null>(null);
+  const [opening, setOpening] = useState(false);
+
+  // Carica la progressione: dall'account se raggiungibile, altrimenti locale.
+  useEffect(() => {
+    const existing = loadSession();
+    if (!existing) {
+      setProg(getLocalProgression());
+      return;
+    }
+    void apiGetProgression(existing)
+      .then((fromServer) => {
+        setProgSession(existing);
+        setProg(fromServer);
+      })
+      .catch(() => setProg(getLocalProgression()));
+  }, []);
+
+  // Orologio per il conto alla rovescia delle casse (aggiorna ogni secondo).
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  /** Apre una cassa pronta, persiste e mostra il popup con l'esito. */
+  const handleOpenChest = async (chestId: string) => {
+    if (!prog || opening) return;
+    setOpening(true);
+    try {
+      const result = await openChestAndSave(progSessionRef.current, prog, chestId);
+      if (result) {
+        setProg(result.progression);
+        setOpenResult(result);
+        if (result.unlockedNow) notifyUnlock(heroDef(result.heroId)?.name ?? '');
+      }
+    } finally {
+      setOpening(false);
+    }
+  };
 
   useEffect(() => {
     const existing = loadSession();
@@ -199,6 +392,44 @@ export function InventoryScreen({ onBack }: { onBack: () => void }) {
       {cosmetics && (
         <div className="inv-mode">{session ? it.invModoAccount : it.invModoLocale}</div>
       )}
+
+      {/* Casse ed eroi: si guadagna una cassa a fine partita; i frammenti
+          sbloccano gli eroi non comuni. */}
+      {prog && (
+        <div className="setup-grid pixel-frame" style={{ maxWidth: 460 }}>
+          <div className="inv-section">📦 {inv.casseTitolo}</div>
+          <div className="inv-info">{inv.casseInfo}</div>
+          <div className="inv-info">{inv.casseComeSi}</div>
+          {CHEST_DISCOUNT_ACTIVE && <div className="inv-discount">{inv.scontoAttivo}</div>}
+          <div className="chest-grid">
+            {(prog.chests ?? []).map((c) => (
+              <ChestSlotCard
+                key={c.id}
+                chest={c}
+                now={now}
+                busy={opening}
+                onOpen={() => void handleOpenChest(c.id)}
+              />
+            ))}
+            {Array.from({ length: Math.max(0, MAX_CHESTS - (prog.chests?.length ?? 0)) }).map(
+              (_, i) => (
+                <div key={`empty-${i}`} className="chest-card chest-card--empty" aria-hidden="true">
+                  📭
+                </div>
+              )
+            )}
+          </div>
+          {(prog.chests?.length ?? 0) === 0 && <div className="inv-info">{inv.casseVuote}</div>}
+          {(prog.chests?.length ?? 0) >= MAX_CHESTS && (
+            <div className="inv-warn">{inv.casseMax}</div>
+          )}
+
+          <div className="inv-section">🦸 {inv.eroiTitolo}</div>
+          <div className="inv-info">{inv.eroiInfo}</div>
+          <HeroCollection prog={prog} />
+        </div>
+      )}
+
       <div className="setup-grid pixel-frame" style={{ maxWidth: 460 }}>
         {error && <div style={{ fontSize: 9, color: 'var(--danger)' }}>{error}</div>}
         {!cosmetics && !error && (
@@ -268,6 +499,40 @@ export function InventoryScreen({ onBack }: { onBack: () => void }) {
       <button className="pxbtn pxbtn--ghost" onClick={onBack}>
         {it.indietro}
       </button>
+
+      {/* Esito dell'apertura di una cassa: sblocco, frammento o frammento sprecato. */}
+      {openResult && (
+        <Dialog
+          title={
+            openResult.wasted
+              ? inv.notSprecatoTitolo
+              : openResult.unlockedNow
+                ? inv.notSbloccoTitolo
+                : inv.notFrammentoTitolo
+          }
+        >
+          <div className="chest-open">
+            <HeroArt
+              hero={openResult.heroId}
+              size={64}
+              emblem={heroDef(openResult.heroId)?.emblem}
+            />
+            <div className="chest-open-name">{heroDef(openResult.heroId)?.name}</div>
+            <div className="chest-open-body">
+              {openResult.wasted
+                ? inv.notSprecato
+                : openResult.unlockedNow
+                  ? inv.notSblocco(heroDef(openResult.heroId)?.name ?? '')
+                  : inv.notProgresso(openResult.fragments, FRAGMENTS_PER_HERO)}
+            </div>
+          </div>
+          <div className="dialog-buttons">
+            <button className="pxbtn" onClick={() => setOpenResult(null)}>
+              {inv.chiudi}
+            </button>
+          </div>
+        </Dialog>
+      )}
     </div>
   );
 }

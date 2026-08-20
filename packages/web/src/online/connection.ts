@@ -3,7 +3,7 @@
  * La sessione (token) è ricordata in localStorage per riconnettersi al volo.
  */
 import { io, type Socket } from 'socket.io-client';
-import type { PlayerCosmetics } from '@vikiland/engine';
+import type { PlayerCosmetics, PlayerProgression } from '@vikiland/engine';
 import type {
   AuthResponse,
   ClientToServerEvents,
@@ -133,6 +133,22 @@ export async function apiSetCosmetics(
     cosmetics?: PlayerCosmetics;
   };
   return data.cosmetics ?? {};
+}
+
+/** Progressione: casse, frammenti ed eroi sbloccati legati all'account. */
+export async function apiGetProgression(session: OnlineSession): Promise<PlayerProgression> {
+  const data = (await authedGet(session, '/api/progression')) as { progression?: PlayerProgression };
+  return data.progression ?? {};
+}
+
+export async function apiSetProgression(
+  session: OnlineSession,
+  progression: PlayerProgression
+): Promise<PlayerProgression> {
+  const data = (await post(session.serverUrl, '/api/progression', progression, session.token)) as {
+    progression?: PlayerProgression;
+  };
+  return data.progression ?? {};
 }
 
 export async function apiChangeName(

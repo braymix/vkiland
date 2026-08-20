@@ -45,9 +45,20 @@ interface Props {
    * pannello nascosti (nessuna gestione in-partita, es. demo).
    */
   manage?: ManageInfo | null;
+  /**
+   * Chiamata UNA volta quando la partita finisce al 100% (si raggiunge un
+   * vincitore) e chi guarda NON è uno spettatore: serve ad assegnare la cassa.
+   */
+  onGameComplete?: () => void;
 }
 
-export function GameScreen({ makeController, onExit, onRematch, manage = null }: Props) {
+export function GameScreen({
+  makeController,
+  onExit,
+  onRematch,
+  manage = null,
+  onGameComplete,
+}: Props) {
   const controllerRef = useRef<GameController | null>(null);
   if (controllerRef.current === null) {
     controllerRef.current = makeController();
@@ -76,6 +87,17 @@ export function GameScreen({ makeController, onExit, onRematch, manage = null }:
   const isMyTurn = view.currentPlayer === viewpoint;
   const isSpectator = snap.spectator ?? false;
   const handRequest = snap.handRequest ?? null;
+
+  // Cassa di fine partita: quando si raggiunge un vincitore (partita al 100%) e
+  // non stiamo solo guardando da spettatori, avvisa UNA volta il chiamante.
+  const gameCompleteFired = useRef(false);
+  useEffect(() => {
+    if (gameCompleteFired.current || isSpectator) return;
+    if (snap.finalState !== null) {
+      gameCompleteFired.current = true;
+      onGameComplete?.();
+    }
+  }, [snap.finalState, isSpectator, onGameComplete]);
 
   // Spettatore: posti a cui ho chiesto la mano, in attesa di risposta. Quando la
   // mano compare (permesso concesso) il posto esce dallo stato "in attesa".
