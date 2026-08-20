@@ -6,9 +6,9 @@
  *   - `PostgresStorage` (in `storagePg.ts`) — DB DUREVOLE via `DATABASE_URL`,
  *     con cache in memoria + write-through così le letture restano sincrone.
  */
-import { mkdirSync, readFileSync, writeFileSync, appendFileSync, existsSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import type { Action, PlayerCosmetics } from '@vikiland/engine';
+import type { PlayerCosmetics } from '@vikiland/engine';
 
 export interface UserRecord {
   id: string;
@@ -27,17 +27,6 @@ export interface SessionRecord {
   createdAt: number;
 }
 
-/** Partita conclusa: seed + log azioni = replay deterministico completo. */
-export interface FinishedGameRecord {
-  code: string;
-  seed: string;
-  startedAt: number;
-  endedAt: number;
-  players: { userId: string | null; name: string; isBot: boolean }[];
-  winnerSeat: number;
-  actionLog: Action[];
-}
-
 export interface Storage {
   getUserByUsername(username: string): UserRecord | null;
   getUserById(id: string): UserRecord | null;
@@ -49,7 +38,6 @@ export interface Storage {
   deleteSession(token: string): void;
   /** Revoca TUTTE le sessioni di un utente (es. dopo cambio password). */
   deleteSessionsByUser(userId: string): void;
-  appendFinishedGame(game: FinishedGameRecord): void;
 }
 
 interface JsonDb {
@@ -59,13 +47,11 @@ interface JsonDb {
 
 export class JsonFileStorage implements Storage {
   private readonly dbPath: string;
-  private readonly gamesPath: string;
   private db: JsonDb;
 
   constructor(dataDir: string) {
     mkdirSync(dataDir, { recursive: true });
     this.dbPath = join(dataDir, 'db.json');
-    this.gamesPath = join(dataDir, 'games.jsonl');
     this.db = existsSync(this.dbPath)
       ? (JSON.parse(readFileSync(this.dbPath, 'utf8')) as JsonDb)
       : { users: [], sessions: [] };
@@ -138,17 +124,12 @@ export class JsonFileStorage implements Storage {
     this.db.sessions = this.db.sessions.filter((s) => s.userId !== userId);
     this.flush();
   }
-
-  appendFinishedGame(game: FinishedGameRecord): void {
-    appendFileSync(this.gamesPath, JSON.stringify(game) + '\n');
-  }
 }
 
 /** Storage volatile per i test. */
 export class MemoryStorage implements Storage {
   private users: UserRecord[] = [];
   private sessions: SessionRecord[] = [];
-  readonly finishedGames: FinishedGameRecord[] = [];
 
   getUserByUsername(username: string): UserRecord | null {
     const norm = username.trim().toLowerCase();
@@ -174,8 +155,5 @@ export class MemoryStorage implements Storage {
   }
   deleteSessionsByUser(userId: string): void {
     this.sessions = this.sessions.filter((s) => s.userId !== userId);
-  }
-  appendFinishedGame(game: FinishedGameRecord): void {
-    this.finishedGames.push(game);
   }
 }

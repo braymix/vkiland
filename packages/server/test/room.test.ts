@@ -2,10 +2,22 @@
 import { describe, expect, it } from 'vitest';
 import type { Action, PlayerColor } from '@vikiland/engine';
 import type { GameUpdate, LobbyConfig } from '../src/protocol';
-import type { FinishedGameRecord } from '../src/storage';
 import { GameRoom, type Seat } from '../src/room';
 
 const CFG: LobbyConfig = { avoidAdjacent68: true, targetGloryPoints: 10, turnTimerSec: 0, isPublic: false, calamities: false, battle: false, capitale: false };
+
+/** Attende che `pred` diventi vero (polling), o fallisce dopo `timeoutMs`. */
+function waitFor(pred: () => boolean, timeoutMs: number): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+    const tick = (): void => {
+      if (pred()) return resolve();
+      if (Date.now() - start > timeoutMs) return reject(new Error('timeout in attesa della condizione'));
+      setTimeout(tick, 5);
+    };
+    tick();
+  });
+}
 
 const bot = (name: string, color: PlayerColor = 'blu'): Seat => ({
   userId: null,
@@ -23,55 +35,54 @@ const human = (id: string, name: string, color: PlayerColor = 'rosso'): Seat => 
 });
 
 describe('GameRoom', () => {
-  it('una stanza di soli bot gioca da sola fino alla vittoria (log replay incluso)', async () => {
-    const record = await new Promise<FinishedGameRecord>((resolve) => {
-      new GameRoom(
-        'TEST01',
-        'seed-room-bots',
-        [bot('A', 'rosso'), bot('B', 'blu'), bot('C', 'verde')],
-        CFG,
-        { sendUpdate: () => {}, sendRejected: () => {}, onFinished: resolve },
-        { botDelayMs: [0, 0] }
-      );
-    });
-    expect(record.winnerSeat).toBeGreaterThanOrEqual(0);
-    expect(record.winnerSeat).toBeLessThan(3);
-    expect(record.actionLog.length).toBeGreaterThan(30);
-    expect(record.seed).toBe('seed-room-bots');
+  it('una stanza di soli bot gioca da sola fino alla vittoria', async () => {
+    const room = new GameRoom(
+      'TEST01',
+      'seed-room-bots',
+      [bot('A', 'rosso'), bot('B', 'blu'), bot('C', 'verde')],
+      CFG,
+      { sendUpdate: () => {}, sendRejected: () => {} },
+      { botDelayMs: [0, 0] }
+    );
+    await waitFor(() => room.isFinished, 30000);
+    expect(room.winnerSeat).toBeGreaterThanOrEqual(0);
+    expect(room.winnerSeat).toBeLessThan(3);
+    room.dispose();
   }, 30000);
 
   it('umano pilotato dalle viste: gioca solo mosse legali ricevute e la partita termina', async () => {
-    const record = await new Promise<FinishedGameRecord>((resolve, reject) => {
-      const room: GameRoom = new GameRoom(
-        'TEST02',
-        'seed-room-human',
-        [human('u1', 'Bjorn'), bot('B'), bot('C', 'verde')],
-        CFG,
-        {
-          sendUpdate: (seat, update: GameUpdate) => {
-            // Il "client" risponde in microtask con la prima mossa concreta.
-            if (update.finalState) return;
-            const move = update.legalActions.find(
-              (m): m is Action => m.type !== 'scartaDescr' && m.type !== 'proponiScambioDescr'
-            );
-            if (!move) return;
-            queueMicrotask(() => {
-              try {
-                room.handleAction(seat, move);
-              } catch (e) {
-                reject(e);
-              }
-            });
-          },
-          sendRejected: () => {},
-          onFinished: resolve,
+    let error: unknown = null;
+    const room: GameRoom = new GameRoom(
+      'TEST02',
+      'seed-room-human',
+      [human('u1', 'Bjorn'), bot('B'), bot('C', 'verde')],
+      CFG,
+      {
+        sendUpdate: (seat, update: GameUpdate) => {
+          // Il "client" risponde in microtask con la prima mossa concreta.
+          if (update.finalState) return;
+          const move = update.legalActions.find(
+            (m): m is Action => m.type !== 'scartaDescr' && m.type !== 'proponiScambioDescr'
+          );
+          if (!move) return;
+          queueMicrotask(() => {
+            try {
+              room.handleAction(seat, move);
+            } catch (e) {
+              error = e;
+            }
+          });
         },
-        { botDelayMs: [0, 0] }
-      );
-      // Come fa la lobby all'avvio: invio delle viste iniziali.
-      room.refreshAll();
-    });
-    expect(record.winnerSeat).toBeGreaterThanOrEqual(0);
+        sendRejected: () => {},
+      },
+      { botDelayMs: [0, 0] }
+    );
+    // Come fa la lobby all'avvio: invio delle viste iniziali.
+    room.refreshAll();
+    await waitFor(() => room.isFinished || error !== null, 30000);
+    if (error) throw error;
+    expect(room.winnerSeat).toBeGreaterThanOrEqual(0);
+    room.dispose();
   }, 30000);
 
   it("rifiuta un'azione con player diverso dal posto (anti-impersonificazione)", () => {
@@ -84,7 +95,6 @@ describe('GameRoom', () => {
       {
         sendUpdate: () => {},
         sendRejected: (_seat, message) => rejected.push(message),
-        onFinished: () => {},
       },
       { botDelayMs: [0, 0] }
     );
@@ -103,7 +113,6 @@ describe('GameRoom', () => {
       {
         sendUpdate: (_seat, u) => updates.push(u),
         sendRejected: () => {},
-        onFinished: () => {},
       },
       { botDelayMs: [0, 0] }
     );
@@ -126,7 +135,6 @@ describe('GameRoom', () => {
       {
         sendUpdate: (_seat, u) => updates.push(u),
         sendRejected: () => {},
-        onFinished: () => {},
       },
       { botDelayMs: [0, 0] }
     );

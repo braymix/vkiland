@@ -55,7 +55,9 @@ describe('PostgresStorage (write-through su memoria)', () => {
     expect(fake.count(/create schema if not exists "vikiland"/i)).toBe(1); // public assente → schema dedicato
     expect(fake.count(/create table[\s\S]*"users"/i)).toBe(1);
     expect(fake.count(/create table[\s\S]*"sessions"/i)).toBe(1);
-    expect(fake.count(/create table[\s\S]*"finished_games"/i)).toBe(1);
+    // Lo storico partite non si salva più: la tabella viene eliminata, non creata.
+    expect(fake.count(/create table[\s\S]*"finished_games"/i)).toBe(0);
+    expect(fake.count(/drop table if exists[\s\S]*"finished_games"/i)).toBe(1);
     // Le tabelle sono QUALIFICATE con lo schema (bypassa il search_path vuoto).
     expect(fake.count(/"vikiland"\."users"/i)).toBeGreaterThan(0);
 
@@ -109,27 +111,6 @@ describe('PostgresStorage (write-through su memoria)', () => {
     expect(fake.count(/insert into[\s\S]*"sessions"/i)).toBe(3);
     expect(fake.count(/delete from[\s\S]*"sessions" where token/i)).toBe(1);
     expect(fake.count(/delete from[\s\S]*"sessions" where user_id/i)).toBe(1);
-  });
-
-  it('appendFinishedGame accoda un insert in finished_games', async () => {
-    const fake = new FakePg();
-    const store = new PostgresStorage(fake);
-    await store.init();
-
-    store.appendFinishedGame({
-      code: 'ABCD',
-      seed: 's',
-      startedAt: 1,
-      endedAt: 2,
-      players: [{ userId: 'u1', name: 'A', isBot: false }],
-      winnerSeat: 0,
-      actionLog: [],
-    });
-    await store.flush();
-    expect(fake.count(/insert into[\s\S]*"finished_games"/i)).toBe(1);
-    const call = fake.last(/insert into[\s\S]*"finished_games"/i)!;
-    expect(call.params[0]).toBe('ABCD');
-    expect(call.params[4]).toBe(JSON.stringify([{ userId: 'u1', name: 'A', isBot: false }]));
   });
 
   it('usa lo schema public quando esiste (host standard) senza crearlo', async () => {

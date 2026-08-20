@@ -22,7 +22,6 @@ import {
 } from '@vikiland/engine';
 import { createBot, type Bot } from '@vikiland/bots';
 import type { GameUpdate, LobbyConfig } from './protocol';
-import type { FinishedGameRecord } from './storage';
 import { defaultActionFor } from './defaultAction';
 
 export interface Seat {
@@ -43,7 +42,6 @@ export interface RoomCallbacks {
   /** Recapita l'aggiornamento al giocatore umano seduto a `seat`. */
   sendUpdate(seat: PlayerId, update: GameUpdate): void;
   sendRejected(seat: PlayerId, message: string, generation: number): void;
-  onFinished(record: FinishedGameRecord): void;
   /**
    * Recapita l'aggiornamento (vista da spettatore) all'utente che sta guardando.
    * Facoltativo: assente nei test che non esercitano gli spettatori.
@@ -82,7 +80,6 @@ export class GameRoom {
   private readonly bots = new Map<PlayerId, Bot>();
   private readonly callbacks: RoomCallbacks;
   private readonly botDelay: [number, number];
-  private readonly actionLog: Action[] = [];
   private generation = 0;
   private turnDeadline: number | null = null;
   private botTimer: ReturnType<typeof setTimeout> | null = null;
@@ -157,6 +154,11 @@ export class GameRoom {
     return this.finished;
   }
 
+  /** Posto vincitore quando la partita è finita, altrimenti `null`. */
+  get winnerSeat(): number | null {
+    return this.state.phase.type === 'gameOver' ? this.state.phase.winner : null;
+  }
+
   /** Giro corrente della partita (per l'anteprima "a che punto è"). */
   get turnNumber(): number {
     return this.state.turnNumber;
@@ -192,7 +194,6 @@ export class GameRoom {
     } else {
       this.undoStack = [];
     }
-    this.actionLog.push(action);
     this.commit(res.state, res.events);
   }
 
@@ -287,15 +288,6 @@ export class GameRoom {
       this.finished = true;
       if (this.turnTimer !== null) clearTimeout(this.turnTimer);
       if (this.botTimer !== null) clearTimeout(this.botTimer);
-      this.callbacks.onFinished({
-        code: this.code,
-        seed: this.seed,
-        startedAt: this.startedAt,
-        endedAt: Date.now(),
-        players: this.seats.map((s) => ({ userId: s.userId, name: s.name, isBot: s.isBot })),
-        winnerSeat: this.state.phase.winner,
-        actionLog: [...this.actionLog],
-      });
       return;
     }
     this.scheduleBots();
@@ -402,12 +394,10 @@ export class GameRoom {
         if (!fallback) return;
         const forced = applyAction(this.state, fallback);
         if (forced.ok) {
-          this.actionLog.push(fallback);
           this.commit(forced.state, forced.events);
         }
         return;
       }
-      this.actionLog.push(action);
       this.commit(res.state, res.events);
     }, delay);
   }
@@ -441,7 +431,6 @@ export class GameRoom {
       if (!action) continue;
       const res = applyAction(this.state, action);
       if (res.ok) {
-        this.actionLog.push(action);
         this.commit(res.state, res.events);
         return;
       }

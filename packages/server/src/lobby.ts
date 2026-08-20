@@ -25,7 +25,6 @@ import type {
   WatchableGameSummary,
   WatchResult,
 } from './protocol';
-import type { FinishedGameRecord } from './storage';
 import { GameRoom, type RoomOptions, type Seat } from './room';
 
 /** Senza caratteri ambigui (0/O, 1/I/L). */
@@ -109,7 +108,6 @@ export interface LobbyManagerCallbacks {
   userRemoved(userId: string, code: string, reason: string): void;
   sendUpdate(userId: string, update: GameUpdate): void;
   sendRejected(userId: string, message: string, generation: number): void;
-  gameFinished(record: FinishedGameRecord): void;
   /** Skin dell'account (lette FRESCHE all'avvio della partita); opzionale. */
   getCosmetics?(userId: string): PlayerCosmetics | undefined;
   /** Recapita a uno spettatore la sua vista aggiornata (opzionale). */
@@ -408,7 +406,6 @@ export class LobbyManager {
           const target = seats[seat]?.userId;
           if (target) this.callbacks.sendRejected(target, message, generation);
         },
-        onFinished: (record) => this.callbacks.gameFinished(record),
         sendSpectatorUpdate: (specUserId, update) =>
           this.callbacks.sendSpectatorUpdate?.(specUserId, update),
       },
