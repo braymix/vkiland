@@ -98,6 +98,35 @@ describe('LobbyManager', () => {
     expect(manager.lobbyOfUser(astrid.id)).toBeNull();
   });
 
+  it('modalità Eroi online: accensione, scelta eroe e permessi', () => {
+    const { manager } = makeManager();
+    const created = manager.create(bjorn, CFG);
+    if (isApiError(created)) throw new Error('create fallita');
+    manager.join(created.code, astrid);
+
+    // Senza modalità Eroi attiva, scegliere un eroe è rifiutato.
+    expect(isApiError(manager.setHero(bjorn.id, 0, 'donoLegname'))).toBe(true);
+
+    // L'host accende la modalità: i posti ricevono un eroe casuale (non null).
+    const on = manager.updateConfig(bjorn.id, { ...CFG, heroes: true });
+    if (isApiError(on)) throw new Error('updateConfig fallita');
+    expect(on.config.heroes).toBe(true);
+    expect(on.slots.every((s) => s.hero != null)).toBe(true);
+
+    // Ognuno sceglie il proprio eroe; non quello altrui.
+    const mine = manager.setHero(astrid.id, 1, 'mercante');
+    if (isApiError(mine)) throw new Error('setHero fallita');
+    expect(mine.slots[1]!.hero).toBe('mercante');
+    expect(isApiError(manager.setHero(astrid.id, 0, 'maestro'))).toBe(true);
+    // Eroe inesistente rifiutato.
+    expect(isApiError(manager.setHero(bjorn.id, 0, 'nonEsiste' as never))).toBe(true);
+
+    // La partita parte con gli eroi assegnati.
+    manager.setHero(bjorn.id, 0, 'apripista');
+    const started = manager.start(bjorn.id);
+    expect(isApiError(started)).toBe(false);
+  });
+
   it('default dei colori distinti e cambio colore (proprio, bot dell’host, scambio)', () => {
     const { manager } = makeManager();
     const created = manager.create(bjorn, CFG);

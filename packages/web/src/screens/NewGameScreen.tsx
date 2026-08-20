@@ -357,6 +357,7 @@ export function NewGameScreen({
     setCalamities(lobby.config.calamities);
     setBattle(lobby.config.battle);
     setCapitale(lobby.config.capitale);
+    setHeroesMode(lobby.config.heroes ?? false);
     // La scelta esplicita dell'host vince; se assente, la prevalorizzazione
     // automatica resta attiva (boardSizeTouched = false).
     setBoardSize(lobby.config.boardSize ?? autoBoardSize(lobby.slots.length));
@@ -416,6 +417,7 @@ export function NewGameScreen({
       calamities: change.calamities ?? calamities,
       battle: change.battle ?? battle,
       capitale: change.capitale ?? capitale,
+      ...((change.heroes ?? heroesMode) ? { heroes: true } : {}),
       ...(boardSizeVal ? { boardSize: boardSizeVal } : {}),
       ...(boardShapeVal ? { boardShape: boardShapeVal } : {}),
       ...(hexCountV != null ? { hexCount: hexCountV } : {}),
@@ -452,6 +454,7 @@ export function NewGameScreen({
     calamities,
     battle,
     capitale,
+    ...(heroesMode ? { heroes: true } : {}),
     ...(boardSize ? { boardSize } : {}),
     ...(boardShape ? { boardShape } : {}),
     ...(hexCountVal != null ? { hexCount: hexCountVal } : {}),
@@ -1111,6 +1114,36 @@ export function NewGameScreen({
                         </button>
                       )}
                     </div>
+                    {lobby.config.heroes && (
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          padding: '4px 8px',
+                        }}
+                      >
+                        {slot.hero && (
+                          <HeroArt hero={slot.hero} size={32} emblem={heroDef(slot.hero)?.emblem} />
+                        )}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 9, color: 'var(--accent)' }}>
+                            {slot.hero ? heroDef(slot.hero)?.name : it.eroi.nessuno}
+                          </div>
+                          <div style={{ fontSize: 8, color: 'var(--ink-dim)' }}>
+                            {slot.hero ? heroDef(slot.hero)?.ability : ''}
+                          </div>
+                        </div>
+                        {(slot.userId === session.userId || (isHost && slot.isBot)) && (
+                          <button
+                            className="pxbtn pxbtn--ghost pxbtn--small"
+                            onClick={() => setHeroPickerSeat(i)}
+                          >
+                            {slot.hero ? it.eroi.cambia : it.eroi.scegli}
+                          </button>
+                        )}
+                      </div>
+                    )}
                     {pickerOnline === i && canRecolorSlot(slot) && (
                       <div className="seat-editor">
                         <div className="color-picker">
@@ -1203,7 +1236,10 @@ export function NewGameScreen({
               patch({ capitale: v });
             }}
             heroesMode={heroesMode}
-            setHeroesMode={applyHeroesMode}
+            setHeroesMode={(v) => {
+              setHeroesMode(v);
+              patch({ heroes: v });
+            }}
             avoid68={avoid68}
             setAvoid68={(v) => {
               setAvoid68(v);
@@ -1280,9 +1316,17 @@ export function NewGameScreen({
       )}
       {heroPickerSeat !== null && (
         <HeroPicker
-          title={t(it.eroi.scegliPer, { nome: seats[heroPickerSeat]?.name ?? '' })}
-          current={seatHeroes[heroPickerSeat] ?? null}
-          onPick={(hero) => setSeatHero(heroPickerSeat, hero)}
+          title={t(it.eroi.scegliPer, {
+            nome:
+              (isOnline ? lobby?.slots[heroPickerSeat]?.name : seats[heroPickerSeat]?.name) ?? '',
+          })}
+          current={
+            (isOnline ? lobby?.slots[heroPickerSeat]?.hero : seatHeroes[heroPickerSeat]) ?? null
+          }
+          onPick={(hero) => {
+            if (isOnline) socketRef.current?.emit('lobby:setHero', heroPickerSeat, hero);
+            else setSeatHero(heroPickerSeat, hero);
+          }}
           onClose={() => setHeroPickerSeat(null)}
         />
       )}
@@ -1562,16 +1606,12 @@ function RulesPreset(p: RulesPresetProps) {
             <input
               type="checkbox"
               checked={p.heroesMode}
-              disabled={!p.editable || p.online}
+              disabled={!p.editable}
               onChange={(e) => p.setHeroesMode(e.target.checked)}
             />
             🛡️ {it.eroi.conEroi}
           </label>
-          {p.online ? (
-            <div style={NOTE_STYLE}>{it.eroi.spiega}</div>
-          ) : (
-            p.heroesMode && <div style={NOTE_STYLE}>{it.eroi.spiega}</div>
-          )}
+          {p.heroesMode && <div style={NOTE_STYLE}>{it.eroi.spiega}</div>}
 
           {/* Modalità Squadra: un'altra «modalità» accanto a calamità e battaglia. */}
           {p.teamSlot}
