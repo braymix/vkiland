@@ -34,7 +34,6 @@ function makeManager(): { manager: LobbyManager; rec: Recorded } {
       rec.updates.set(userId, list);
     },
     sendRejected: () => {},
-    gameFinished: () => {},
     // Inventario finto: solo Bjorn ha skin salvate sull'account.
     getCosmetics: (userId) =>
       userId === 'u-bjorn' ? { dragon: 'navicella', stronghold: 'torre' } : undefined,

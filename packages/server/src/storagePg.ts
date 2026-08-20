@@ -11,15 +11,10 @@
  *     in BACKGROUND, in ordine (una coda) e con log degli errori: un singhiozzo
  *     del database non blocca né fa crashare il gioco.
  *
- * Le partite finite sono append-only e non vengono rilette dal server: le
- * scriviamo soltanto (nessuna copia in memoria).
+ * Lo storico delle partite NON viene salvato: la vecchia tabella `finished_games`
+ * viene eliminata all'avvio (`init`), così i dati residui spariscono dal DB.
  */
-import type {
-  FinishedGameRecord,
-  SessionRecord,
-  Storage,
-  UserRecord,
-} from './storage';
+import type { SessionRecord, Storage, UserRecord } from './storage';
 
 /** Sottoinsieme del Pool di `pg` che ci serve (facilita i test con un finto DB). */
 export interface PgLike {
@@ -117,17 +112,9 @@ export class PostgresStorage implements Storage {
         user_id TEXT NOT NULL,
         created_at BIGINT NOT NULL
       )`);
-    await this.db.query(`
-      CREATE TABLE IF NOT EXISTS ${this.t('finished_games')} (
-        id BIGSERIAL PRIMARY KEY,
-        code TEXT,
-        seed TEXT NOT NULL,
-        started_at BIGINT NOT NULL,
-        ended_at BIGINT NOT NULL,
-        players JSONB NOT NULL,
-        winner_seat INT NOT NULL,
-        action_log JSONB NOT NULL
-      )`);
+    // Lo storico delle partite non si salva più: eliminiamo la tabella (e i
+    // suoi dati) se un vecchio deploy l'aveva creata.
+    await this.db.query(`DROP TABLE IF EXISTS ${this.t('finished_games')}`);
 
     const u = await this.db.query(`SELECT * FROM ${this.t('users')}`);
     for (const row of u.rows) {
@@ -249,24 +236,6 @@ export class PostgresStorage implements Storage {
       if (s.userId === userId) this.sessions.delete(token);
     }
     this.enqueue(() => this.db.query(`DELETE FROM ${this.t('sessions')} WHERE user_id = $1`, [userId]));
-  }
-
-  appendFinishedGame(game: FinishedGameRecord): void {
-    this.enqueue(() =>
-      this.db.query(
-        `INSERT INTO ${this.t('finished_games')} (code, seed, started_at, ended_at, players, winner_seat, action_log)
-         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-        [
-          game.code,
-          game.seed,
-          game.startedAt,
-          game.endedAt,
-          JSON.stringify(game.players),
-          game.winnerSeat,
-          JSON.stringify(game.actionLog),
-        ]
-      )
-    );
   }
 }
 

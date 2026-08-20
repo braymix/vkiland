@@ -21,7 +21,7 @@ pnpm --filter @vikiland/server dev    # porta 8787 (override: PORT=…)
 |---|---|
 | `protocol.ts` | Tipi condivisi client/server (import type-only dal web) |
 | `auth.ts` | Account email+password (hash **scrypt** di `node:crypto`) e sessioni token |
-| `storage.ts` | Interfaccia `Storage` + implementazione JSON; le partite finite sono salvate come `seed + action_log` (= replay deterministico) |
+| `storage.ts` | Interfaccia `Storage` + implementazione JSON (utenti e sessioni; lo storico delle partite non viene salvato) |
 | `lobby.ts` | Lobby con **codici invito** a 6 caratteri, posti umani/bot, riconnessione |
 | `room.ts` | `GameRoom`: stato autoritativo, bot, viste per posto, **timer di turno** |
 | `defaultAction.ts` | Mossa di sblocco allo scadere del timer |
