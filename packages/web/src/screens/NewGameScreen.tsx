@@ -148,7 +148,7 @@ export function NewGameScreen({
   const [seatHeroes, setSeatHeroes] = useState<HeroId[][]>([[], [], []]);
   const [heroPickerSeat, setHeroPickerSeat] = useState<number | null>(null);
   // «Numero di eroi» per clan: preset 3/5/7 oppure «libero» (numero a mano).
-  const [heroesCount, setHeroesCount] = useState(3);
+  const [heroesCount, setHeroesCount] = useState(1);
   const [heroesLibero, setHeroesLibero] = useState(false);
   const heroesPerPlayer = Math.max(1, Math.min(MAX_HEROES, Math.floor(heroesCount) || 1));
   const [avoid68, setAvoid68] = useState(true);
