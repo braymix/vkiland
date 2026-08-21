@@ -48,7 +48,7 @@ function beginTurn(state: GameState, events: GameEvent[]): void {
     player: state.currentPlayer,
     turnNumber: state.turnNumber,
   });
-  // Modalità Eroi: abilità di inizio turno (Dono +2 di un materiale, Odino +1
+  // Modalità Eroi: abilità di inizio turno (Dono +1 di un materiale, Odino +1
   // di ognuno), risolte prima dell'eventuale calamità del giro.
   applyTurnStartHeroGains(state, events);
   if (state.calamities && state.currentPlayer === state.turnOrder[0]) {
@@ -134,7 +134,7 @@ function resolveRoadAttack(
 
 /**
  * Modalità Eroi — abilità di inizio turno del giocatore di turno. Il «Dono»
- * (eroi comuni) frutta 2 del proprio materiale; Odino (leggendario) 1 di ogni
+ * (eroi comuni) frutta 1 del proprio materiale; Odino (leggendario) 1 di ogni
  * materiale. Si prende dalla banca, senza superarne le scorte.
  */
 function applyTurnStartHeroGains(state: GameState, events: GameEvent[]): void {
@@ -144,7 +144,7 @@ function applyTurnStartHeroGains(state: GameState, events: GameEvent[]): void {
   if (!def) return;
   const gain = zeroResources();
   if (def.donoResource) {
-    gain[def.donoResource] = Math.min(2, state.bank[def.donoResource]);
+    gain[def.donoResource] = Math.min(1, state.bank[def.donoResource]);
   } else {
     return;
   }

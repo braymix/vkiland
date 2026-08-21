@@ -1744,6 +1744,129 @@ html[data-lang='ru'] .welcome-title {
   color: var(--ink-dim);
   line-height: 1.7;
 }
+
+/* --- Casse ed eroi (inventario) ------------------------------------------ */
+.inv-discount {
+  font-size: 8px;
+  color: var(--accent);
+  line-height: 1.7;
+}
+.inv-warn {
+  font-size: 8px;
+  color: var(--danger);
+  line-height: 1.7;
+}
+.chest-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.chest-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 92px;
+  padding: 8px 4px;
+  border: 2px solid var(--accent-dark);
+  background: rgba(0, 0, 0, 0.25);
+}
+.chest-card--ready {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-dark);
+}
+.chest-card--empty {
+  border-style: dashed;
+  opacity: 0.4;
+  font-size: 22px;
+}
+.chest-emoji {
+  font-size: 30px;
+  line-height: 1;
+}
+.chest-state {
+  font-size: 8px;
+  color: var(--ink-dim);
+}
+.chest-timer {
+  font-size: 9px;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.hero-collection {
+  margin-top: 4px;
+}
+.hero-collection-rarity {
+  font-size: 8px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.hero-collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+}
+.hero-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 4px;
+  border: 2px solid var(--accent-dark);
+  background: rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+.hero-cell--locked {
+  opacity: 0.7;
+}
+.hero-cell-lock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: rgba(0, 0, 0, 0.45);
+}
+.hero-cell-name {
+  font-size: 9px;
+  color: var(--accent);
+}
+.hero-cell-state {
+  font-size: 8px;
+  color: var(--ink-dim);
+}
+.hero-cell-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.hero-cell-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+.chest-open {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+.chest-open-name {
+  font-size: 12px;
+  color: var(--accent);
+}
+.chest-open-body {
+  font-size: 9px;
+  color: var(--ink);
+  line-height: 1.7;
+  text-align: center;
+  max-width: 280px;
+}
 .skin-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));

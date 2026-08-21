@@ -28,6 +28,7 @@ interface UserRow {
   password_hash: string;
   created_at: string | number;
   cosmetics: unknown;
+  progression: unknown;
 }
 interface SessionRow {
   token: string;
@@ -42,8 +43,9 @@ function rowToUser(r: UserRow): UserRecord {
     passwordHash: r.password_hash,
     createdAt: Number(r.created_at),
   };
-  // `cosmetics` è JSONB: pg lo restituisce già come oggetto (o null).
+  // `cosmetics`/`progression` sono JSONB: pg li restituisce già come oggetto (o null).
   if (r.cosmetics) user.cosmetics = r.cosmetics as NonNullable<UserRecord['cosmetics']>;
+  if (r.progression) user.progression = r.progression as NonNullable<UserRecord['progression']>;
   return user;
 }
 
@@ -104,8 +106,13 @@ export class PostgresStorage implements Storage {
         username TEXT NOT NULL,
         password_hash TEXT NOT NULL,
         created_at BIGINT NOT NULL,
-        cosmetics JSONB
+        cosmetics JSONB,
+        progression JSONB
       )`);
+    // Tabella pre-esistente (deploy precedenti): aggiungi la colonna se manca.
+    await this.db.query(
+      `ALTER TABLE ${this.t('users')} ADD COLUMN IF NOT EXISTS progression JSONB`
+    );
     await this.db.query(`
       CREATE TABLE IF NOT EXISTS ${this.t('sessions')} (
         token TEXT PRIMARY KEY,
@@ -120,6 +127,16 @@ export class PostgresStorage implements Storage {
     for (const row of u.rows) {
       const user = rowToUser(row as UserRow);
       this.users.set(user.id, user);
+    }
+    // Casse: ogni account creato PRIMA di questa funzionalità (senza
+    // progressione) diventa «tester» — ogni eroe già disponibile, per
+    // ringraziarlo. I nuovi account nascono con una progressione, quindi
+    // restano esclusi.
+    for (const user of this.users.values()) {
+      if (user.progression === undefined) {
+        user.progression = { tester: true };
+        this.upsertUser(user);
+      }
     }
     const s = await this.db.query(`SELECT * FROM ${this.t('sessions')}`);
     for (const row of s.rows) {
@@ -201,16 +218,18 @@ export class PostgresStorage implements Storage {
 
   private upsertUser(user: UserRecord): void {
     const cosmetics = user.cosmetics ? JSON.stringify(user.cosmetics) : null;
+    const progression = user.progression ? JSON.stringify(user.progression) : null;
     this.enqueue(() =>
       this.db.query(
-        `INSERT INTO ${this.t('users')} (id, username, password_hash, created_at, cosmetics)
-         VALUES ($1, $2, $3, $4, $5)
+        `INSERT INTO ${this.t('users')} (id, username, password_hash, created_at, cosmetics, progression)
+         VALUES ($1, $2, $3, $4, $5, $6)
          ON CONFLICT (id) DO UPDATE SET
            username = EXCLUDED.username,
            password_hash = EXCLUDED.password_hash,
            created_at = EXCLUDED.created_at,
-           cosmetics = EXCLUDED.cosmetics`,
-        [user.id, user.username, user.passwordHash, user.createdAt, cosmetics]
+           cosmetics = EXCLUDED.cosmetics,
+           progression = EXCLUDED.progression`,
+        [user.id, user.username, user.passwordHash, user.createdAt, cosmetics, progression]
       )
     );
   }

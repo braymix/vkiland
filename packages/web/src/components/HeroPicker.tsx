@@ -3,8 +3,19 @@
  * raggruppati per rarità, ciascuno con la sua pixel art, nome nordico, nome
  * dell'abilità e descrizione. Selezionando una card si conferma l'eroe del posto.
  */
-import { ALL_HEROES, RARITY_ORDER, type HeroDef, type HeroId, type HeroRarity } from '@vikiland/engine';
+import {
+  ALL_HEROES,
+  RARITY_ORDER,
+  FRAGMENTS_PER_HERO,
+  isHeroUnlocked,
+  fragmentsOf,
+  type HeroDef,
+  type HeroId,
+  type HeroRarity,
+  type PlayerProgression,
+} from '@vikiland/engine';
 import { it } from '../i18n';
+import { inv } from '../i18n/inventory';
 import { HeroArt } from './HeroArt';
 
 const rarityLabel = (r: HeroRarity): string =>
@@ -28,9 +39,15 @@ interface Props {
   current: HeroId | null;
   onPick: (hero: HeroId | null) => void;
   onClose: () => void;
+  /**
+   * Progressione del giocatore: gli eroi non ancora sbloccati appaiono bloccati
+   * (non selezionabili) col progresso dei frammenti. Se assente, tutti gli eroi
+   * sono selezionabili (contesti che non gestiscono lo sblocco).
+   */
+  progression?: PlayerProgression;
 }
 
-export function HeroPicker({ title, current, onPick, onClose }: Props) {
+export function HeroPicker({ title, current, onPick, onClose, progression }: Props) {
   const byRarity: Record<HeroRarity, HeroDef[]> = {
     comune: [],
     nonComune: [],
@@ -93,10 +110,17 @@ export function HeroPicker({ title, current, onPick, onClose }: Props) {
             >
               {byRarity[rarity].map((h) => {
                 const active = current === h.id;
+                // Senza progressione tutto è selezionabile; altrimenti gli eroi
+                // non sbloccati restano bloccati col progresso dei frammenti.
+                const locked = progression ? !isHeroUnlocked(progression, h.id) : false;
+                const frags = progression ? fragmentsOf(progression, h.id) : 0;
                 return (
                   <button
                     key={h.id}
+                    disabled={locked}
+                    aria-disabled={locked}
                     onClick={() => {
+                      if (locked) return;
                       onPick(h.id);
                       onClose();
                     }}
@@ -104,23 +128,47 @@ export function HeroPicker({ title, current, onPick, onClose }: Props) {
                     style={{
                       textAlign: 'left',
                       padding: 8,
-                      cursor: 'pointer',
+                      cursor: locked ? 'not-allowed' : 'pointer',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: 4,
+                      opacity: locked ? 0.55 : 1,
                       background: active ? 'rgba(255,255,255,0.08)' : 'transparent',
                       borderColor: active ? RARITY_COLOR[rarity] : undefined,
                       outline: active ? `2px solid ${RARITY_COLOR[rarity]}` : 'none',
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <HeroArt hero={h.id} size={48} emblem={h.emblem} />
+                      <div style={{ position: 'relative' }}>
+                        <HeroArt hero={h.id} size={48} emblem={h.emblem} />
+                        {locked && (
+                          <span
+                            aria-hidden="true"
+                            style={{
+                              position: 'absolute',
+                              inset: 0,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: 20,
+                              background: 'rgba(0,0,0,0.45)',
+                            }}
+                          >
+                            🔒
+                          </span>
+                        )}
+                      </div>
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontSize: 11, color: 'var(--accent)' }}>{h.name}</div>
                         <div style={{ fontSize: 8, color: 'var(--ink-dim)' }}>{h.ability}</div>
                       </div>
                     </div>
                     <div style={{ fontSize: 8, lineHeight: 1.5, color: 'var(--ink)' }}>{h.description}</div>
+                    {locked && (
+                      <div style={{ fontSize: 8, color: RARITY_COLOR[rarity] }}>
+                        🔒 {inv.frammenti(frags, FRAGMENTS_PER_HERO)} · {inv.pickerSbloccaDaCasse}
+                      </div>
+                    )}
                   </button>
                 );
               })}

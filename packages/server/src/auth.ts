@@ -71,6 +71,10 @@ export class AuthService {
       username: name,
       passwordHash: hashPassword(password),
       createdAt: Date.now(),
+      // I nuovi account NON sono «tester»: partono con progressione vuota (solo
+      // eroi comuni; i non comuni si farmano con le casse). Averla impostata li
+      // esclude anche dalla migrazione «tester» degli account pre-esistenti.
+      progression: {},
     };
     this.storage.createUser(user);
     return this.newSession(user);
