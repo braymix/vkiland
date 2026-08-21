@@ -69,11 +69,11 @@ export const FRAGMENTS_PER_HERO = 5;
 
 const HOUR_MS = 60 * 60 * 1000;
 
-/** Durata «normale» del caricamento di una cassa (3 ore). */
-export const CHEST_DURATION_BASE_MS = 3 * HOUR_MS;
+/** Durata «normale» del caricamento di una cassa (9 ore). */
+export const CHEST_DURATION_BASE_MS = 9 * HOUR_MS;
 
-/** Durata durante lo SCONTO attualmente attivo (9 ore). */
-export const CHEST_DURATION_DISCOUNT_MS = 9 * HOUR_MS;
+/** Durata durante lo SCONTO attualmente attivo: più breve (3 ore). */
+export const CHEST_DURATION_DISCOUNT_MS = 3 * HOUR_MS;
 
 /** Sconto attivo: finché è `true` le nuove casse durano CHEST_DURATION_DISCOUNT_MS. */
 export const CHEST_DISCOUNT_ACTIVE = true;

@@ -366,9 +366,9 @@ cosmetici). Fonte di verità nell'engine: `engine/src/progression.ts`
 - **Casse**: se ne guadagna una a fine partita al 100% (online o offline;
   assegnata dalla `GameScreen` via `onGameComplete`, esclusi gli spettatori).
   Max 3 in lavorazione. Restano «in caricamento» per un tempo fisso prima di
-  potersi aprire: base 3h, **sconto attivo 9h** (`CHEST_DISCOUNT_ACTIVE` in
-  `progression.ts` — metterlo a `false` riporta a 3h; le casse già avviate
-  tengono la durata con cui sono nate).
+  potersi aprire: base 9h, **sconto attivo 3h** (più veloce;
+  `CHEST_DISCOUNT_ACTIVE` in `progression.ts` — metterlo a `false` riporta a
+  9h; le casse già avviate tengono la durata con cui sono nate).
 - **Eroi**: i **comuni** (i «Dono») sono sbloccati da subito; i **non comuni**
   si farmano. Ogni cassa dà un frammento di un non comune casuale; con 5
   frammenti l'eroe si sblocca. Un frammento di un eroe già sbloccato è sprecato.
