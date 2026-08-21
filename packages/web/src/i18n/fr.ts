@@ -8,7 +8,7 @@ export const fr: Strings = {
   // Menu
   nuovaPartita: 'Nouvelle partie',
   multigiocatore: 'En ligne',
-  negozio: 'Boutique (bientôt)',
+  negozio: 'Boutique',
   comeSiGioca: 'Comment jouer',
 
   // Entrée (connexion/inscription au lancement) et compte depuis le menu

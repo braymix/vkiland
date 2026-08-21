@@ -15,6 +15,8 @@ import {
   applyFragment,
   chestReady,
   pickChestReward,
+  canClaimFreeChest,
+  claimFreeChest,
   COMMON_HERO_IDS,
   UNCOMMON_HERO_IDS,
   MAX_CHESTS,
@@ -124,6 +126,40 @@ describe('apertura casse e frammenti', () => {
   it('pickChestReward resta nel pool dei non comuni agli estremi di rand', () => {
     expect(UNCOMMON_HERO_IDS).toContain(pickChestReward(() => 0));
     expect(UNCOMMON_HERO_IDS).toContain(pickChestReward(() => 0.999999));
+  });
+});
+
+describe('cassa gratuita giornaliera (negozio)', () => {
+  it('è disponibile finché il giorno non è quello già riscosso', () => {
+    expect(canClaimFreeChest({}, '2026-8-21')).toBe(true);
+    expect(canClaimFreeChest({ freeChestDay: '2026-8-20' }, '2026-8-21')).toBe(true);
+    expect(canClaimFreeChest({ freeChestDay: '2026-8-21' }, '2026-8-21')).toBe(false);
+  });
+
+  it('riscuoterla apre istantaneamente, dà un frammento e segna il giorno', () => {
+    const res = claimFreeChest({}, '2026-8-21', () => 0)!;
+    expect(res).not.toBeNull();
+    expect(UNCOMMON_HERO_IDS).toContain(res.heroId);
+    expect(fragmentsOf(res.progression, res.heroId)).toBe(1);
+    expect(res.progression.freeChestDay).toBe('2026-8-21');
+    // Non tocca la coda delle casse in lavorazione.
+    expect(res.progression.chests ?? []).toHaveLength(0);
+  });
+
+  it('non si può riscuotere due volte nello stesso giorno', () => {
+    const res = claimFreeChest({}, '2026-8-21', () => 0)!;
+    expect(claimFreeChest(res.progression, '2026-8-21')).toBeNull();
+  });
+
+  it('un nuovo giorno la rende di nuovo disponibile', () => {
+    const res = claimFreeChest({}, '2026-8-21', () => 0)!;
+    expect(claimFreeChest(res.progression, '2026-8-22', () => 0)).not.toBeNull();
+  });
+
+  it('sanitizeProgression conserva un freeChestDay valido e scarta il resto', () => {
+    expect(sanitizeProgression({ freeChestDay: '2026-8-21' }).freeChestDay).toBe('2026-8-21');
+    expect(sanitizeProgression({ freeChestDay: 123 }).freeChestDay).toBeUndefined();
+    expect(sanitizeProgression({ freeChestDay: '' }).freeChestDay).toBeUndefined();
   });
 });
 

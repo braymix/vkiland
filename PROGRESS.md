@@ -382,6 +382,25 @@ cosmetici). Fonte di verità nell'engine: `engine/src/progression.ts`
   flag è deciso solo dal server (l'endpoint `/api/progression` ignora `tester`
   dal client). I nuovi account nascono non-tester.
 
+## Negozio
+
+`ShopScreen` (raggiungibile dal menu). Per ora offre **una cassa gratuita al
+giorno** che si apre **istantaneamente** (nessun caricamento, a differenza delle
+casse guadagnate a fine partita). Come tutta la progressione, funziona SEMPRE:
+senza account vive sul dispositivo, con una sessione online è legata all'account.
+
+- Logica pura nell'engine (`progression.ts`): `canClaimFreeChest(prog, dayKey)` e
+  `claimFreeChest(prog, dayKey, rand)` — segna il giorno e apre subito assegnando
+  un frammento (stesso pool/premio delle casse normali, via `applyFragment`). Il
+  campo `freeChestDay` sulla progressione (validato da `sanitizeProgression`)
+  ricorda l'ultimo giorno riscosso.
+- Il «giorno» è la data locale del dispositivo (`localDayKey` in
+  `web/game/progression.ts`, «AAAA-M-G»): a mezzanotte la cassa torna disponibile.
+  `claimFreeChestAndSave` rilegge lo stato più aggiornato prima di aprire e
+  persiste (account o localStorage), coerente con `openChestAndSave`.
+- Punto di crescita futuro del Negozio (altre casse, temi, cosmetici — mai
+  pay-to-win).
+
 ## Roadmap fasi successive
 
 - **Fase 3.5 — Rifiniture online** (quando serviranno): Drizzle ORM
@@ -419,7 +438,8 @@ cosmetici). Fonte di verità nell'engine: `engine/src/progression.ts`
 ## Punti di estensione Fase 4 (marcatori `PUNTO DI ESTENSIONE` nel codice)
 
 - `packages/web/src/render/sprites/palettes.ts` — registro palette/temi = sistema skin.
-- `packages/web/src/screens/MenuScreen.tsx` — bottone "Negozio" (disabilitato).
+- `packages/web/src/screens/MenuScreen.tsx` — bottone "Negozio" (ora attivo →
+  `ShopScreen`; punto di crescita per altre casse/temi/cosmetici).
 - `packages/engine/src/types.ts` (`PlayerState`) — campo `cosmetics` passthrough previsto.
 - `packages/server/storage.ts` e README — tabella `entitlements` e hook acquisti/ads.
 

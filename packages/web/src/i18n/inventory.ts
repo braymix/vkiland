@@ -38,6 +38,13 @@ export interface InvStrings {
   testerTitolo: string;
   testerMessaggio: string;
   testerExtra: string;
+  // Negozio (cassa gratuita giornaliera)
+  shopSottotitolo: string;
+  shopGratisTitolo: string;
+  shopGratisInfo: string;
+  shopGratisApri: string;
+  shopGratisFatta: string;
+  shopGratisTornaDomani: string;
   // Comuni
   chiudi: string;
 }
@@ -69,6 +76,12 @@ const it: InvStrings = {
   testerTitolo: '🛡️ Grazie!',
   testerMessaggio: 'Grazie di essere un tester, per me é molto importante.',
   testerExtra: 'Come ringraziamento hai ogni eroe già sbloccato. Buone partite, vichingo!',
+  shopSottotitolo: 'Una cassa gratuita ogni giorno. Altro in arrivo.',
+  shopGratisTitolo: 'Cassa gratuita del giorno',
+  shopGratisInfo: 'Si apre all’istante: nessuna attesa. Dentro c’è il frammento di un eroe non comune casuale.',
+  shopGratisApri: 'Riscuoti gratis',
+  shopGratisFatta: 'Già riscossa oggi',
+  shopGratisTornaDomani: 'Torna domani per la prossima cassa gratuita.',
   chiudi: 'Chiudi',
 };
 
@@ -99,6 +112,12 @@ const en: InvStrings = {
   testerTitolo: '🛡️ Thank you!',
   testerMessaggio: 'Thank you for being a tester, it means a lot to me.',
   testerExtra: 'As a thank-you, every hero is already unlocked for you. Enjoy, viking!',
+  shopSottotitolo: 'One free chest every day. More coming soon.',
+  shopGratisTitolo: 'Daily free chest',
+  shopGratisInfo: 'Opens instantly: no waiting. Inside is a fragment of a random uncommon hero.',
+  shopGratisApri: 'Claim for free',
+  shopGratisFatta: 'Already claimed today',
+  shopGratisTornaDomani: 'Come back tomorrow for the next free chest.',
   chiudi: 'Close',
 };
 
@@ -129,6 +148,12 @@ const es: InvStrings = {
   testerTitolo: '🛡️ ¡Gracias!',
   testerMessaggio: 'Gracias por ser tester, para mí es muy importante.',
   testerExtra: 'Como agradecimiento tienes todos los héroes ya desbloqueados. ¡A disfrutar, vikingo!',
+  shopSottotitolo: 'Un cofre gratis cada día. Pronto habrá más.',
+  shopGratisTitolo: 'Cofre gratis del día',
+  shopGratisInfo: 'Se abre al instante: sin esperas. Dentro hay un fragmento de un héroe poco común aleatorio.',
+  shopGratisApri: 'Reclamar gratis',
+  shopGratisFatta: 'Ya reclamado hoy',
+  shopGratisTornaDomani: 'Vuelve mañana por el próximo cofre gratis.',
   chiudi: 'Cerrar',
 };
 
@@ -159,6 +184,12 @@ const fr: InvStrings = {
   testerTitolo: '🛡️ Merci !',
   testerMessaggio: 'Merci d’être testeur, c’est très important pour moi.',
   testerExtra: 'En remerciement, tous les héros sont déjà débloqués pour vous. Bon jeu, viking !',
+  shopSottotitolo: 'Un coffre gratuit chaque jour. Bientôt plus.',
+  shopGratisTitolo: 'Coffre gratuit du jour',
+  shopGratisInfo: 'S’ouvre à l’instant : aucune attente. À l’intérieur, un fragment d’un héros peu commun aléatoire.',
+  shopGratisApri: 'Récupérer gratuitement',
+  shopGratisFatta: 'Déjà récupéré aujourd’hui',
+  shopGratisTornaDomani: 'Revenez demain pour le prochain coffre gratuit.',
   chiudi: 'Fermer',
 };
 
@@ -189,6 +220,12 @@ const de: InvStrings = {
   testerTitolo: '🛡️ Danke!',
   testerMessaggio: 'Danke, dass du Tester bist, das ist mir sehr wichtig.',
   testerExtra: 'Als Dankeschön sind alle Helden bereits freigeschaltet. Viel Spaß, Wikinger!',
+  shopSottotitolo: 'Jeden Tag eine kostenlose Truhe. Mehr folgt bald.',
+  shopGratisTitolo: 'Kostenlose Tagestruhe',
+  shopGratisInfo: 'Öffnet sofort: kein Warten. Darin ein Fragment eines zufälligen ungewöhnlichen Helden.',
+  shopGratisApri: 'Kostenlos abholen',
+  shopGratisFatta: 'Heute schon abgeholt',
+  shopGratisTornaDomani: 'Komm morgen für die nächste kostenlose Truhe wieder.',
   chiudi: 'Schließen',
 };
 
@@ -219,6 +256,12 @@ const nl: InvStrings = {
   testerTitolo: '🛡️ Bedankt!',
   testerMessaggio: 'Bedankt dat je tester bent, dat is heel belangrijk voor mij.',
   testerExtra: 'Als dank zijn alle helden al voor je ontgrendeld. Veel plezier, viking!',
+  shopSottotitolo: 'Elke dag een gratis kist. Meer komt eraan.',
+  shopGratisTitolo: 'Gratis kist van de dag',
+  shopGratisInfo: 'Gaat meteen open: geen wachten. Erin zit een fragment van een willekeurige ongewone held.',
+  shopGratisApri: 'Gratis ophalen',
+  shopGratisFatta: 'Vandaag al opgehaald',
+  shopGratisTornaDomani: 'Kom morgen terug voor de volgende gratis kist.',
   chiudi: 'Sluiten',
 };
 
@@ -249,6 +292,12 @@ const ru: InvStrings = {
   testerTitolo: '🛡️ Спасибо!',
   testerMessaggio: 'Спасибо, что вы тестер, это для меня очень важно.',
   testerExtra: 'В знак благодарности все герои уже открыты для вас. Удачи, викинг!',
+  shopSottotitolo: 'Один бесплатный сундук каждый день. Скоро больше.',
+  shopGratisTitolo: 'Бесплатный сундук дня',
+  shopGratisInfo: 'Открывается мгновенно, без ожидания. Внутри — фрагмент случайного необычного героя.',
+  shopGratisApri: 'Забрать бесплатно',
+  shopGratisFatta: 'Сегодня уже забрано',
+  shopGratisTornaDomani: 'Возвращайтесь завтра за следующим бесплатным сундуком.',
   chiudi: 'Закрыть',
 };
 
@@ -279,6 +328,12 @@ const sr: InvStrings = {
   testerTitolo: '🛡️ Hvala!',
   testerMessaggio: 'Hvala što si tester, to mi mnogo znači.',
   testerExtra: 'Kao znak zahvalnosti svi junaci su ti već otključani. Uživaj, Vikinže!',
+  shopSottotitolo: 'Jedan besplatan sanduk svakog dana. Uskoro još.',
+  shopGratisTitolo: 'Besplatan sanduk dana',
+  shopGratisInfo: 'Otvara se istog trena: bez čekanja. Unutra je fragment nasumičnog neuobičajenog junaka.',
+  shopGratisApri: 'Preuzmi besplatno',
+  shopGratisFatta: 'Već preuzeto danas',
+  shopGratisTornaDomani: 'Vrati se sutra po sledeći besplatan sanduk.',
   chiudi: 'Zatvori',
 };
 

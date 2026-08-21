@@ -8,7 +8,7 @@ export const ru: Strings = {
   // Menu
   nuovaPartita: 'Новая игра',
   multigiocatore: 'Онлайн',
-  negozio: 'Магазин (скоро)',
+  negozio: 'Магазин',
   comeSiGioca: 'Как играть',
 
   // Вход (вход/регистрация при запуске) и аккаунт из меню

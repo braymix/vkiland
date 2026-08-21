@@ -8,7 +8,7 @@ export const nl: Strings = {
   // Menu
   nuovaPartita: 'Nieuw spel',
   multigiocatore: 'Online',
-  negozio: 'Winkel (binnenkort)',
+  negozio: 'Winkel',
   comeSiGioca: 'Hoe te spelen',
 
   // Ingang (inloggen/registreren bij het opstarten) en account vanuit het menu
