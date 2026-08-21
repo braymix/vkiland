@@ -60,7 +60,7 @@ const BOT_NAMES = ['Astrid', 'Leif', 'Sigrid', 'Ragnhild', 'Olaf', 'Freya'];
 /** Numero massimo di eroi per clan (l'intera raccolta): niente doppioni. */
 const MAX_HEROES = ALL_HEROES.length;
 /** Preset del «numero di eroi» offerti come scorciatoie. */
-const HERO_COUNT_PRESETS = [3, 5, 7];
+const HERO_COUNT_PRESETS = [1, 3, 5, 7];
 
 /** Colori di default delle squadre (fino a 4 squadre). */
 const TEAM_PALETTE = ['#8e44ad', '#e67e22', '#16a085', '#34495e'];
