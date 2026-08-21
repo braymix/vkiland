@@ -76,14 +76,14 @@ describe('registro eroi', () => {
   });
 });
 
-describe('eroe comune — Dono (+2 a inizio turno)', () => {
-  it('all’inizio del turno il portatore guadagna 2 del suo materiale', () => {
+describe('eroe comune — Dono (+1 a inizio turno)', () => {
+  it('all’inizio del turno il portatore guadagna 1 del suo materiale', () => {
     let s = heroGame(['donoLegname', null]);
     s = autoSetup(s);
     s = clearHands(s);
     const before = s.players[0]!.resources.legname;
     const res = beginTurnOf(s, 0);
-    expect(res.state.players[0]!.resources.legname).toBe(before + 2);
+    expect(res.state.players[0]!.resources.legname).toBe(before + 1);
     expect(res.events.some((e) => e.type === 'eroeGuadagno' && e.player === 0)).toBe(true);
     expectResourceInvariants(res.state);
   });
