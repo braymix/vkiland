@@ -32,8 +32,8 @@ export interface Seat {
   color: PlayerColor;
   /** Modalità Squadra: indice di squadra del posto (0 se non attiva). */
   team?: number;
-  /** Modalità Eroi: eroe scelto dal posto. */
-  hero?: HeroId | null;
+  /** Modalità Eroi: eroi scelti dal posto (uno o più, tutti distinti). */
+  heroes?: HeroId[];
   /** Skin dell'account (passthrough estetico verso il motore). */
   cosmetics?: PlayerCosmetics;
 }
@@ -125,9 +125,9 @@ export class GameRoom {
       calamities: config.calamities,
       battle: config.battle,
       capitale: config.capitale,
-      // Modalità Eroi: eroe per-posto scelto in lobby.
+      // Modalità Eroi: eroi per-posto scelti in lobby (uno o più per clan).
       ...(config.heroes
-        ? { heroes: true, heroAssignments: seats.map((s) => s.hero ?? null) }
+        ? { heroes: true, heroAssignments: seats.map((s) => s.heroes ?? []) }
         : {}),
       ...(config.boardSize ? { boardSize: config.boardSize } : {}),
       ...(config.boardShape ? { boardShape: config.boardShape } : {}),

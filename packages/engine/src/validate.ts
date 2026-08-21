@@ -230,7 +230,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       // Il PRIMO sentiero deve toccare il villaggio appena piazzato. Con
       // l'Apripista (Vegard) i sentieri successivi possono estendere la propria
       // rete iniziale (villaggio o un sentiero già posato per questa casa).
-      const maxRoads = state.config.heroes && me.hero === 'apripista' ? 2 : 1;
+      const maxRoads = state.config.heroes && me.heroes?.includes('apripista') ? 2 : 1;
       const isFirstSetupRoad = (state.phase.roadsLeft ?? 1) === maxRoads;
       const lastVillage = state.phase.lastVillage;
       const eVerts = topo.edgeVertices[action.edge]!;

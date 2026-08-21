@@ -30,7 +30,7 @@ import {
 } from './helpers';
 
 /** Partita in modalità Eroi con ordine normalizzato 0..n-1. */
-function heroGame(assignments: (HeroId | null)[], seed = 'eroi-test'): GameState {
+function heroGame(assignments: (HeroId | HeroId[] | null)[], seed = 'eroi-test'): GameState {
   const raw = createGame({
     seed,
     players: makePlayers(assignments.length),
@@ -207,8 +207,43 @@ describe('eroe non comune — Gest (Mercante: scambio 2-a-1, 4 volte a partita)'
     const view0 = getPlayerView(s, 0);
     expect(view0.heroes).toBe(true);
     expect(view0.me!.heroUses!.mercante).toBe(4);
-    expect(view0.players[0]!.hero).toBe('mercante');
-    expect(view0.players[1]!.hero).toBe('donoOrzo');
+    expect(view0.players[0]!.heroes).toEqual(['mercante']);
+    expect(view0.players[1]!.heroes).toEqual(['donoOrzo']);
+  });
+});
+
+describe('più eroi per giocatore (numero di eroi > 1)', () => {
+  it('assegna una LISTA di eroi distinti e ne inizializza gli usi a consumo', () => {
+    const s = heroGame([['mercante', 'mutaporto', 'maestro'], null]);
+    expect(s.players[0]!.heroes).toEqual(['mercante', 'mutaporto', 'maestro']);
+    expect(s.players[0]!.heroUses!.mercante).toBe(4);
+    expect(s.players[0]!.heroUses!.mutaporto).toBe(1);
+    // Il Maestro (nella lista) alza comunque i limiti di pezzi.
+    expect(effectivePieceLimit(s, 0, 'villaggio')).toBe(6);
+  });
+
+  it('scarta i doppioni nella lista di un clan', () => {
+    const s = heroGame([['maestro', 'maestro', 'mercante'], null]);
+    expect(s.players[0]!.heroes).toEqual(['maestro', 'mercante']);
+  });
+
+  it('con più eroi «Dono» i guadagni di inizio turno si sommano', () => {
+    let s = heroGame([['donoLegname', 'donoPietra'], null]);
+    s = autoSetup(s);
+    s = clearHands(s);
+    const beforeLegname = s.players[0]!.resources.legname;
+    const beforePietra = s.players[0]!.resources.pietra;
+    const res = beginTurnOf(s, 0);
+    expect(res.state.players[0]!.resources.legname).toBe(beforeLegname + 1);
+    expect(res.state.players[0]!.resources.pietra).toBe(beforePietra + 1);
+    expectResourceInvariants(res.state);
+  });
+
+  it('la vista pubblica espone tutti gli eroi del clan', () => {
+    let s = heroGame([['mercante', 'donoOrzo'], null]);
+    s = mut(s, (d) => toMainInPlace(d));
+    const view0 = getPlayerView(s, 0);
+    expect(view0.players[0]!.heroes).toEqual(['mercante', 'donoOrzo']);
   });
 });
 

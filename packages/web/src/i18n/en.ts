@@ -13,7 +13,7 @@ export const en: Strings = {
 
   // Entry (login/sign-up on launch) and account from the menu
   entrataInvito:
-    'Log in or sign up to play online — or continue and play locally right away.',
+    'Log in or sign up to play online â or continue and play locally right away.',
   continuaSenzaAccount: 'Continue without an account',
   gestioneAccount: 'Account settings',
   partitaClassica: 'Classic game',
@@ -23,17 +23,17 @@ export const en: Strings = {
 
   crediti: 'Credits',
   creditiFattoDa: 'Made by',
-  creditiInvito: 'Got advice or found a bug? Don’t hesitate to write me — all feedback is welcome!',
+  creditiInvito: 'Got advice or found a bug? Donât hesitate to write me â all feedback is welcome!',
   creditiGrazie: 'Thanks for playing Viking-Island!',
 
   // Joke "monetization" popup (New game)
   memeTitolo: 'Hold on, Viking!',
   memeTesto:
     'To set sail you can watch a 47-minute ad or upgrade to ' +
-    'VIKING-ISLAND PRO™ for just $999 a month + tax (billed to your jarl).',
-  memePubblicita: '▶ Continue with ads',
-  memePro: 'Go PRO — $999/month + tax',
-  memeAvanti: 'Just kidding, carry on →',
+    'VIKING-ISLAND PROâ¢ for just $999 a month + tax (billed to your jarl).',
+  memePubblicita: 'â¶ Continue with ads',
+  memePro: 'Go PRO â $999/month + tax',
+  memeAvanti: 'Just kidding, carry on â',
 
   // Tutorial ("Book of Sagas")
   libroSaghe: 'Book of Sagas',
@@ -52,14 +52,14 @@ export const en: Strings = {
   nomeInGioco: 'In-game name',
   serverUrl: 'Server address',
   serverExpander: 'Server',
-  connessioneInCorso: 'Connecting…',
+  connessioneInCorso: 'Connectingâ¦',
   esciAccount: 'Switch account',
   ciao: 'Hi, {nome}!',
 
-  serverVerifica: 'Checking the server…',
+  serverVerifica: 'Checking the serverâ¦',
   serverOk: 'Game server reachable',
   serverGiu:
-    'Game server unreachable: online is off here. You can still play locally from the menu (bots and hot-seat) — or enter the address of another server.',
+    'Game server unreachable: online is off here. You can still play locally from the menu (bots and hot-seat) â or enter the address of another server.',
 
   // Online: lobby
   creaPartita: 'Create game',
@@ -67,14 +67,14 @@ export const en: Strings = {
   codiceInvito: 'Invite code',
   lobbyTitolo: 'Lobby {code}',
   condividiCodice: 'Share the code with the other Vikings',
-  inAttesaHost: 'Waiting for the host to set sail…',
+  inAttesaHost: 'Waiting for the host to set sailâ¦',
   avviaPartita: 'Set sail!',
   aggiungiBot: '+ Bot',
   esciLobby: 'Leave the lobby',
   esciPartita: 'Leave the game',
   esciPartitaTitolo: 'Leave the game?',
   esciPartitaTesto:
-    'The game goes on without you and your seat stays YOURS: come back any time from «Online» with the code {code}.',
+    'The game goes on without you and your seat stays YOURS: come back any time from Â«OnlineÂ» with the code {code}.',
   esciPartitaConferma: 'Yes, leave',
   timerTurno: 'Turn timer',
   timerSecondi: 'Turn timer (seconds, 0 = none)',
@@ -83,7 +83,7 @@ export const en: Strings = {
   secondiAbbr: '{n}s',
   hostTag: 'host',
   disconnessoTag: 'away',
-  attesaPartita: 'Waiting for the game…',
+  attesaPartita: 'Waiting for the gameâ¦',
   lobbyChiusa: 'Lobby closed: {motivo}',
   terminaPartita: 'End game',
   terminaTitolo: 'End the game?',
@@ -101,12 +101,12 @@ export const en: Strings = {
     partiteInCorso: 'Games in progress',
     nessunaInCorso: 'No games in progress to watch.',
     giroN: 'Round {n}',
-    spettatoriN: '{n} 👁',
+    spettatoriN: '{n} ð',
     staiGuardando: 'You are watching',
     smettiGuarda: 'Stop watching',
     chiediMano: 'See the hand',
     manoNascosta: 'Hand hidden',
-    inAttesa: 'Waiting…',
+    inAttesa: 'Waitingâ¦',
     richiestaTitolo: 'A spectator is watching you',
     richiestaTesto: '{nome} wants to see your hand. Allow?',
     permetti: 'Allow',
@@ -119,7 +119,7 @@ export const en: Strings = {
     titolo: 'Chat',
     apri: 'Open chat',
     chiudi: 'Close chat',
-    placeholder: 'Type a message…',
+    placeholder: 'Type a messageâ¦',
     invia: 'Send',
     vuota: 'No messages yet. Break the ice!',
     tu: 'You',
@@ -130,14 +130,14 @@ export const en: Strings = {
 
   inventario: 'Inventory',
   invSottotitolo: 'Your skins: everyone playing with you sees them in game.',
-  invModoLocale: '📴 Saved on this device (no account) — log in from «Online» to take them anywhere.',
-  invModoAccount: '☁️ Saved to your account: they follow you on every device.',
+  invModoLocale: 'ð´ Saved on this device (no account) â log in from Â«OnlineÂ» to take them anywhere.',
+  invModoAccount: 'âï¸ Saved to your account: they follow you on every device.',
   invDrago: 'Your Dragon',
   invDragoInfo: 'In game it takes the look AND color of whoever moved it last.',
   invRocca: 'Your strongholds',
   invRoccaInfo: 'Whatever look you pick, it is always tinted in your clan color.',
   invSelezionato: 'In use',
-  invSalvato: 'Saved ✓',
+  invSalvato: 'Saved â',
   invColori: 'Colors',
   invColoreOcchi: 'Eyes',
   invColoreFiamme: 'Flames',
@@ -156,13 +156,13 @@ export const en: Strings = {
   datiSalvati: 'This is the data we keep about you:',
   registratoIl: 'Registered on',
   idAccount: 'Account ID',
-  passwordImpostata: '••••••••',
+  passwordImpostata: 'â¢â¢â¢â¢â¢â¢â¢â¢',
   cambiaNome: 'Change username',
   nuovoNome: 'New username',
   nomeAggiornato: 'Name updated! It will apply in game from your next matches.',
   passwordAttuale: 'Current password',
   aggiungiEmail: 'Add email',
-  emailEggTitolo: 'Wait a second…',
+  emailEggTitolo: 'Wait a secondâ¦',
   emailEggTesto:
     '"Does an online game really need your email?" No. And since we don\'t sell ' +
     'your data, we don\'t ask for it and don\'t store it: this field doesn\'t even ' +
@@ -208,13 +208,13 @@ export const en: Strings = {
   evita68: 'Avoid adjacent 6 and 8',
   dimensioneTavola: 'Board size',
   campoGrande: 'Large board',
-  campoGrandeSpiega: '30 tiles — recommended for 5–6 players.',
+  campoGrandeSpiega: '30 tiles â recommended for 5â6 players.',
   campoGigante: 'Giant board',
-  campoGiganteSpiega: '37 tiles — recommended for 7–8 players.',
+  campoGiganteSpiega: '37 tiles â recommended for 7â8 players.',
   campoRientranze: 'With inlets',
   campoLibero: 'Custom board',
   campoLiberoSpiega:
-    'Choose how many tiles the board has ({min}–{max}): a compact island of that many tiles. Overrides the size and shape above.',
+    'Choose how many tiles the board has ({min}â{max}): a compact island of that many tiles. Overrides the size and shape above.',
   numeroCaselle: 'Tiles',
   deserti: 'Deserts',
   desertiSpiega:
@@ -293,7 +293,7 @@ export const en: Strings = {
   mazzoRimasto: 'Deck: {n}',
   banca: 'Bank',
   puntiGloria: 'Glory Points',
-  diario: 'Captain’s log',
+  diario: 'Captainâs log',
 
   // Trades
   dai: 'Give',
@@ -305,7 +305,7 @@ export const en: Strings = {
   offertaDi: 'Offer from {nome}',
   accetta: 'Accept',
   rifiuta: 'Decline',
-  inAttesaRisposte: 'Waiting for a reply…',
+  inAttesaRisposte: 'Waiting for a replyâ¦',
   concludiCon: 'Close with {nome}',
 
   // Discard and theft
@@ -320,7 +320,7 @@ export const en: Strings = {
   bonusRequisitoVia: 'at least {n} connected paths',
   bonusRequisitoFuria: 'at least {n} Berserkers played',
   eroeSegretoRiga: '1 secret GP (counts right away)',
-  scambiRiga: 'Trades: bank 4:1 · harbor 3:1 · dedicated harbor 2:1',
+  scambiRiga: 'Trades: bank 4:1 Â· harbor 3:1 Â· dedicated harbor 2:1',
   obiettivoRiga: 'Win: {n} Glory Points on your own turn',
   setteRiga: 'On a 7: anyone with more than {n} cards discards half',
 
@@ -343,7 +343,7 @@ export const en: Strings = {
   mappaFinaleTitolo: 'The map at the end',
   statisticheTitolo: 'Game statistics',
   statTiriDado: 'Dice rolls',
-  statTiriSub: '{tiri} rolls in {turni} turns · expected vs actual',
+  statTiriSub: '{tiri} rolls in {turni} turns Â· expected vs actual',
   statNessunTiro: 'No rolls recorded.',
   statLegendaAtteso: 'expected',
   statNumeroFortunato: 'Lucky number',
@@ -371,7 +371,7 @@ export const en: Strings = {
   statSfortunatoSub: 'most cards discarded',
   statStratega: 'Strategist',
   statStrategaSub: 'most Saga Cards played',
-  statNessuno: '—',
+  statNessuno: 'â',
 
   // Resource and terrain names
   risorsa: {
@@ -404,13 +404,13 @@ export const en: Strings = {
     modalita: 'Game mode',
     standard: 'Standard game',
     conCalamita: 'With calamities',
-    spiega: 'Each round a card changes the rules, for that round only — good and bad, in random order. When the deck runs out, things go back to normal.',
+    spiega: 'Each round a card changes the rules, for that round only â good and bad, in random order. When the deck runs out, things go back to normal.',
     titolo: 'Calamity of the round',
     rimaste: '{n} left in the deck',
     guadagna: 'Calamity: gain {n} resources',
     strade: 'Calamity: place your free roads on the map!',
     franaScegli: 'Landslide! Choose which of your marginal roads collapses.',
-    attesa: 'Calamity underway: wait for the others…',
+    attesa: 'Calamity underway: wait for the othersâ¦',
     nome: {
       materialeDoppio: '{mat} in abundance',
       materialeBloccato: '{mat} shortage',
@@ -466,17 +466,17 @@ export const en: Strings = {
   descrizioneCarta: {
     assalto: 'Free heavy attack: reached by one of your roads, destroys the opponent house or downgrades the stronghold to a house.',
     assaltoLeggero: 'Free light attack: break an opponent road at the tip reached by one of your roads.',
-    cambiaCalamita: 'Replaces this round’s calamity with the next persistent calamity in the deck.',
+    cambiaCalamita: 'Replaces this roundâs calamity with the next persistent calamity in the deck.',
     berserker: 'Move the Dragon and steal 1 card. Counts toward Berserker Fury.',
     sagaDegliEroi: '1 secret Glory Point (counts right away).',
     costruttoriDiSentieri: 'Immediately place 2 free paths.',
     banchetto: 'Take 2 resources of your choice from the bank.',
     tributo: 'Every opponent hands you ALL their units of one resource.',
-    razzia: 'Place it on a hex: until your next turn that hex’s production is yours, not the owners’.',
+    razzia: 'Place it on a hex: until your next turn that hexâs production is yours, not the ownersâ.',
   },
 
   /**
-   * EASTER EGG: bots griping when the Dragon blocks them — just like at a real
+   * EASTER EGG: bots griping when the Dragon blocks them â just like at a real
    * table, where someone always takes it personally.
    */
   // --- Heroes mode ---
@@ -485,10 +485,15 @@ export const en: Strings = {
     spiega:
       'Each clan picks a hero with a special ability (common, uncommon, rare or legendary). Unless stated otherwise, each ability activates once per turn.',
     scegliTitolo: 'Choose your hero',
-    scegliPer: '{nome}’s hero',
+    scegliPer: '{nome}âs hero',
     nessuno: 'No hero',
     scegli: 'Choose hero',
     cambia: 'Change',
+    scegliPerMulti: '{nome}’s heroes',
+    numero: 'Number of heroes',
+    numeroSpiega: 'How many distinct heroes each clan plays (no duplicates).',
+    libero: 'Free',
+    selezionati: 'Selected {n}/{max}',
     conferma: 'Confirm',
     usiRimasti: 'Uses left: {n}',
     abilita: 'Hero ability',
@@ -496,7 +501,7 @@ export const en: Strings = {
     usaMutaporto: 'Sea Lord: transform harbour',
     mutaportoScegli: 'Tap one of your harbours on the map to transform it.',
     mutaportoTipo: 'Transform it into which harbour?',
-    mercanteTitolo: 'Wandering Trader — 2-for-1 trade',
+    mercanteTitolo: 'Wandering Trader â 2-for-1 trade',
     esaurita: 'Ability used up',
     rarita: {
       comune: 'Common',
@@ -507,7 +512,7 @@ export const en: Strings = {
   },
 
   capitale: {
-    nome: '👑 Capital',
+    nome: 'ð Capital',
     conCapitale: 'With capital',
     spiega:
       'Upgrade one of your Strongholds into a Capital (1 wood, 1 stone, 1 sheep, 2 barley, 3 iron): it is worth 3 Glory Points, yields 3 resources instead of 2 and can never be destroyed. Only one can be built.',
@@ -519,13 +524,13 @@ export const en: Strings = {
     assaltoLeggeroScegli: 'Pick the opponent road to break with the card.',
     conBattaglia: 'With battle',
     spiega:
-      'When one of your roads reaches an opponent’s network you can attack it in two ways. ' +
+      'When one of your roads reaches an opponentâs network you can attack it in two ways. ' +
       'Heavy attack (2 wood, 1 stone, 1 sheep, 2 iron): hit a house (destroyed) or a stronghold (downgraded to a house). ' +
       'Light attack (2 wood, 2 iron): break an opponent road, but only the ones at the tip (connected on a single side). ' +
       'The two starting houses are indestructible, unless they become strongholds.',
-    attacca: '⚔️ Attack',
+    attacca: 'âï¸ Attack',
     scegliBersaglio: 'Pick the opponent building to attack (2 wood, 1 stone, 1 sheep, 2 iron).',
-    spezza: '🔨 Break road',
+    spezza: 'ð¨ Break road',
     spezzaScegli: 'Pick the opponent road to break at the tip (2 wood, 2 iron).',
     pesante: 'Heavy attack',
     pesanteNota: 'houses and strongholds',
@@ -539,26 +544,26 @@ export const en: Strings = {
     "I'll get my revenge. A Viking's word.",
     'Odin, why me of all people?',
     "Half the isle is free and you put it HERE?!",
-    'That dragon has it in for me, it’s official.',
+    'That dragon has it in for me, itâs official.',
     "Sure, sure, I'm writing this down. ALL of it.",
     'Oh great, AGAIN at my place.',
-    'And to think I even offered you a trade…',
+    'And to think I even offered you a tradeâ¦',
     "I'm calling the clan's lawyer.",
-    'When MY Fury comes, we’ll talk.',
+    'When MY Fury comes, weâll talk.',
     'Lovely way to make friends, well done.',
-    'My barley… MY BARLEY!',
+    'My barleyâ¦ MY BARLEY!',
     'Nice dragon, back to the tundra, please.',
   ],
 
   // Captain's log events
   log: {
-    calamita: '⚡ Calamity — {nome}: {desc}',
-    lamentoDrago: '{nome}: «{frase}»',
+    calamita: 'â¡ Calamity â {nome}: {desc}',
+    lamentoDrago: '{nome}: Â«{frase}Â»',
     ordineTiro: '{nome} rolls {d1}+{d2} = {tot}',
     ordineSpareggio: 'Tie-break: {righe}',
     ordineTitolo: 'Roll for order: {righe}',
     ordineFinale: 'Turn order: {ordine}',
-    turnoIniziato: '— Turn {n}: {nome}’s turn —',
+    turnoIniziato: 'â Turn {n}: {nome}âs turn â',
     dadiTirati: '{nome} rolls {d1}+{d2} = {tot}',
     risorseProdotte: '{nome} receives {risorse}',
     penuriaBanca: 'Bank shortage: {risorse} not distributed',
@@ -571,24 +576,24 @@ export const en: Strings = {
     cartaComprata: '{nome} buys a Saga Card',
     cartaGiocata: '{nome} plays: {carta}',
     banchetto: '{nome} feasts: +{r1} and +{r2}',
-    tributo: '{nome} collects the tribute: {n}× {risorsa}',
-    razziaPosata: '💰 {nome} unleashes a Raid on a hex: collects its production until their next turn',
-    razziaRiscossa: '💰 The Raid pays off for {nome}: {risorse}',
-    franaSpezzata: '⛰️ A landslide collapses one of {nome}’s roads',
+    tributo: '{nome} collects the tribute: {n}Ã {risorsa}',
+    razziaPosata: 'ð° {nome} unleashes a Raid on a hex: collects its production until their next turn',
+    razziaRiscossa: 'ð° The Raid pays off for {nome}: {risorse}',
+    franaSpezzata: 'â°ï¸ A landslide collapses one of {nome}âs roads',
     scambioProposto: '{nome} proposes a trade',
     rispostaScambio: '{nome} {risposta} the trade',
     accettaVerbo: 'accepts',
     rifiutaVerbo: 'declines',
-    scambioEseguitoBanca: '{nome} trades with the bank: {dai} → {ricevi}',
+    scambioEseguitoBanca: '{nome} trades with the bank: {dai} â {ricevi}',
     scambioEseguito: 'Trade closed between {a} and {b}',
     scambioAnnullato: 'Offer withdrawn',
     scambioRifiutato: 'No teammate accepted the trade',
     grandeVia: 'The Great Road passes to {nome} ({n} paths)',
     grandeViaNessuno: 'The Great Road no longer belongs to anyone',
     furia: 'Berserker Fury passes to {nome} ({n} berserkers)',
-    battagliaDistrutta: '⚔️ {attaccante} destroys a house of {vittima}',
-    battagliaDeclassata: '⚔️ {attaccante} downgrades a stronghold of {vittima} to a house',
-    sentieroSpezzato: '🔨 {attaccante} breaks a road of {vittima}',
+    battagliaDistrutta: 'âï¸ {attaccante} destroys a house of {vittima}',
+    battagliaDeclassata: 'âï¸ {attaccante} downgrades a stronghold of {vittima} to a house',
+    sentieroSpezzato: 'ð¨ {attaccante} breaks a road of {vittima}',
     vittoria: '{nome} wins with {n} Glory Points!',
   },
 
@@ -597,7 +602,7 @@ export const en: Strings = {
     titolo: 'Quick tutorial',
     sottotitolo: 'Learn by playing, step by step',
     benvenutoTitolo: 'Welcome to the magical world of Viking-Island',
-    benvenutoVai: 'Let’s go!',
+    benvenutoVai: 'Letâs go!',
     passoDi: 'Step {n} of {tot}',
     salta: 'Skip',
     auto: 'Auto',
@@ -615,14 +620,14 @@ export const en: Strings = {
     giocaOffline: 'Play with bots',
     vaiOnline: 'Try online',
     fineChiudi: 'Close the demo',
-    senzaEmail: 'Email — no need!',
+    senzaEmail: 'Email â no need!',
     passi: {
       intro: {
         titolo: 'Welcome to the demo!',
         testo:
-          'I’ll walk you step by step through a game of Viking-Island, then ' +
-          'show you how to play online. Press «Next» to go on: you can go ' +
-          '«Back» or «Skip» whenever you like.',
+          'Iâll walk you step by step through a game of Viking-Island, then ' +
+          'show you how to play online. Press Â«NextÂ» to go on: you can go ' +
+          'Â«BackÂ» or Â«SkipÂ» whenever you like.',
       },
       isola: {
         titolo: 'The isle and the resources',
@@ -630,7 +635,7 @@ export const en: Strings = {
           'The isle is made of hexagons. Each one produces a resource and has ' +
           'a number: the dots tell you how likely it is to come up on the dice ' +
           '(6 and 8, in red, come up very often). The tundra produces nothing: ' +
-          'it is the Dragon’s lair.',
+          'it is the Dragonâs lair.',
       },
       setupVillaggio: {
         titolo: 'Your first village',
@@ -643,12 +648,12 @@ export const en: Strings = {
         titolo: 'Your first path',
         testo:
           'Right after the village you place a path on an adjacent side: it is ' +
-          'the start of your road network, which you’ll need to expand.',
+          'the start of your road network, which youâll need to expand.',
       },
       altri: {
         titolo: 'The other clans place too',
         testo:
-          'Each clan takes turns placing «snake-style»: first in order, then ' +
+          'Each clan takes turns placing Â«snake-styleÂ»: first in order, then ' +
           'backwards. Whoever places the first village last places the second ' +
           'one first.',
       },
@@ -677,7 +682,7 @@ export const en: Strings = {
         titolo: 'Building and buying',
         testo:
           'With resources you build paths, villages and strongholds (the ' +
-          'village upgrade) or you buy a Saga Card. Here’s how much each thing ' +
+          'village upgrade) or you buy a Saga Card. Hereâs how much each thing ' +
           'costs:',
       },
       drago: {
@@ -712,32 +717,32 @@ export const en: Strings = {
         titolo: 'Winning the game',
         testo:
           'The first clan to reach 10 Glory Points on their own turn wins. ' +
-          'Here’s how the isle might look at the end of the game: full of ' +
+          'Hereâs how the isle might look at the end of the game: full of ' +
           'villages, strongholds and paths.',
       },
       esempioIntro: {
         titolo: 'A worked example game',
         testo:
-          'Now a real game, but explained: on every move I tell you WHY it pays off. You’ll learn to pick the best ' +
+          'Now a real game, but explained: on every move I tell you WHY it pays off. Youâll learn to pick the best ' +
           'spot, to reach new numbers and materials with roads, and to turn resources into your goals.',
       },
       valutare: {
         titolo: 'First move: read the island',
         testo:
-          'Look at the highlighted crossings: they’re the strongest. A good spot touches likely numbers (the dots: 6 and ' +
+          'Look at the highlighted crossings: theyâre the strongest. A good spot touches likely numbers (the dots: 6 and ' +
           '8 come up very often) and DIFFERENT resources, so you produce something on every roll. Size it up before you place.',
       },
       postoMigliore: {
         titolo: 'Pick the best spot',
         testo:
-          'You place here: it’s the crossing with the most output. From these hexes you grab the resources shown below ' +
-          'every time their numbers come up. It’s your game’s engine: choose well, because it stays with you to the end.',
+          'You place here: itâs the crossing with the most output. From these hexes you grab the resources shown below ' +
+          'every time their numbers come up. Itâs your gameâs engine: choose well, because it stays with you to the end.',
       },
       stradeEspansione: {
         titolo: 'Reach out with roads',
         testo:
-          'One village isn’t enough. Extend the path toward the highlighted crossing: it brings NEW numbers and materials ' +
-          'you don’t produce yet. Roads are your arms — stretch them toward what you’re missing.',
+          'One village isnât enough. Extend the path toward the highlighted crossing: it brings NEW numbers and materials ' +
+          'you donât produce yet. Roads are your arms â stretch them toward what youâre missing.',
       },
       secondoPosto: {
         titolo: 'The second village completes your engine',
@@ -748,83 +753,83 @@ export const en: Strings = {
       obiettivi: {
         titolo: 'Turn resources into goals',
         testo:
-          'Now you have a plan: with wood and stone you extend roads and claim “The Great Road”; with barley, wool and ' +
+          'Now you have a plan: with wood and stone you extend roads and claim âThe Great Roadâ; with barley, wool and ' +
           'iron you upgrade villages into strongholds and buy Saga Cards. Every move should bring you closer to 10 Glory Points.',
       },
       risultato: {
         titolo: 'The payoff',
         testo:
-          'Here’s where the reasoning leads: an island full of your roads, villages and strongholds. Whoever picks spots ' +
-          'well, expands with purpose and keeps the goals in sight reaches 10 points first. Now it’s your turn!',
+          'Hereâs where the reasoning leads: an island full of your roads, villages and strongholds. Whoever picks spots ' +
+          'well, expands with purpose and keeps the goals in sight reaches 10 points first. Now itâs your turn!',
       },
       onlineIntro: {
         titolo: 'Playing online with friends',
         testo:
-          'From the «Online» menu you play with real people, each on their own ' +
+          'From the Â«OnlineÂ» menu you play with real people, each on their own ' +
           'device. The referee is the server: it validates every move with the ' +
           'same rules, so cheating is impossible.',
       },
       serverFreddo: {
         titolo: 'Be patient: the server wakes up',
         testo:
-          'Important: the free server goes «to sleep» when nobody is playing. ' +
-          'The FIRST connection can take 30 to 60 seconds to wake it up — it’s ' +
-          'normal, just wait. A green check lets you know when it’s ready.',
+          'Important: the free server goes Â«to sleepÂ» when nobody is playing. ' +
+          'The FIRST connection can take 30 to 60 seconds to wake it up â itâs ' +
+          'normal, just wait. A green check lets you know when itâs ready.',
       },
       account: {
         titolo: '1. Create an account',
         testo:
           'All you need is a username (it will also be your in-game name) and ' +
-          'a password of at least 8 characters. No email: it’s not needed and ' +
-          'we don’t ask for it.',
+          'a password of at least 8 characters. No email: itâs not needed and ' +
+          'we donât ask for it.',
       },
       creaEntra: {
         titolo: '2. Create or join a game',
         testo:
-          'Press «Create game» to get a 6-character code to send to your ' +
-          'friends, or «Join» and enter the code you received.',
+          'Press Â«Create gameÂ» to get a 6-character code to send to your ' +
+          'friends, or Â«JoinÂ» and enter the code you received.',
       },
       lobby: {
         titolo: '3. The lobby',
         testo:
           'In the waiting room you can change your color and the host can add ' +
           'bots to fill the seats. When there are 2 to 6 of you, the host ' +
-          'presses «Set sail!».',
+          'presses Â«Set sail!Â».',
       },
       onlinePartita: {
-        titolo: '4. Let’s play!',
+        titolo: '4. Letâs play!',
         testo:
-          'Everyone’s moves arrive in real time. If your connection drops, ' +
-          'rejoin with the lobby code: your seat stays yours. There’s also an ' +
+          'Everyoneâs moves arrive in real time. If your connection drops, ' +
+          'rejoin with the lobby code: your seat stays yours. Thereâs also an ' +
           'optional turn timer, so nobody holds up the game.',
       },
       fine: {
-        titolo: 'You’re ready, Viking!',
+        titolo: 'Youâre ready, Viking!',
         testo:
-          'That’s all! You can review every rule in the «Book of Sagas» from ' +
-          'the menu. Now it’s your turn: set sail!',
+          'Thatâs all! You can review every rule in the Â«Book of SagasÂ» from ' +
+          'the menu. Now itâs your turn: set sail!',
       },
     },
   },
   squadra: {
     modalita: 'Team mode',
     spiega:
-      'Roads, ports, «The Great Road» and the «Berserker Fury» are shared by the team. ' +
+      'Roads, ports, Â«The Great RoadÂ» and the Â«Berserker FuryÂ» are shared by the team. ' +
       'Trades only between teammates: two per turn, one for one. ' +
-      'You win with the team’s combined Glory Points.',
+      'You win with the teamâs combined Glory Points.',
     numeroSquadre: 'Number of teams',
     coloriSquadre: 'Team colours',
     coloriNomiSquadre: 'Team colours and names',
     nomeSquadra: 'Team name (optional)',
     puntiPerGiocatore: 'Points per player',
-    bersaglio: 'Team target: {size} × {target} = {tot} combined points.',
+    bersaglio: 'Team target: {size} Ã {target} = {tot} combined points.',
     sbilanciate: 'Teams must be the same size: assign the seats evenly.',
     squadraLabel: 'Team:',
     squadraN: 'Team {n}',
     coloreSquadraN: 'Team colour {n}',
     sqN: 'T.{n}',
     manoCompagni: 'Your team',
-    scambioNota: 'In a team: one resource ↔ one resource, with the whole team or a teammate (max 2 per turn).',
+    scambioNota: 'In a team: one resource â one resource, with the whole team or a teammate (max 2 per turn).',
     tuttaLaSquadra: 'The whole team',
   },
   erroreMossa: 'Invalid move: {motivo}',

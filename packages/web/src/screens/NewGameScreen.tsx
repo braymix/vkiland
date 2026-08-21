@@ -21,6 +21,7 @@ import {
   maxDesertCount,
   resolveBoardSpec,
   ALL_HEROES,
+  unlockedHeroIds,
   heroDef,
   type BoardShapeChoice,
   type BoardSizeChoice,
@@ -56,8 +57,10 @@ import { TutorialScreen } from './TutorialScreen';
 
 const BOT_NAMES = ['Astrid', 'Leif', 'Sigrid', 'Ragnhild', 'Olaf', 'Freya'];
 
-/** Un eroe casuale (per prevalorizzare i posti quando si attiva la modalità Eroi). */
-const randomHero = (): HeroId => ALL_HEROES[Math.floor(Math.random() * ALL_HEROES.length)]!.id;
+/** Numero massimo di eroi per clan (l'intera raccolta): niente doppioni. */
+const MAX_HEROES = ALL_HEROES.length;
+/** Preset del «numero di eroi» offerti come scorciatoie. */
+const HERO_COUNT_PRESETS = [1, 3, 5, 7];
 
 /** Colori di default delle squadre (fino a 4 squadre). */
 const TEAM_PALETTE = ['#8e44ad', '#e67e22', '#16a085', '#34495e'];
@@ -140,10 +143,14 @@ export function NewGameScreen({
   const [calamities, setCalamities] = useState(false);
   const [battle, setBattle] = useState(false);
   const [capitale, setCapitale] = useState(false);
-  // Modalità Eroi (per ora solo in locale): eroe scelto per ogni posto.
+  // Modalità Eroi: eroi scelti per ogni posto (uno o più, tutti distinti).
   const [heroesMode, setHeroesMode] = useState(false);
-  const [seatHeroes, setSeatHeroes] = useState<(HeroId | null)[]>([null, null, null]);
+  const [seatHeroes, setSeatHeroes] = useState<HeroId[][]>([[], [], []]);
   const [heroPickerSeat, setHeroPickerSeat] = useState<number | null>(null);
+  // «Numero di eroi» per clan: preset 3/5/7 oppure «libero» (numero a mano).
+  const [heroesCount, setHeroesCount] = useState(3);
+  const [heroesLibero, setHeroesLibero] = useState(false);
+  const heroesPerPlayer = Math.max(1, Math.min(MAX_HEROES, Math.floor(heroesCount) || 1));
   const [avoid68, setAvoid68] = useState(true);
   const [seed, setSeed] = useState('');
   const [timerRaw, setTimerRaw] = useState('');
@@ -190,20 +197,63 @@ export function NewGameScreen({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [seats.length, numTeams, teamsTouched]);
 
-  // Modalità Eroi: mantiene l'array degli eroi allineato ai posti (i nuovi posti
-  // ricevono un eroe casuale quando la modalità è attiva).
-  useEffect(() => {
-    setSeatHeroes((prev) => seats.map((_, i) => prev[i] ?? (heroesMode ? randomHero() : null)));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seats.length, heroesMode]);
+  // Insieme degli eroi utilizzabili nella prevalorizzazione: quelli SBLOCCATI
+  // (se nessuno è sbloccato, ripiego sull'intera raccolta per non lasciare i
+  // posti vuoti nei contesti senza progressione).
+  const heroPool = (): HeroId[] => {
+    const unlocked = unlockedHeroIds(progression);
+    return unlocked.length ? unlocked : ALL_HEROES.map((h) => h.id);
+  };
+  /** `n` eroi casuali DISTINTI presi dal pool disponibile. */
+  const randomHeroesList = (n: number): HeroId[] => {
+    const pool = [...heroPool()];
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j]!, pool[i]!];
+    }
+    return pool.slice(0, Math.max(0, Math.min(pool.length, n)));
+  };
+  /** Porta una lista di eroi a `n` distinti: tiene i validi e completa a caso. */
+  const fillHeroesList = (current: readonly HeroId[], n: number): HeroId[] => {
+    const pool = heroPool();
+    const out = current.filter((h, i) => pool.includes(h) && current.indexOf(h) === i).slice(0, n);
+    if (out.length < n) {
+      for (const id of randomHeroesList(pool.length)) {
+        if (out.length >= n) break;
+        if (!out.includes(id)) out.push(id);
+      }
+    }
+    return out;
+  };
 
-  /** Attiva/disattiva la modalità Eroi (solo locale), prevalorizzando gli eroi. */
+  // Modalità Eroi: mantiene gli eroi allineati ai posti e al «numero di eroi»
+  // (i posti ricevono eroi casuali distinti quando la modalità è attiva).
+  useEffect(() => {
+    setSeatHeroes((prev) =>
+      seats.map((_, i) => (heroesMode ? fillHeroesList(prev[i] ?? [], heroesPerPlayer) : []))
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seats.length, heroesMode, heroesPerPlayer]);
+
+  /** Attiva/disattiva la modalità Eroi, prevalorizzando gli eroi dei posti. */
   const applyHeroesMode = (v: boolean) => {
     setHeroesMode(v);
-    if (v) setSeatHeroes((prev) => seats.map((_, i) => prev[i] ?? randomHero()));
+    if (v) setSeatHeroes((prev) => seats.map((_, i) => fillHeroesList(prev[i] ?? [], heroesPerPlayer)));
   };
-  const setSeatHero = (i: number, hero: HeroId | null) =>
-    setSeatHeroes((prev) => prev.map((h, idx) => (idx === i ? hero : h)));
+  const setSeatHeroList = (i: number, heroes: HeroId[]) =>
+    setSeatHeroes((prev) => prev.map((h, idx) => (idx === i ? heroes : h)));
+
+  /** Cambia il «numero di eroi» per clan (preset o libero); in online lo propaga. */
+  const applyHeroesCount = (n: number) => {
+    const capped = Math.max(1, Math.min(MAX_HEROES, Math.floor(n) || 1));
+    setHeroesCount(capped);
+    if (mode === 'online') patch({ heroes: true, heroesPerPlayer: capped });
+  };
+  /** Sceglie un preset (3/5/7) del numero di eroi. */
+  const pickHeroesPreset = (n: number) => {
+    setHeroesLibero(false);
+    applyHeroesCount(n);
+  };
 
   // --- Online: socket, lobby, partita ---
   const [busy, setBusy] = useState(false);
@@ -365,6 +415,12 @@ export function NewGameScreen({
     setBattle(lobby.config.battle);
     setCapitale(lobby.config.capitale);
     setHeroesMode(lobby.config.heroes ?? false);
+    // «Numero di eroi»: settaggio autorevole dell'host (default 1).
+    {
+      const n = lobby.config.heroesPerPlayer ?? 1;
+      setHeroesCount(n);
+      setHeroesLibero(!HERO_COUNT_PRESETS.includes(n));
+    }
     // La scelta esplicita dell'host vince; se assente, la prevalorizzazione
     // automatica resta attiva (boardSizeTouched = false).
     setBoardSize(lobby.config.boardSize ?? autoBoardSize(lobby.slots.length));
@@ -424,7 +480,9 @@ export function NewGameScreen({
       calamities: change.calamities ?? calamities,
       battle: change.battle ?? battle,
       capitale: change.capitale ?? capitale,
-      ...((change.heroes ?? heroesMode) ? { heroes: true } : {}),
+      ...((change.heroes ?? heroesMode)
+        ? { heroes: true, heroesPerPlayer: change.heroesPerPlayer ?? heroesPerPlayer }
+        : {}),
       ...(boardSizeVal ? { boardSize: boardSizeVal } : {}),
       ...(boardShapeVal ? { boardShape: boardShapeVal } : {}),
       ...(hexCountV != null ? { hexCount: hexCountV } : {}),
@@ -461,7 +519,7 @@ export function NewGameScreen({
     calamities,
     battle,
     capitale,
-    ...(heroesMode ? { heroes: true } : {}),
+    ...(heroesMode ? { heroes: true, heroesPerPlayer } : {}),
     ...(boardSize ? { boardSize } : {}),
     ...(boardShape ? { boardShape } : {}),
     ...(hexCountVal != null ? { hexCount: hexCountVal } : {}),
@@ -673,7 +731,10 @@ export function NewGameScreen({
       battle,
       capitale,
       ...(heroesMode
-        ? { heroes: true, heroAssignments: seats.map((_, i) => seatHeroes[i] ?? randomHero()) }
+        ? {
+            heroes: true,
+            heroAssignments: seats.map((_, i) => fillHeroesList(seatHeroes[i] ?? [], heroesPerPlayer)),
+          }
         : {}),
       ...(boardSize ? { boardSize } : {}),
       ...(boardShape ? { boardShape } : {}),
@@ -907,26 +968,12 @@ export function NewGameScreen({
                             gap: 8,
                           }}
                         >
-                          {seatHeroes[i] && (
-                            <HeroArt
-                              hero={seatHeroes[i]!}
-                              size={36}
-                              emblem={heroDef(seatHeroes[i])?.emblem}
-                            />
-                          )}
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: 9, color: 'var(--accent)' }}>
-                              {seatHeroes[i] ? heroDef(seatHeroes[i])?.name : it.eroi.nessuno}
-                            </div>
-                            <div style={{ fontSize: 8, color: 'var(--ink-dim)' }}>
-                              {seatHeroes[i] ? heroDef(seatHeroes[i])?.ability : ''}
-                            </div>
-                          </div>
+                          <HeroesSummary heroes={seatHeroes[i] ?? []} />
                           <button
                             className="pxbtn pxbtn--ghost pxbtn--small"
                             onClick={() => setHeroPickerSeat(i)}
                           >
-                            {seatHeroes[i] ? it.eroi.cambia : it.eroi.scegli}
+                            {(seatHeroes[i]?.length ?? 0) > 0 ? it.eroi.cambia : it.eroi.scegli}
                           </button>
                         </div>
                       )}
@@ -959,6 +1006,12 @@ export function NewGameScreen({
             setCapitale={(v) => setCapitale(v)}
             heroesMode={heroesMode}
             setHeroesMode={applyHeroesMode}
+            heroesCount={heroesCount}
+            heroesLibero={heroesLibero}
+            maxHeroes={MAX_HEROES}
+            onPickHeroesPreset={pickHeroesPreset}
+            onToggleHeroesLibero={() => setHeroesLibero((v) => !v)}
+            onSetHeroesCount={applyHeroesCount}
             avoid68={avoid68}
             setAvoid68={(v) => setAvoid68(v)}
             seed={seed}
@@ -1131,23 +1184,13 @@ export function NewGameScreen({
                           padding: '4px 8px',
                         }}
                       >
-                        {slot.hero && (
-                          <HeroArt hero={slot.hero} size={32} emblem={heroDef(slot.hero)?.emblem} />
-                        )}
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 9, color: 'var(--accent)' }}>
-                            {slot.hero ? heroDef(slot.hero)?.name : it.eroi.nessuno}
-                          </div>
-                          <div style={{ fontSize: 8, color: 'var(--ink-dim)' }}>
-                            {slot.hero ? heroDef(slot.hero)?.ability : ''}
-                          </div>
-                        </div>
+                        <HeroesSummary heroes={slot.heroes ?? []} />
                         {(slot.userId === session.userId || (isHost && slot.isBot)) && (
                           <button
                             className="pxbtn pxbtn--ghost pxbtn--small"
                             onClick={() => setHeroPickerSeat(i)}
                           >
-                            {slot.hero ? it.eroi.cambia : it.eroi.scegli}
+                            {(slot.heroes?.length ?? 0) > 0 ? it.eroi.cambia : it.eroi.scegli}
                           </button>
                         )}
                       </div>
@@ -1246,8 +1289,14 @@ export function NewGameScreen({
             heroesMode={heroesMode}
             setHeroesMode={(v) => {
               setHeroesMode(v);
-              patch({ heroes: v });
+              patch({ heroes: v, heroesPerPlayer });
             }}
+            heroesCount={heroesCount}
+            heroesLibero={heroesLibero}
+            maxHeroes={MAX_HEROES}
+            onPickHeroesPreset={pickHeroesPreset}
+            onToggleHeroesLibero={() => setHeroesLibero((v) => !v)}
+            onSetHeroesCount={applyHeroesCount}
             avoid68={avoid68}
             setAvoid68={(v) => {
               setAvoid68(v);
@@ -1324,16 +1373,15 @@ export function NewGameScreen({
       )}
       {heroPickerSeat !== null && (
         <HeroPicker
-          title={t(it.eroi.scegliPer, {
+          title={t(it.eroi.scegliPerMulti, {
             nome:
               (isOnline ? lobby?.slots[heroPickerSeat]?.name : seats[heroPickerSeat]?.name) ?? '',
           })}
-          current={
-            (isOnline ? lobby?.slots[heroPickerSeat]?.hero : seatHeroes[heroPickerSeat]) ?? null
-          }
-          onPick={(hero) => {
-            if (isOnline) socketRef.current?.emit('lobby:setHero', heroPickerSeat, hero);
-            else setSeatHero(heroPickerSeat, hero);
+          selected={(isOnline ? lobby?.slots[heroPickerSeat]?.heroes : seatHeroes[heroPickerSeat]) ?? []}
+          maxCount={heroesPerPlayer}
+          onChange={(next) => {
+            if (isOnline) socketRef.current?.emit('lobby:setHeroes', heroPickerSeat, next);
+            else setSeatHeroList(heroPickerSeat, next);
           }}
           progression={progression}
           onClose={() => setHeroPickerSeat(null)}
@@ -1344,6 +1392,29 @@ export function NewGameScreen({
 }
 
 // ---------------------------------------------------------------------------
+
+/** Riepilogo compatto degli eroi di un posto: le pixel art + i nomi. */
+function HeroesSummary({ heroes }: { heroes: HeroId[] }) {
+  if (heroes.length === 0) {
+    return (
+      <div style={{ flex: 1, minWidth: 0, fontSize: 9, color: 'var(--ink-dim)' }}>
+        {it.eroi.nessuno}
+      </div>
+    );
+  }
+  return (
+    <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+        {heroes.map((h) => (
+          <HeroArt key={h} hero={h} size={28} emblem={heroDef(h)?.emblem} />
+        ))}
+      </div>
+      <div style={{ minWidth: 0, fontSize: 8, color: 'var(--ink-dim)' }}>
+        {heroes.map((h) => heroDef(h)?.name).filter(Boolean).join(', ')}
+      </div>
+    </div>
+  );
+}
 
 function InviteCard({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
@@ -1494,9 +1565,16 @@ interface RulesPresetProps {
   setBattle: (v: boolean) => void;
   capitale: boolean;
   setCapitale: (v: boolean) => void;
-  /** Modalità Eroi (solo locale). */
+  /** Modalità Eroi. */
   heroesMode: boolean;
   setHeroesMode: (v: boolean) => void;
+  /** «Numero di eroi» per clan: valore corrente, preset/libero e setter. */
+  heroesCount: number;
+  heroesLibero: boolean;
+  maxHeroes: number;
+  onPickHeroesPreset: (n: number) => void;
+  onToggleHeroesLibero: () => void;
+  onSetHeroesCount: (n: number) => void;
   avoid68: boolean;
   setAvoid68: (v: boolean) => void;
   seed: string;
@@ -1621,6 +1699,43 @@ function RulesPreset(p: RulesPresetProps) {
             🛡️ {it.eroi.conEroi}
           </label>
           {p.heroesMode && <div style={NOTE_STYLE}>{it.eroi.spiega}</div>}
+          {p.heroesMode && (
+            <div style={{ paddingLeft: 4 }}>
+              <div style={CAT_STYLE}>{it.eroi.numero}</div>
+              <div className="color-picker">
+                {HERO_COUNT_PRESETS.map((n) => (
+                  <button
+                    key={n}
+                    className={`pxbtn pxbtn--small ${!p.heroesLibero && p.heroesCount === n ? '' : 'pxbtn--ghost'}`}
+                    disabled={!p.editable}
+                    onClick={() => p.onPickHeroesPreset(n)}
+                  >
+                    {n}
+                  </button>
+                ))}
+                <button
+                  className={`pxbtn pxbtn--small ${p.heroesLibero ? '' : 'pxbtn--ghost'}`}
+                  disabled={!p.editable}
+                  onClick={p.onToggleHeroesLibero}
+                >
+                  {it.eroi.libero}
+                </button>
+                {p.heroesLibero && (
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    max={p.maxHeroes}
+                    value={p.heroesCount}
+                    disabled={!p.editable}
+                    onChange={(e) => p.onSetHeroesCount(parseInt(e.target.value, 10) || 1)}
+                    style={{ width: 60 }}
+                  />
+                )}
+              </div>
+              <div style={NOTE_STYLE}>{it.eroi.numeroSpiega}</div>
+            </div>
+          )}
 
           {/* Modalità Squadra: un'altra «modalità» accanto a calamità e battaglia. */}
           {p.teamSlot}

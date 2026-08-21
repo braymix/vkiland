@@ -33,6 +33,8 @@ export {
   openChest,
   canClaimFreeChest,
   claimFreeChest,
+  canRedeemUncommon,
+  redeemUncommon,
   currentChestDurationMs,
   MAX_CHESTS,
   FRAGMENTS_PER_HERO,
@@ -45,6 +47,7 @@ export {
   type ChestSlot,
   type ChestRarity,
   type ChestOpenResult,
+  type RedeemResult,
 } from './progression';
 
 // Costanti e utilità riusate da bot e UI.
@@ -139,10 +142,12 @@ export {
   RARITY_ORDER,
   heroDef,
   heroOf,
+  heroesOf,
   hasHero,
   heroUsesLeft,
   effectivePieceLimit,
   setupRoadsPerVillage,
+  sanitizeHeroList,
   type HeroId,
   type HeroRarity,
   type HeroDef,
