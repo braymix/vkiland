@@ -11,15 +11,25 @@
 import { useEffect, useState } from 'react';
 import {
   canClaimFreeChest,
+  canRedeemUncommon,
+  isHeroUnlocked,
   FRAGMENTS_PER_HERO,
   heroDef,
+  UNCOMMON_HERO_IDS,
+  type HeroId,
   type PlayerProgression,
   type ChestOpenResult,
+  type RedeemResult,
 } from '@vikiland/engine';
 import { it } from '../i18n';
 import { inv } from '../i18n/inventory';
 import { loadSession, type OnlineSession } from '../online/connection';
-import { loadProgression, claimFreeChestAndSave, localDayKey } from '../game/progression';
+import {
+  loadProgression,
+  claimFreeChestAndSave,
+  redeemUncommonAndSave,
+  localDayKey,
+} from '../game/progression';
 import { HeroArt } from '../components/HeroArt';
 import { Dialog } from '../components/dialogs/Dialog';
 
@@ -45,6 +55,10 @@ export function ShopScreen({ onBack }: { onBack: () => void }) {
   const [session, setSession] = useState<OnlineSession | null>(null);
   const [openResult, setOpenResult] = useState<ChestOpenResult | null>(null);
   const [claiming, setClaiming] = useState(false);
+  // Riscatto una-tantum di un eroe non comune a scelta.
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [redeeming, setRedeeming] = useState(false);
+  const [redeemResult, setRedeemResult] = useState<RedeemResult | null>(null);
 
   // Carica la progressione: dall'account se raggiungibile, altrimenti locale.
   useEffect(() => {
@@ -59,6 +73,27 @@ export function ShopScreen({ onBack }: { onBack: () => void }) {
 
   const today = localDayKey();
   const available = prog ? canClaimFreeChest(prog, today) : false;
+  const redeemAvailable = prog ? canRedeemUncommon(prog) : false;
+
+  /** Riscatta l'eroe non comune scelto (una volta per account) e mostra l'esito. */
+  const handleRedeem = async (heroId: HeroId) => {
+    if (!prog || redeeming || !redeemAvailable) return;
+    setRedeeming(true);
+    try {
+      const result = await redeemUncommonAndSave(session, heroId);
+      if (result) {
+        setProg(result.progression);
+        setRedeemResult(result);
+        setPickerOpen(false);
+        notifyUnlock(heroDef(result.heroId)?.name ?? '');
+      } else {
+        // Riscatto già usato altrove: riallinea lo stato.
+        void loadProgression(session).then(setProg);
+      }
+    } finally {
+      setRedeeming(false);
+    }
+  };
 
   /** Riscuote la cassa gratuita del giorno (apre all'istante) e mostra l'esito. */
   const handleClaim = async () => {
@@ -114,9 +149,90 @@ export function ShopScreen({ onBack }: { onBack: () => void }) {
         </div>
       )}
 
+      {/* Riscatto una-tantum: un eroe NON comune a scelta, gratis, una volta per account. */}
+      {prog && (
+        <div className="setup-grid pixel-frame" style={{ maxWidth: 460 }}>
+          <div className="inv-section">🏅 {inv.shopRiscattoTitolo}</div>
+          <div className="inv-info">{inv.shopRiscattoInfo}</div>
+          {redeemAvailable ? (
+            !pickerOpen ? (
+              <button className="pxbtn pxbtn--small" onClick={() => setPickerOpen(true)}>
+                {inv.shopRiscattoScegli}
+              </button>
+            ) : (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))',
+                  gap: 8,
+                }}
+              >
+                {UNCOMMON_HERO_IDS.map((id) => {
+                  const def = heroDef(id)!;
+                  const owned = isHeroUnlocked(prog, id);
+                  return (
+                    <button
+                      key={id}
+                      className="pixel-frame"
+                      disabled={owned || redeeming}
+                      onClick={() => void handleRedeem(id)}
+                      style={{
+                        textAlign: 'left',
+                        padding: 8,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        cursor: owned ? 'not-allowed' : 'pointer',
+                        opacity: owned ? 0.5 : 1,
+                        background: 'transparent',
+                      }}
+                      title={owned ? inv.sbloccato : def.description}
+                    >
+                      <HeroArt hero={id} size={40} emblem={def.emblem} />
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 10, color: 'var(--accent)' }}>{def.name}</div>
+                        <div style={{ fontSize: 8, color: 'var(--ink-dim)' }}>
+                          {owned ? inv.sbloccato : def.ability}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )
+          ) : (
+            <div className="inv-info">
+              {inv.shopRiscattoFatto(heroDef(prog.redeemedUncommon)?.name ?? '')}
+            </div>
+          )}
+        </div>
+      )}
+
       <button className="pxbtn pxbtn--ghost" onClick={onBack}>
         {it.indietro}
       </button>
+
+      {/* Esito del riscatto una-tantum: eroe non comune sbloccato. */}
+      {redeemResult && (
+        <Dialog title={inv.riscattoTitolo}>
+          <div className="chest-open">
+            <HeroArt
+              hero={redeemResult.heroId}
+              size={64}
+              emblem={heroDef(redeemResult.heroId)?.emblem}
+            />
+            <div className="chest-open-name">{heroDef(redeemResult.heroId)?.name}</div>
+            <div className="chest-open-body">
+              {inv.notSblocco(heroDef(redeemResult.heroId)?.name ?? '')}
+            </div>
+          </div>
+          <div className="dialog-buttons">
+            <button className="pxbtn" onClick={() => setRedeemResult(null)}>
+              {inv.chiudi}
+            </button>
+          </div>
+        </Dialog>
+      )}
 
       {/* Esito dell'apertura della cassa gratuita: sblocco, frammento o spreco. */}
       {openResult && (

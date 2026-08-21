@@ -13,7 +13,7 @@ import {
 import { rollDie, seedRng, shuffle } from './rng';
 import { rientranzeRegionRadius } from './board/coords';
 import { distinctTeams, isTeamMode, teamSize, validateTeams } from './teams';
-import { heroDef, type HeroId } from './heroes';
+import { heroDef, sanitizeHeroList, type HeroId } from './heroes';
 import type {
   BoardShapeChoice,
   BoardSizeChoice,
@@ -40,11 +40,12 @@ export interface NewGameOptions {
   /** Modalità Eroi: ogni clan gioca con un eroe. Default false. */
   heroes?: boolean;
   /**
-   * Modalità Eroi: l'eroe scelto da ciascun giocatore, indicizzato come
-   * `players`. Una voce può essere assente/null (nessun eroe per quel clan).
+   * Modalità Eroi: gli eroi scelti da ciascun giocatore, indicizzati come
+   * `players`. Ogni voce può essere un singolo eroe, una LISTA di eroi (il clan
+   * gioca con più eroi, tutti distinti) oppure assente/null (nessun eroe).
    * Ignorato se `heroes` è false.
    */
-  heroAssignments?: (HeroId | null | undefined)[];
+  heroAssignments?: (HeroId | readonly HeroId[] | null | undefined)[];
   /** Scelta esplicita della tavola grande; assente = consigliata dal numero di giocatori. */
   boardSize?: BoardSizeChoice;
   /** Forma della tavola; 'rientranze' = isola casuale con golfi e ponti. Assente = esagono classico. */
@@ -196,15 +197,19 @@ export function createGame(options: NewGameOptions): GameState {
       initialVillages: [],
       initialRoads: [],
     };
-    // Modalità Eroi: assegna l'eroe scelto, inizializza gli usi «per partita» e
-    // applica i bonus di inizio partita (Astrid: 2 di ogni materiale).
+    // Modalità Eroi: assegna gli eroi scelti (uno o più, tutti distinti) e
+    // inizializza gli usi «per partita» di ciascuna abilità a consumo.
     if (config.heroes) {
-      const hero = options.heroAssignments?.[id] ?? undefined;
-      const def = heroDef(hero);
-      if (hero && def) {
-        state.hero = hero;
-        if (def.useKey && def.usesPerGame) {
-          state.heroUses = { [def.useKey]: def.usesPerGame };
+      const raw = options.heroAssignments?.[id];
+      const list = raw == null ? [] : Array.isArray(raw) ? raw : [raw as HeroId];
+      const heroes = sanitizeHeroList(list);
+      if (heroes.length) {
+        state.heroes = heroes;
+        for (const hid of heroes) {
+          const def = heroDef(hid);
+          if (def?.useKey && def.usesPerGame) {
+            state.heroUses = { ...(state.heroUses ?? {}), [def.useKey]: def.usesPerGame };
+          }
         }
       }
     }
@@ -321,7 +326,7 @@ export function cloneState(s: GameState): GameState {
       roads: [...p.roads],
       initialVillages: [...p.initialVillages],
       initialRoads: [...p.initialRoads],
-      ...(p.hero ? { hero: p.hero } : {}),
+      ...(p.heroes ? { heroes: [...p.heroes] } : {}),
       ...(p.heroUses ? { heroUses: { ...p.heroUses } } : {}),
     })),
     bank: { ...s.bank },

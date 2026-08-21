@@ -66,8 +66,8 @@ interface Slot {
   connected: boolean;
   /** Modalità Squadra: indice di squadra del posto (0 di default). */
   team: number;
-  /** Modalità Eroi: eroe scelto dal posto (null = nessuno). */
-  hero: HeroId | null;
+  /** Modalità Eroi: eroi scelti dal posto (vuoto = nessuno). */
+  heroes: HeroId[];
 }
 
 /** Primo colore della palette non ancora usato nella lobby. */
@@ -75,19 +75,54 @@ function firstFreeColor(slots: Slot[]): PlayerColor {
   return PALETTE.find((c) => !slots.some((s) => s.color === c)) ?? PALETTE[0]!;
 }
 
-/** Un eroe casuale (per prevalorizzare i posti quando la modalità Eroi è attiva). */
-function randomHero(): HeroId {
-  return ALL_HEROES[Math.floor(Math.random() * ALL_HEROES.length)]!.id;
+/** Quanti eroi DISTINTI per clan richiede la config (default 1, cap al totale). */
+function heroesPerPlayer(config: LobbyConfig): number {
+  const n = Math.floor(config.heroesPerPlayer ?? 1);
+  return Math.max(1, Math.min(ALL_HEROES.length, Number.isFinite(n) ? n : 1));
 }
 
-/** Eroe iniziale di un posto: casuale se la modalità Eroi è attiva, altrimenti nessuno. */
-function defaultHero(config: LobbyConfig): HeroId | null {
-  return config.heroes ? randomHero() : null;
+/** `n` eroi casuali DISTINTI (per prevalorizzare i posti in modalità Eroi). */
+function randomHeroes(n: number): HeroId[] {
+  const pool = ALL_HEROES.map((h) => h.id);
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j]!, pool[i]!];
+  }
+  return pool.slice(0, Math.max(0, Math.min(pool.length, n)));
 }
 
-/** Validazione lato server: `null` oppure un id d'eroe reale. */
-function isValidHero(h: unknown): h is HeroId | null {
-  return h === null || (typeof h === 'string' && h in HERO_REGISTRY);
+/** Eroi iniziali di un posto: `n` casuali se la modalità Eroi è attiva, altrimenti nessuno. */
+function defaultHeroes(config: LobbyConfig): HeroId[] {
+  return config.heroes ? randomHeroes(heroesPerPlayer(config)) : [];
+}
+
+/**
+ * Porta una lista di eroi a ESATTAMENTE `n` eroi distinti: tiene i primi `n`
+ * già scelti e, se ne mancano, li completa con eroi casuali non ancora presenti.
+ */
+function fillHeroes(current: HeroId[], n: number): HeroId[] {
+  const out = current.slice(0, n);
+  if (out.length < n) {
+    for (const id of randomHeroes(ALL_HEROES.length)) {
+      if (out.length >= n) break;
+      if (!out.includes(id)) out.push(id);
+    }
+  }
+  return out;
+}
+
+/** Ripulisce la lista di eroi ricevuta: id reali, DISTINTI, al massimo `max`. */
+function sanitizeHeroes(raw: unknown, max: number): HeroId[] {
+  if (!Array.isArray(raw)) return [];
+  const out: HeroId[] = [];
+  for (const item of raw) {
+    if (typeof item !== 'string' || !(item in HERO_REGISTRY)) continue;
+    const id = item as HeroId;
+    if (out.includes(id)) continue;
+    out.push(id);
+    if (out.length >= max) break;
+  }
+  return out;
 }
 
 export interface Lobby {
@@ -151,7 +186,7 @@ export class LobbyManager {
           color: PALETTE[0]!,
           connected: true,
           team: 0,
-          hero: defaultHero(sanitizeConfig(config)),
+          heroes: defaultHeroes(sanitizeConfig(config)),
         },
       ],
       started: false,
@@ -197,7 +232,7 @@ export class LobbyManager {
       color: firstFreeColor(lobby.slots),
       connected: true,
       team: 0,
-      hero: defaultHero(lobby.config),
+      heroes: defaultHeroes(lobby.config),
     });
     this.rebalanceTeams(lobby);
     this.userLobby.set(user.id, code);
@@ -243,7 +278,7 @@ export class LobbyManager {
       color: firstFreeColor(lobby.slots),
       connected: true,
       team: 0,
-      hero: defaultHero(lobby.config),
+      heroes: defaultHeroes(lobby.config),
     });
     this.rebalanceTeams(lobby);
     this.broadcast(lobby);
@@ -273,10 +308,11 @@ export class LobbyManager {
   }
 
   /**
-   * Modalità Eroi: sceglie l'eroe di un posto. Può farlo il proprietario del
-   * posto (il proprio) oppure l'host (anche per i bot). `null` = nessun eroe.
+   * Modalità Eroi: imposta gli eroi di un posto (uno o più, tutti distinti, al
+   * massimo il «numero di eroi» delle regole). Può farlo il proprietario del
+   * posto (il proprio) oppure l'host (anche per i bot). Lista vuota = nessuno.
    */
-  setHero(userId: string, index: number, hero: HeroId | null): Result {
+  setHeroes(userId: string, index: number, heroes: HeroId[]): Result {
     const lobby = this.lobbyOfUser(userId);
     if (!lobby) return { error: 'Non sei in una lobby' };
     if (lobby.started) return { error: 'Partita già iniziata' };
@@ -286,8 +322,7 @@ export class LobbyManager {
     const isHost = lobby.hostUserId === userId;
     const isOwn = slot.userId === userId;
     if (!isOwn && !(isHost && slot.isBot)) return { error: 'Non puoi scegliere questo eroe' };
-    if (!isValidHero(hero)) return { error: 'Eroe non valido' };
-    slot.hero = hero;
+    slot.heroes = sanitizeHeroes(heroes, heroesPerPlayer(lobby.config));
     this.broadcast(lobby);
     return this.toState(lobby);
   }
@@ -330,10 +365,13 @@ export class LobbyManager {
     const prevNumTeams = lobby.config.numTeams ?? 2;
     const prevTeamMode = lobby.config.teamMode ?? false;
     lobby.config = sanitizeConfig(config);
-    // Modalità Eroi: accendendola, i posti senza eroe ne ricevono uno casuale
-    // (modificabile); spegnendola gli eroi restano ma sono ignorati all'avvio.
+    // Modalità Eroi: accendendola (o cambiando il «numero di eroi»), ogni posto
+    // viene portato ESATTAMENTE a `n` eroi distinti — tenendo quelli già scelti
+    // e completando con eroi casuali; spegnendola gli eroi restano ma sono
+    // ignorati all'avvio.
     if (lobby.config.heroes) {
-      for (const s of lobby.slots) if (!s.hero) s.hero = randomHero();
+      const n = heroesPerPlayer(lobby.config);
+      for (const s of lobby.slots) s.heroes = fillHeroes(s.heroes, n);
     }
     // Un cambio del numero di squadre (o l'accensione della modalità) ribilancia.
     const numTeamsChanged = (lobby.config.numTeams ?? 2) !== prevNumTeams;
@@ -387,7 +425,7 @@ export class LobbyManager {
         botLevel: s.botLevel,
         color: s.color,
         team: s.team,
-        ...(lobby.config.heroes ? { hero: s.hero ?? randomHero() } : {}),
+        ...(lobby.config.heroes ? { heroes: fillHeroes(s.heroes, heroesPerPlayer(lobby.config)) } : {}),
         ...(cosmetics ? { cosmetics } : {}),
       };
     });
@@ -693,7 +731,9 @@ function sanitizeConfig(c: LobbyConfig): LobbyConfig {
     calamities: Boolean(c.calamities),
     battle: Boolean(c.battle),
     capitale: Boolean(c.capitale),
-    ...(c.heroes ? { heroes: true } : {}),
+    ...(c.heroes
+      ? { heroes: true, heroesPerPlayer: clampInt(c.heroesPerPlayer, 1, ALL_HEROES.length, 1) }
+      : {}),
     // Solo 'grande' o 'gigante' sono valori validi; qualsiasi altro = consigliata.
     ...(c.boardSize === 'grande' || c.boardSize === 'gigante' ? { boardSize: c.boardSize } : {}),
     // Forma tavola: solo 'rientranze' è un valore valido; altro = esagono classico

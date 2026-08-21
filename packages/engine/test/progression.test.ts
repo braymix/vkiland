@@ -17,6 +17,8 @@ import {
   pickChestReward,
   canClaimFreeChest,
   claimFreeChest,
+  canRedeemUncommon,
+  redeemUncommon,
   COMMON_HERO_IDS,
   UNCOMMON_HERO_IDS,
   MAX_CHESTS,
@@ -202,5 +204,35 @@ describe('sanitizeProgression (validazione input esterno)', () => {
 
   it('conserva il flag tester quando è true', () => {
     expect(sanitizeProgression({ tester: true }).tester).toBe(true);
+  });
+
+  it('conserva il riscatto una-tantum solo se è un eroe non comune valido', () => {
+    const hero = UNCOMMON_HERO_IDS[0]!;
+    const clean = sanitizeProgression({ redeemedUncommon: hero });
+    expect(clean.redeemedUncommon).toBe(hero);
+    // L'eroe riscattato è per coerenza anche sbloccato.
+    expect(clean.unlocked).toContain(hero);
+    // Un id comune o inesistente viene scartato.
+    expect(sanitizeProgression({ redeemedUncommon: COMMON_HERO_IDS[0] }).redeemedUncommon).toBeUndefined();
+    expect(sanitizeProgression({ redeemedUncommon: 'inesistente' }).redeemedUncommon).toBeUndefined();
+  });
+});
+
+describe('negozio — riscatto una-tantum di un eroe non comune a scelta', () => {
+  it('sblocca l’eroe scelto e segna il riscatto come usato', () => {
+    const hero = UNCOMMON_HERO_IDS[0]!;
+    expect(canRedeemUncommon({})).toBe(true);
+    const res = redeemUncommon({}, hero);
+    expect(res).not.toBeNull();
+    expect(res!.heroId).toBe(hero);
+    expect(res!.progression.redeemedUncommon).toBe(hero);
+    expect(isHeroUnlocked(res!.progression, hero)).toBe(true);
+    expect(canRedeemUncommon(res!.progression)).toBe(false);
+  });
+
+  it('rifiuta un secondo riscatto e un eroe non valido (non comune)', () => {
+    const prog = redeemUncommon({}, UNCOMMON_HERO_IDS[0]!)!.progression;
+    expect(redeemUncommon(prog, UNCOMMON_HERO_IDS[1]!)).toBeNull();
+    expect(redeemUncommon({}, COMMON_HERO_IDS[0]!)).toBeNull();
   });
 });

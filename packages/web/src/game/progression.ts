@@ -11,8 +11,11 @@ import {
   canEarnChest,
   openChest as engineOpenChest,
   claimFreeChest as engineClaimFreeChest,
+  redeemUncommon as engineRedeemUncommon,
+  type HeroId,
   type PlayerProgression,
   type ChestOpenResult,
+  type RedeemResult,
 } from '@vikiland/engine';
 import { apiGetProgression, apiSetProgression, type OnlineSession } from '../online/connection';
 
@@ -124,6 +127,24 @@ export async function claimFreeChestAndSave(
 ): Promise<ChestOpenResult | null> {
   const current = await loadProgression(session);
   const result = engineClaimFreeChest(current, localDayKey());
+  if (!result) return null;
+  const saved = await saveProgression(session, result.progression);
+  return { ...result, progression: saved };
+}
+
+/**
+ * Riscatta (una volta per account) l'eroe NON comune `heroId` a scelta e
+ * persiste. Rilegge lo stato più aggiornato (per non perdere sblocchi fatti
+ * altrove né consumare il riscatto due volte), lo sblocca se disponibile e
+ * salva. Ritorna l'esito con la progressione salvata, oppure `null` se il
+ * riscatto è già stato usato o l'eroe non è valido.
+ */
+export async function redeemUncommonAndSave(
+  session: OnlineSession | null,
+  heroId: HeroId
+): Promise<RedeemResult | null> {
+  const current = await loadProgression(session);
+  const result = engineRedeemUncommon(current, heroId);
   if (!result) return null;
   const saved = await saveProgression(session, result.progression);
   return { ...result, progression: saved };

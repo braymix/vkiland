@@ -104,24 +104,26 @@ describe('LobbyManager', () => {
     manager.join(created.code, astrid);
 
     // Senza modalità Eroi attiva, scegliere un eroe è rifiutato.
-    expect(isApiError(manager.setHero(bjorn.id, 0, 'donoLegname'))).toBe(true);
+    expect(isApiError(manager.setHeroes(bjorn.id, 0, ['donoLegname']))).toBe(true);
 
-    // L'host accende la modalità: i posti ricevono un eroe casuale (non null).
-    const on = manager.updateConfig(bjorn.id, { ...CFG, heroes: true });
+    // L'host accende la modalità con «numero di eroi» = 3: ogni posto riceve 3
+    // eroi casuali distinti.
+    const on = manager.updateConfig(bjorn.id, { ...CFG, heroes: true, heroesPerPlayer: 3 });
     if (isApiError(on)) throw new Error('updateConfig fallita');
     expect(on.config.heroes).toBe(true);
-    expect(on.slots.every((s) => s.hero != null)).toBe(true);
+    expect(on.config.heroesPerPlayer).toBe(3);
+    expect(on.slots.every((s) => (s.heroes?.length ?? 0) === 3)).toBe(true);
+    expect(on.slots.every((s) => new Set(s.heroes).size === s.heroes!.length)).toBe(true);
 
-    // Ognuno sceglie il proprio eroe; non quello altrui.
-    const mine = manager.setHero(astrid.id, 1, 'mercante');
-    if (isApiError(mine)) throw new Error('setHero fallita');
-    expect(mine.slots[1]!.hero).toBe('mercante');
-    expect(isApiError(manager.setHero(astrid.id, 0, 'maestro'))).toBe(true);
-    // Eroe inesistente rifiutato.
-    expect(isApiError(manager.setHero(bjorn.id, 0, 'nonEsiste' as never))).toBe(true);
+    // Ognuno sceglie i propri eroi (distinti, cap al numero di eroi); non gli altrui.
+    const mine = manager.setHeroes(astrid.id, 1, ['mercante', 'maestro', 'mercante', 'apripista']);
+    if (isApiError(mine)) throw new Error('setHeroes fallita');
+    // Doppioni scartati e cap a 3: ['mercante','maestro','apripista'].
+    expect(mine.slots[1]!.heroes).toEqual(['mercante', 'maestro', 'apripista']);
+    expect(isApiError(manager.setHeroes(astrid.id, 0, ['maestro']))).toBe(true);
 
     // La partita parte con gli eroi assegnati.
-    manager.setHero(bjorn.id, 0, 'apripista');
+    manager.setHeroes(bjorn.id, 0, ['apripista', 'donoLegname', 'comandante']);
     const started = manager.start(bjorn.id);
     expect(isApiError(started)).toBe(false);
   });

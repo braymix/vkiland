@@ -398,8 +398,30 @@ senza account vive sul dispositivo, con una sessione online è legata all'accoun
   `web/game/progression.ts`, «AAAA-M-G»): a mezzanotte la cassa torna disponibile.
   `claimFreeChestAndSave` rilegge lo stato più aggiornato prima di aprire e
   persiste (account o localStorage), coerente con `openChestAndSave`.
+- **Riscatto una-tantum** di un eroe non comune a scelta: una volta per account
+  (o dispositivo senza account) si sblocca subito, gratis, un eroe non comune
+  qualunque. Logica pura in `progression.ts` (`canRedeemUncommon`,
+  `redeemUncommon`, campo `redeemedUncommon` validato da `sanitizeProgression`);
+  `redeemUncommonAndSave` in `web/game/progression.ts` rilegge/persiste come le
+  casse. UI in `ShopScreen` (griglia dei non comuni; i già sbloccati sono
+  disabilitati).
 - Punto di crescita futuro del Negozio (altre casse, temi, cosmetici — mai
   pay-to-win).
+
+## Numero di eroi (modalità Eroi)
+
+Ogni clan può giocare con **più eroi**, tutti **distinti** (niente doppioni). Il
+«numero di eroi» è una regola scelta nel setup (preset **3/5/7** o **libero**,
+fino all'intera raccolta) sia in locale sia online.
+
+- Engine: `PlayerState.heroes` / `PublicPlayer.heroes` sono liste; le abilità si
+  sommano (più «Dono» ⇒ più materiali a inizio turno; Maestro/Apripista/Comandante
+  valgono se presenti nella lista). `heroAssignments` accetta un id o una lista
+  per posto; `sanitizeHeroList` scarta i doppioni.
+- Server: `LobbyConfig.heroesPerPlayer`, `LobbySlot.heroes`, evento
+  `lobby:setHeroes`; i posti sono portati a esattamente N eroi distinti.
+- UI: `HeroPicker` a selezione multipla (cap al numero di eroi, niente doppioni),
+  selettore «Numero di eroi» nel preset regole, `HeroBar` mostra tutti gli eroi.
 
 ## Roadmap fasi successive
 

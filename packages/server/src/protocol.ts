@@ -61,8 +61,14 @@ export interface LobbyConfig {
   battle: boolean;
   /** Modalità Capitale: la Capitale, evoluzione della Roccaforte (una sola per clan). */
   capitale: boolean;
-  /** Modalità Eroi: ogni clan gioca con un eroe (scelto per-posto in `LobbySlot.hero`). */
+  /** Modalità Eroi: ogni clan gioca con uno o più eroi (scelti per-posto in `LobbySlot.heroes`). */
   heroes?: boolean;
+  /**
+   * Modalità Eroi: «numero di eroi» per clan (quanti eroi DISTINTI ciascun
+   * giocatore sceglie). Assente = 1 (comportamento classico). Presente solo con
+   * `heroes`.
+   */
+  heroesPerPlayer?: number;
   /**
    * Scelta esplicita della tavola grande ('grande' 29 caselle / 'gigante' 37);
    * assente = tavola consigliata dal numero di giocatori (piccola per 2–4).
@@ -152,8 +158,8 @@ export interface LobbySlot {
   connected: boolean;
   /** Modalità Squadra: indice di squadra di questo posto (0 se non attiva). */
   team: number;
-  /** Modalità Eroi: eroe scelto dal posto (null = nessuno ancora). */
-  hero?: HeroId | null;
+  /** Modalità Eroi: eroi scelti dal posto (vuoto = nessuno ancora). */
+  heroes?: HeroId[];
 }
 
 export interface LobbyState {
@@ -267,8 +273,8 @@ export interface ClientToServerEvents {
   'lobby:setColor': (index: number, color: PlayerColor) => void;
   /** Modalità Squadra: assegna un posto a una squadra (il proprio, oppure l'host per tutti). */
   'lobby:setTeam': (index: number, team: number) => void;
-  /** Modalità Eroi: sceglie l'eroe di un posto (il proprio; l'host anche per i bot). */
-  'lobby:setHero': (index: number, hero: HeroId | null) => void;
+  /** Modalità Eroi: imposta gli eroi di un posto (il proprio; l'host anche per i bot). */
+  'lobby:setHeroes': (index: number, heroes: HeroId[]) => void;
   'lobby:start': () => void;
   /** Solo l'host: chiude la partita/lobby per TUTTI, anche a partita in corso. */
   'lobby:terminate': () => void;

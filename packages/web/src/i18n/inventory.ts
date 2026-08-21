@@ -45,6 +45,12 @@ export interface InvStrings {
   shopGratisApri: string;
   shopGratisFatta: string;
   shopGratisTornaDomani: string;
+  // Negozio (riscatto una-tantum di un eroe non comune a scelta)
+  shopRiscattoTitolo: string;
+  shopRiscattoInfo: string;
+  shopRiscattoScegli: string;
+  shopRiscattoFatto: (nome: string) => string;
+  riscattoTitolo: string;
   // Comuni
   chiudi: string;
 }
@@ -82,6 +88,11 @@ const it: InvStrings = {
   shopGratisApri: 'Riscuoti gratis',
   shopGratisFatta: 'Già riscossa oggi',
   shopGratisTornaDomani: 'Torna domani per la prossima cassa gratuita.',
+  shopRiscattoTitolo: 'Riscatto una-tantum',
+  shopRiscattoInfo: 'Una volta per account: scegli un eroe non comune e sbloccalo subito, gratis.',
+  shopRiscattoScegli: 'Scegli l’eroe',
+  shopRiscattoFatto: (nome) => `Riscatto già usato: ${nome}.`,
+  riscattoTitolo: '🎁 Eroe riscattato!',
   chiudi: 'Chiudi',
 };
 
@@ -118,6 +129,11 @@ const en: InvStrings = {
   shopGratisApri: 'Claim for free',
   shopGratisFatta: 'Already claimed today',
   shopGratisTornaDomani: 'Come back tomorrow for the next free chest.',
+  shopRiscattoTitolo: 'One-time redeem',
+  shopRiscattoInfo: 'Once per account: pick an uncommon hero and unlock it right away, for free.',
+  shopRiscattoScegli: 'Pick your hero',
+  shopRiscattoFatto: (nome) => `Redeem already used: ${nome}.`,
+  riscattoTitolo: '🎁 Hero redeemed!',
   chiudi: 'Close',
 };
 
@@ -154,6 +170,11 @@ const es: InvStrings = {
   shopGratisApri: 'Reclamar gratis',
   shopGratisFatta: 'Ya reclamado hoy',
   shopGratisTornaDomani: 'Vuelve mañana por el próximo cofre gratis.',
+  shopRiscattoTitolo: 'Canje único',
+  shopRiscattoInfo: 'Una vez por cuenta: elige un héroe poco común y desbloquéalo al instante, gratis.',
+  shopRiscattoScegli: 'Elige el héroe',
+  shopRiscattoFatto: (nome) => `Canje ya usado: ${nome}.`,
+  riscattoTitolo: '🎁 ¡Héroe canjeado!',
   chiudi: 'Cerrar',
 };
 
@@ -190,6 +211,11 @@ const fr: InvStrings = {
   shopGratisApri: 'Récupérer gratuitement',
   shopGratisFatta: 'Déjà récupéré aujourd’hui',
   shopGratisTornaDomani: 'Revenez demain pour le prochain coffre gratuit.',
+  shopRiscattoTitolo: 'Échange unique',
+  shopRiscattoInfo: 'Une fois par compte : choisissez un héros peu commun et débloquez-le aussitôt, gratuitement.',
+  shopRiscattoScegli: 'Choisir le héros',
+  shopRiscattoFatto: (nome) => `Échange déjà utilisé : ${nome}.`,
+  riscattoTitolo: '🎁 Héros échangé !',
   chiudi: 'Fermer',
 };
 
@@ -226,6 +252,11 @@ const de: InvStrings = {
   shopGratisApri: 'Kostenlos abholen',
   shopGratisFatta: 'Heute schon abgeholt',
   shopGratisTornaDomani: 'Komm morgen für die nächste kostenlose Truhe wieder.',
+  shopRiscattoTitolo: 'Einmal-Einlösung',
+  shopRiscattoInfo: 'Einmal pro Konto: Wähle einen ungewöhnlichen Helden und schalte ihn sofort gratis frei.',
+  shopRiscattoScegli: 'Held wählen',
+  shopRiscattoFatto: (nome) => `Einlösung bereits genutzt: ${nome}.`,
+  riscattoTitolo: '🎁 Held eingelöst!',
   chiudi: 'Schließen',
 };
 
@@ -262,6 +293,11 @@ const nl: InvStrings = {
   shopGratisApri: 'Gratis ophalen',
   shopGratisFatta: 'Vandaag al opgehaald',
   shopGratisTornaDomani: 'Kom morgen terug voor de volgende gratis kist.',
+  shopRiscattoTitolo: 'Eenmalige inwissel',
+  shopRiscattoInfo: 'Eén keer per account: kies een ongewone held en ontgrendel hem meteen, gratis.',
+  shopRiscattoScegli: 'Kies de held',
+  shopRiscattoFatto: (nome) => `Inwissel al gebruikt: ${nome}.`,
+  riscattoTitolo: '🎁 Held ingewisseld!',
   chiudi: 'Sluiten',
 };
 
@@ -298,6 +334,11 @@ const ru: InvStrings = {
   shopGratisApri: 'Забрать бесплатно',
   shopGratisFatta: 'Сегодня уже забрано',
   shopGratisTornaDomani: 'Возвращайтесь завтра за следующим бесплатным сундуком.',
+  shopRiscattoTitolo: 'Разовый обмен',
+  shopRiscattoInfo: 'Один раз на аккаунт: выберите необычного героя и откройте его сразу, бесплатно.',
+  shopRiscattoScegli: 'Выберите героя',
+  shopRiscattoFatto: (nome) => `Обмен уже использован: ${nome}.`,
+  riscattoTitolo: '🎁 Герой получен!',
   chiudi: 'Закрыть',
 };
 
@@ -334,6 +375,11 @@ const sr: InvStrings = {
   shopGratisApri: 'Preuzmi besplatno',
   shopGratisFatta: 'Već preuzeto danas',
   shopGratisTornaDomani: 'Vrati se sutra po sledeći besplatan sanduk.',
+  shopRiscattoTitolo: 'Jednokratno preuzimanje',
+  shopRiscattoInfo: 'Jednom po nalogu: izaberi neuobičajenog junaka i otključaj ga odmah, besplatno.',
+  shopRiscattoScegli: 'Izaberi junaka',
+  shopRiscattoFatto: (nome) => `Preuzimanje već iskorišćeno: ${nome}.`,
+  riscattoTitolo: '🎁 Junak preuzet!',
   chiudi: 'Zatvori',
 };
 

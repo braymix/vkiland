@@ -140,20 +140,19 @@ function resolveRoadAttack(
 function applyTurnStartHeroGains(state: GameState, events: GameEvent[]): void {
   if (!state.config.heroes) return;
   const me = state.players[state.currentPlayer]!;
-  const def = heroDef(me.hero);
-  if (!def) return;
-  const gain = zeroResources();
-  if (def.donoResource) {
-    gain[def.donoResource] = Math.min(1, state.bank[def.donoResource]);
-  } else {
-    return;
+  // Ogni eroe «Dono» posseduto frutta 1 del proprio materiale: con più eroi
+  // Dono i guadagni si sommano (ciascuno preso dalla banca, senza scoprirla).
+  for (const hid of me.heroes ?? []) {
+    const def = heroDef(hid);
+    if (!def?.donoResource) continue;
+    const amount = Math.min(1, state.bank[def.donoResource]);
+    if (amount === 0) continue;
+    const gain = zeroResources();
+    gain[def.donoResource] = amount;
+    me.resources[def.donoResource] += amount;
+    state.bank[def.donoResource] -= amount;
+    events.push({ type: 'eroeGuadagno', player: me.id, hero: def.id, resources: gain });
   }
-  if (totalResources(gain) === 0) return;
-  for (const r of RESOURCES) {
-    me.resources[r] += gain[r];
-    state.bank[r] -= gain[r];
-  }
-  events.push({ type: 'eroeGuadagno', player: me.id, hero: def.id, resources: gain });
 }
 
 /**
@@ -278,7 +277,7 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
         produceForSetupVillage(state, me.id, action.vertex, events);
       }
       // Modalità Eroi (Apripista Vegard): 2 sentieri iniziali per casa invece di uno.
-      const roadsLeft = state.config.heroes && me.hero === 'apripista' ? 2 : 1;
+      const roadsLeft = state.config.heroes && me.heroes?.includes('apripista') ? 2 : 1;
       state.phase = { type: 'setup', expecting: 'sentiero', lastVillage: action.vertex, roadsLeft };
       break;
     }
@@ -598,7 +597,7 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       events.push({ type: 'cartaSagaGiocata', player: me.id, card: 'berserker' });
       recomputeFuria(state, me.id, events);
       // Modalità Eroi (Comandante Ulfar): il Drago si sposta due volte.
-      if (state.config.heroes && me.hero === 'comandante') state.heroBerserkerMovesLeft = 2;
+      if (state.config.heroes && me.heroes?.includes('comandante')) state.heroBerserkerMovesLeft = 2;
       state.phase = { type: 'moveDragon', cause: 'berserker' };
       break;
     }

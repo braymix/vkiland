@@ -245,9 +245,9 @@ export interface GameConfig {
    */
   capitale: boolean;
   /**
-   * MODALITÀ EROI (opzionale): ogni clan gioca con un EROE (vedi `heroes.ts`)
-   * dalle abilità passive o attivabili. L'eroe scelto è in `PlayerState.hero`.
-   * false = partita standard senza eroi.
+   * MODALITÀ EROI (opzionale): ogni clan gioca con uno o PIÙ EROI (vedi
+   * `heroes.ts`) dalle abilità passive o attivabili. Gli eroi scelti sono in
+   * `PlayerState.heroes`. false = partita standard senza eroi.
    */
   heroes: boolean;
   /**
@@ -306,10 +306,12 @@ export interface PlayerState {
    */
   initialRoads: EdgeId[];
   /**
-   * MODALITÀ EROI: l'eroe scelto dal clan (assente fuori dalla modalità). La sua
-   * abilità è interpretata dal motore consultando `heroes.ts`.
+   * MODALITÀ EROI: gli eroi scelti dal clan (assente/vuoto fuori dalla modalità).
+   * Ogni clan può giocare con PIÙ eroi (numero deciso dalle regole, «numero di
+   * eroi»), tutti DISTINTI: le loro abilità si sommano. Interpretate dal motore
+   * consultando `heroes.ts`.
    */
-  hero?: HeroId;
+  heroes?: HeroId[];
   /**
    * MODALITÀ EROI: usi rimasti delle abilità a consumo «per partita»
    * (es. { mutaporto: 1 } per Njord, { mercante: 4 } per Gest). Assente se
@@ -485,8 +487,8 @@ export interface PublicPlayer {
   roads: EdgeId[];
   /** Punti Gloria visibili (esclusi gli Eroi nascosti). */
   gloryPointsPublic: number;
-  /** MODALITÀ EROI: l'eroe scelto dal clan (pubblico: lo vedono tutti). */
-  hero?: HeroId;
+  /** MODALITÀ EROI: gli eroi scelti dal clan (pubblici: li vedono tutti). */
+  heroes?: HeroId[];
   /** Skin del giocatore (pubbliche: le vedono tutti sul tabellone). */
   cosmetics?: PlayerCosmetics;
   /**

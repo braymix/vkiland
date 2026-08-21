@@ -49,6 +49,12 @@ export interface PlayerProgression {
    * gratuita del Negozio. Vuoto/assente → la cassa di oggi è ancora disponibile.
    */
   freeChestDay?: string;
+  /**
+   * Negozio: eroe NON comune riscattato con l'unico riscatto GRATUITO a scelta
+   * concesso UNA VOLTA per account. Assente → il riscatto è ancora disponibile.
+   * L'eroe indicato è anche sbloccato (presente in `unlocked`).
+   */
+  redeemedUncommon?: HeroId;
 }
 
 /** Esito dell'apertura di una cassa. */
@@ -239,6 +245,36 @@ export function claimFreeChest(
   return applyFragment(withDay, heroId);
 }
 
+// --- Negozio: riscatto una-tantum di un eroe non comune a scelta -------------
+//
+// Ogni account (o dispositivo, senza account) ha UN SOLO riscatto gratuito: può
+// scegliere un eroe NON comune qualunque e sbloccarlo all'istante. Una volta
+// usato non si ripete. La logica è pura (come le casse): client e server la
+// applicano identica.
+
+/** Il riscatto una-tantum dell'eroe non comune a scelta è ancora disponibile? */
+export function canRedeemUncommon(prog: PlayerProgression): boolean {
+  return prog.redeemedUncommon === undefined;
+}
+
+/** Esito del riscatto una-tantum. */
+export interface RedeemResult {
+  progression: PlayerProgression;
+  heroId: HeroId;
+}
+
+/**
+ * Riscatta (una volta per account) l'eroe non comune `heroId` a scelta: lo
+ * sblocca e segna il riscatto come usato. Ritorna `null` se il riscatto è già
+ * stato usato o se `heroId` non è un eroe non comune valido.
+ */
+export function redeemUncommon(prog: PlayerProgression, heroId: HeroId): RedeemResult | null {
+  if (!canRedeemUncommon(prog)) return null;
+  if (!UNCOMMON_SET.has(heroId)) return null;
+  const unlocked = Array.from(new Set([...(prog.unlocked ?? []), heroId]));
+  return { progression: { ...prog, redeemedUncommon: heroId, unlocked }, heroId };
+}
+
 // --- Validazione (fonte di verità condivisa) --------------------------------
 
 function cleanChest(raw: unknown): ChestSlot | null {
@@ -267,6 +303,7 @@ export function sanitizeProgression(raw: unknown): PlayerProgression {
     fragments?: unknown;
     unlocked?: unknown;
     freeChestDay?: unknown;
+    redeemedUncommon?: unknown;
   };
   const out: PlayerProgression = {};
 
@@ -288,6 +325,13 @@ export function sanitizeProgression(raw: unknown): PlayerProgression {
     for (const id of body.unlocked) {
       if (typeof id === 'string' && UNCOMMON_SET.has(id as HeroId)) unlocked.add(id as HeroId);
     }
+  }
+
+  // Riscatto una-tantum: solo un eroe NON comune valido; l'eroe riscattato è
+  // per coerenza anche sbloccato.
+  if (typeof body.redeemedUncommon === 'string' && UNCOMMON_SET.has(body.redeemedUncommon as HeroId)) {
+    out.redeemedUncommon = body.redeemedUncommon as HeroId;
+    unlocked.add(body.redeemedUncommon as HeroId);
   }
 
   const fragments: Partial<Record<HeroId, number>> = {};

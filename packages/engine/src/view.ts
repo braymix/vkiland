@@ -31,8 +31,8 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
     capitals: [...p.capitals],
     roads: [...p.roads],
     gloryPointsPublic: gloryPoints(state, p.id, false),
-    // Modalità Eroi: l'eroe è pubblico (lo vedono tutti al tavolo).
-    ...(p.hero ? { hero: p.hero } : {}),
+    // Modalità Eroi: gli eroi sono pubblici (li vedono tutti al tavolo).
+    ...(p.heroes && p.heroes.length ? { heroes: [...p.heroes] } : {}),
   }));
 
   // Modalità squadra: i compagni si vedono la MANO a vicenda (risorse + Carte

@@ -1,7 +1,9 @@
 /**
- * Schermata di scelta dell'EROE (modalità Eroi). Mostra la raccolta di eroi
+ * Schermata di scelta degli EROI (modalità Eroi). Mostra la raccolta di eroi
  * raggruppati per rarità, ciascuno con la sua pixel art, nome nordico, nome
- * dell'abilità e descrizione. Selezionando una card si conferma l'eroe del posto.
+ * dell'abilità e descrizione. Ogni clan sceglie un NUMERO di eroi (il «numero di
+ * eroi» delle regole), tutti DISTINTI: niente doppioni. La selezione è multipla
+ * e resta aperta finché non si conferma.
  */
 import {
   ALL_HEROES,
@@ -14,7 +16,7 @@ import {
   type HeroRarity,
   type PlayerProgression,
 } from '@vikiland/engine';
-import { it } from '../i18n';
+import { it, t } from '../i18n';
 import { inv } from '../i18n/inventory';
 import { HeroArt } from './HeroArt';
 
@@ -36,8 +38,12 @@ const RARITY_COLOR: Record<HeroRarity, string> = {
 
 interface Props {
   title: string;
-  current: HeroId | null;
-  onPick: (hero: HeroId | null) => void;
+  /** Eroi attualmente scelti per il posto (tutti distinti). */
+  selected: HeroId[];
+  /** Numero massimo di eroi scegliibili (il «numero di eroi» delle regole). */
+  maxCount: number;
+  /** Nuova lista di eroi scelti (già ripulita: distinti, entro il massimo). */
+  onChange: (next: HeroId[]) => void;
   onClose: () => void;
   /**
    * Progressione del giocatore: gli eroi non ancora sbloccati appaiono bloccati
@@ -47,7 +53,7 @@ interface Props {
   progression?: PlayerProgression;
 }
 
-export function HeroPicker({ title, current, onPick, onClose, progression }: Props) {
+export function HeroPicker({ title, selected, maxCount, onChange, onClose, progression }: Props) {
   const byRarity: Record<HeroRarity, HeroDef[]> = {
     comune: [],
     nonComune: [],
@@ -55,6 +61,16 @@ export function HeroPicker({ title, current, onPick, onClose, progression }: Pro
     leggendaria: [],
   };
   for (const h of ALL_HEROES) byRarity[h.rarity].push(h);
+
+  const full = selected.length >= maxCount;
+
+  const toggle = (id: HeroId) => {
+    if (selected.includes(id)) {
+      onChange(selected.filter((h) => h !== id));
+    } else if (!full) {
+      onChange([...selected, id]);
+    }
+  };
 
   return (
     <div className="dialog-backdrop" onClick={onClose}>
@@ -77,16 +93,21 @@ export function HeroPicker({ title, current, onPick, onClose, progression }: Pro
           </button>
         </div>
 
-        <button
-          className={`pxbtn pxbtn--ghost pxbtn--small ${current === null ? 'pxbtn--active' : ''}`}
-          style={{ marginBottom: 10 }}
-          onClick={() => {
-            onPick(null);
-            onClose();
-          }}
-        >
-          {it.eroi.nessuno}
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10, gap: 8 }}>
+          <span style={{ fontSize: 9, color: 'var(--accent)' }}>
+            {t(it.eroi.selezionati, { n: selected.length, max: maxCount })}
+          </span>
+          <div style={{ display: 'flex', gap: 6 }}>
+            {selected.length > 0 && (
+              <button className="pxbtn pxbtn--ghost pxbtn--small" onClick={() => onChange([])}>
+                {it.eroi.nessuno}
+              </button>
+            )}
+            <button className="pxbtn pxbtn--small" onClick={onClose}>
+              {it.eroi.conferma}
+            </button>
+          </div>
+        </div>
 
         {RARITY_ORDER.map((rarity) => (
           <div key={rarity} style={{ marginBottom: 12 }}>
@@ -109,30 +130,32 @@ export function HeroPicker({ title, current, onPick, onClose, progression }: Pro
               }}
             >
               {byRarity[rarity].map((h) => {
-                const active = current === h.id;
+                const active = selected.includes(h.id);
                 // Senza progressione tutto è selezionabile; altrimenti gli eroi
                 // non sbloccati restano bloccati col progresso dei frammenti.
                 const locked = progression ? !isHeroUnlocked(progression, h.id) : false;
                 const frags = progression ? fragmentsOf(progression, h.id) : 0;
+                // Con la lista piena, i non selezionati non si possono aggiungere.
+                const disabled = locked || (!active && full);
                 return (
                   <button
                     key={h.id}
-                    disabled={locked}
-                    aria-disabled={locked}
+                    disabled={disabled}
+                    aria-disabled={disabled}
+                    aria-pressed={active}
                     onClick={() => {
                       if (locked) return;
-                      onPick(h.id);
-                      onClose();
+                      toggle(h.id);
                     }}
                     className="pixel-frame"
                     style={{
                       textAlign: 'left',
                       padding: 8,
-                      cursor: locked ? 'not-allowed' : 'pointer',
+                      cursor: disabled ? 'not-allowed' : 'pointer',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: 4,
-                      opacity: locked ? 0.55 : 1,
+                      opacity: locked || (!active && full) ? 0.55 : 1,
                       background: active ? 'rgba(255,255,255,0.08)' : 'transparent',
                       borderColor: active ? RARITY_COLOR[rarity] : undefined,
                       outline: active ? `2px solid ${RARITY_COLOR[rarity]}` : 'none',
@@ -155,6 +178,19 @@ export function HeroPicker({ title, current, onPick, onClose, progression }: Pro
                             }}
                           >
                             🔒
+                          </span>
+                        )}
+                        {active && !locked && (
+                          <span
+                            aria-hidden="true"
+                            style={{
+                              position: 'absolute',
+                              top: -4,
+                              right: -4,
+                              fontSize: 14,
+                            }}
+                          >
+                            ✅
                           </span>
                         )}
                       </div>
