@@ -7,7 +7,6 @@
 import { useState } from 'react';
 import {
   RESOURCES,
-  heroDef,
   type Action,
   type LegalMove,
   type PlayerView,
@@ -29,9 +28,8 @@ const portLabel = (kind: PortKind): string => (kind === 'generico' ? '3:1' : kin
 
 export function HeroDialog({ view, legalActions, onSubmit, onClose }: Props) {
   const me = view.me!;
-  const hero = view.players[me.id]?.hero ?? null;
-  const def = heroDef(hero);
-  const usesLeft = def?.useKey ? me.heroUses?.[def.useKey] ?? 0 : undefined;
+  const mercanteUses = me.heroUses?.mercante;
+  const mutaportoUses = me.heroUses?.mutaporto;
 
   // --- Mercante (Gest): scambio 2-a-1 ---
   const mercanteMoves = legalActions.filter(
@@ -52,15 +50,15 @@ export function HeroDialog({ view, legalActions, onSubmit, onClose }: Props) {
   const isMutaporto = portEdges.length > 0;
 
   return (
-    <Dialog title={`${def?.name ?? ''} · ${def?.ability ?? it.eroi.abilita}`}>
-      <p style={{ fontSize: 9, lineHeight: 1.6, color: 'var(--ink-dim)' }}>{def?.description}</p>
-      {usesLeft !== undefined && (
-        <p style={{ fontSize: 9, color: 'var(--accent)' }}>{it.eroi.usiRimasti.replace('{n}', String(usesLeft))}</p>
-      )}
-
+    <Dialog title={it.eroi.abilita}>
       {isMercante && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 }}>
           <div style={{ fontSize: 9 }}>{it.eroi.mercanteTitolo}</div>
+          {mercanteUses !== undefined && (
+            <div style={{ fontSize: 9, color: 'var(--accent)' }}>
+              {it.eroi.usiRimasti.replace('{n}', String(mercanteUses))}
+            </div>
+          )}
           <div>
             <div style={{ fontSize: 8, color: 'var(--ink-dim)', marginBottom: 2 }}>2 ×</div>
             <div style={{ display: 'flex', gap: 4 }}>
@@ -109,6 +107,11 @@ export function HeroDialog({ view, legalActions, onSubmit, onClose }: Props) {
       {isMutaporto && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
           <div style={{ fontSize: 9 }}>{it.eroi.mutaportoTipo}</div>
+          {mutaportoUses !== undefined && (
+            <div style={{ fontSize: 9, color: 'var(--accent)' }}>
+              {it.eroi.usiRimasti.replace('{n}', String(mutaportoUses))}
+            </div>
+          )}
           {portEdges.map((edge) => {
             const port = view.board.ports.find((p) => p.edge === edge);
             const kinds = portMoves.filter((m) => m.edge === edge).map((m) => m.kind);

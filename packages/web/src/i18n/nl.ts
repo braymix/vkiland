@@ -13,7 +13,7 @@ export const nl: Strings = {
 
   // Ingang (inloggen/registreren bij het opstarten) en account vanuit het menu
   entrataInvito:
-    'Log in of registreer om online te spelen — of ga verder en speel meteen lokaal.',
+    'Log in of registreer om online te spelen â of ga verder en speel meteen lokaal.',
   continuaSenzaAccount: 'Doorgaan zonder account',
   gestioneAccount: 'Accountbeheer',
   partitaClassica: 'Klassiek spel',
@@ -23,17 +23,17 @@ export const nl: Strings = {
 
   crediti: 'Credits',
   creditiFattoDa: 'Gemaakt door',
-  creditiInvito: 'Heb je een tip of een bug gevonden? Schrijf me gerust — alle feedback is welkom!',
+  creditiInvito: 'Heb je een tip of een bug gevonden? Schrijf me gerust â alle feedback is welkom!',
   creditiGrazie: 'Bedankt dat je Viking-Island hebt gespeeld!',
 
   // Grappige "monetisatie"-pop-up (Nieuw spel)
   memeTitolo: 'Wacht even, Viking!',
   memeTesto:
     'Om uit te varen kun je een advertentie van 47 minuten bekijken of upgraden naar ' +
-    'VIKING-ISLAND PRO™ voor slechts $999 per maand + btw (op rekening van je jarl).',
-  memePubblicita: '▶ Doorgaan met advertenties',
-  memePro: 'Word PRO — $999/maand + btw',
-  memeAvanti: 'Grapje, ga verder →',
+    'VIKING-ISLAND PROâ¢ voor slechts $999 per maand + btw (op rekening van je jarl).',
+  memePubblicita: 'â¶ Doorgaan met advertenties',
+  memePro: 'Word PRO â $999/maand + btw',
+  memeAvanti: 'Grapje, ga verder â',
 
   // Tutorial ("Boek der Sagen")
   libroSaghe: 'Boek der Sagen',
@@ -52,14 +52,14 @@ export const nl: Strings = {
   nomeInGioco: 'Naam in het spel',
   serverUrl: 'Serveradres',
   serverExpander: 'Server',
-  connessioneInCorso: 'Verbinden…',
+  connessioneInCorso: 'Verbindenâ¦',
   esciAccount: 'Account wisselen',
   ciao: 'Hoi, {nome}!',
 
-  serverVerifica: 'Server controleren…',
+  serverVerifica: 'Server controlerenâ¦',
   serverOk: 'Spelserver bereikbaar',
   serverGiu:
-    'Spelserver onbereikbaar: online staat hier uit. Je kunt nog steeds lokaal spelen vanuit het menu (bots en hot-seat) — of voer het adres van een andere server in.',
+    'Spelserver onbereikbaar: online staat hier uit. Je kunt nog steeds lokaal spelen vanuit het menu (bots en hot-seat) â of voer het adres van een andere server in.',
 
   // Online: lobby
   creaPartita: 'Spel maken',
@@ -67,14 +67,14 @@ export const nl: Strings = {
   codiceInvito: 'Uitnodigingscode',
   lobbyTitolo: 'Lobby {code}',
   condividiCodice: 'Deel de code met de andere Vikingen',
-  inAttesaHost: 'Wachten tot de host uitvaart…',
+  inAttesaHost: 'Wachten tot de host uitvaartâ¦',
   avviaPartita: 'Uitvaren!',
   aggiungiBot: '+ Bot',
   esciLobby: 'Lobby verlaten',
   esciPartita: 'Spel verlaten',
   esciPartitaTitolo: 'Het spel verlaten?',
   esciPartitaTesto:
-    'Het spel gaat zonder jou verder en je plaats blijft van JOU: kom wanneer je wilt terug via „Online” met de code {code}.',
+    'Het spel gaat zonder jou verder en je plaats blijft van JOU: kom wanneer je wilt terug via âOnlineâ met de code {code}.',
   esciPartitaConferma: 'Ja, verlaten',
   timerTurno: 'Beurttimer',
   timerSecondi: 'Beurttimer (seconden, 0 = geen)',
@@ -83,30 +83,30 @@ export const nl: Strings = {
   secondiAbbr: '{n}s',
   hostTag: 'host',
   disconnessoTag: 'afwezig',
-  attesaPartita: 'Wachten op het spel…',
+  attesaPartita: 'Wachten op het spelâ¦',
   lobbyChiusa: 'Lobby gesloten: {motivo}',
-  terminaPartita: 'Spel beëindigen',
-  terminaTitolo: 'Spel beëindigen?',
+  terminaPartita: 'Spel beÃ«indigen',
+  terminaTitolo: 'Spel beÃ«indigen?',
   terminaTesto: 'Het spel wordt voor ALLE spelers gesloten en kan niet worden hervat.',
-  terminaConferma: 'Ja, voor iedereen beëindigen',
+  terminaConferma: 'Ja, voor iedereen beÃ«indigen',
   partitaPubblicaToggle: 'Openbaar spel (voor iedereen)',
   partitePubbliche: 'Openbare spellen',
   nessunaPubblica: 'Op dit moment geen openbare spellen. Maak er een!',
   entra: 'Meedoen',
   postiNsuM: '{n}/{m} Vikingen',
   visibilitaPubblica: 'Openbaar',
-  visibilitaPrivata: 'Privé (op uitnodiging)',
+  visibilitaPrivata: 'PrivÃ© (op uitnodiging)',
   spettatore: {
     guarda: 'Kijken',
     partiteInCorso: 'Lopende partijen',
     nessunaInCorso: 'Geen lopende partijen om te bekijken.',
     giroN: 'Ronde {n}',
-    spettatoriN: '{n} 👁',
+    spettatoriN: '{n} ð',
     staiGuardando: 'Je kijkt mee',
     smettiGuarda: 'Stoppen met kijken',
     chiediMano: 'Bekijk de hand',
     manoNascosta: 'Hand verborgen',
-    inAttesa: 'Wachten…',
+    inAttesa: 'Wachtenâ¦',
     richiestaTitolo: 'Een kijker observeert je',
     richiestaTesto: '{nome} wil je hand zien. Toestaan?',
     permetti: 'Toestaan',
@@ -119,7 +119,7 @@ export const nl: Strings = {
     titolo: 'Chat',
     apri: 'Chat openen',
     chiudi: 'Chat sluiten',
-    placeholder: 'Typ een bericht…',
+    placeholder: 'Typ een berichtâ¦',
     invia: 'Verstuur',
     vuota: 'Nog geen berichten. Breek het ijs!',
     tu: 'Jij',
@@ -130,14 +130,14 @@ export const nl: Strings = {
 
   inventario: 'Inventaris',
   invSottotitolo: 'Jouw skins: iedereen die met je speelt, ziet ze in het spel.',
-  invModoLocale: '📴 Opgeslagen op dit apparaat (geen account) — log in via „Online” om ze overal mee te nemen.',
-  invModoAccount: '☁️ Opgeslagen op je account: ze volgen je op elk apparaat.',
+  invModoLocale: 'ð´ Opgeslagen op dit apparaat (geen account) â log in via âOnlineâ om ze overal mee te nemen.',
+  invModoAccount: 'âï¸ Opgeslagen op je account: ze volgen je op elk apparaat.',
   invDrago: 'Jouw Draak',
-  invDragoInfo: 'In het spel neemt hij het uiterlijk ÉN de kleur aan van wie hem het laatst verplaatste.',
+  invDragoInfo: 'In het spel neemt hij het uiterlijk ÃN de kleur aan van wie hem het laatst verplaatste.',
   invRocca: 'Jouw burchten',
   invRoccaInfo: 'Welk uiterlijk je ook kiest, hij kleurt altijd in de kleur van je clan.',
   invSelezionato: 'In gebruik',
-  invSalvato: 'Opgeslagen ✓',
+  invSalvato: 'Opgeslagen â',
   invColori: 'Kleuren',
   invColoreOcchi: 'Ogen',
   invColoreFiamme: 'Vlammen',
@@ -156,15 +156,15 @@ export const nl: Strings = {
   datiSalvati: 'Dit zijn de gegevens die we van je bewaren:',
   registratoIl: 'Geregistreerd op',
   idAccount: 'Account-ID',
-  passwordImpostata: '••••••••',
+  passwordImpostata: 'â¢â¢â¢â¢â¢â¢â¢â¢',
   cambiaNome: 'Gebruikersnaam wijzigen',
   nuovoNome: 'Nieuwe gebruikersnaam',
   nomeAggiornato: 'Naam bijgewerkt! Hij geldt in het spel vanaf je volgende potjes.',
   passwordAttuale: 'Huidig wachtwoord',
   aggiungiEmail: 'E-mail toevoegen',
-  emailEggTitolo: 'Wacht eens even…',
+  emailEggTitolo: 'Wacht eens evenâ¦',
   emailEggTesto:
-    '„Heeft een online spel echt je e-mail nodig?” Nee. En omdat we je gegevens niet ' +
+    'âHeeft een online spel echt je e-mail nodig?â Nee. En omdat we je gegevens niet ' +
     'verkopen, vragen we er niet om en bewaren we hem niet: dit veld bestaat niet eens ' +
     'in de database.',
   emailEggOk: 'Eerlijk is eerlijk!',
@@ -208,27 +208,27 @@ export const nl: Strings = {
   evita68: 'Vermijd 6 en 8 naast elkaar',
   dimensioneTavola: 'Bordgrootte',
   campoGrande: 'Groot veld',
-  campoGrandeSpiega: '30 vakken — aanbevolen voor 5–6 spelers.',
+  campoGrandeSpiega: '30 vakken â aanbevolen voor 5â6 spelers.',
   campoGigante: 'Reuzenveld',
-  campoGiganteSpiega: '37 vakken — aanbevolen voor 7–8 spelers.',
+  campoGiganteSpiega: '37 vakken â aanbevolen voor 7â8 spelers.',
   campoRientranze: 'Met inhammen',
   campoLibero: 'Vrij speelveld',
   campoLiberoSpiega:
-    'Kies hoeveel vakken het bord heeft ({min}–{max}): een compact eiland met dat aantal vakken. Gaat boven de grootte en vorm hierboven.',
+    'Kies hoeveel vakken het bord heeft ({min}â{max}): een compact eiland met dat aantal vakken. Gaat boven de grootte en vorm hierboven.',
   numeroCaselle: 'Vakken',
   deserti: 'Woestijnen',
   desertiSpiega:
     'Hoeveel woestijnen (toendra, zonder nummerfiche) op het bord. Minstens 1: de Draak start op een woestijn.',
   campoRientranzeSpiega:
-    'Eiland met willekeurige vorm (baaien, schiereilanden) met evenveel vakken: je kunt bruggen bouwen om baaien van één weg breed over te steken.',
+    'Eiland met willekeurige vorm (baaien, schiereilanden) met evenveel vakken: je kunt bruggen bouwen om baaien van Ã©Ã©n weg breed over te steken.',
   categoriaModalita: 'Modi',
   categoriaTavola: 'Bord',
   categoriaOnline: 'Online',
   via: 'Uitvaren!',
   indietro: 'Terug',
-  serveUnUmano: 'Je hebt minstens één menselijke Viking nodig',
+  serveUnUmano: 'Je hebt minstens Ã©Ã©n menselijke Viking nodig',
 
-  // Nieuw spel (één flow: lokaal + online in één weergave)
+  // Nieuw spel (Ã©Ã©n flow: lokaal + online in Ã©Ã©n weergave)
   stessoDevice: 'Lokaal',
   nuovaPartitaHintLocale:
     'Geef de telefoon om de beurt door. Elke plek kan Jij of een Bot zijn.',
@@ -244,7 +244,7 @@ export const nl: Strings = {
   modificaRegole: 'Bewerken',
   altreRegole: 'Meer',
   avvia: 'Starten',
-  copia: 'Kopiëren',
+  copia: 'KopiÃ«ren',
   copiato: 'Gekopieerd!',
   gestionePartita: 'Spelbeheer',
   riprendi: 'Hervatten',
@@ -279,7 +279,7 @@ export const nl: Strings = {
   costruzioni: 'Bouwwerken',
   costruzioniSub: 'Hoeveel je er nog kunt bouwen',
   disponibili: 'beschikbaar',
-  fineTurno: 'Beurt beëindigen',
+  fineTurno: 'Beurt beÃ«indigen',
   annulla: 'Annuleren',
   conferma: 'Bevestigen',
   chiudi: 'Sluiten',
@@ -305,7 +305,7 @@ export const nl: Strings = {
   offertaDi: 'Aanbod van {nome}',
   accetta: 'Accepteren',
   rifiuta: 'Weigeren',
-  inAttesaRisposte: 'Wachten op antwoord…',
+  inAttesaRisposte: 'Wachten op antwoordâ¦',
   concludiCon: 'Sluiten met {nome}',
 
   // Afleggen en stelen
@@ -320,7 +320,7 @@ export const nl: Strings = {
   bonusRequisitoVia: 'minstens {n} verbonden paden',
   bonusRequisitoFuria: 'minstens {n} Berserkers gespeeld',
   eroeSegretoRiga: '1 geheim RP (telt meteen mee)',
-  scambiRiga: 'Ruilen: bank 4:1 · haven 3:1 · speciale haven 2:1',
+  scambiRiga: 'Ruilen: bank 4:1 Â· haven 3:1 Â· speciale haven 2:1',
   obiettivoRiga: 'Winnen: {n} Roempunten op je eigen beurt',
   setteRiga: 'Bij een 7: wie meer dan {n} kaarten heeft, legt de helft af',
 
@@ -343,7 +343,7 @@ export const nl: Strings = {
   mappaFinaleTitolo: 'De kaart op het einde',
   statisticheTitolo: 'Spelstatistieken',
   statTiriDado: 'Dobbelworpen',
-  statTiriSub: '{tiri} worpen in {turni} beurten · verwacht vs werkelijk',
+  statTiriSub: '{tiri} worpen in {turni} beurten Â· verwacht vs werkelijk',
   statNessunTiro: 'Geen worpen geregistreerd.',
   statLegendaAtteso: 'verwacht',
   statNumeroFortunato: 'Geluksgetal',
@@ -371,7 +371,7 @@ export const nl: Strings = {
   statSfortunatoSub: 'meeste kaarten afgelegd',
   statStratega: 'Strateeg',
   statStrategaSub: 'meeste Sagakaarten gespeeld',
-  statNessuno: '—',
+  statNessuno: 'â',
 
   // Namen van grondstoffen en terreinen
   risorsa: {
@@ -404,13 +404,13 @@ export const nl: Strings = {
     modalita: 'Spelmodus',
     standard: 'Standaardspel',
     conCalamita: 'Met rampen',
-    spiega: 'Elke ronde verandert een kaart de regels, alleen voor die ronde — goed en slecht, in willekeurige volgorde. Als de stapel op is, wordt alles weer normaal.',
+    spiega: 'Elke ronde verandert een kaart de regels, alleen voor die ronde â goed en slecht, in willekeurige volgorde. Als de stapel op is, wordt alles weer normaal.',
     titolo: 'Ramp van de ronde',
     rimaste: 'nog {n} in de stapel',
     guadagna: 'Ramp: verdien {n} grondstoffen',
     strade: 'Ramp: plaats je gratis wegen op de kaart!',
     franaScegli: 'Aardverschuiving! Kies welke van je randwegen instort.',
-    attesa: 'Ramp bezig: wacht op de anderen…',
+    attesa: 'Ramp bezig: wacht op de anderenâ¦',
     nome: {
       materialeDoppio: '{mat} in overvloed',
       materialeBloccato: '{mat}-tekort',
@@ -441,7 +441,7 @@ export const nl: Strings = {
       materialeBloccato: 'Deze ronde krijg je geen {mat}.',
       dragoFermo: 'Deze ronde kan de Draak niet verplaatst worden.',
       nienteSaga: 'Deze ronde speel je geen Sagakaarten.',
-      dragoPrimaDelTiro: 'Deze ronde verplaats je vóór het gooien de Draak.',
+      dragoPrimaDelTiro: 'Deze ronde verplaats je vÃ³Ã³r het gooien de Draak.',
       scambiTre: 'Deze ronde zijn alle bankruilen 3:1.',
       scambioDue: 'Deze ronde zijn {mat}-bankruilen 2:1.',
       abbondanza: 'Deze ronde krijg je ALLE grondstoffen dubbel.',
@@ -471,12 +471,12 @@ export const nl: Strings = {
     sagaDegliEroi: '1 geheim Roempunt (telt meteen mee).',
     costruttoriDiSentieri: 'Plaats meteen 2 gratis paden.',
     banchetto: 'Neem 2 grondstoffen naar keuze uit de bank.',
-    tributo: 'Elke tegenstander geeft je AL zijn eenheden van één grondstof.',
+    tributo: 'Elke tegenstander geeft je AL zijn eenheden van Ã©Ã©n grondstof.',
     razzia: 'Leg hem op een vak: tot je volgende beurt is de productie van DAT vak van jou, niet van de eigenaars.',
   },
 
   /**
-   * EASTER EGG: bots die mopperen als de Draak hen blokkeert — net als aan een
+   * EASTER EGG: bots die mopperen als de Draak hen blokkeert â net als aan een
    * echte tafel, waar iemand het altijd persoonlijk opvat.
    */
   // --- Heroes mode ---
@@ -485,10 +485,15 @@ export const nl: Strings = {
     spiega:
       'Each clan picks a hero with a special ability (common, uncommon, rare or legendary). Unless stated otherwise, each ability activates once per turn.',
     scegliTitolo: 'Choose your hero',
-    scegliPer: '{nome}’s hero',
+    scegliPer: '{nome}âs hero',
     nessuno: 'No hero',
     scegli: 'Choose hero',
     cambia: 'Change',
+    scegliPerMulti: '{nome}’s heroes',
+    numero: 'Number of heroes',
+    numeroSpiega: 'How many distinct heroes each clan plays (no duplicates).',
+    libero: 'Free',
+    selezionati: 'Selected {n}/{max}',
     conferma: 'Confirm',
     usiRimasti: 'Uses left: {n}',
     abilita: 'Hero ability',
@@ -496,7 +501,7 @@ export const nl: Strings = {
     usaMutaporto: 'Sea Lord: transform harbour',
     mutaportoScegli: 'Tap one of your harbours on the map to transform it.',
     mutaportoTipo: 'Transform it into which harbour?',
-    mercanteTitolo: 'Wandering Trader — 2-for-1 trade',
+    mercanteTitolo: 'Wandering Trader â 2-for-1 trade',
     esaurita: 'Ability used up',
     rarita: {
       comune: 'Common',
@@ -507,10 +512,10 @@ export const nl: Strings = {
   },
 
   capitale: {
-    nome: '👑 Hoofdstad',
+    nome: 'ð Hoofdstad',
     conCapitale: 'Met hoofdstad',
     spiega:
-      'Waardeer een van je Burchten op tot Hoofdstad (1 hout, 1 steen, 1 schaap, 2 gerst, 3 ijzer): hij is 3 Roempunten waard, levert 3 grondstoffen in plaats van 2 en kan nooit worden vernietigd. Je kunt er maar één bouwen.',
+      'Waardeer een van je Burchten op tot Hoofdstad (1 hout, 1 steen, 1 schaap, 2 gerst, 3 ijzer): hij is 3 Roempunten waard, levert 3 grondstoffen in plaats van 2 en kan nooit worden vernietigd. Je kunt er maar Ã©Ã©n bouwen.',
     scegli: 'Kies welke Burcht je opwaardeert tot Hoofdstad.',
   },
 
@@ -521,11 +526,11 @@ export const nl: Strings = {
     spiega:
       'Als een van jouw wegen het netwerk van een tegenstander bereikt, kun je het op twee manieren aanvallen. ' +
       'Zware aanval (2 hout, 1 steen, 1 schaap, 2 ijzer): raakt een huis (verwoest) of een bolwerk (gedegradeerd tot huis). ' +
-      'Lichte aanval (2 hout, 2 ijzer): breekt een weg van de tegenstander, maar alleen die aan het uiteinde (aan één kant verbonden). ' +
+      'Lichte aanval (2 hout, 2 ijzer): breekt een weg van de tegenstander, maar alleen die aan het uiteinde (aan Ã©Ã©n kant verbonden). ' +
       'De twee starthuizen zijn onverwoestbaar, tenzij ze bolwerken worden.',
-    attacca: '⚔️ Aanvallen',
+    attacca: 'âï¸ Aanvallen',
     scegliBersaglio: 'Kies het gebouw van de tegenstander om aan te vallen (2 hout, 1 steen, 1 schaap, 2 ijzer).',
-    spezza: '🔨 Weg breken',
+    spezza: 'ð¨ Weg breken',
     spezzaScegli: 'Kies de weg van de tegenstander om aan het uiteinde te breken (2 hout, 2 ijzer).',
     pesante: 'Zware aanval',
     pesanteNota: 'huizen en bolwerken',
@@ -542,23 +547,23 @@ export const nl: Strings = {
     'Die draak heeft het op mij gemunt, officieel.',
     'Ja, ja, ik schrijf het op. ALLES.',
     'Oh geweldig, ALWEER bij mij.',
-    'En ik bood je nog wel een ruil aan…',
+    'En ik bood je nog wel een ruil aanâ¦',
     'Ik bel de advocaat van de clan.',
     'Als MIJN Razernij komt, praten we verder.',
     'Mooie manier om vrienden te maken, knap hoor.',
-    'Mijn gerst… MIJN GERST!',
+    'Mijn gerstâ¦ MIJN GERST!',
     'Brave draak, terug naar de toendra, alsjeblieft.',
   ],
 
   // Gebeurtenissen in het scheepsjournaal
   log: {
-    calamita: '⚡ Ramp — {nome}: {desc}',
-    lamentoDrago: '{nome}: „{frase}”',
+    calamita: 'â¡ Ramp â {nome}: {desc}',
+    lamentoDrago: '{nome}: â{frase}â',
     ordineTiro: '{nome} gooit {d1}+{d2} = {tot}',
     ordineSpareggio: 'Beslissing: {righe}',
     ordineTitolo: 'Worp om de volgorde: {righe}',
     ordineFinale: 'Beurtvolgorde: {ordine}',
-    turnoIniziato: '— Beurt {n}: {nome} is aan zet —',
+    turnoIniziato: 'â Beurt {n}: {nome} is aan zet â',
     dadiTirati: '{nome} gooit {d1}+{d2} = {tot}',
     risorseProdotte: '{nome} ontvangt {risorse}',
     penuriaBanca: 'Banktekort: {risorse} niet uitgedeeld',
@@ -571,24 +576,24 @@ export const nl: Strings = {
     cartaComprata: '{nome} koopt een Sagakaart',
     cartaGiocata: '{nome} speelt: {carta}',
     banchetto: '{nome} houdt een feestmaal: +{r1} en +{r2}',
-    tributo: '{nome} int het tribuut: {n}× {risorsa}',
-    razziaPosata: '💰 {nome} ontketent een Rooftocht op een vak: int de productie ervan tot de volgende beurt',
-    razziaRiscossa: '💰 De Rooftocht levert {nome} op: {risorse}',
-    franaSpezzata: '⛰️ Een aardverschuiving laat een weg van {nome} instorten',
+    tributo: '{nome} int het tribuut: {n}Ã {risorsa}',
+    razziaPosata: 'ð° {nome} ontketent een Rooftocht op een vak: int de productie ervan tot de volgende beurt',
+    razziaRiscossa: 'ð° De Rooftocht levert {nome} op: {risorse}',
+    franaSpezzata: 'â°ï¸ Een aardverschuiving laat een weg van {nome} instorten',
     scambioProposto: '{nome} stelt een ruil voor',
     rispostaScambio: '{nome} {risposta} de ruil',
     accettaVerbo: 'accepteert',
     rifiutaVerbo: 'weigert',
-    scambioEseguitoBanca: '{nome} ruilt met de bank: {dai} → {ricevi}',
+    scambioEseguitoBanca: '{nome} ruilt met de bank: {dai} â {ricevi}',
     scambioEseguito: 'Ruil gesloten tussen {a} en {b}',
     scambioAnnullato: 'Aanbod ingetrokken',
     scambioRifiutato: 'Geen teamgenoot accepteerde de ruil',
     grandeVia: 'De Grote Weg gaat naar {nome} ({n} paden)',
     grandeViaNessuno: 'De Grote Weg is van niemand meer',
     furia: 'De Razernij der Berserkers gaat naar {nome} ({n} berserkers)',
-    battagliaDistrutta: '⚔️ {attaccante} verwoest een huis van {vittima}',
-    battagliaDeclassata: '⚔️ {attaccante} degradeert een bolwerk van {vittima} tot huis',
-    sentieroSpezzato: '🔨 {attaccante} breekt een weg van {vittima}',
+    battagliaDistrutta: 'âï¸ {attaccante} verwoest een huis van {vittima}',
+    battagliaDeclassata: 'âï¸ {attaccante} degradeert een bolwerk van {vittima} tot huis',
+    sentieroSpezzato: 'ð¨ {attaccante} breekt een weg van {vittima}',
     vittoria: '{nome} wint met {n} Roempunten!',
   },
 
@@ -615,14 +620,14 @@ export const nl: Strings = {
     giocaOffline: 'Speel met bots',
     vaiOnline: 'Probeer online',
     fineChiudi: 'Demo sluiten',
-    senzaEmail: 'E-mail — niet nodig!',
+    senzaEmail: 'E-mail â niet nodig!',
     passi: {
       intro: {
         titolo: 'Welkom bij de demo!',
         testo:
           'Ik loop stap voor stap met je door een potje Viking-Island, en laat je daarna ' +
-          'zien hoe je online speelt. Druk op „Verder” om door te gaan: je kunt altijd ' +
-          '„Terug” of „Overslaan”.',
+          'zien hoe je online speelt. Druk op âVerderâ om door te gaan: je kunt altijd ' +
+          'âTerugâ of âOverslaanâ.',
       },
       isola: {
         titolo: 'Het eiland en de grondstoffen',
@@ -647,7 +652,7 @@ export const nl: Strings = {
       altri: {
         titolo: 'Ook de andere clans plaatsen',
         testo:
-          'Elke clan plaatst om de beurt „in slangvorm”: eerst op volgorde, dan achteruit. ' +
+          'Elke clan plaatst om de beurt âin slangvormâ: eerst op volgorde, dan achteruit. ' +
           'Wie het eerste dorp als laatste plaatst, plaatst het tweede als eerste.',
       },
       secondoVillaggio: {
@@ -685,7 +690,7 @@ export const nl: Strings = {
         titolo: 'De Sagakaarten',
         testo:
           'Een stapel van 25 kaarten met speciale effecten. Je koopt ze nu en speelt ze vanaf de ' +
-          'volgende beurt, hoogstens één per beurt (de Heldensaga telt juist meteen mee, terwijl hij verborgen blijft).',
+          'volgende beurt, hoogstens Ã©Ã©n per beurt (de Heldensaga telt juist meteen mee, terwijl hij verborgen blijft).',
       },
       scambi: {
         titolo: 'Ruilen',
@@ -726,8 +731,8 @@ export const nl: Strings = {
       stradeEspansione: {
         titolo: 'Reik uit met wegen',
         testo:
-          'Eén dorp is niet genoeg. Verleng de weg naar het gemarkeerde kruispunt: het brengt NIEUWE getallen en materialen ' +
-          'die je nog niet produceert. Wegen zijn je armen — strek ze naar waar je iets mist.',
+          'EÃ©n dorp is niet genoeg. Verleng de weg naar het gemarkeerde kruispunt: het brengt NIEUWE getallen en materialen ' +
+          'die je nog niet produceert. Wegen zijn je armen â strek ze naar waar je iets mist.',
       },
       secondoPosto: {
         titolo: 'Het tweede dorp maakt de motor af',
@@ -738,7 +743,7 @@ export const nl: Strings = {
       obiettivi: {
         titolo: 'Zet grondstoffen om in doelen',
         testo:
-          'Nu heb je een plan: met hout en steen verleng je wegen en win je “De Grote Weg”; met gerst, wol en ijzer ' +
+          'Nu heb je een plan: met hout en steen verleng je wegen en win je âDe Grote Wegâ; met gerst, wol en ijzer ' +
           'promoveer je dorpen tot burchten en koop je Sagakaarten. Elke zet moet je dichter bij de 10 Roempunten brengen.',
       },
       risultato: {
@@ -750,14 +755,14 @@ export const nl: Strings = {
       onlineIntro: {
         titolo: 'Online spelen met vrienden',
         testo:
-          'Via het menu „Online” speel je met echte mensen, elk op hun eigen apparaat. De ' +
+          'Via het menu âOnlineâ speel je met echte mensen, elk op hun eigen apparaat. De ' +
           'scheidsrechter is de server: die controleert elke zet met dezelfde regels, dus valsspelen is onmogelijk.',
       },
       serverFreddo: {
         titolo: 'Heb geduld: de server ontwaakt',
         testo:
-          'Belangrijk: de gratis server gaat „in slaap” als niemand speelt. De EERSTE verbinding ' +
-          'kan 30 tot 60 seconden duren om hem te wekken — dat is normaal, even wachten. Een groen vinkje laat zien wanneer hij klaar is.',
+          'Belangrijk: de gratis server gaat âin slaapâ als niemand speelt. De EERSTE verbinding ' +
+          'kan 30 tot 60 seconden duren om hem te wekken â dat is normaal, even wachten. Een groen vinkje laat zien wanneer hij klaar is.',
       },
       account: {
         titolo: '1. Maak een account',
@@ -768,14 +773,14 @@ export const nl: Strings = {
       creaEntra: {
         titolo: '2. Maak een spel of doe mee',
         testo:
-          'Druk op „Spel maken” voor een code van 6 tekens om naar je vrienden te sturen, of ' +
-          '„Deelnemen” en voer de ontvangen code in.',
+          'Druk op âSpel makenâ voor een code van 6 tekens om naar je vrienden te sturen, of ' +
+          'âDeelnemenâ en voer de ontvangen code in.',
       },
       lobby: {
         titolo: '3. De lobby',
         testo:
           'In de wachtruimte kun je je kleur wijzigen en kan de host bots toevoegen om de plaatsen ' +
-          'te vullen. Als jullie met 2 tot 6 zijn, drukt de host op „Uitvaren!”.',
+          'te vullen. Als jullie met 2 tot 6 zijn, drukt de host op âUitvaren!â.',
       },
       onlinePartita: {
         titolo: '4. Spelen maar!',
@@ -786,7 +791,7 @@ export const nl: Strings = {
       fine: {
         titolo: 'Je bent er klaar voor, Viking!',
         testo:
-          'Dat was het! Je kunt elke regel nalezen in het „Boek der Sagen” via het menu. Nu is het ' +
+          'Dat was het! Je kunt elke regel nalezen in het âBoek der Sagenâ via het menu. Nu is het ' +
           'jouw beurt: vaar uit!',
       },
     },
@@ -794,22 +799,22 @@ export const nl: Strings = {
   squadra: {
     modalita: 'Teammodus',
     spiega:
-      'Wegen, havens, «De Grote Weg» en de «Razernij der Berserkers» zijn van het team. ' +
-      'Ruilen alleen tussen teamgenoten: twee per beurt, één om één. ' +
+      'Wegen, havens, Â«De Grote WegÂ» en de Â«Razernij der BerserkersÂ» zijn van het team. ' +
+      'Ruilen alleen tussen teamgenoten: twee per beurt, Ã©Ã©n om Ã©Ã©n. ' +
       'Je wint met de gecombineerde Roempunten van het team.',
     numeroSquadre: 'Aantal teams',
     coloriSquadre: 'Teamkleuren',
     coloriNomiSquadre: 'Teamkleuren en -namen',
     nomeSquadra: 'Teamnaam (optioneel)',
     puntiPerGiocatore: 'Punten per speler',
-    bersaglio: 'Teamdoel: {size} × {target} = {tot} gecombineerde punten.',
+    bersaglio: 'Teamdoel: {size} Ã {target} = {tot} gecombineerde punten.',
     sbilanciate: 'Teams moeten even groot zijn: verdeel de plaatsen gelijk.',
     squadraLabel: 'Team:',
     squadraN: 'Team {n}',
     coloreSquadraN: 'Teamkleur {n}',
     sqN: 'T.{n}',
     manoCompagni: 'Jouw team',
-    scambioNota: 'In een team: één grondstof ↔ één grondstof, met het hele team of een teamgenoot (max. 2 per beurt).',
+    scambioNota: 'In een team: Ã©Ã©n grondstof â Ã©Ã©n grondstof, met het hele team of een teamgenoot (max. 2 per beurt).',
     tuttaLaSquadra: 'Het hele team',
   },
   erroreMossa: 'Ongeldige zet: {motivo}',

@@ -157,14 +157,19 @@ export function heroDef(id: HeroId | undefined | null): HeroDef | undefined {
   return id ? HERO_REGISTRY[id] : undefined;
 }
 
-/** L'eroe scelto dal giocatore (undefined fuori dalla modalità o se non scelto). */
-export function heroOf(state: GameState, player: PlayerId): HeroId | undefined {
-  return state.players[player]?.hero;
+/** Gli eroi scelti dal giocatore (array vuoto fuori dalla modalità o se nessuno). */
+export function heroesOf(state: GameState, player: PlayerId): readonly HeroId[] {
+  return state.players[player]?.heroes ?? [];
 }
 
-/** Il giocatore ha esattamente l'eroe `id`? */
+/** Il primo eroe del giocatore (undefined se nessuno). Comodità di compatibilità. */
+export function heroOf(state: GameState, player: PlayerId): HeroId | undefined {
+  return heroesOf(state, player)[0];
+}
+
+/** Il giocatore possiede l'eroe `id` (fra i suoi eroi scelti)? */
 export function hasHero(state: GameState, player: PlayerId, id: HeroId): boolean {
-  return state.players[player]?.hero === id;
+  return heroesOf(state, player).includes(id);
 }
 
 /** Usi rimasti di un'abilità a consumo (0 se assente). */
@@ -186,6 +191,24 @@ export function effectivePieceLimit(
 }
 
 /** Numero di sentieri iniziali che il giocatore piazza per ciascuna casa nel setup. */
-export function setupRoadsPerVillage(hero: HeroId | undefined): number {
-  return hero === 'apripista' ? 2 : 1;
+export function setupRoadsPerVillage(heroes: readonly HeroId[] | undefined): number {
+  return heroes?.includes('apripista') ? 2 : 1;
+}
+
+/**
+ * Ripulisce una lista di eroi per un clan: id validi, DISTINTI (niente doppioni)
+ * e — se `max` è indicato — al massimo `max`. Ordine di prima apparizione.
+ */
+export function sanitizeHeroList(raw: unknown, max?: number): HeroId[] {
+  if (!Array.isArray(raw)) return [];
+  const out: HeroId[] = [];
+  for (const item of raw) {
+    if (typeof item !== 'string') continue;
+    const id = item as HeroId;
+    if (!(id in HERO_REGISTRY)) continue;
+    if (out.includes(id)) continue;
+    out.push(id);
+    if (max !== undefined && out.length >= max) break;
+  }
+  return out;
 }

@@ -52,7 +52,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
         }
       } else {
         const last = state.phase.lastVillage!;
-        const maxRoads = state.config.heroes && me.hero === 'apripista' ? 2 : 1;
+        const maxRoads = state.config.heroes && me.heroes?.includes('apripista') ? 2 : 1;
         const isFirst = (state.phase.roadsLeft ?? 1) === maxRoads;
         // Il primo sentiero parte dal villaggio; con l'Apripista (Vegard) i
         // successivi possono estendere anche dai sentieri iniziali già posati.
