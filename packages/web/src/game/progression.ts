@@ -10,6 +10,7 @@ import {
   addChest,
   canEarnChest,
   openChest as engineOpenChest,
+  claimFreeChest as engineClaimFreeChest,
   type PlayerProgression,
   type ChestOpenResult,
 } from '@vikiland/engine';
@@ -24,6 +25,15 @@ export function makeChestId(): string {
   } catch {
     return `chest-${Date.now()}-${Math.floor(Math.random() * 1e9)}`;
   }
+}
+
+/**
+ * Chiave del «giorno» locale (data del dispositivo, «AAAA-M-G») usata dalla
+ * cassa gratuita giornaliera del Negozio: cambia a mezzanotte ora locale.
+ */
+export function localDayKey(now: number = Date.now()): string {
+  const d = new Date(now);
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 }
 
 /** La progressione salvata su QUESTO dispositivo ({} se assente/indisponibile). */
@@ -98,6 +108,22 @@ export async function openChestAndSave(
   chestId: string
 ): Promise<ChestOpenResult | null> {
   const result = engineOpenChest(prog, chestId, Date.now());
+  if (!result) return null;
+  const saved = await saveProgression(session, result.progression);
+  return { ...result, progression: saved };
+}
+
+/**
+ * Riscuote la cassa gratuita del Negozio (una al giorno, apre all'istante).
+ * Rilegge lo stato più aggiornato (per non perdere sblocchi fatti altrove né il
+ * flag tester), la apre se disponibile OGGI e persiste. Ritorna l'esito con la
+ * progressione salvata, oppure `null` se oggi è già stata riscossa.
+ */
+export async function claimFreeChestAndSave(
+  session: OnlineSession | null
+): Promise<ChestOpenResult | null> {
+  const current = await loadProgression(session);
+  const result = engineClaimFreeChest(current, localDayKey());
   if (!result) return null;
   const saved = await saveProgression(session, result.progression);
   return { ...result, progression: saved };

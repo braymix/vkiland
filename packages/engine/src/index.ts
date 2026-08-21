@@ -31,6 +31,8 @@ export {
   pickChestReward,
   applyFragment,
   openChest,
+  canClaimFreeChest,
+  claimFreeChest,
   currentChestDurationMs,
   MAX_CHESTS,
   FRAGMENTS_PER_HERO,

@@ -44,6 +44,11 @@ export interface PlayerProgression {
   fragments?: Partial<Record<HeroId, number>>;
   /** Eroi NON comuni sbloccati (i comuni sono sempre sbloccati). */
   unlocked?: HeroId[];
+  /**
+   * Giorno (chiave locale «AAAA-M-G») in cui è stata riscossa l'ultima cassa
+   * gratuita del Negozio. Vuoto/assente → la cassa di oggi è ancora disponibile.
+   */
+  freeChestDay?: string;
 }
 
 /** Esito dell'apertura di una cassa. */
@@ -205,6 +210,35 @@ export function openChest(
   return applyFragment(withoutChest, heroId);
 }
 
+// --- Negozio: cassa gratuita giornaliera ------------------------------------
+//
+// Il Negozio offre UNA cassa gratuita al giorno che si apre ISTANTANEAMENTE
+// (nessun caricamento): non entra nella coda delle casse in lavorazione, ma
+// assegna subito un frammento — esattamente come una cassa aperta. Il «giorno»
+// è una chiave passata dal chiamante (data locale del dispositivo), così la
+// logica resta pura e testabile e client/server applicano la stessa regola.
+
+/** La cassa gratuita di `dayKey` è ancora da riscuotere? */
+export function canClaimFreeChest(prog: PlayerProgression, dayKey: string): boolean {
+  return prog.freeChestDay !== dayKey;
+}
+
+/**
+ * Riscuote la cassa gratuita del giorno `dayKey`: segna il giorno come riscosso
+ * e apre istantaneamente la cassa (frammento di un eroe non comune casuale).
+ * Ritorna `null` se la cassa di oggi è già stata riscossa.
+ */
+export function claimFreeChest(
+  prog: PlayerProgression,
+  dayKey: string,
+  rand: () => number = Math.random
+): ChestOpenResult | null {
+  if (!canClaimFreeChest(prog, dayKey)) return null;
+  const withDay: PlayerProgression = { ...prog, freeChestDay: dayKey };
+  const heroId = pickChestReward(rand);
+  return applyFragment(withDay, heroId);
+}
+
 // --- Validazione (fonte di verità condivisa) --------------------------------
 
 function cleanChest(raw: unknown): ChestSlot | null {
@@ -232,10 +266,14 @@ export function sanitizeProgression(raw: unknown): PlayerProgression {
     chests?: unknown;
     fragments?: unknown;
     unlocked?: unknown;
+    freeChestDay?: unknown;
   };
   const out: PlayerProgression = {};
 
   if (body.tester === true) out.tester = true;
+
+  if (typeof body.freeChestDay === 'string' && body.freeChestDay.length > 0)
+    out.freeChestDay = body.freeChestDay;
 
   if (Array.isArray(body.chests)) {
     const chests = body.chests
