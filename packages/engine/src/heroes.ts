@@ -15,7 +15,7 @@ import type { GameState, PlayerId, Resource } from './types';
 export type HeroRarity = 'comune' | 'nonComune' | 'rara' | 'leggendaria';
 
 export type HeroId =
-  // Comuni: uno per materiale (a inizio turno +2 di quel materiale).
+  // Comuni: uno per materiale (a inizio turno +1 di quel materiale).
   | 'donoLegname'
   | 'donoPietra'
   | 'donoLana'
@@ -39,7 +39,7 @@ export interface HeroDef {
   description: string;
   /** Emoji-simbolo di ripiego per la card (la pixel art vive nel client). */
   emblem: string;
-  /** Solo eroi «Dono»: il materiale guadagnato (+2) a inizio turno. */
+  /** Solo eroi «Dono»: il materiale guadagnato (+1) a inizio turno. */
   donoResource?: Resource;
   /** Usi limitati PER PARTITA (mutaporto=1, mercante=4). Assente = illimitato/passivo. */
   usesPerGame?: number;
@@ -57,7 +57,7 @@ export const HERO_REGISTRY: Readonly<Record<HeroId, HeroDef>> = {
     rarity: 'comune',
     emblem: '🪵',
     donoResource: 'legname',
-    description: 'All’inizio di ogni tuo turno guadagni 2 legname.',
+    description: 'All’inizio di ogni tuo turno guadagni 1 legname.',
   },
   donoPietra: {
     id: 'donoPietra',
@@ -66,7 +66,7 @@ export const HERO_REGISTRY: Readonly<Record<HeroId, HeroDef>> = {
     rarity: 'comune',
     emblem: '🪨',
     donoResource: 'pietra',
-    description: 'All’inizio di ogni tuo turno guadagni 2 pietra.',
+    description: 'All’inizio di ogni tuo turno guadagni 1 pietra.',
   },
   donoLana: {
     id: 'donoLana',
@@ -75,7 +75,7 @@ export const HERO_REGISTRY: Readonly<Record<HeroId, HeroDef>> = {
     rarity: 'comune',
     emblem: '🐑',
     donoResource: 'lana',
-    description: 'All’inizio di ogni tuo turno guadagni 2 lana.',
+    description: 'All’inizio di ogni tuo turno guadagni 1 lana.',
   },
   donoOrzo: {
     id: 'donoOrzo',
@@ -84,7 +84,7 @@ export const HERO_REGISTRY: Readonly<Record<HeroId, HeroDef>> = {
     rarity: 'comune',
     emblem: '🌾',
     donoResource: 'orzo',
-    description: 'All’inizio di ogni tuo turno guadagni 2 orzo.',
+    description: 'All’inizio di ogni tuo turno guadagni 1 orzo.',
   },
   donoFerro: {
     id: 'donoFerro',
@@ -93,7 +93,7 @@ export const HERO_REGISTRY: Readonly<Record<HeroId, HeroDef>> = {
     rarity: 'comune',
     emblem: '⛏️',
     donoResource: 'ferro',
-    description: 'All’inizio di ogni tuo turno guadagni 2 ferro.',
+    description: 'All’inizio di ogni tuo turno guadagni 1 ferro.',
   },
 
   // --- Non comuni ---

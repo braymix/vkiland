@@ -357,6 +357,31 @@ Hot-seat (Fase 2): Nuova partita → metti 2+ righe su «Umano» col toggle →
 tra un umano e l'altro appare «Passa il dispositivo». Partita solo vs bot =
 identica alla Fase 1.
 
+## Casse ed eroi (progressione)
+
+Sistema di progressione condiviso local/account (stessa doppia anima dei
+cosmetici). Fonte di verità nell'engine: `engine/src/progression.ts`
+(`sanitizeProgression`, `openChest`, `addChest`, split rarità, costanti).
+
+- **Casse**: se ne guadagna una a fine partita al 100% (online o offline;
+  assegnata dalla `GameScreen` via `onGameComplete`, esclusi gli spettatori).
+  Max 3 in lavorazione. Restano «in caricamento» per un tempo fisso prima di
+  potersi aprire: base 9h, **sconto attivo 3h** (più veloce;
+  `CHEST_DISCOUNT_ACTIVE` in `progression.ts` — metterlo a `false` riporta a
+  9h; le casse già avviate tengono la durata con cui sono nate).
+- **Eroi**: i **comuni** (i «Dono») sono sbloccati da subito; i **non comuni**
+  si farmano. Ogni cassa dà un frammento di un non comune casuale; con 5
+  frammenti l'eroe si sblocca. Un frammento di un eroe già sbloccato è sprecato.
+- **Inventario** (`InventoryScreen`): sezione Casse (timer/apertura) e collezione
+  Eroi con progresso `X/5`; popup all'esito dell'apertura + notifica di sistema
+  best-effort allo sblocco. La scelta eroe (`HeroPicker`) mostra i non comuni
+  bloccati (non selezionabili) col progresso frammenti.
+- **Tester**: gli account creati PRIMA di questa funzionalità sono marcati
+  `tester` (migrazione in `storage.ts`/`storagePg.ts`): hanno ogni eroe già
+  disponibile e, aprendo i Riconoscimenti, vedono un popup di ringraziamento. Il
+  flag è deciso solo dal server (l'endpoint `/api/progression` ignora `tester`
+  dal client). I nuovi account nascono non-tester.
+
 ## Roadmap fasi successive
 
 - **Fase 3.5 — Rifiniture online** (quando serviranno): Drizzle ORM

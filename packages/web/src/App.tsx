@@ -1,8 +1,14 @@
 /** Router a stati dell'app: entrata → menu → partita locale, oppure online. */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { PlayerProgression } from '@vikiland/engine';
 import { useLang } from './i18n';
 import { LocalGameController, type GameSetup } from './game/LocalGameController';
 import { loadSession, saveSession, type OnlineSession } from './online/connection';
+import {
+  getLocalProgression,
+  loadProgression,
+  awardChestForFinishedGame,
+} from './game/progression';
 import { TUTORIAL_ONLINE_CHAPTER } from './i18n/tutorial';
 import { AccountScreen } from './screens/AccountScreen';
 import { DemoScreen } from './screens/DemoScreen';
@@ -37,6 +43,31 @@ export function App() {
 
   const hasAccount = session !== null;
 
+  // Progressione (casse, frammenti, eroi sbloccati, flag tester). Vive qui in
+  // alto perché serve al menu (popup tester), alla scelta eroe (cosa è
+  // sbloccato) e all'assegnazione della cassa a fine partita. Parte dal
+  // dispositivo e, se c'è una sessione, si allinea all'account.
+  const [progression, setProgression] = useState<PlayerProgression>(() => getLocalProgression());
+  useEffect(() => {
+    let alive = true;
+    void loadProgression(session).then((p) => {
+      if (alive) setProgression(p);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [session]);
+
+  /** Rilegge la progressione dalla fonte giusta (dopo l'inventario, a fine partita). */
+  const reloadProgression = () => {
+    void loadProgression(session).then(setProgression);
+  };
+
+  /** Fine partita al 100%: assegna una cassa (se c'è spazio) e aggiorna lo stato. */
+  const onGameComplete = () => {
+    void awardChestForFinishedGame(session).then(setProgression);
+  };
+
   /** Login/registrazione riuscita (dall'entrata): ricorda la sessione, va al menu. */
   const onLoggedIn = (s: OnlineSession) => {
     saveSession(s);
@@ -64,6 +95,7 @@ export function App() {
       return (
         <MenuScreen
           hasAccount={hasAccount}
+          isTester={progression.tester === true}
           onNewGame={() => setRoute({ screen: 'newGame', mode: 'locale' })}
           onLibro={() => setRoute({ screen: 'tutorial' })}
           onInventory={() => setRoute({ screen: 'inventory' })}
@@ -80,7 +112,16 @@ export function App() {
         />
       );
     case 'inventory':
-      return <InventoryScreen onBack={() => setRoute({ screen: 'menu' })} />;
+      return (
+        <InventoryScreen
+          onBack={() => {
+            // Tornando al menu rilegge la progressione: eventuali sblocchi fatti
+            // nell'inventario si riflettono subito nella scelta eroe e nel menu.
+            reloadProgression();
+            setRoute({ screen: 'menu' });
+          }}
+        />
+      );
     case 'account':
       if (!session) return null;
       return (
@@ -109,6 +150,8 @@ export function App() {
       return (
         <NewGameScreen
           session={session}
+          progression={progression}
+          onGameComplete={onGameComplete}
           initialMode={route.mode}
           onBack={() => setRoute({ screen: 'menu' })}
           onStartLocal={(setup) => setRoute({ screen: 'game', setup, gameKey: Date.now() })}
@@ -121,6 +164,7 @@ export function App() {
         <GameScreen
           key={route.gameKey}
           makeController={() => new LocalGameController(route.setup)}
+          onGameComplete={onGameComplete}
           onExit={() => setRoute({ screen: 'menu' })}
           onRematch={() =>
             setRoute({

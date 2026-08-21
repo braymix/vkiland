@@ -16,6 +16,34 @@ export { isLegal } from './validate';
 export { getLegalActions } from './legal';
 export { getPlayerView, filterEventsForPlayer, type Viewer } from './view';
 export { sanitizeCosmetics } from './cosmetics';
+// Progressione (casse, frammenti, eroi sbloccati): fonte di verità condivisa
+// da server (persistenza) e client (localStorage + UI).
+export {
+  sanitizeProgression,
+  emptyProgression,
+  fragmentsOf,
+  isHeroUnlocked,
+  unlockedHeroIds,
+  chestReady,
+  chestRemainingMs,
+  canEarnChest,
+  addChest,
+  pickChestReward,
+  applyFragment,
+  openChest,
+  currentChestDurationMs,
+  MAX_CHESTS,
+  FRAGMENTS_PER_HERO,
+  CHEST_DURATION_BASE_MS,
+  CHEST_DURATION_DISCOUNT_MS,
+  CHEST_DISCOUNT_ACTIVE,
+  COMMON_HERO_IDS,
+  UNCOMMON_HERO_IDS,
+  type PlayerProgression,
+  type ChestSlot,
+  type ChestRarity,
+  type ChestOpenResult,
+} from './progression';
 
 // Costanti e utilità riusate da bot e UI.
 export {

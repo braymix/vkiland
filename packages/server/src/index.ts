@@ -11,7 +11,7 @@ import { dirname, join } from 'node:path';
 import Fastify from 'fastify';
 import fastifyCors from '@fastify/cors';
 import { Server, type Socket } from 'socket.io';
-import { sanitizeCosmetics, type Action } from '@vikiland/engine';
+import { sanitizeCosmetics, sanitizeProgression, type Action } from '@vikiland/engine';
 import { AuthService } from './auth';
 import { LobbyManager } from './lobby';
 import { JsonFileStorage, type Storage } from './storage';
@@ -155,6 +155,33 @@ app.post('/api/cosmetics', async (req, reply) => {
   const cosmetics = sanitizeCosmetics(req.body);
   storage.updateUser({ ...record, cosmetics });
   return { cosmetics };
+});
+
+// --- Progressione (casse, frammenti, eroi sbloccati, flag tester) -----------
+// Come per i cosmetici, la validazione vive nell'engine (sanitizeProgression):
+// client e server applicano le stesse regole. Il flag `tester` è però DECISO
+// dal server: non lo si può conquistare da client, quindi in scrittura si
+// conserva sempre quello già presente sul record.
+
+app.get('/api/progression', async (req, reply) => {
+  const user = authedUser(req.headers.authorization);
+  if (!user) return reply.code(401).send({ error: 'Sessione non valida' });
+  return { progression: storage.getUserById(user.id)?.progression ?? {} };
+});
+
+app.post('/api/progression', async (req, reply) => {
+  const user = authedUser(req.headers.authorization);
+  if (!user) return reply.code(401).send({ error: 'Sessione non valida' });
+  const record = storage.getUserById(user.id);
+  if (!record) return reply.code(401).send({ error: 'Sessione non valida' });
+  const progression = sanitizeProgression(req.body);
+  // Il tester è controllato SOLO dal server: si ignora qualunque valore
+  // arrivato dal client e si riscrive quello già presente sul record (così
+  // nessuno può auto-assegnarselo inviando `tester:true`).
+  delete progression.tester;
+  if (record.progression?.tester) progression.tester = true;
+  storage.updateUser({ ...record, progression });
+  return { progression };
 });
 
 app.get('/api/health', async () => ({ ok: true }));
