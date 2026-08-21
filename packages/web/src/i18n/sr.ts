@@ -8,7 +8,7 @@ export const sr: Strings = {
   // Menu
   nuovaPartita: 'Nova igra',
   multigiocatore: 'Onlajn',
-  negozio: 'Prodavnica (uskoro)',
+  negozio: 'Prodavnica',
   comeSiGioca: 'Kako se igra',
 
   // Ulaz (prijava/registracija pri pokretanju) i nalog iz menija

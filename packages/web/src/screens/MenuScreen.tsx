@@ -15,6 +15,7 @@ export function MenuScreen({
   onNewGame,
   onLibro,
   onInventory,
+  onShop,
   onAccount,
   onDemo,
 }: {
@@ -24,6 +25,7 @@ export function MenuScreen({
   onNewGame: () => void;
   onLibro: () => void;
   onInventory: () => void;
+  onShop: () => void;
   onAccount: () => void;
   onDemo: () => void;
 }) {
@@ -64,10 +66,11 @@ export function MenuScreen({
             <span style={{ color: 'var(--ink-dim)', fontSize: 8 }}> · {it.accedi}</span>
           )}
         </button>
-        {/* PUNTO DI ESTENSIONE (Fase 4 — monetizzazione): negozio di skin/temi
-            (cosmetici, mai pay-to-win) collegato agli entitlements del profilo. */}
-        <button className="pxbtn pxbtn--ghost" disabled>
-          {it.negozio}
+        {/* Negozio: per ora una cassa gratuita al giorno (si apre all'istante).
+            Punto di crescita futuro (altre casse, temi, cosmetici — mai
+            pay-to-win). Funziona anche senza account (progressione locale). */}
+        <button className="pxbtn pxbtn--ghost" onClick={onShop}>
+          🛒 {it.negozio}
         </button>
       </div>
 

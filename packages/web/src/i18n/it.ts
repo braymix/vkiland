@@ -11,7 +11,7 @@ export const it = {
   // Menu
   nuovaPartita: 'Nuova partita',
   multigiocatore: 'Online',
-  negozio: 'Negozio (in arrivo)',
+  negozio: 'Negozio',
   comeSiGioca: 'Come si gioca',
 
   // Entrata (login/registrazione all'avvio) e account dal menu

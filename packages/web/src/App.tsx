@@ -17,6 +17,7 @@ import { GameScreen } from './screens/GameScreen';
 import { InventoryScreen } from './screens/InventoryScreen';
 import { MenuScreen } from './screens/MenuScreen';
 import { NewGameScreen } from './screens/NewGameScreen';
+import { ShopScreen } from './screens/ShopScreen';
 import { TutorialScreen } from './screens/TutorialScreen';
 
 type Route =
@@ -27,7 +28,8 @@ type Route =
   | { screen: 'account' }
   | { screen: 'tutorial'; chapter?: number }
   | { screen: 'demo' }
-  | { screen: 'inventory' };
+  | { screen: 'inventory' }
+  | { screen: 'shop' };
 
 export function App() {
   // Sessione online (se presente): decide se «entri» già loggato e se i pulsanti
@@ -99,6 +101,7 @@ export function App() {
           onNewGame={() => setRoute({ screen: 'newGame', mode: 'locale' })}
           onLibro={() => setRoute({ screen: 'tutorial' })}
           onInventory={() => setRoute({ screen: 'inventory' })}
+          onShop={() => setRoute({ screen: 'shop' })}
           // Senza account, «Gestione account» porta all'entrata per accedere.
           onAccount={() => setRoute({ screen: hasAccount ? 'account' : 'entry' })}
           onDemo={() => setRoute({ screen: 'demo' })}
@@ -117,6 +120,17 @@ export function App() {
           onBack={() => {
             // Tornando al menu rilegge la progressione: eventuali sblocchi fatti
             // nell'inventario si riflettono subito nella scelta eroe e nel menu.
+            reloadProgression();
+            setRoute({ screen: 'menu' });
+          }}
+        />
+      );
+    case 'shop':
+      return (
+        <ShopScreen
+          onBack={() => {
+            // Tornando al menu rilegge la progressione: la cassa gratuita
+            // riscossa qui si riflette subito nella scelta eroe e nel menu.
             reloadProgression();
             setRoute({ screen: 'menu' });
           }}
