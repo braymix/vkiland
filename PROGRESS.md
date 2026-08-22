@@ -408,6 +408,34 @@ senza account vive sul dispositivo, con una sessione online è legata all'accoun
 - Punto di crescita futuro del Negozio (altre casse, temi, cosmetici — mai
   pay-to-win).
 
+## Missioni
+
+`MissionsScreen` (raggiungibile dal menu). Una **bacheca** di **partite casuali
+da vincere** contro i bot: ogni missione ha una **rarità** — `facile` (comune,
+più probabile) o `normale` (non comune, più rara) — che ne determina la
+**difficoltà** e la **ricompensa**. Come tutta la progressione funziona SEMPRE:
+senza account vive sul dispositivo, con una sessione online è legata all'account.
+
+- Logica pura nell'engine (`progression.ts`): tipi `Mission` / `MissionBoard`
+  (campo `missions` sulla progressione, validato da `sanitizeProgression`),
+  `generateMissionBoard` / `ensureMissions` / `missionsExpired` /
+  `missionsRefreshRemainingMs`, e `completeMission` — che segna la missione
+  vinta e apre **subito** le casse-ricompensa (frammenti istantanei via
+  `applyFragment`, stesso pool delle casse normali).
+- **Rarità**: `facile` è più probabile (`MISSION_FACILE_PROB = 0.7`); la
+  difficoltà varia i **bot** (livello e numero: facile → bot deboli ×2, normale
+  → bot forti ×3).
+- **Ricompensa** (`MISSION_REWARD_CHESTS`): vincere una **facile** apre **1**
+  cassa istantanea, una **normale** ne apre **2**.
+- **Refresh**: la bacheca si rigenera dopo un tempo **casuale** (4–8 ore),
+  ridotto quando lo **sconto** è attivo (1.5–3 ore) — `refreshMs` è fissato alla
+  generazione, così una variazione dello sconto non altera la bacheca in corso.
+- Flusso client: la missione si gioca come partita locale (`buildMissionSetup`
+  in `web/game/missions.ts` — 1 umano al posto 0 + i bot della missione, isola
+  deterministica dal seme). A fine partita `App` registra se l'umano ha **vinto**
+  (`onMissionGameComplete`); al rientro sulla bacheca `MissionsScreen` completa
+  la missione (`completeMissionAndSave`) e mostra le casse aperte.
+
 ## Numero di eroi (modalità Eroi)
 
 Ogni clan può giocare con **più eroi**, tutti **distinti** (niente doppioni). Il

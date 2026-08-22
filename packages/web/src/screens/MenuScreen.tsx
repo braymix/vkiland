@@ -15,6 +15,7 @@ export function MenuScreen({
   onNewGame,
   onLibro,
   onInventory,
+  onMissions,
   onShop,
   onAccount,
   onDemo,
@@ -25,6 +26,7 @@ export function MenuScreen({
   onNewGame: () => void;
   onLibro: () => void;
   onInventory: () => void;
+  onMissions: () => void;
   onShop: () => void;
   onAccount: () => void;
   onDemo: () => void;
@@ -49,6 +51,11 @@ export function MenuScreen({
             con un account, anche l'online. Niente più popup scherzoso. */}
         <button className="pxbtn" onClick={onNewGame}>
           {it.nuovaPartita}
+        </button>
+        {/* Missioni: partite casuali da vincere per casse gratis (facile/normale).
+            Funziona anche senza account (progressione sul dispositivo). */}
+        <button className="pxbtn pxbtn--ghost" onClick={onMissions}>
+          🗺️ {inv.missioniTitolo}
         </button>
         {/* «Come si gioca» rinominato: è il Libro delle Saghe (tutorial). */}
         <button className="pxbtn pxbtn--ghost" onClick={onLibro}>

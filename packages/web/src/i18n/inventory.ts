@@ -51,6 +51,23 @@ export interface InvStrings {
   shopRiscattoScegli: string;
   shopRiscattoFatto: (nome: string) => string;
   riscattoTitolo: string;
+  // Missioni (partite casuali da vincere; ricompensa in casse istantanee)
+  missioniTitolo: string;
+  missioniSottotitolo: string;
+  missioniInfo: string;
+  missioniComeSi: string;
+  missioneFacile: string;
+  missioneNormale: string;
+  missioneDifficolta: (label: string) => string;
+  missioneRicompensa: (n: number) => string;
+  missioneGioca: string;
+  missioneCompletata: string;
+  missioniRefresh: (hhmm: string) => string;
+  missioniScontoRefresh: string;
+  missioneVittoriaTitolo: string;
+  missioneVittoriaCorpo: (n: number) => string;
+  missioneSconfittaTitolo: string;
+  missioneSconfittaCorpo: string;
   // Comuni
   chiudi: string;
 }
@@ -93,6 +110,23 @@ const it: InvStrings = {
   shopRiscattoScegli: 'Scegli l’eroe',
   shopRiscattoFatto: (nome) => `Riscatto già usato: ${nome}.`,
   riscattoTitolo: '🎁 Eroe riscattato!',
+  missioniTitolo: 'Missioni',
+  missioniSottotitolo: 'Partite casuali da vincere per casse gratis.',
+  missioniInfo: 'Ogni missione è una partita contro i bot: vincila per aprire subito le casse in premio.',
+  missioniComeSi: 'Le missioni facili sono le più frequenti; le normali sono più rare, con bot più forti e doppia ricompensa.',
+  missioneFacile: 'Facile',
+  missioneNormale: 'Normale',
+  missioneDifficolta: (label) => `Bot: ${label}`,
+  missioneRicompensa: (n) => (n === 1 ? '1 cassa' : `${n} casse`),
+  missioneGioca: 'Gioca',
+  missioneCompletata: '✓ Completata',
+  missioniRefresh: (hhmm) => `Nuove missioni fra ${hhmm}`,
+  missioniScontoRefresh: '🔖 Sconto attivo: le missioni si rigenerano più in fretta.',
+  missioneVittoriaTitolo: '🎉 Missione completata!',
+  missioneVittoriaCorpo: (n) =>
+    n === 1 ? 'Hai vinto! Apri la cassa in premio.' : `Hai vinto! Apri le ${n} casse in premio.`,
+  missioneSconfittaTitolo: 'Missione non riuscita',
+  missioneSconfittaCorpo: 'Non hai vinto questa volta: la missione resta disponibile, riprova!',
   chiudi: 'Chiudi',
 };
 
@@ -134,6 +168,23 @@ const en: InvStrings = {
   shopRiscattoScegli: 'Pick your hero',
   shopRiscattoFatto: (nome) => `Redeem already used: ${nome}.`,
   riscattoTitolo: '🎁 Hero redeemed!',
+  missioniTitolo: 'Missions',
+  missioniSottotitolo: 'Random games to win for free chests.',
+  missioniInfo: 'Each mission is a game against the bots: win it to instantly open the chests you earn.',
+  missioniComeSi: 'Easy missions are the most common; normal ones are rarer, with tougher bots and double the reward.',
+  missioneFacile: 'Easy',
+  missioneNormale: 'Normal',
+  missioneDifficolta: (label) => `Bots: ${label}`,
+  missioneRicompensa: (n) => (n === 1 ? '1 chest' : `${n} chests`),
+  missioneGioca: 'Play',
+  missioneCompletata: '✓ Completed',
+  missioniRefresh: (hhmm) => `New missions in ${hhmm}`,
+  missioniScontoRefresh: '🔖 Discount active: missions refresh faster.',
+  missioneVittoriaTitolo: '🎉 Mission complete!',
+  missioneVittoriaCorpo: (n) =>
+    n === 1 ? 'You won! Open your reward chest.' : `You won! Open your ${n} reward chests.`,
+  missioneSconfittaTitolo: 'Mission failed',
+  missioneSconfittaCorpo: 'You did not win this time: the mission stays available, try again!',
   chiudi: 'Close',
 };
 
@@ -175,6 +226,23 @@ const es: InvStrings = {
   shopRiscattoScegli: 'Elige el héroe',
   shopRiscattoFatto: (nome) => `Canje ya usado: ${nome}.`,
   riscattoTitolo: '🎁 ¡Héroe canjeado!',
+  missioniTitolo: 'Misiones',
+  missioniSottotitolo: 'Partidas aleatorias que ganar para cofres gratis.',
+  missioniInfo: 'Cada misión es una partida contra los bots: gánala para abrir al instante los cofres que ganes.',
+  missioniComeSi: 'Las misiones fáciles son las más frecuentes; las normales son más raras, con bots más fuertes y doble recompensa.',
+  missioneFacile: 'Fácil',
+  missioneNormale: 'Normal',
+  missioneDifficolta: (label) => `Bots: ${label}`,
+  missioneRicompensa: (n) => (n === 1 ? '1 cofre' : `${n} cofres`),
+  missioneGioca: 'Jugar',
+  missioneCompletata: '✓ Completada',
+  missioniRefresh: (hhmm) => `Nuevas misiones en ${hhmm}`,
+  missioniScontoRefresh: '🔖 Descuento activo: las misiones se renuevan más rápido.',
+  missioneVittoriaTitolo: '🎉 ¡Misión completada!',
+  missioneVittoriaCorpo: (n) =>
+    n === 1 ? '¡Has ganado! Abre tu cofre de recompensa.' : `¡Has ganado! Abre tus ${n} cofres de recompensa.`,
+  missioneSconfittaTitolo: 'Misión fallida',
+  missioneSconfittaCorpo: 'No has ganado esta vez: la misión sigue disponible, ¡inténtalo de nuevo!',
   chiudi: 'Cerrar',
 };
 
@@ -216,6 +284,23 @@ const fr: InvStrings = {
   shopRiscattoScegli: 'Choisir le héros',
   shopRiscattoFatto: (nome) => `Échange déjà utilisé : ${nome}.`,
   riscattoTitolo: '🎁 Héros échangé !',
+  missioniTitolo: 'Missions',
+  missioniSottotitolo: 'Des parties aléatoires à gagner pour des coffres gratuits.',
+  missioniInfo: 'Chaque mission est une partie contre les bots : gagnez-la pour ouvrir aussitôt les coffres gagnés.',
+  missioniComeSi: 'Les missions faciles sont les plus fréquentes ; les normales sont plus rares, avec des bots plus forts et une récompense double.',
+  missioneFacile: 'Facile',
+  missioneNormale: 'Normale',
+  missioneDifficolta: (label) => `Bots : ${label}`,
+  missioneRicompensa: (n) => (n === 1 ? '1 coffre' : `${n} coffres`),
+  missioneGioca: 'Jouer',
+  missioneCompletata: '✓ Terminée',
+  missioniRefresh: (hhmm) => `Nouvelles missions dans ${hhmm}`,
+  missioniScontoRefresh: '🔖 Réduction active : les missions se renouvellent plus vite.',
+  missioneVittoriaTitolo: '🎉 Mission accomplie !',
+  missioneVittoriaCorpo: (n) =>
+    n === 1 ? 'Vous avez gagné ! Ouvrez votre coffre de récompense.' : `Vous avez gagné ! Ouvrez vos ${n} coffres de récompense.`,
+  missioneSconfittaTitolo: 'Mission échouée',
+  missioneSconfittaCorpo: 'Vous n’avez pas gagné cette fois : la mission reste disponible, réessayez !',
   chiudi: 'Fermer',
 };
 
@@ -257,6 +342,23 @@ const de: InvStrings = {
   shopRiscattoScegli: 'Held wählen',
   shopRiscattoFatto: (nome) => `Einlösung bereits genutzt: ${nome}.`,
   riscattoTitolo: '🎁 Held eingelöst!',
+  missioniTitolo: 'Missionen',
+  missioniSottotitolo: 'Zufällige Spiele zum Gewinnen für kostenlose Truhen.',
+  missioniInfo: 'Jede Mission ist ein Spiel gegen die Bots: Gewinne es, um die verdienten Truhen sofort zu öffnen.',
+  missioniComeSi: 'Leichte Missionen kommen am häufigsten vor; normale sind seltener, mit stärkeren Bots und doppelter Belohnung.',
+  missioneFacile: 'Leicht',
+  missioneNormale: 'Normal',
+  missioneDifficolta: (label) => `Bots: ${label}`,
+  missioneRicompensa: (n) => (n === 1 ? '1 Truhe' : `${n} Truhen`),
+  missioneGioca: 'Spielen',
+  missioneCompletata: '✓ Abgeschlossen',
+  missioniRefresh: (hhmm) => `Neue Missionen in ${hhmm}`,
+  missioniScontoRefresh: '🔖 Rabatt aktiv: Missionen erneuern sich schneller.',
+  missioneVittoriaTitolo: '🎉 Mission abgeschlossen!',
+  missioneVittoriaCorpo: (n) =>
+    n === 1 ? 'Gewonnen! Öffne deine Belohnungstruhe.' : `Gewonnen! Öffne deine ${n} Belohnungstruhen.`,
+  missioneSconfittaTitolo: 'Mission fehlgeschlagen',
+  missioneSconfittaCorpo: 'Diesmal nicht gewonnen: Die Mission bleibt verfügbar, versuch es erneut!',
   chiudi: 'Schließen',
 };
 
@@ -298,6 +400,23 @@ const nl: InvStrings = {
   shopRiscattoScegli: 'Kies de held',
   shopRiscattoFatto: (nome) => `Inwissel al gebruikt: ${nome}.`,
   riscattoTitolo: '🎁 Held ingewisseld!',
+  missioniTitolo: 'Missies',
+  missioniSottotitolo: 'Willekeurige potjes om te winnen voor gratis kisten.',
+  missioniInfo: 'Elke missie is een potje tegen de bots: win het om de verdiende kisten meteen te openen.',
+  missioniComeSi: 'Makkelijke missies komen het vaakst voor; normale zijn zeldzamer, met sterkere bots en dubbele beloning.',
+  missioneFacile: 'Makkelijk',
+  missioneNormale: 'Normaal',
+  missioneDifficolta: (label) => `Bots: ${label}`,
+  missioneRicompensa: (n) => (n === 1 ? '1 kist' : `${n} kisten`),
+  missioneGioca: 'Spelen',
+  missioneCompletata: '✓ Voltooid',
+  missioniRefresh: (hhmm) => `Nieuwe missies over ${hhmm}`,
+  missioniScontoRefresh: '🔖 Korting actief: missies vernieuwen sneller.',
+  missioneVittoriaTitolo: '🎉 Missie voltooid!',
+  missioneVittoriaCorpo: (n) =>
+    n === 1 ? 'Je hebt gewonnen! Open je beloningskist.' : `Je hebt gewonnen! Open je ${n} beloningskisten.`,
+  missioneSconfittaTitolo: 'Missie mislukt',
+  missioneSconfittaCorpo: 'Deze keer niet gewonnen: de missie blijft beschikbaar, probeer opnieuw!',
   chiudi: 'Sluiten',
 };
 
@@ -339,6 +458,23 @@ const ru: InvStrings = {
   shopRiscattoScegli: 'Выберите героя',
   shopRiscattoFatto: (nome) => `Обмен уже использован: ${nome}.`,
   riscattoTitolo: '🎁 Герой получен!',
+  missioniTitolo: 'Миссии',
+  missioniSottotitolo: 'Случайные партии для победы ради бесплатных сундуков.',
+  missioniInfo: 'Каждая миссия — это партия против ботов: выиграйте её, чтобы сразу открыть заработанные сундуки.',
+  missioniComeSi: 'Лёгкие миссии встречаются чаще; обычные реже — с более сильными ботами и двойной наградой.',
+  missioneFacile: 'Лёгкая',
+  missioneNormale: 'Обычная',
+  missioneDifficolta: (label) => `Боты: ${label}`,
+  missioneRicompensa: (n) => (n === 1 ? '1 сундук' : `${n} сундука`),
+  missioneGioca: 'Играть',
+  missioneCompletata: '✓ Выполнена',
+  missioniRefresh: (hhmm) => `Новые миссии через ${hhmm}`,
+  missioniScontoRefresh: '🔖 Действует скидка: миссии обновляются быстрее.',
+  missioneVittoriaTitolo: '🎉 Миссия выполнена!',
+  missioneVittoriaCorpo: (n) =>
+    n === 1 ? 'Вы победили! Откройте сундук-награду.' : `Вы победили! Откройте ${n} сундука-награды.`,
+  missioneSconfittaTitolo: 'Миссия не выполнена',
+  missioneSconfittaCorpo: 'В этот раз не вышло: миссия остаётся доступной, попробуйте снова!',
   chiudi: 'Закрыть',
 };
 
@@ -380,6 +516,23 @@ const sr: InvStrings = {
   shopRiscattoScegli: 'Izaberi junaka',
   shopRiscattoFatto: (nome) => `Preuzimanje već iskorišćeno: ${nome}.`,
   riscattoTitolo: '🎁 Junak preuzet!',
+  missioniTitolo: 'Misije',
+  missioniSottotitolo: 'Nasumične partije za pobedu radi besplatnih sanduka.',
+  missioniInfo: 'Svaka misija je partija protiv botova: pobedi je da odmah otvoriš zarađene sanduke.',
+  missioniComeSi: 'Lake misije su najčešće; normalne su ređe, sa jačim botovima i dvostrukom nagradom.',
+  missioneFacile: 'Laka',
+  missioneNormale: 'Normalna',
+  missioneDifficolta: (label) => `Botovi: ${label}`,
+  missioneRicompensa: (n) => (n === 1 ? '1 sanduk' : `${n} sanduka`),
+  missioneGioca: 'Igraj',
+  missioneCompletata: '✓ Završena',
+  missioniRefresh: (hhmm) => `Nove misije za ${hhmm}`,
+  missioniScontoRefresh: '🔖 Popust aktivan: misije se obnavljaju brže.',
+  missioneVittoriaTitolo: '🎉 Misija završena!',
+  missioneVittoriaCorpo: (n) =>
+    n === 1 ? 'Pobedio si! Otvori sanduk-nagradu.' : `Pobedio si! Otvori ${n} sanduka-nagrade.`,
+  missioneSconfittaTitolo: 'Misija neuspešna',
+  missioneSconfittaCorpo: 'Ovog puta nisi pobedio: misija ostaje dostupna, pokušaj ponovo!',
   chiudi: 'Zatvori',
 };
 

@@ -17,6 +17,7 @@
  *   - un account con flag `tester` ha ogni eroe già disponibile.
  */
 import { HERO_REGISTRY, type HeroId } from './heroes';
+import type { BotLevel } from './types';
 
 /** Per ora esistono solo casse «non comuni». */
 export type ChestRarity = 'nonComune';
@@ -55,6 +56,11 @@ export interface PlayerProgression {
    * L'eroe indicato è anche sbloccato (presente in `unlocked`).
    */
   redeemedUncommon?: HeroId;
+  /**
+   * Missioni: la «bacheca» corrente di partite casuali da vincere. Si rigenera
+   * dopo un tempo casuale (vedi `MissionBoard`). Assente → va generata.
+   */
+  missions?: MissionBoard;
 }
 
 /** Esito dell'apertura di una cassa. */
@@ -275,7 +281,216 @@ export function redeemUncommon(prog: PlayerProgression, heroId: HeroId): RedeemR
   return { progression: { ...prog, redeemedUncommon: heroId, unlocked }, heroId };
 }
 
+// --- MISSIONI ---------------------------------------------------------------
+//
+// Le missioni sono PARTITE casuali contro i bot da VINCERE. Ogni missione ha una
+// RARITÀ: 'facile' (comune, più probabile) o 'normale' (non comune, più rara).
+// La rarità determina la DIFFICOLTÀ dei bot (livello e numero) e la RICOMPENSA:
+// vincere una missione FACILE dà 1 cassa che si apre SUBITO (un frammento
+// istantaneo, come la cassa gratuita del Negozio); vincere una NORMALE ne dà 2.
+// Le missioni vivono su una «bacheca» che si RIGENERA dopo un tempo CASUALE (più
+// breve durante lo SCONTO). Come tutto il resto della progressione la logica è
+// PURA: client e server la applicano identica.
+
+/** Rarità di una missione: facile (comune) o normale (non comune). */
+export type MissionRarity = 'facile' | 'normale';
+
+/** Una singola missione: una partita casuale da vincere. */
+export interface Mission {
+  /** Identificatore univoco (per avviarla/segnarla completata). */
+  id: string;
+  rarity: MissionRarity;
+  /** Difficoltà dei bot (deriva dalla rarità, con un po' di varietà). */
+  botLevel: BotLevel;
+  /** Numero di bot avversari: la partita è 1 umano + `botCount` bot. */
+  botCount: number;
+  /** Seme dell'isola: la partita della missione è deterministica. */
+  seed: string;
+  /** Missione già VINTA: resta segnata finché la bacheca non si rigenera. */
+  completed?: boolean;
+}
+
+/** La bacheca delle missioni correnti (con la sua finestra di rigenerazione). */
+export interface MissionBoard {
+  missions: Mission[];
+  /** Epoch ms in cui la bacheca è stata generata. */
+  generatedAt: number;
+  /**
+   * Durata prima della rigenerazione, FISSATA alla generazione (casuale, più
+   * breve con lo sconto): così una variazione dello sconto non altera la
+   * bacheca già in corso.
+   */
+  refreshMs: number;
+}
+
+/** Numero di missioni sulla bacheca. */
+export const MISSIONS_COUNT = 3;
+
+/** Probabilità che una missione sia FACILE (comune): più probabile della normale. */
+export const MISSION_FACILE_PROB = 0.7;
+
+/** Casse (istantanee) date in ricompensa per rarità: facile → 1, normale → 2. */
+export const MISSION_REWARD_CHESTS: Record<MissionRarity, number> = { facile: 1, normale: 2 };
+
+/** Finestra di rigenerazione della bacheca (casuale) SENZA sconto: 4–8 ore. */
+export const MISSION_REFRESH_MIN_MS = 4 * HOUR_MS;
+export const MISSION_REFRESH_MAX_MS = 8 * HOUR_MS;
+/** Con lo SCONTO attivo la bacheca torna prima: 1.5–3 ore. */
+export const MISSION_REFRESH_DISCOUNT_MIN_MS = 90 * 60 * 1000;
+export const MISSION_REFRESH_DISCOUNT_MAX_MS = 3 * HOUR_MS;
+
+/** Livelli bot possibili per rarità: la difficoltà cresce con la rarità. */
+const MISSION_BOT_LEVELS: Record<MissionRarity, readonly BotLevel[]> = {
+  facile: ['facile', 'normale'],
+  normale: ['difficile', 'esperto'],
+};
+
+/** Un elemento casuale (uniforme) dell'array. */
+function pickFrom<T>(rand: () => number, arr: readonly T[]): T {
+  return arr[Math.min(arr.length - 1, Math.floor(rand() * arr.length))]!;
+}
+
+/** Durata (casuale) prima della rigenerazione, ridotta se lo sconto è attivo. */
+export function currentMissionRefreshMs(
+  rand: () => number = Math.random,
+  discount: boolean = CHEST_DISCOUNT_ACTIVE
+): number {
+  const min = discount ? MISSION_REFRESH_DISCOUNT_MIN_MS : MISSION_REFRESH_MIN_MS;
+  const max = discount ? MISSION_REFRESH_DISCOUNT_MAX_MS : MISSION_REFRESH_MAX_MS;
+  return min + Math.floor(rand() * (max - min));
+}
+
+/** Genera una singola missione casuale (rarità, difficoltà e isola). */
+export function generateMission(makeId: () => string, rand: () => number = Math.random): Mission {
+  const rarity: MissionRarity = rand() < MISSION_FACILE_PROB ? 'facile' : 'normale';
+  const botLevel = pickFrom(rand, MISSION_BOT_LEVELS[rarity]);
+  // Anche il NUMERO di avversari varia la difficoltà: facile 2, normale 3.
+  const botCount = rarity === 'facile' ? 2 : 3;
+  return { id: makeId(), rarity, botLevel, botCount, seed: `mission-${makeId()}` };
+}
+
+/** Genera una nuova bacheca di missioni con la finestra di refresh corrente. */
+export function generateMissionBoard(
+  now: number,
+  makeId: () => string,
+  rand: () => number = Math.random,
+  discount: boolean = CHEST_DISCOUNT_ACTIVE
+): MissionBoard {
+  const missions = Array.from({ length: MISSIONS_COUNT }, () => generateMission(makeId, rand));
+  return { missions, generatedAt: now, refreshMs: currentMissionRefreshMs(rand, discount) };
+}
+
+/** La bacheca è scaduta (va rigenerata)? */
+export function missionsExpired(board: MissionBoard, now: number): boolean {
+  return now - board.generatedAt >= board.refreshMs;
+}
+
+/** Millisecondi mancanti alla rigenerazione della bacheca (0 se scaduta). */
+export function missionsRefreshRemainingMs(board: MissionBoard, now: number): number {
+  return Math.max(0, board.generatedAt + board.refreshMs - now);
+}
+
+/**
+ * Assicura una bacheca di missioni valida: la (ri)genera se assente o scaduta,
+ * altrimenti lascia invariata la progressione. Ritorna la progressione e se è
+ * cambiata (per sapere se persistere).
+ */
+export function ensureMissions(
+  prog: PlayerProgression,
+  now: number,
+  makeId: () => string,
+  rand: () => number = Math.random,
+  discount: boolean = CHEST_DISCOUNT_ACTIVE
+): { progression: PlayerProgression; changed: boolean } {
+  const board = prog.missions;
+  if (board && !missionsExpired(board, now)) return { progression: prog, changed: false };
+  return {
+    progression: { ...prog, missions: generateMissionBoard(now, makeId, rand, discount) },
+    changed: true,
+  };
+}
+
+/** Esito del completamento di una missione. */
+export interface MissionCompleteResult {
+  progression: PlayerProgression;
+  mission: Mission;
+  /** Le casse (istantanee) aperte come ricompensa (1 per facile, 2 per normale). */
+  rewards: ChestOpenResult[];
+}
+
+/**
+ * Completa la missione `missionId` (partita VINTA): la segna come completata e
+ * apre SUBITO le casse-ricompensa (1 facile / 2 normale), assegnando un
+ * frammento per ciascuna. Ritorna `null` se la missione non esiste o è già
+ * stata completata.
+ */
+export function completeMission(
+  prog: PlayerProgression,
+  missionId: string,
+  rand: () => number = Math.random
+): MissionCompleteResult | null {
+  const board = prog.missions;
+  if (!board) return null;
+  const mission = board.missions.find((m) => m.id === missionId);
+  if (!mission || mission.completed) return null;
+  const missions = board.missions.map((m) => (m.id === missionId ? { ...m, completed: true } : m));
+  let cur: PlayerProgression = { ...prog, missions: { ...board, missions } };
+  const rewards: ChestOpenResult[] = [];
+  for (let i = 0; i < MISSION_REWARD_CHESTS[mission.rarity]; i++) {
+    const res = applyFragment(cur, pickChestReward(rand));
+    rewards.push(res);
+    cur = res.progression;
+  }
+  return { progression: cur, mission: { ...mission, completed: true }, rewards };
+}
+
 // --- Validazione (fonte di verità condivisa) --------------------------------
+
+const MISSION_RARITY_SET = new Set<MissionRarity>(['facile', 'normale']);
+const BOT_LEVEL_SET = new Set<BotLevel>(['facile', 'normale', 'difficile', 'esperto']);
+
+function cleanMission(raw: unknown): Mission | null {
+  if (typeof raw !== 'object' || raw === null) return null;
+  const b = raw as {
+    id?: unknown;
+    rarity?: unknown;
+    botLevel?: unknown;
+    botCount?: unknown;
+    seed?: unknown;
+    completed?: unknown;
+  };
+  const id = typeof b.id === 'string' && b.id.length > 0 ? b.id : null;
+  const rarity = MISSION_RARITY_SET.has(b.rarity as MissionRarity) ? (b.rarity as MissionRarity) : null;
+  const botLevel = BOT_LEVEL_SET.has(b.botLevel as BotLevel) ? (b.botLevel as BotLevel) : null;
+  const seed = typeof b.seed === 'string' && b.seed.length > 0 ? b.seed : null;
+  const botCount =
+    typeof b.botCount === 'number' && Number.isFinite(b.botCount)
+      ? Math.max(1, Math.min(3, Math.floor(b.botCount)))
+      : null;
+  if (id === null || rarity === null || botLevel === null || seed === null || botCount === null)
+    return null;
+  const mission: Mission = { id, rarity, botLevel, botCount, seed };
+  if (b.completed === true) mission.completed = true;
+  return mission;
+}
+
+function cleanMissionBoard(raw: unknown): MissionBoard | null {
+  if (typeof raw !== 'object' || raw === null) return null;
+  const b = raw as { missions?: unknown; generatedAt?: unknown; refreshMs?: unknown };
+  const generatedAt =
+    typeof b.generatedAt === 'number' && Number.isFinite(b.generatedAt) ? b.generatedAt : null;
+  const refreshMs =
+    typeof b.refreshMs === 'number' && Number.isFinite(b.refreshMs) && b.refreshMs > 0
+      ? b.refreshMs
+      : null;
+  if (generatedAt === null || refreshMs === null || !Array.isArray(b.missions)) return null;
+  const missions = b.missions
+    .map(cleanMission)
+    .filter((m): m is Mission => m !== null)
+    .slice(0, MISSIONS_COUNT);
+  if (missions.length === 0) return null;
+  return { missions, generatedAt, refreshMs };
+}
 
 function cleanChest(raw: unknown): ChestSlot | null {
   if (typeof raw !== 'object' || raw === null) return null;
@@ -304,10 +519,14 @@ export function sanitizeProgression(raw: unknown): PlayerProgression {
     unlocked?: unknown;
     freeChestDay?: unknown;
     redeemedUncommon?: unknown;
+    missions?: unknown;
   };
   const out: PlayerProgression = {};
 
   if (body.tester === true) out.tester = true;
+
+  const missions = cleanMissionBoard(body.missions);
+  if (missions) out.missions = missions;
 
   if (typeof body.freeChestDay === 'string' && body.freeChestDay.length > 0)
     out.freeChestDay = body.freeChestDay;

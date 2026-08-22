@@ -12,10 +12,13 @@ import {
   openChest as engineOpenChest,
   claimFreeChest as engineClaimFreeChest,
   redeemUncommon as engineRedeemUncommon,
+  ensureMissions as engineEnsureMissions,
+  completeMission as engineCompleteMission,
   type HeroId,
   type PlayerProgression,
   type ChestOpenResult,
   type RedeemResult,
+  type MissionCompleteResult,
 } from '@vikiland/engine';
 import { apiGetProgression, apiSetProgression, type OnlineSession } from '../online/connection';
 
@@ -145,6 +148,37 @@ export async function redeemUncommonAndSave(
 ): Promise<RedeemResult | null> {
   const current = await loadProgression(session);
   const result = engineRedeemUncommon(current, heroId);
+  if (!result) return null;
+  const saved = await saveProgression(session, result.progression);
+  return { ...result, progression: saved };
+}
+
+/**
+ * Carica la progressione e assicura una bacheca di missioni valida: se assente
+ * o scaduta la (ri)genera e la persiste. Ritorna la progressione risultante
+ * (con la bacheca aggiornata), pronta per essere mostrata dalla schermata.
+ */
+export async function loadMissionsAndSave(
+  session: OnlineSession | null
+): Promise<PlayerProgression> {
+  const current = await loadProgression(session);
+  const { progression, changed } = engineEnsureMissions(current, Date.now(), makeChestId);
+  if (!changed) return progression;
+  return saveProgression(session, progression);
+}
+
+/**
+ * Completa una missione VINTA: rilegge lo stato più aggiornato (per non perdere
+ * progressi fatti altrove), la segna completata, apre subito le casse-ricompensa
+ * (1 facile / 2 normale) e persiste. Ritorna l'esito con la progressione
+ * salvata, oppure `null` se la missione non c'è più o era già completata.
+ */
+export async function completeMissionAndSave(
+  session: OnlineSession | null,
+  missionId: string
+): Promise<MissionCompleteResult | null> {
+  const current = await loadProgression(session);
+  const result = engineCompleteMission(current, missionId);
   if (!result) return null;
   const saved = await saveProgression(session, result.progression);
   return { ...result, progression: saved };
