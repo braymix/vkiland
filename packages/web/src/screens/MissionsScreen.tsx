@@ -60,10 +60,19 @@ function fmtRemaining(ms: number): string {
   return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
 }
 
+/** Etichetta breve della modalità extra attiva (se c'è). */
+function missionModeLabel(mission: Mission): string | null {
+  if (mission.calamities) return inv.modoCalamita;
+  if (mission.battle) return inv.modoBattaglia;
+  if (mission.capitale) return inv.modoCapitale;
+  return null;
+}
+
 /** Una missione sulla bacheca: rarità, difficoltà, ricompensa e «Gioca». */
 function MissionCard({ mission, onPlay }: { mission: Mission; onPlay: () => void }) {
   const facile = mission.rarity === 'facile';
   const reward = MISSION_REWARD_CHESTS[mission.rarity];
+  const modeLabel = missionModeLabel(mission);
   return (
     <div className={`mission-card ${mission.completed ? 'mission-card--done' : ''}`}>
       <div className="mission-card-head">
@@ -80,6 +89,7 @@ function MissionCard({ mission, onPlay }: { mission: Mission; onPlay: () => void
       <div className="mission-card-meta">
         <span>{inv.missioneDifficolta(botLevelLabel(mission.botLevel))}</span>
         <span>{inv.missioneRicompensa(reward)}</span>
+        {modeLabel && <span>{inv.missioneModo(modeLabel)}</span>}
       </div>
       {mission.completed ? (
         <div className="mission-done">{inv.missioneCompletata}</div>

@@ -1,9 +1,9 @@
 /**
  * Costruzione della PARTITA di una missione. Una missione è una partita casuale
  * contro i bot: un solo umano (il posto 0, sempre) contro `botCount` bot al
- * livello di difficoltà della missione, sull'isola col seme della missione. Il
- * resto sono le regole «classiche» (nessuna calamità/battaglia/eroi): la sfida
- * della missione sta nella difficoltà dei bot, non nelle varianti.
+ * livello di difficoltà della missione, sull'isola col seme della missione. Le
+ * modalità (calamità/battaglia/capitale) sono randomizzate dalla missione, al
+ * massimo una attiva — «senza esagerare».
  */
 import {
   DEFAULT_TARGET_GLORY,
@@ -46,8 +46,9 @@ export function buildMissionSetup(
     players,
     avoidAdjacent68: true,
     targetGloryPoints: DEFAULT_TARGET_GLORY,
-    calamities: false,
-    battle: false,
-    capitale: false,
+    // Modalità randomizzate dalla missione (al massimo una attiva).
+    calamities: mission.calamities ?? false,
+    battle: mission.battle ?? false,
+    capitale: mission.capitale ?? false,
   };
 }

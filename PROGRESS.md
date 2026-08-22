@@ -427,8 +427,12 @@ senza account vive sul dispositivo, con una sessione online è legata all'accoun
   → bot forti ×3).
 - **Ricompensa** (`MISSION_REWARD_CHESTS`): vincere una **facile** apre **1**
   cassa istantanea, una **normale** ne apre **2**.
-- **Refresh**: la bacheca si rigenera dopo un tempo **casuale** (4–8 ore),
-  ridotto quando lo **sconto** è attivo (1.5–3 ore) — `refreshMs` è fissato alla
+- **Modalità randomizzate** (`MISSION_MODE_PROB`): «senza esagerare», al massimo
+  **una** variante extra (Calamità / Battaglia / Capitale) e non sempre; scelta
+  alla generazione e salvata sulla missione (campi `calamities`/`battle`/
+  `capitale`, validati da `sanitizeProgression`).
+- **Refresh**: la bacheca si rigenera dopo un tempo **fisso** come le casse — **3
+  ore** con lo **sconto** attivo (9 senza) — `refreshMs` è fissato alla
   generazione, così una variazione dello sconto non altera la bacheca in corso.
 - Flusso client: la missione si gioca come partita locale (`buildMissionSetup`
   in `web/game/missions.ts` — 1 umano al posto 0 + i bot della missione, isola

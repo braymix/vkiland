@@ -306,6 +306,12 @@ export interface Mission {
   botCount: number;
   /** Seme dell'isola: la partita della missione è deterministica. */
   seed: string;
+  /** Modalità extra (al massimo UNA, randomizzata): Calamità. */
+  calamities?: boolean;
+  /** Modalità extra: Battaglia (attacchi agli edifici). */
+  battle?: boolean;
+  /** Modalità extra: Capitale (evoluzione della Roccaforte). */
+  capitale?: boolean;
   /** Missione già VINTA: resta segnata finché la bacheca non si rigenera. */
   completed?: boolean;
 }
@@ -332,12 +338,11 @@ export const MISSION_FACILE_PROB = 0.7;
 /** Casse (istantanee) date in ricompensa per rarità: facile → 1, normale → 2. */
 export const MISSION_REWARD_CHESTS: Record<MissionRarity, number> = { facile: 1, normale: 2 };
 
-/** Finestra di rigenerazione della bacheca (casuale) SENZA sconto: 4–8 ore. */
-export const MISSION_REFRESH_MIN_MS = 4 * HOUR_MS;
-export const MISSION_REFRESH_MAX_MS = 8 * HOUR_MS;
-/** Con lo SCONTO attivo la bacheca torna prima: 1.5–3 ore. */
-export const MISSION_REFRESH_DISCOUNT_MIN_MS = 90 * 60 * 1000;
-export const MISSION_REFRESH_DISCOUNT_MAX_MS = 3 * HOUR_MS;
+/**
+ * Probabilità che una missione abbia UNA modalità extra (calamità/battaglia/
+ * capitale). «Senza esagerare»: al massimo una variante, e non sempre.
+ */
+export const MISSION_MODE_PROB = 0.5;
 
 /** Livelli bot possibili per rarità: la difficoltà cresce con la rarità. */
 const MISSION_BOT_LEVELS: Record<MissionRarity, readonly BotLevel[]> = {
@@ -345,28 +350,36 @@ const MISSION_BOT_LEVELS: Record<MissionRarity, readonly BotLevel[]> = {
   normale: ['difficile', 'esperto'],
 };
 
+/** Le modalità extra che una missione può attivare (al massimo UNA). */
+const MISSION_MODES = ['calamities', 'battle', 'capitale'] as const;
+type MissionMode = (typeof MISSION_MODES)[number];
+
 /** Un elemento casuale (uniforme) dell'array. */
 function pickFrom<T>(rand: () => number, arr: readonly T[]): T {
   return arr[Math.min(arr.length - 1, Math.floor(rand() * arr.length))]!;
 }
 
-/** Durata (casuale) prima della rigenerazione, ridotta se lo sconto è attivo. */
-export function currentMissionRefreshMs(
-  rand: () => number = Math.random,
-  discount: boolean = CHEST_DISCOUNT_ACTIVE
-): number {
-  const min = discount ? MISSION_REFRESH_DISCOUNT_MIN_MS : MISSION_REFRESH_MIN_MS;
-  const max = discount ? MISSION_REFRESH_DISCOUNT_MAX_MS : MISSION_REFRESH_MAX_MS;
-  return min + Math.floor(rand() * (max - min));
+/**
+ * Durata prima della rigenerazione della bacheca: come le casse, 3 ore con lo
+ * SCONTO attivo (9 senza). Fissa (non casuale), così la missione «dura 3 ore».
+ */
+export function currentMissionRefreshMs(discount: boolean = CHEST_DISCOUNT_ACTIVE): number {
+  return discount ? CHEST_DURATION_DISCOUNT_MS : CHEST_DURATION_BASE_MS;
 }
 
-/** Genera una singola missione casuale (rarità, difficoltà e isola). */
+/** Genera una singola missione casuale (rarità, difficoltà, isola e modalità). */
 export function generateMission(makeId: () => string, rand: () => number = Math.random): Mission {
   const rarity: MissionRarity = rand() < MISSION_FACILE_PROB ? 'facile' : 'normale';
   const botLevel = pickFrom(rand, MISSION_BOT_LEVELS[rarity]);
   // Anche il NUMERO di avversari varia la difficoltà: facile 2, normale 3.
   const botCount = rarity === 'facile' ? 2 : 3;
-  return { id: makeId(), rarity, botLevel, botCount, seed: `mission-${makeId()}` };
+  const mission: Mission = { id: makeId(), rarity, botLevel, botCount, seed: `mission-${makeId()}` };
+  // Modalità extra: al massimo UNA, e non sempre (senza esagerare).
+  if (rand() < MISSION_MODE_PROB) {
+    const mode: MissionMode = pickFrom(rand, MISSION_MODES);
+    mission[mode] = true;
+  }
+  return mission;
 }
 
 /** Genera una nuova bacheca di missioni con la finestra di refresh corrente. */
@@ -377,7 +390,7 @@ export function generateMissionBoard(
   discount: boolean = CHEST_DISCOUNT_ACTIVE
 ): MissionBoard {
   const missions = Array.from({ length: MISSIONS_COUNT }, () => generateMission(makeId, rand));
-  return { missions, generatedAt: now, refreshMs: currentMissionRefreshMs(rand, discount) };
+  return { missions, generatedAt: now, refreshMs: currentMissionRefreshMs(discount) };
 }
 
 /** La bacheca è scaduta (va rigenerata)? */
@@ -457,6 +470,9 @@ function cleanMission(raw: unknown): Mission | null {
     botLevel?: unknown;
     botCount?: unknown;
     seed?: unknown;
+    calamities?: unknown;
+    battle?: unknown;
+    capitale?: unknown;
     completed?: unknown;
   };
   const id = typeof b.id === 'string' && b.id.length > 0 ? b.id : null;
@@ -470,6 +486,9 @@ function cleanMission(raw: unknown): Mission | null {
   if (id === null || rarity === null || botLevel === null || seed === null || botCount === null)
     return null;
   const mission: Mission = { id, rarity, botLevel, botCount, seed };
+  if (b.calamities === true) mission.calamities = true;
+  if (b.battle === true) mission.battle = true;
+  if (b.capitale === true) mission.capitale = true;
   if (b.completed === true) mission.completed = true;
   return mission;
 }
