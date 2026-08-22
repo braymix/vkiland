@@ -1,8 +1,9 @@
 /** Router a stati dell'app: entrata → menu → partita locale, oppure online. */
-import { useEffect, useState } from 'react';
-import type { PlayerProgression } from '@vikiland/engine';
+import { useEffect, useRef, useState } from 'react';
+import type { GameState, Mission, PlayerId, PlayerProgression } from '@vikiland/engine';
 import { useLang } from './i18n';
 import { LocalGameController, type GameSetup } from './game/LocalGameController';
+import { buildMissionSetup } from './game/missions';
 import { loadSession, saveSession, type OnlineSession } from './online/connection';
 import {
   getLocalProgression,
@@ -16,6 +17,7 @@ import { EntryScreen } from './screens/EntryScreen';
 import { GameScreen } from './screens/GameScreen';
 import { InventoryScreen } from './screens/InventoryScreen';
 import { MenuScreen } from './screens/MenuScreen';
+import { MissionsScreen, type PendingMission } from './screens/MissionsScreen';
 import { NewGameScreen } from './screens/NewGameScreen';
 import { ShopScreen } from './screens/ShopScreen';
 import { TutorialScreen } from './screens/TutorialScreen';
@@ -24,11 +26,12 @@ type Route =
   | { screen: 'entry' }
   | { screen: 'menu' }
   | { screen: 'newGame'; mode: 'locale' | 'online' }
-  | { screen: 'game'; setup: GameSetup; gameKey: number }
+  | { screen: 'game'; setup: GameSetup; gameKey: number; mission?: Mission }
   | { screen: 'account' }
   | { screen: 'tutorial'; chapter?: number }
   | { screen: 'demo' }
   | { screen: 'inventory' }
+  | { screen: 'missions'; pending?: PendingMission | null }
   | { screen: 'shop' };
 
 export function App() {
@@ -70,6 +73,15 @@ export function App() {
     void awardChestForFinishedGame(session).then(setProgression);
   };
 
+  // Esito della missione appena giocata: registrato a fine partita e consegnato
+  // alla schermata Missioni all'uscita (che completa la missione se VINTA).
+  const pendingMissionRef = useRef<PendingMission | null>(null);
+  /** Fine di una partita-MISSIONE: memorizza se l'umano ha vinto (posto = `viewpoint`). */
+  const onMissionGameComplete = (mission: Mission, finalState: GameState, viewpoint: PlayerId) => {
+    const won = finalState.phase.type === 'gameOver' && finalState.phase.winner === viewpoint;
+    pendingMissionRef.current = { missionId: mission.id, won };
+  };
+
   /** Login/registrazione riuscita (dall'entrata): ricorda la sessione, va al menu. */
   const onLoggedIn = (s: OnlineSession) => {
     saveSession(s);
@@ -101,6 +113,7 @@ export function App() {
           onNewGame={() => setRoute({ screen: 'newGame', mode: 'locale' })}
           onLibro={() => setRoute({ screen: 'tutorial' })}
           onInventory={() => setRoute({ screen: 'inventory' })}
+          onMissions={() => setRoute({ screen: 'missions' })}
           onShop={() => setRoute({ screen: 'shop' })}
           // Senza account, «Gestione account» porta all'entrata per accedere.
           onAccount={() => setRoute({ screen: hasAccount ? 'account' : 'entry' })}
@@ -120,6 +133,25 @@ export function App() {
           onBack={() => {
             // Tornando al menu rilegge la progressione: eventuali sblocchi fatti
             // nell'inventario si riflettono subito nella scelta eroe e nel menu.
+            reloadProgression();
+            setRoute({ screen: 'menu' });
+          }}
+        />
+      );
+    case 'missions':
+      return (
+        <MissionsScreen
+          pending={route.pending ?? null}
+          onStartMission={(mission) => {
+            // La missione si gioca come una partita locale, coi cosmetici e il
+            // nome dell'account (se c'è). La cassa-ricompensa arriva alla VITTORIA.
+            const setup = buildMissionSetup(mission, session?.username ?? 'Bjorn', null);
+            pendingMissionRef.current = null;
+            setRoute({ screen: 'game', setup, gameKey: Date.now(), mission });
+          }}
+          onBack={() => {
+            // Tornando al menu rilegge la progressione: le ricompense delle
+            // missioni si riflettono subito nella scelta eroe e nel menu.
             reloadProgression();
             setRoute({ screen: 'menu' });
           }}
@@ -173,25 +205,38 @@ export function App() {
           onNeedAccount={() => setRoute({ screen: 'entry' })}
         />
       );
-    case 'game':
+    case 'game': {
+      const mission = route.mission;
+      // In una MISSIONE l'uscita torna alla bacheca (che, se hai VINTO, apre le
+      // casse-ricompensa); niente rivincita (si rigioca dalla bacheca). Una
+      // partita normale assegna la cassa di fine partita e torna al menu.
+      const exitToMissions = () => setRoute({ screen: 'missions', pending: pendingMissionRef.current });
       return (
         <GameScreen
           key={route.gameKey}
           makeController={() => new LocalGameController(route.setup)}
-          onGameComplete={onGameComplete}
-          onExit={() => setRoute({ screen: 'menu' })}
-          onRematch={() =>
-            setRoute({
-              screen: 'game',
-              gameKey: Date.now(),
-              setup: {
-                ...route.setup,
-                // Rivincita: stessi giocatori, nuova isola.
-                seed: `vikiland-${Date.now()}-${Math.floor(Math.random() * 1e6)}`,
-              },
-            })
+          onGameComplete={
+            mission
+              ? (finalState, viewpoint) => onMissionGameComplete(mission, finalState, viewpoint)
+              : onGameComplete
           }
-          // Gestione partita locale (☰): unica azione «esci» = torna al menu.
+          onExit={mission ? exitToMissions : () => setRoute({ screen: 'menu' })}
+          onRematch={
+            mission
+              ? null
+              : () =>
+                  setRoute({
+                    screen: 'game',
+                    gameKey: Date.now(),
+                    setup: {
+                      ...route.setup,
+                      // Rivincita: stessi giocatori, nuova isola.
+                      seed: `vikiland-${Date.now()}-${Math.floor(Math.random() * 1e6)}`,
+                    },
+                  })
+          }
+          // Gestione partita locale (☰): «esci» torna al menu (o alla bacheca
+          // missioni, senza ricompensa se abbandoni a metà).
           manage={{
             online: false,
             code: null,
@@ -203,10 +248,11 @@ export function App() {
               connected: true,
               isHost: false,
             })),
-            onLeave: () => setRoute({ screen: 'menu' }),
+            onLeave: mission ? exitToMissions : () => setRoute({ screen: 'menu' }),
             onTerminate: null,
           }}
         />
       );
+    }
   }
 }

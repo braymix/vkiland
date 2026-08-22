@@ -1849,6 +1849,66 @@ html[data-lang='ru'] .welcome-title {
   height: 100%;
   background: var(--accent);
 }
+/* --- Missioni ------------------------------------------------------------ */
+.mission-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+}
+.mission-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border: 2px solid var(--accent-dark);
+  background: rgba(0, 0, 0, 0.25);
+}
+.mission-card--done {
+  opacity: 0.6;
+}
+.mission-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.mission-rarity {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.mission-reward {
+  font-size: 12px;
+  line-height: 1;
+}
+.mission-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 8px;
+  color: var(--ink-dim);
+  line-height: 1.6;
+}
+.mission-done {
+  font-size: 9px;
+  color: var(--accent);
+  text-align: center;
+  padding: 4px 0;
+}
+.mission-refresh {
+  font-size: 9px;
+  color: var(--accent);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  margin-top: 4px;
+}
+.mission-rewards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
 .chest-open {
   display: flex;
   flex-direction: column;

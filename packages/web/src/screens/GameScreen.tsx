@@ -1,6 +1,6 @@
 /** Schermata di partita: orchestrazione di tavola, pannelli e dialoghi. */
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { Action, EdgeId, HexId, PlayerId, VertexId } from '@vikiland/engine';
+import type { Action, EdgeId, GameState, HexId, PlayerId, VertexId } from '@vikiland/engine';
 import { it, t } from '../i18n';
 import type { GameController } from '../game/controller';
 import { useGame } from '../game/useGame';
@@ -48,8 +48,10 @@ interface Props {
   /**
    * Chiamata UNA volta quando la partita finisce al 100% (si raggiunge un
    * vincitore) e chi guarda NON è uno spettatore: serve ad assegnare la cassa.
+   * Riceve lo stato finale e il posto di chi guarda (per sapere se ha VINTO,
+   * es. nelle missioni).
    */
-  onGameComplete?: () => void;
+  onGameComplete?: (finalState: GameState, viewpoint: PlayerId) => void;
 }
 
 export function GameScreen({
@@ -95,9 +97,9 @@ export function GameScreen({
     if (gameCompleteFired.current || isSpectator) return;
     if (snap.finalState !== null) {
       gameCompleteFired.current = true;
-      onGameComplete?.();
+      onGameComplete?.(snap.finalState, viewpoint);
     }
-  }, [snap.finalState, isSpectator, onGameComplete]);
+  }, [snap.finalState, isSpectator, onGameComplete, viewpoint]);
 
   // Spettatore: posti a cui ho chiesto la mano, in attesa di risposta. Quando la
   // mano compare (permesso concesso) il posto esce dallo stato "in attesa".
