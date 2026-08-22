@@ -444,6 +444,65 @@ export function completeMission(
   return { progression: cur, mission: { ...mission, completed: true }, rewards };
 }
 
+// --- Azioni in sospeso (badge «da fare» sui pulsanti del menu) --------------
+//
+// Quante «azioni» il giocatore può compiere SUBITO in ciascun menu, per il
+// pallino rosso col numero mostrato accanto ai relativi pulsanti. Logica PURA
+// (nessuna dipendenza dall'orologio o dal fuso se non i parametri passati), così
+// resta testabile e coerente ovunque.
+
+/** Conteggio delle azioni in sospeso, suddiviso per menu. */
+export interface PendingActions {
+  /** Missioni ancora da vincere sulla bacheca corrente. */
+  missions: number;
+  /** Casse pronte da aprire (caricamento finito) nell'inventario. */
+  chests: number;
+  /** Riscatti gratuiti disponibili nel Negozio (cassa del giorno + eroe una-tantum). */
+  shop: number;
+  /** Somma di tutte le azioni in sospeso. */
+  total: number;
+}
+
+/** Casse pronte da aprire ADESSO (caricamento terminato). */
+export function readyChestCount(prog: PlayerProgression, now: number): number {
+  return (prog.chests ?? []).filter((c) => chestReady(c, now)).length;
+}
+
+/**
+ * Missioni ancora «da fare». Se la bacheca è assente o scaduta, all'apertura
+ * delle Missioni ne verrebbe generata una nuova tutta da giocare: contano quindi
+ * come MISSIONS_COUNT azioni. Altrimenti conta solo quelle non ancora completate.
+ */
+export function pendingMissionCount(prog: PlayerProgression, now: number): number {
+  const board = prog.missions;
+  if (!board || missionsExpired(board, now)) return MISSIONS_COUNT;
+  return board.missions.filter((m) => !m.completed).length;
+}
+
+/** Riscatti gratuiti disponibili oggi nel Negozio (cassa giornaliera + eroe una-tantum). */
+export function pendingShopCount(prog: PlayerProgression, dayKey: string): number {
+  let n = 0;
+  if (canClaimFreeChest(prog, dayKey)) n += 1;
+  if (canRedeemUncommon(prog)) n += 1;
+  return n;
+}
+
+/**
+ * Tutte le azioni in sospeso in un colpo solo (per i badge del menu). `now` è
+ * l'orologio corrente (casse pronte / bacheca scaduta), `dayKey` la chiave del
+ * giorno locale usata dalla cassa gratuita del Negozio.
+ */
+export function pendingActions(
+  prog: PlayerProgression,
+  now: number,
+  dayKey: string
+): PendingActions {
+  const missions = pendingMissionCount(prog, now);
+  const chests = readyChestCount(prog, now);
+  const shop = pendingShopCount(prog, dayKey);
+  return { missions, chests, shop, total: missions + chests + shop };
+}
+
 // --- Validazione (fonte di verità condivisa) --------------------------------
 
 const MISSION_RARITY_SET = new Set<MissionRarity>(['facile', 'normale']);

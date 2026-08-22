@@ -110,6 +110,7 @@ export function App() {
         <MenuScreen
           hasAccount={hasAccount}
           isTester={progression.tester === true}
+          progression={progression}
           onNewGame={() => setRoute({ screen: 'newGame', mode: 'locale' })}
           onLibro={() => setRoute({ screen: 'tutorial' })}
           onInventory={() => setRoute({ screen: 'inventory' })}

@@ -70,6 +70,8 @@ export interface InvStrings {
   missioneSconfittaCorpo: string;
   // Comuni
   chiudi: string;
+  /** Etichetta del pallino rosso «da fare» sui pulsanti del menu (accessibilità). */
+  azioniDaFare: (n: number) => string;
 }
 
 const it: InvStrings = {
@@ -128,6 +130,7 @@ const it: InvStrings = {
   missioneSconfittaTitolo: 'Missione non riuscita',
   missioneSconfittaCorpo: 'Non hai vinto questa volta: la missione resta disponibile, riprova!',
   chiudi: 'Chiudi',
+  azioniDaFare: (n) => (n === 1 ? '1 azione da fare' : `${n} azioni da fare`),
 };
 
 const en: InvStrings = {
@@ -186,6 +189,7 @@ const en: InvStrings = {
   missioneSconfittaTitolo: 'Mission failed',
   missioneSconfittaCorpo: 'You did not win this time: the mission stays available, try again!',
   chiudi: 'Close',
+  azioniDaFare: (n) => (n === 1 ? '1 action to do' : `${n} actions to do`),
 };
 
 const es: InvStrings = {
@@ -244,6 +248,7 @@ const es: InvStrings = {
   missioneSconfittaTitolo: 'Misión fallida',
   missioneSconfittaCorpo: 'No has ganado esta vez: la misión sigue disponible, ¡inténtalo de nuevo!',
   chiudi: 'Cerrar',
+  azioniDaFare: (n) => (n === 1 ? '1 acción por hacer' : `${n} acciones por hacer`),
 };
 
 const fr: InvStrings = {
@@ -302,6 +307,7 @@ const fr: InvStrings = {
   missioneSconfittaTitolo: 'Mission échouée',
   missioneSconfittaCorpo: 'Vous n’avez pas gagné cette fois : la mission reste disponible, réessayez !',
   chiudi: 'Fermer',
+  azioniDaFare: (n) => (n === 1 ? '1 action à faire' : `${n} actions à faire`),
 };
 
 const de: InvStrings = {
@@ -360,6 +366,7 @@ const de: InvStrings = {
   missioneSconfittaTitolo: 'Mission fehlgeschlagen',
   missioneSconfittaCorpo: 'Diesmal nicht gewonnen: Die Mission bleibt verfügbar, versuch es erneut!',
   chiudi: 'Schließen',
+  azioniDaFare: (n) => (n === 1 ? '1 offene Aktion' : `${n} offene Aktionen`),
 };
 
 const nl: InvStrings = {
@@ -418,6 +425,7 @@ const nl: InvStrings = {
   missioneSconfittaTitolo: 'Missie mislukt',
   missioneSconfittaCorpo: 'Deze keer niet gewonnen: de missie blijft beschikbaar, probeer opnieuw!',
   chiudi: 'Sluiten',
+  azioniDaFare: (n) => (n === 1 ? '1 actie te doen' : `${n} acties te doen`),
 };
 
 const ru: InvStrings = {
@@ -476,6 +484,7 @@ const ru: InvStrings = {
   missioneSconfittaTitolo: 'Миссия не выполнена',
   missioneSconfittaCorpo: 'В этот раз не вышло: миссия остаётся доступной, попробуйте снова!',
   chiudi: 'Закрыть',
+  azioniDaFare: (n) => `Действий к выполнению: ${n}`,
 };
 
 const sr: InvStrings = {
@@ -534,6 +543,7 @@ const sr: InvStrings = {
   missioneSconfittaTitolo: 'Misija neuspešna',
   missioneSconfittaCorpo: 'Ovog puta nisi pobedio: misija ostaje dostupna, pokušaj ponovo!',
   chiudi: 'Zatvori',
+  azioniDaFare: (n) => `Radnji za obaviti: ${n}`,
 };
 
 const DICTS: Record<Lang, InvStrings> = { it, en, es, fr, de, nl, ru, sr };

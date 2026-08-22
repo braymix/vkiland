@@ -664,6 +664,35 @@ button {
   gap: 10px;
   width: 260px;
 }
+/* I pulsanti del menu ospitano il pallino «da fare»: serve un contesto di
+   posizionamento per ancorarlo all'angolo in alto a destra. */
+.menu-buttons .pxbtn {
+  position: relative;
+  overflow: visible;
+}
+/* Pallino rosso col numero di azioni in sospeso nel menu (missioni, casse,
+   riscatti). Stile pixel-art coerente coi pulsanti: bordo netto, niente
+   arrotondamenti morbidi. */
+.menu-badge {
+  position: absolute;
+  top: calc(-1 * var(--px));
+  right: calc(-1 * var(--px));
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--danger);
+  color: #fff;
+  font-size: 9px;
+  line-height: 1;
+  box-shadow:
+    0 0 0 var(--px) #4a1210,
+    inset 0 calc(-1 * var(--px)) 0 0 #8f2622;
+  pointer-events: none;
+}
 
 /* Setup */
 .setup-grid {
