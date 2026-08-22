@@ -51,6 +51,11 @@ export {
   missionsRefreshRemainingMs,
   currentMissionRefreshMs,
   completeMission,
+  // Azioni in sospeso (badge «da fare» sui pulsanti del menu).
+  readyChestCount,
+  pendingMissionCount,
+  pendingShopCount,
+  pendingActions,
   MISSIONS_COUNT,
   MISSION_FACILE_PROB,
   MISSION_MODE_PROB,
@@ -64,6 +69,7 @@ export {
   type MissionRarity,
   type MissionBoard,
   type MissionCompleteResult,
+  type PendingActions,
 } from './progression';
 
 // Costanti e utilità riusate da bot e UI.
