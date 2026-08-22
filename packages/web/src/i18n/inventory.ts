@@ -60,6 +60,10 @@ export interface InvStrings {
   missioneNormale: string;
   missioneDifficolta: (label: string) => string;
   missioneRicompensa: (n: number) => string;
+  missioneModo: (label: string) => string;
+  modoCalamita: string;
+  modoBattaglia: string;
+  modoCapitale: string;
   missioneGioca: string;
   missioneCompletata: string;
   missioniRefresh: (hhmm: string) => string;
@@ -120,6 +124,10 @@ const it: InvStrings = {
   missioneNormale: 'Normale',
   missioneDifficolta: (label) => `Bot: ${label}`,
   missioneRicompensa: (n) => (n === 1 ? '1 cassa' : `${n} casse`),
+  missioneModo: (label) => `Modalità: ${label}`,
+  modoCalamita: 'Calamità',
+  modoBattaglia: 'Battaglia',
+  modoCapitale: 'Capitale',
   missioneGioca: 'Gioca',
   missioneCompletata: '✓ Completata',
   missioniRefresh: (hhmm) => `Nuove missioni fra ${hhmm}`,
@@ -179,6 +187,10 @@ const en: InvStrings = {
   missioneNormale: 'Normal',
   missioneDifficolta: (label) => `Bots: ${label}`,
   missioneRicompensa: (n) => (n === 1 ? '1 chest' : `${n} chests`),
+  missioneModo: (label) => `Mode: ${label}`,
+  modoCalamita: 'Calamity',
+  modoBattaglia: 'Battle',
+  modoCapitale: 'Capital',
   missioneGioca: 'Play',
   missioneCompletata: '✓ Completed',
   missioniRefresh: (hhmm) => `New missions in ${hhmm}`,
@@ -238,6 +250,10 @@ const es: InvStrings = {
   missioneNormale: 'Normal',
   missioneDifficolta: (label) => `Bots: ${label}`,
   missioneRicompensa: (n) => (n === 1 ? '1 cofre' : `${n} cofres`),
+  missioneModo: (label) => `Modo: ${label}`,
+  modoCalamita: 'Calamidad',
+  modoBattaglia: 'Batalla',
+  modoCapitale: 'Capital',
   missioneGioca: 'Jugar',
   missioneCompletata: '✓ Completada',
   missioniRefresh: (hhmm) => `Nuevas misiones en ${hhmm}`,
@@ -297,6 +313,10 @@ const fr: InvStrings = {
   missioneNormale: 'Normale',
   missioneDifficolta: (label) => `Bots : ${label}`,
   missioneRicompensa: (n) => (n === 1 ? '1 coffre' : `${n} coffres`),
+  missioneModo: (label) => `Mode : ${label}`,
+  modoCalamita: 'Calamité',
+  modoBattaglia: 'Bataille',
+  modoCapitale: 'Capitale',
   missioneGioca: 'Jouer',
   missioneCompletata: '✓ Terminée',
   missioniRefresh: (hhmm) => `Nouvelles missions dans ${hhmm}`,
@@ -356,6 +376,10 @@ const de: InvStrings = {
   missioneNormale: 'Normal',
   missioneDifficolta: (label) => `Bots: ${label}`,
   missioneRicompensa: (n) => (n === 1 ? '1 Truhe' : `${n} Truhen`),
+  missioneModo: (label) => `Modus: ${label}`,
+  modoCalamita: 'Unheil',
+  modoBattaglia: 'Schlacht',
+  modoCapitale: 'Hauptstadt',
   missioneGioca: 'Spielen',
   missioneCompletata: '✓ Abgeschlossen',
   missioniRefresh: (hhmm) => `Neue Missionen in ${hhmm}`,
@@ -415,6 +439,10 @@ const nl: InvStrings = {
   missioneNormale: 'Normaal',
   missioneDifficolta: (label) => `Bots: ${label}`,
   missioneRicompensa: (n) => (n === 1 ? '1 kist' : `${n} kisten`),
+  missioneModo: (label) => `Modus: ${label}`,
+  modoCalamita: 'Ramp',
+  modoBattaglia: 'Strijd',
+  modoCapitale: 'Hoofdstad',
   missioneGioca: 'Spelen',
   missioneCompletata: '✓ Voltooid',
   missioniRefresh: (hhmm) => `Nieuwe missies over ${hhmm}`,
@@ -474,6 +502,10 @@ const ru: InvStrings = {
   missioneNormale: 'Обычная',
   missioneDifficolta: (label) => `Боты: ${label}`,
   missioneRicompensa: (n) => (n === 1 ? '1 сундук' : `${n} сундука`),
+  missioneModo: (label) => `Режим: ${label}`,
+  modoCalamita: 'Бедствие',
+  modoBattaglia: 'Битва',
+  modoCapitale: 'Столица',
   missioneGioca: 'Играть',
   missioneCompletata: '✓ Выполнена',
   missioniRefresh: (hhmm) => `Новые миссии через ${hhmm}`,
@@ -533,6 +565,10 @@ const sr: InvStrings = {
   missioneNormale: 'Normalna',
   missioneDifficolta: (label) => `Botovi: ${label}`,
   missioneRicompensa: (n) => (n === 1 ? '1 sanduk' : `${n} sanduka`),
+  missioneModo: (label) => `Režim: ${label}`,
+  modoCalamita: 'Nedaća',
+  modoBattaglia: 'Bitka',
+  modoCapitale: 'Prestonica',
   missioneGioca: 'Igraj',
   missioneCompletata: '✓ Završena',
   missioniRefresh: (hhmm) => `Nove misije za ${hhmm}`,

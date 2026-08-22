@@ -18,9 +18,9 @@ import {
   MISSIONS_COUNT,
   MISSION_REWARD_CHESTS,
   MISSION_FACILE_PROB,
-  MISSION_REFRESH_MIN_MS,
-  MISSION_REFRESH_MAX_MS,
-  MISSION_REFRESH_DISCOUNT_MAX_MS,
+  MISSION_MODE_PROB,
+  CHEST_DURATION_DISCOUNT_MS,
+  CHEST_DURATION_BASE_MS,
   UNCOMMON_HERO_IDS,
   type PlayerProgression,
   type Mission,
@@ -69,19 +69,27 @@ describe('generazione delle missioni', () => {
     expect(['difficile', 'esperto']).toContain(normale.botLevel);
     expect(normale.botCount).toBe(3);
   });
+
+  it('le modalità sono randomizzate: al massimo UNA attiva, e non sempre', () => {
+    // rand[2] è la soglia della modalità: sopra MISSION_MODE_PROB → nessuna.
+    const senza = generateMission(makeId, seqRand([0, 0, MISSION_MODE_PROB + 0.01]));
+    expect(senza.calamities).toBeUndefined();
+    expect(senza.battle).toBeUndefined();
+    expect(senza.capitale).toBeUndefined();
+    // Sotto soglia → esattamente UNA modalità (rand[3] la sceglie: 0 → la prima).
+    const conModo = generateMission(makeId, seqRand([0, 0, 0, 0]));
+    const attive = [conModo.calamities, conModo.battle, conModo.capitale].filter(Boolean);
+    expect(attive).toHaveLength(1);
+  });
 });
 
 describe('finestra di rigenerazione (refresh)', () => {
-  it('senza sconto la durata è nella finestra 4–8 ore', () => {
-    const ms = currentMissionRefreshMs(seqRand([0.5]), false);
-    expect(ms).toBeGreaterThanOrEqual(MISSION_REFRESH_MIN_MS);
-    expect(ms).toBeLessThanOrEqual(MISSION_REFRESH_MAX_MS);
+  it('senza sconto dura come una cassa piena (9 ore)', () => {
+    expect(currentMissionRefreshMs(false)).toBe(CHEST_DURATION_BASE_MS);
   });
 
-  it("con lo sconto la durata è più breve", () => {
-    const scontata = currentMissionRefreshMs(seqRand([0.99]), true);
-    expect(scontata).toBeLessThanOrEqual(MISSION_REFRESH_DISCOUNT_MAX_MS);
-    expect(scontata).toBeLessThan(MISSION_REFRESH_MIN_MS);
+  it('con lo sconto dura esattamente 3 ore (come una cassa scontata)', () => {
+    expect(currentMissionRefreshMs(true)).toBe(CHEST_DURATION_DISCOUNT_MS);
   });
 
   it('missionsExpired e il tempo rimanente seguono generatedAt + refreshMs', () => {
