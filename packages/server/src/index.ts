@@ -13,6 +13,7 @@ import fastifyCors from '@fastify/cors';
 import { Server, type Socket } from 'socket.io';
 import { sanitizeCosmetics, sanitizeProgression, type Action } from '@vikiland/engine';
 import { AuthService } from './auth';
+import { isAdmin, sanitizeCensoredWords } from './admin';
 import { LobbyManager } from './lobby';
 import { JsonFileStorage, type Storage } from './storage';
 import { isApiError, type ClientToServerEvents, type LoginRequest, type RegisterRequest, type ServerToClientEvents } from './protocol';
@@ -182,6 +183,23 @@ app.post('/api/progression', async (req, reply) => {
   if (record.progression?.tester) progression.tester = true;
   storage.updateUser({ ...record, progression });
   return { progression };
+});
+
+// --- Moderazione: parole censurate (lista GLOBALE) --------------------------
+// LETTURA pubblica: i client la usano per mascherare i nomi in visualizzazione
+// (il valore reale resta intatto). SCRITTURA riservata all'amministratore (pana).
+
+app.get('/api/censored', async () => ({ words: storage.getCensoredWords() }));
+
+app.post('/api/censored', async (req, reply) => {
+  const user = authedUser(req.headers.authorization);
+  if (!user) return reply.code(401).send({ error: 'Sessione non valida' });
+  if (!isAdmin(user.username))
+    return reply.code(403).send({ error: 'Solo l’amministratore può modificare le parole censurate' });
+  const body = (req.body ?? {}) as { words?: unknown };
+  const words = sanitizeCensoredWords(body.words);
+  storage.setCensoredWords(words);
+  return { words };
 });
 
 app.get('/api/health', async () => ({ ok: true }));
