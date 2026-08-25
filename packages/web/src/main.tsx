@@ -9,9 +9,14 @@ import '@fontsource/handjet/cyrillic-700.css';
 import '@fontsource/handjet/cyrillic-ext-700.css';
 import './styles/global.css';
 import { App } from './App';
+import { CensorProvider } from './game/censor';
 
 // PWA: il service worker rende l'app installabile e giocabile offline
 // (partite locali e hot-seat); si aggiorna da solo a ogni deploy.
 registerSW({ immediate: true });
 
-createRoot(document.getElementById('root')!).render(<App />);
+createRoot(document.getElementById('root')!).render(
+  <CensorProvider>
+    <App />
+  </CensorProvider>
+);

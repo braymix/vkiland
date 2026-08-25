@@ -174,6 +174,34 @@ export async function apiChangePassword(
 }
 
 /**
+ * Moderazione: lista GLOBALE di parole censurate. La LETTURA è pubblica (serve
+ * a mascherare i nomi in visualizzazione, senza toccare il valore reale); la
+ * SCRITTURA è riservata all'amministratore (l'account «pana»).
+ */
+export async function apiGetCensored(serverUrl: string): Promise<string[]> {
+  try {
+    const res = await fetch(`${serverUrl.replace(/\/+$/, '')}/api/censored`, {
+      signal: AbortSignal.timeout(3500),
+    });
+    if (!res.ok) return [];
+    const data = (await res.json().catch(() => ({}))) as { words?: unknown };
+    return Array.isArray(data.words) ? data.words.filter((w): w is string => typeof w === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
+export async function apiSetCensored(
+  session: OnlineSession,
+  words: string[]
+): Promise<string[]> {
+  const data = (await post(session.serverUrl, '/api/censored', { words }, session.token)) as {
+    words?: string[];
+  };
+  return data.words ?? [];
+}
+
+/**
  * Ping veloce del server di gioco: dice se l'online è disponibile QUI.
  * Senza backend il client resta perfettamente utilizzabile in locale.
  */

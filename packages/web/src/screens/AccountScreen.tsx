@@ -13,9 +13,17 @@ import {
   apiChangeName,
   apiChangePassword,
   apiGetAccount,
+  apiSetCensored,
   type AccountProfile,
   type OnlineSession,
 } from '../online/connection';
+import { useCensor } from '../game/censor';
+
+/** L'unico amministratore dell'app: l'account «pana» (confronto senza maiuscole). */
+const ADMIN_USERNAME = 'pana';
+function isAdmin(username: string): boolean {
+  return username.trim().toLowerCase() === ADMIN_USERNAME;
+}
 
 interface Props {
   session: OnlineSession;
@@ -26,11 +34,15 @@ interface Props {
   onBack: () => void;
 }
 
-type Panel = 'nome' | 'password' | 'email' | null;
+type Panel = 'nome' | 'password' | 'email' | 'censura' | null;
 
 export function AccountScreen({ session, onSessionUpdate, onLogout, onBack }: Props) {
+  const admin = isAdmin(session.username);
+  const { words: censoredWords, reload: reloadCensored } = useCensor();
   const [profile, setProfile] = useState<AccountProfile | null>(null);
   const [panel, setPanel] = useState<Panel>(null);
+  // Editor parole censurate (solo admin): una parola per riga.
+  const [censoredDraft, setCensoredDraft] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -94,6 +106,30 @@ export function AccountScreen({ session, onSessionUpdate, onLogout, onBack }: Pr
       feedback(it.passwordAggiornata, null);
     });
 
+  const saveCensored = () =>
+    run(async () => {
+      // Una parola per riga (o separate da virgola); il server ripulisce e
+      // deduplica comunque.
+      const words = censoredDraft
+        .split(/[\n,]+/)
+        .map((w) => w.trim())
+        .filter(Boolean);
+      const saved = await apiSetCensored(session, words);
+      setCensoredDraft(saved.join('\n'));
+      reloadCensored();
+      feedback('Parole censurate aggiornate', null);
+    });
+
+  // Apre l'editor censura precompilandolo con la lista attuale.
+  const openCensored = () => {
+    if (panel === 'censura') {
+      setPanel(null);
+      return;
+    }
+    setCensoredDraft(censoredWords.join('\n'));
+    setPanel('censura');
+  };
+
   const row = (label: string, value: string) => (
     <div className="account-row">
       <span style={{ color: 'var(--ink-dim)' }}>{label}</span>
@@ -137,6 +173,14 @@ export function AccountScreen({ session, onSessionUpdate, onLogout, onBack }: Pr
           {panelButton('nome', it.cambiaNome)}
           {panelButton('password', it.cambiaPassword)}
           {panelButton('email', it.aggiungiEmail)}
+          {admin && (
+            <button
+              className={`pxbtn pxbtn--small ${panel === 'censura' ? '' : 'pxbtn--ghost'}`}
+              onClick={openCensored}
+            >
+              🛡️ Parole censurate
+            </button>
+          )}
         </div>
 
         {panel === 'nome' && (
@@ -192,6 +236,27 @@ export function AccountScreen({ session, onSessionUpdate, onLogout, onBack }: Pr
             />
             {/* Easter egg: il «Salva» non salva niente (l'email non esiste a DB). */}
             <button className="pxbtn" onClick={() => setEggOpen(true)} disabled={!eggEmail.trim()}>
+              {it.salva}
+            </button>
+          </div>
+        )}
+
+        {admin && panel === 'censura' && (
+          <div className="config-section">
+            <div style={{ fontSize: 8, color: 'var(--ink-dim)', lineHeight: 1.8 }}>
+              Solo tu (amministratore) puoi gestire questa lista. Le parole qui
+              elencate vengono mascherate in visualizzazione nei nomi in chat e
+              nei nomi squadra (una parola per riga). Il valore reale non viene
+              modificato.
+            </div>
+            <textarea
+              value={censoredDraft}
+              onChange={(e) => setCensoredDraft(e.target.value)}
+              rows={6}
+              placeholder={'parola1\nparola2'}
+              style={{ width: '100%', resize: 'vertical', fontFamily: 'inherit', fontSize: 9 }}
+            />
+            <button className="pxbtn" onClick={() => void saveCensored()} disabled={busy}>
               {it.salva}
             </button>
           </div>

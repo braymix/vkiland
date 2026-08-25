@@ -7,6 +7,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { it } from '../i18n';
 import { shadesFor } from '../render/sprites/palettes';
+import { useCensor } from '../game/censor';
 import type { ChatApi } from '../online/useChat';
 
 /** Lunghezza massima consentita nel campo (il server ritronca comunque). */
@@ -14,6 +15,7 @@ const MAX_LEN = 300;
 
 export function ChatPanel({ chat, myUserId }: { chat: ChatApi; myUserId: string }) {
   const { messages, send } = chat;
+  const { censor } = useCensor();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState('');
   // Quanti messaggi ho già «visto»: la differenza è il badge di non letti.
@@ -73,10 +75,10 @@ export function ChatPanel({ chat, myUserId }: { chat: ChatApi; myUserId: string 
             return (
               <div key={m.id} className={`chat-msg${mine ? ' chat-msg--mine' : ''}`}>
                 <span className="chat-msg-name" style={{ color: nameColor }}>
-                  {mine ? it.chat.tu : m.name}
+                  {mine ? it.chat.tu : censor(m.name)}
                   {m.spectator && <span className="chat-msg-spec"> 👁</span>}
                 </span>
-                <span className="chat-msg-text">{m.text}</span>
+                <span className="chat-msg-text">{censor(m.text)}</span>
               </div>
             );
           })

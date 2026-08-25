@@ -42,6 +42,7 @@ import { it, t } from '../i18n';
 import type { GameSetup } from '../game/LocalGameController';
 import { getLocalCosmetics } from '../game/localCosmetics';
 import { teamLabelShort } from '../game/teamLabel';
+import { useCensor } from '../game/censor';
 import { apiGetCosmetics, connectSocket, type OnlineSession, type ServerSocket } from '../online/connection';
 import { RemoteGameController } from '../online/RemoteGameController';
 import { useChat } from '../online/useChat';
@@ -139,6 +140,7 @@ export function NewGameScreen({
   const [mode, setMode] = useState<Mode>(initialMode);
 
   // --- Regole (condivise fra i due flussi; l'online le sincronizza col server) ---
+  const { censor } = useCensor();
   const [targetPG, setTargetPG] = useState(DEFAULT_TARGET_GLORY);
   const [calamities, setCalamities] = useState(false);
   const [battle, setBattle] = useState(false);
@@ -870,7 +872,7 @@ export function NewGameScreen({
                   ? it.ruoloTu
                   : it.ruoloAmico;
               const tag = teamMode
-                ? `${baseTag} · ${teamLabelShort(teamNames, seatTeams[i] ?? 0)}`
+                ? `${baseTag} · ${teamLabelShort(teamNames, seatTeams[i] ?? 0, censor)}`
                 : baseTag;
               return (
                 <div key={i}>
@@ -1140,7 +1142,7 @@ export function NewGameScreen({
                     ? it.ruoloTu
                     : it.ruoloAmico;
                 const tag = teamMode
-                  ? `${baseTag} · ${teamLabelShort(teamNames, slot.team ?? 0)}`
+                  ? `${baseTag} · ${teamLabelShort(teamNames, slot.team ?? 0, censor)}`
                   : baseTag;
                 return (
                   <div key={i}>
