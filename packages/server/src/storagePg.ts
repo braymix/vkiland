@@ -52,6 +52,8 @@ function rowToUser(r: UserRow): UserRecord {
 export class PostgresStorage implements Storage {
   private readonly users = new Map<string, UserRecord>(); // per id
   private readonly sessions = new Map<string, SessionRecord>(); // per token
+  /** Impostazioni globali in cache (es. parole censurate). */
+  private censoredWords: string[] = [];
   /** Coda di scrittura: serializza le query e ne cattura gli errori. */
   private queue: Promise<unknown> = Promise.resolve();
   /** Schema in cui vivono le tabelle (risolto in `init`, vedi `resolveSchema`). */
@@ -119,6 +121,12 @@ export class PostgresStorage implements Storage {
         user_id TEXT NOT NULL,
         created_at BIGINT NOT NULL
       )`);
+    // Impostazioni globali: chiave/valore JSON (oggi solo `censoredWords`).
+    await this.db.query(`
+      CREATE TABLE IF NOT EXISTS ${this.t('settings')} (
+        key TEXT PRIMARY KEY,
+        value JSONB NOT NULL
+      )`);
     // Lo storico delle partite non si salva più: eliminiamo la tabella (e i
     // suoi dati) se un vecchio deploy l'aveva creata.
     await this.db.query(`DROP TABLE IF EXISTS ${this.t('finished_games')}`);
@@ -143,6 +151,13 @@ export class PostgresStorage implements Storage {
       const r = row as SessionRow;
       this.sessions.set(r.token, { token: r.token, userId: r.user_id, createdAt: Number(r.created_at) });
     }
+    const settings = await this.db.query(
+      `SELECT value FROM ${this.t('settings')} WHERE key = $1`,
+      ['censoredWords']
+    );
+    const value = (settings.rows[0] as { value?: unknown } | undefined)?.value;
+    // `value` è JSONB: pg lo restituisce già come array (o null).
+    if (Array.isArray(value)) this.censoredWords = value.filter((w): w is string => typeof w === 'string');
   }
 
   /**
@@ -255,6 +270,22 @@ export class PostgresStorage implements Storage {
       if (s.userId === userId) this.sessions.delete(token);
     }
     this.enqueue(() => this.db.query(`DELETE FROM ${this.t('sessions')} WHERE user_id = $1`, [userId]));
+  }
+
+  getCensoredWords(): string[] {
+    return this.censoredWords;
+  }
+
+  setCensoredWords(words: string[]): void {
+    this.censoredWords = words;
+    const value = JSON.stringify(words);
+    this.enqueue(() =>
+      this.db.query(
+        `INSERT INTO ${this.t('settings')} (key, value) VALUES ($1, $2)
+         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
+        ['censoredWords', value]
+      )
+    );
   }
 }
 

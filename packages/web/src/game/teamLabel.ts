@@ -10,19 +10,35 @@ export function teamLetter(idx: number): string {
   return String.fromCharCode(65 + idx);
 }
 
-/** Nome scelto per la squadra `idx`, ripulito; '' se assente/vuoto. */
-export function customTeamName(names: readonly string[] | undefined, idx: number): string {
-  return (names?.[idx] ?? '').trim();
+/** Funzione di censura (per la sola visualizzazione); default = nessuna. */
+type Censor = (text: string) => string;
+
+/**
+ * Nome scelto per la squadra `idx`, ripulito; '' se assente/vuoto. Il nome è
+ * scelto dai giocatori, quindi si passa `censor` per mascherarlo in
+ * visualizzazione (il valore reale nella config resta intatto).
+ */
+export function customTeamName(
+  names: readonly string[] | undefined,
+  idx: number,
+  censor?: Censor
+): string {
+  const raw = (names?.[idx] ?? '').trim();
+  return censor ? censor(raw) : raw;
 }
 
-/** Nome completo: nome scelto oppure «Squadra A». */
-export function teamLabel(names: readonly string[] | undefined, idx: number): string {
-  const custom = customTeamName(names, idx);
+/** Nome completo: nome scelto (censurato) oppure «Squadra A». */
+export function teamLabel(names: readonly string[] | undefined, idx: number, censor?: Censor): string {
+  const custom = customTeamName(names, idx, censor);
   return custom || t(it.squadra.squadraN, { n: teamLetter(idx) });
 }
 
-/** Nome corto per gli spazi stretti: nome scelto oppure «Sq.A». */
-export function teamLabelShort(names: readonly string[] | undefined, idx: number): string {
-  const custom = customTeamName(names, idx);
+/** Nome corto per gli spazi stretti: nome scelto (censurato) oppure «Sq.A». */
+export function teamLabelShort(
+  names: readonly string[] | undefined,
+  idx: number,
+  censor?: Censor
+): string {
+  const custom = customTeamName(names, idx, censor);
   return custom || t(it.squadra.sqN, { n: teamLetter(idx) });
 }

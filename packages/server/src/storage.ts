@@ -40,11 +40,19 @@ export interface Storage {
   deleteSession(token: string): void;
   /** Revoca TUTTE le sessioni di un utente (es. dopo cambio password). */
   deleteSessionsByUser(userId: string): void;
+  /**
+   * Lista GLOBALE di parole censurate (moderazione). La gestisce solo
+   * l'amministratore; il client la usa per mascherare i nomi in visualizzazione.
+   */
+  getCensoredWords(): string[];
+  setCensoredWords(words: string[]): void;
 }
 
 interface JsonDb {
   users: UserRecord[];
   sessions: SessionRecord[];
+  /** Impostazioni globali (es. lista parole censurate). */
+  settings?: { censoredWords?: string[] };
 }
 
 export class JsonFileStorage implements Storage {
@@ -56,7 +64,7 @@ export class JsonFileStorage implements Storage {
     this.dbPath = join(dataDir, 'db.json');
     this.db = existsSync(this.dbPath)
       ? (JSON.parse(readFileSync(this.dbPath, 'utf8')) as JsonDb)
-      : { users: [], sessions: [] };
+      : { users: [], sessions: [], settings: { censoredWords: [] } };
     this.migrate();
   }
 
@@ -136,12 +144,22 @@ export class JsonFileStorage implements Storage {
     this.db.sessions = this.db.sessions.filter((s) => s.userId !== userId);
     this.flush();
   }
+
+  getCensoredWords(): string[] {
+    return this.db.settings?.censoredWords ?? [];
+  }
+
+  setCensoredWords(words: string[]): void {
+    this.db.settings = { ...(this.db.settings ?? {}), censoredWords: words };
+    this.flush();
+  }
 }
 
 /** Storage volatile per i test. */
 export class MemoryStorage implements Storage {
   private users: UserRecord[] = [];
   private sessions: SessionRecord[] = [];
+  private censoredWords: string[] = [];
 
   getUserByUsername(username: string): UserRecord | null {
     const norm = username.trim().toLowerCase();
@@ -167,5 +185,11 @@ export class MemoryStorage implements Storage {
   }
   deleteSessionsByUser(userId: string): void {
     this.sessions = this.sessions.filter((s) => s.userId !== userId);
+  }
+  getCensoredWords(): string[] {
+    return this.censoredWords;
+  }
+  setCensoredWords(words: string[]): void {
+    this.censoredWords = words;
   }
 }

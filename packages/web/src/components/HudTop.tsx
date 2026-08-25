@@ -4,9 +4,10 @@ import type { PlayerView } from '@vikiland/engine';
 import { shadesFor } from '../render/sprites/palettes';
 import { it, t } from '../i18n';
 import { teamLabel, teamLabelShort } from '../game/teamLabel';
+import { useCensor } from '../game/censor';
 import { UiIcon } from './icons';
 
-function phaseMessage(view: PlayerView): string {
+function phaseMessage(view: PlayerView, censor: (t: string) => string): string {
   const nome = view.players[view.currentPlayer]?.name ?? '';
   switch (view.phase.type) {
     case 'setup': {
@@ -50,7 +51,7 @@ function phaseMessage(view: PlayerView): string {
       const teamIdx = view.teams ? view.teams[winner] : undefined;
       const winnerLabel =
         teamIdx !== undefined
-          ? teamLabel(view.teamNames, teamIdx)
+          ? teamLabel(view.teamNames, teamIdx, censor)
           : view.players[winner]?.name ?? '';
       return t(it.vittoriaTitolo, { nome: winnerLabel });
     }
@@ -89,6 +90,7 @@ export function HudTop({
   onOpenManage?: (() => void) | undefined;
   turnDeadline?: number | null;
 }) {
+  const { censor } = useCensor();
   return (
     <div className="area-hud pixel-frame">
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'space-between' }}>
@@ -97,7 +99,7 @@ export function HudTop({
           <span className="die">{view.dice?.[1] ?? '-'}</span>
         </div>
         <div className="phase-banner" style={{ flex: 1 }}>
-          {phaseMessage(view)}
+          {phaseMessage(view, censor)}
         </div>
         {turnDeadline !== null && <TurnTimerBadge deadline={turnDeadline} />}
         <button
@@ -151,7 +153,7 @@ export function HudTop({
               const col = shadesFor(view.teamColors![teamIdx] ?? '#888').main;
               return (
                 <span key={teamIdx} style={{ color: col, fontWeight: 700 }}>
-                  🛡️ {teamLabelShort(view.teamNames, teamIdx)}: {total}/
+                  🛡️ {teamLabelShort(view.teamNames, teamIdx, censor)}: {total}/
                   {view.targetGloryPoints}
                 </span>
               );
@@ -176,7 +178,7 @@ export function HudTop({
               <span className="player-name">
                 {p.name}
                 {teamIdx !== undefined && (
-                  <span style={{ color: 'var(--ink-dim)' }}> ({teamLabelShort(view.teamNames, teamIdx)})</span>
+                  <span style={{ color: 'var(--ink-dim)' }}> ({teamLabelShort(view.teamNames, teamIdx, censor)})</span>
                 )}
                 {p.isBot ? <span style={{ color: 'var(--ink-dim)' }}> (bot)</span> : ''}
               </span>
