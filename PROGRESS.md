@@ -4,6 +4,23 @@
 
 ## Stato attuale
 
+**MODALITÀ NUMERI COPERTI** ✅ — speculare a Carte Coperte, combinabile con
+TUTTE le altre (Carte Coperte inclusa: con entrambe la casella è del tutto
+cieca). Durante il SETUP restano nascosti i NUMERI (segnalini) delle caselle: si
+vedono solo i MATERIALI. Ogni clan sceglie dove costruire «alla cieca»; finito il
+setup i numeri si RIVELANO e la partita procede normalmente. È solo informazione:
+il motore conosce sempre i numeri (produzione invariata) — a nasconderli è la
+VISTA. `config.numeriCoperti` (default false); `getPlayerView` durante il setup
+azzera `token` e alza il nuovo flag `ViewHex.tokenCovered` (il valore reale non
+viaggia mai nella vista); la vista espone `numeriCoperti`. I bot piazzano «alla
+cieca» (senza numero, nessun pip garantito, come già per le caselle coperte).
+Renderer: segnalino «coperto» col punto interrogativo al posto della cifra; la
+cache statica si ri-cuoce alla rivelazione. UI: interruttore 🔢 nel pannello
+Modalità (locale e lobby online) e promemoria in HUD durante il setup. Propagata
+online via `LobbyConfig.numeriCoperti`. 6 test motore dedicati (flag,
+mascheramento nel setup, stato reale integro, rivelazione a fine setup,
+combinazione con Carte Coperte, partita standard invariata).
+
 **MODALITÀ CARTE COPERTE** ✅ — nuova modalità opzionale (locale/hot-seat E
 online) combinabile con le altre. Durante il SETUP (piazzamento dei due
 insediamenti iniziali) i MATERIALI delle caselle restano nascosti: si vedono

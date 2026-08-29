@@ -151,7 +151,9 @@ function boardSignature(view: PlayerView): string {
     `r${view.boardRadius}${view.boardShape ?? ''}#` +
     // Include l'id (coordinate) di ogni casella: due isole «con rientranze»
     // diverse con la stessa sequenza di terreni non devono condividere la cache.
-    view.board.hexes.map((h) => `${h.id}:${h.terrain}${h.token ?? ''}`).join('|') +
+    view.board.hexes
+      .map((h) => `${h.id}:${h.terrain}${h.token ?? ''}${h.tokenCovered ? 'C' : ''}`)
+      .join('|') +
     '#' +
     view.board.ports.map((p) => `${p.edge}${p.kind}`).join('|')
   );
@@ -205,7 +207,8 @@ function tokenHalfWidthAt(dy: number): number {
   return r2 <= 0 ? 0 : Math.round(Math.sqrt(r2));
 }
 
-function drawToken(ctx: CanvasRenderingContext2D, cx: number, cy: number, token: number): void {
+/** Disco (fondo + bordo) del segnalino, senza cifre: condiviso da numero e coperto. */
+function drawTokenDisc(ctx: CanvasRenderingContext2D, cx: number, cy: number): void {
   ctx.fillStyle = color('segnalino');
   for (let dy = -TOKEN_R; dy <= TOKEN_R; dy++) {
     const hw = tokenHalfWidthAt(dy);
@@ -226,6 +229,36 @@ function drawToken(ctx: CanvasRenderingContext2D, cx: number, cy: number, token:
       if (adx >= hwUp || adx >= hwDown) ctx.fillRect(cx + dx, cy + dy, 1, 1);
     }
   }
+}
+
+/**
+ * Segnalino «coperto» (modalità Numeri Coperti, nel setup): il disco resta ma al
+ * posto della cifra c'è un punto interrogativo, così si legge subito «numero
+ * nascosto» (il materiale della casella è comunque visibile sotto).
+ */
+const QUESTION_MARK: SpriteDef = {
+  map: { r: 'segnalinoBordo' },
+  rows: [
+    '.rrrr.',
+    'rr..rr',
+    'r....r',
+    '....rr',
+    '...rr.',
+    '..rr..',
+    '..rr..',
+    '......',
+    '..rr..',
+    '..rr..',
+  ],
+};
+
+function drawCoveredToken(ctx: CanvasRenderingContext2D, cx: number, cy: number): void {
+  drawTokenDisc(ctx, cx, cy);
+  drawSpriteCentered(ctx, bakeSprite('segnalinoCoperto', QUESTION_MARK), cx, cy);
+}
+
+function drawToken(ctx: CanvasRenderingContext2D, cx: number, cy: number, token: number): void {
+  drawTokenDisc(ctx, cx, cy);
 
   const text = String(token);
   const isHot = token === 6 || token === 8;
@@ -335,7 +368,8 @@ function renderStatic(view: PlayerView): HTMLCanvasElement {
     for (const [dx, dy] of deco.at) {
       drawSpriteCentered(ctx, bakeSprite(deco.id, deco.def), x + dx, y + dy);
     }
-    if (hex.token !== null) drawToken(ctx, x, y, hex.token);
+    if (hex.tokenCovered) drawCoveredToken(ctx, x, y);
+    else if (hex.token !== null) drawToken(ctx, x, y, hex.token);
   }
 
   // PONTI (tavola «con rientranze»): un impalcato di legno sul mare dove si può
