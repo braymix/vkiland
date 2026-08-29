@@ -525,7 +525,6 @@ export const sr: Strings = {
     spiega:
       'Tokom početnog postavljanja sirovine polja ostaju pokrivene: vide se samo brojevi. Biraj „naslepo“ gde da sagradiš svoja dva naselja; po završetku postavljanja tereni se otkrivaju i igra teče normalno.',
     setupNota: '🎴 Pokrivene karte: sirovine su skrivene, biraj po brojevima.',
-    rivelate: '🎴 Sirovine otkrivene!',
   },
 
   battaglia: {

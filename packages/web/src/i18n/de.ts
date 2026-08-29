@@ -526,7 +526,6 @@ export const de: Strings = {
     spiega:
       'Während der Startaufstellung bleiben die Rohstoffe der Felder verdeckt: nur die Zahlen sind sichtbar. Wähle „blind“, wo du deine zwei Siedlungen baust; nach der Aufstellung werden die Felder aufgedeckt und das Spiel läuft normal weiter.',
     setupNota: '🎴 Verdeckte Karten: die Rohstoffe sind verborgen, wähle nach den Zahlen.',
-    rivelate: '🎴 Rohstoffe aufgedeckt!',
   },
 
   battaglia: {

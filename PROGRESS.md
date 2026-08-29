@@ -16,8 +16,8 @@ invariate) — a nasconderli è la VISTA. `config.carteCoperte` (default false);
 la vista espone `carteCoperte`. I bot piazzano «alla cieca» (le caselle coperte
 non danno pip garantiti). Renderer: tessera «a faccia in giù» in ardesia con rune
 e solo il numero; la cache statica si ri-cuoce alla rivelazione. UI: interruttore
-🎴 nel pannello Modalità (locale e lobby online), promemoria in HUD durante il
-setup e breve annuncio «Materiali rivelati!» alla fine. Propagata online via
+🎴 nel pannello Modalità (locale e lobby online) e promemoria in HUD durante il
+setup (la tavola si scopre da sé a fine setup). Propagata online via
 `LobbyConfig.carteCoperte`. 5 test motore dedicati (flag, mascheramento nel
 setup, stato reale sempre integro, rivelazione a fine setup, partita standard
 invariata).

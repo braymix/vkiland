@@ -526,7 +526,6 @@ export const fr: Strings = {
     spiega:
       'Pendant le placement initial, les matériaux des cases restent cachés : seuls les numéros sont visibles. Choisis « à l’aveugle » où bâtir tes deux colonies ; une fois la mise en place terminée, les terrains sont révélés et la partie se poursuit normalement.',
     setupNota: '🎴 Cartes cachées : les matériaux sont cachés, choisis d’après les numéros.',
-    rivelate: '🎴 Matériaux révélés !',
   },
 
   battaglia: {
