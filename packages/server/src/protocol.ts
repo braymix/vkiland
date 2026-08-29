@@ -63,6 +63,8 @@ export interface LobbyConfig {
   capitale: boolean;
   /** Modalità Carte Coperte: materiali nascosti nel setup, poi rivelati. */
   carteCoperte?: boolean;
+  /** Modalità Numeri Coperti: numeri nascosti nel setup, poi rivelati. */
+  numeriCoperti?: boolean;
   /** Modalità Eroi: ogni clan gioca con uno o più eroi (scelti per-posto in `LobbySlot.heroes`). */
   heroes?: boolean;
   /**

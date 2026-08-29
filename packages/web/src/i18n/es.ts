@@ -527,6 +527,14 @@ export const es: Strings = {
     setupNota: '🎴 Cartas cubiertas: los materiales están ocultos, elige por los números.',
   },
 
+  numeriCoperti: {
+    nome: '🔢 Números cubiertos',
+    conNumeriCoperti: 'Con números cubiertos',
+    spiega:
+      'Durante la colocación inicial los números de las casillas quedan cubiertos: solo se ven los materiales. Elige dónde construir tus dos poblados «a ciegas»; terminada la preparación los números se revelan y la partida continúa con normalidad.',
+    setupNota: '🔢 Números cubiertos: los números están ocultos, elige por los materiales.',
+  },
+
   battaglia: {
     assaltoScegli: 'Elige el edificio rival a asaltar con la carta.',
     assaltoLeggeroScegli: 'Elige el camino rival a romper con la carta.',

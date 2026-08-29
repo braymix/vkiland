@@ -528,6 +528,14 @@ export const de: Strings = {
     setupNota: '🎴 Verdeckte Karten: die Rohstoffe sind verborgen, wähle nach den Zahlen.',
   },
 
+  numeriCoperti: {
+    nome: '🔢 Verdeckte Zahlen',
+    conNumeriCoperti: 'Mit verdeckten Zahlen',
+    spiega:
+      'Während der Startaufstellung bleiben die Zahlen der Felder verdeckt: nur die Rohstoffe sind sichtbar. Wähle „blind“, wo du deine zwei Siedlungen baust; nach der Aufstellung werden die Zahlen aufgedeckt und das Spiel läuft normal weiter.',
+    setupNota: '🔢 Verdeckte Zahlen: die Zahlen sind verborgen, wähle nach den Rohstoffen.',
+  },
+
   battaglia: {
     assaltoScegli: 'WÃ¤hle das gegnerische GebÃ¤ude fÃ¼r den Karten-Angriff.',
     assaltoLeggeroScegli: 'WÃ¤hle den gegnerischen Pfad, den die Karte zerbricht.',

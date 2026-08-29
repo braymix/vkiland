@@ -535,6 +535,15 @@ export const it = {
     setupNota: '🎴 Carte coperte: i materiali sono nascosti, scegli in base ai numeri.',
   },
 
+  // --- Modalità Numeri Coperti ---
+  numeriCoperti: {
+    nome: '🔢 Numeri coperti',
+    conNumeriCoperti: 'Con numeri coperti',
+    spiega:
+      'Durante il piazzamento iniziale i numeri delle caselle restano coperti: si vedono solo i materiali. Scegli dove costruire le tue due case «alla cieca»; finito il setup i numeri si rivelano e la partita procede normalmente.',
+    setupNota: '🔢 Numeri coperti: i numeri sono nascosti, scegli in base ai materiali.',
+  },
+
   // --- Modalità Battaglia ---
   battaglia: {
     assaltoScegli: 'Scegli l’edificio avversario da assaltare con la carta.',

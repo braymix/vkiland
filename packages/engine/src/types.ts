@@ -260,6 +260,15 @@ export interface GameConfig {
    */
   carteCoperte: boolean;
   /**
+   * MODALITÀ NUMERI COPERTI (opzionale): identica a Carte Coperte ma al
+   * contrario — durante il setup restano nascosti i NUMERI (segnalini) delle
+   * caselle, mentre i materiali sono visibili. Finito il setup i numeri si
+   * rivelano e la partita procede normalmente. È solo informazione (a nasconderli
+   * è la vista); si può combinare con Carte Coperte (caselle del tutto cieche).
+   * false = partita standard (numeri sempre visibili).
+   */
+  numeriCoperti: boolean;
+  /**
    * MODALITÀ SQUADRA (opzionale): un indice di squadra per giocatore
    * (`teams[i]` = squadra del giocatore i). Le squadre sono di ugual dimensione.
    * In squadra strade/approdi/Grande Via/Furia sono in comune e gli scambi solo
@@ -489,6 +498,13 @@ export type ViewTerrain = TerrainType | 'coperta';
 /** Casella come appare in una vista (il terreno può essere `'coperta'`). */
 export interface ViewHex extends Omit<Hex, 'terrain'> {
   terrain: ViewTerrain;
+  /**
+   * Modalità Numeri Coperti: durante il setup il numero è nascosto. In quel caso
+   * `token` vale `null` (il valore reale non viaggia nella vista) e questo flag è
+   * `true`, così la resa disegna un segnalino «coperto» invece del vuoto. Assente
+   * o `false` = comportamento normale.
+   */
+  tokenCovered?: boolean;
 }
 
 /** Tavola come appare in una vista (caselle con terreno eventualmente coperto). */
@@ -584,6 +600,13 @@ export interface PlayerView {
    * visibile); finito il setup i terreni compaiono e si gioca normalmente.
    */
   carteCoperte: boolean;
+  /**
+   * Modalità Numeri Coperti attiva. Mentre `phase.type === 'setup'` i segnalini
+   * numerici di `board.hexes` sono nascosti (`token === null`, `tokenCovered ===
+   * true`, materiale visibile); finito il setup i numeri compaiono e si gioca
+   * normalmente.
+   */
+  numeriCoperti: boolean;
   /**
    * Modalità Squadra: indice di squadra per giocatore (come `config.teams`).
    * Assente = partita a tutti contro tutti. La UI la usa per i colori e per

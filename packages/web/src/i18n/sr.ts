@@ -527,6 +527,14 @@ export const sr: Strings = {
     setupNota: '🎴 Pokrivene karte: sirovine su skrivene, biraj po brojevima.',
   },
 
+  numeriCoperti: {
+    nome: '🔢 Pokriveni brojevi',
+    conNumeriCoperti: 'Sa pokrivenim brojevima',
+    spiega:
+      'Tokom početnog postavljanja brojevi polja ostaju pokriveni: vide se samo sirovine. Biraj „naslepo“ gde da sagradiš svoja dva naselja; po završetku postavljanja brojevi se otkrivaju i igra teče normalno.',
+    setupNota: '🔢 Pokriveni brojevi: brojevi su skriveni, biraj po sirovinama.',
+  },
+
   battaglia: {
     assaltoScegli: 'Izaberi protivniÄku graÄevinu za juriÅ¡ kartom.',
     assaltoLeggeroScegli: 'Izaberi protivniÄki put za lomljenje kartom.',

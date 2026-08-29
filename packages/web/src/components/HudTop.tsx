@@ -16,8 +16,12 @@ function phaseMessage(view: PlayerView, censor: (t: string) => string): string {
         view.phase.expecting === 'villaggio'
           ? t(it.faseSetupVillaggio, { nome: attivo })
           : t(it.faseSetupSentiero, { nome: attivo });
-      // Modalità Carte Coperte: ricorda che i materiali sono nascosti nel setup.
-      return view.carteCoperte ? `${base} · ${it.carteCoperte.setupNota}` : base;
+      // Modalità Carte Coperte / Numeri Coperti: ricorda cosa è nascosto nel setup
+      // (le note si accumulano se sono attive entrambe).
+      let msg = base;
+      if (view.carteCoperte) msg += ` · ${it.carteCoperte.setupNota}`;
+      if (view.numeriCoperti) msg += ` · ${it.numeriCoperti.setupNota}`;
+      return msg;
     }
     case 'preRoll':
       return t(it.faseTiroAtteso, { nome });
