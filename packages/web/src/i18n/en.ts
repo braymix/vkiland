@@ -527,6 +527,14 @@ export const en: Strings = {
     setupNota: '🎴 Face-down cards: resources are hidden, choose by the numbers.',
   },
 
+  numeriCoperti: {
+    nome: '🔢 Hidden numbers',
+    conNumeriCoperti: 'With hidden numbers',
+    spiega:
+      'During the initial placement the tiles keep their numbers hidden: only the resources are shown. Choose where to build your two settlements "blind"; once setup is done the numbers are revealed and the game proceeds normally.',
+    setupNota: '🔢 Hidden numbers: the numbers are hidden, choose by the resources.',
+  },
+
   battaglia: {
     assaltoScegli: 'Pick the opponent building to assault with the card.',
     assaltoLeggeroScegli: 'Pick the opponent road to break with the card.',

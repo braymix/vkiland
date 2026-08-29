@@ -22,6 +22,15 @@ function terrainsHidden(state: GameState): boolean {
   return state.config.carteCoperte && state.phase.type === 'setup';
 }
 
+/**
+ * Modalità Numeri Coperti: i segnalini numerici si nascondono SOLO durante il
+ * setup (piazzamento dei due insediamenti iniziali). Finito il setup — e in ogni
+ * partita standard — i numeri sono visibili come sempre.
+ */
+function numbersHidden(state: GameState): boolean {
+  return state.config.numeriCoperti && state.phase.type === 'setup';
+}
+
 export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
   const players: PublicPlayer[] = state.players.map((p) => ({
     id: p.id,
@@ -66,10 +75,24 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
   // materiale (terreno = 'coperta'); il deserto (senza numero) resta comunque
   // riconoscibile. Fuori dalla modalità, o finito il setup, i terreni sono
   // quelli reali.
+  // Modalità Numeri Coperti: nel setup ogni casella mostra il materiale ma NON
+  // il numero (`token = null`, `tokenCovered = true`); il valore reale non
+  // viaggia mai nella vista. Il deserto (senza numero) resta un deserto normale.
+  // Le due modalità si combinano: con entrambe la casella è del tutto cieca.
   const hideTerrains = terrainsHidden(state);
-  const hexes: ViewHex[] = hideTerrains
-    ? state.board.hexes.map((h) => ({ ...h, terrain: 'coperta' }))
-    : state.board.hexes;
+  const hideNumbers = numbersHidden(state);
+  const hexes: ViewHex[] =
+    hideTerrains || hideNumbers
+      ? state.board.hexes.map((h) => {
+          const hex: ViewHex = { ...h };
+          if (hideTerrains) hex.terrain = 'coperta';
+          if (hideNumbers && h.token !== null) {
+            hex.token = null;
+            hex.tokenCovered = true;
+          }
+          return hex;
+        })
+      : state.board.hexes;
 
   return {
     board: {
@@ -122,6 +145,7 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
     capitale: state.config.capitale,
     heroes: state.config.heroes,
     carteCoperte: state.config.carteCoperte,
+    numeriCoperti: state.config.numeriCoperti,
     ...(state.config.teams
       ? {
           teams: [...state.config.teams],

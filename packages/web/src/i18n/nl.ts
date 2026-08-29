@@ -527,6 +527,14 @@ export const nl: Strings = {
     setupNota: '🎴 Gedekte kaarten: de grondstoffen zijn verborgen, kies op de getallen.',
   },
 
+  numeriCoperti: {
+    nome: '🔢 Gedekte getallen',
+    conNumeriCoperti: 'Met gedekte getallen',
+    spiega:
+      'Tijdens de beginopstelling blijven de getallen van de vakken verborgen: alleen de grondstoffen zijn zichtbaar. Kies "blind" waar je je twee nederzettingen bouwt; na de opstelling worden de getallen onthuld en gaat het spel normaal verder.',
+    setupNota: '🔢 Gedekte getallen: de getallen zijn verborgen, kies op de grondstoffen.',
+  },
+
   battaglia: {
     assaltoScegli: 'Kies het gebouw van de tegenstander om met de kaart aan te vallen.',
     assaltoLeggeroScegli: 'Kies de weg van de tegenstander om met de kaart te breken.',

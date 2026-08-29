@@ -53,6 +53,8 @@ export interface GameSetup {
   heroes?: boolean;
   /** Modalità Carte Coperte: materiali nascosti nel setup, poi rivelati (default false). */
   carteCoperte?: boolean;
+  /** Modalità Numeri Coperti: numeri nascosti nel setup, poi rivelati (default false). */
+  numeriCoperti?: boolean;
   /** Modalità Eroi: gli eroi (uno o più, distinti) scelti da ciascun giocatore, indicizzati come `players`. */
   heroAssignments?: (readonly HeroId[])[];
   /** Tavola grande scelta esplicitamente; assente = consigliata dal numero di giocatori. */

@@ -146,6 +146,7 @@ export function NewGameScreen({
   const [battle, setBattle] = useState(false);
   const [capitale, setCapitale] = useState(false);
   const [carteCoperte, setCarteCoperte] = useState(false);
+  const [numeriCoperti, setNumeriCoperti] = useState(false);
   // Modalità Eroi: eroi scelti per ogni posto (uno o più, tutti distinti).
   const [heroesMode, setHeroesMode] = useState(false);
   const [seatHeroes, setSeatHeroes] = useState<HeroId[][]>([[], [], []]);
@@ -418,6 +419,7 @@ export function NewGameScreen({
     setBattle(lobby.config.battle);
     setCapitale(lobby.config.capitale);
     setCarteCoperte(lobby.config.carteCoperte ?? false);
+    setNumeriCoperti(lobby.config.numeriCoperti ?? false);
     setHeroesMode(lobby.config.heroes ?? false);
     // «Numero di eroi»: settaggio autorevole dell'host (default 1).
     {
@@ -485,6 +487,7 @@ export function NewGameScreen({
       battle: change.battle ?? battle,
       capitale: change.capitale ?? capitale,
       ...((change.carteCoperte ?? carteCoperte) ? { carteCoperte: true } : {}),
+      ...((change.numeriCoperti ?? numeriCoperti) ? { numeriCoperti: true } : {}),
       ...((change.heroes ?? heroesMode)
         ? { heroes: true, heroesPerPlayer: change.heroesPerPlayer ?? heroesPerPlayer }
         : {}),
@@ -525,6 +528,7 @@ export function NewGameScreen({
     battle,
     capitale,
     ...(carteCoperte ? { carteCoperte: true } : {}),
+    ...(numeriCoperti ? { numeriCoperti: true } : {}),
     ...(heroesMode ? { heroes: true, heroesPerPlayer } : {}),
     ...(boardSize ? { boardSize } : {}),
     ...(boardShape ? { boardShape } : {}),
@@ -737,6 +741,7 @@ export function NewGameScreen({
       battle,
       capitale,
       carteCoperte,
+      numeriCoperti,
       ...(heroesMode
         ? {
             heroes: true,
@@ -808,6 +813,7 @@ export function NewGameScreen({
     !battle &&
     !capitale &&
     !carteCoperte &&
+    !numeriCoperti &&
     !heroesMode &&
     avoid68 &&
     !seed.trim() &&
@@ -1014,6 +1020,8 @@ export function NewGameScreen({
             setCapitale={(v) => setCapitale(v)}
             carteCoperte={carteCoperte}
             setCarteCoperte={(v) => setCarteCoperte(v)}
+            numeriCoperti={numeriCoperti}
+            setNumeriCoperti={(v) => setNumeriCoperti(v)}
             heroesMode={heroesMode}
             setHeroesMode={applyHeroesMode}
             heroesCount={heroesCount}
@@ -1301,6 +1309,11 @@ export function NewGameScreen({
               setCarteCoperte(v);
               patch({ carteCoperte: v });
             }}
+            numeriCoperti={numeriCoperti}
+            setNumeriCoperti={(v) => {
+              setNumeriCoperti(v);
+              patch({ numeriCoperti: v });
+            }}
             heroesMode={heroesMode}
             setHeroesMode={(v) => {
               setHeroesMode(v);
@@ -1583,6 +1596,9 @@ interface RulesPresetProps {
   /** Modalità Carte Coperte. */
   carteCoperte: boolean;
   setCarteCoperte: (v: boolean) => void;
+  /** Modalità Numeri Coperti. */
+  numeriCoperti: boolean;
+  setNumeriCoperti: (v: boolean) => void;
   /** Modalità Eroi. */
   heroesMode: boolean;
   setHeroesMode: (v: boolean) => void;
@@ -1717,6 +1733,16 @@ function RulesPreset(p: RulesPresetProps) {
             🎴 {it.carteCoperte.conCarteCoperte}
           </label>
           {p.carteCoperte && <div style={NOTE_STYLE}>{it.carteCoperte.spiega}</div>}
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={p.numeriCoperti}
+              disabled={!p.editable}
+              onChange={(e) => p.setNumeriCoperti(e.target.checked)}
+            />
+            🔢 {it.numeriCoperti.conNumeriCoperti}
+          </label>
+          {p.numeriCoperti && <div style={NOTE_STYLE}>{it.numeriCoperti.spiega}</div>}
           <label className="check">
             <input
               type="checkbox"
