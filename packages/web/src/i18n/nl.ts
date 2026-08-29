@@ -525,7 +525,6 @@ export const nl: Strings = {
     spiega:
       'Tijdens de beginopstelling blijven de grondstoffen van de vakken verborgen: alleen de getallen zijn zichtbaar. Kies "blind" waar je je twee nederzettingen bouwt; na de opstelling worden de terreinen onthuld en gaat het spel normaal verder.',
     setupNota: '🎴 Gedekte kaarten: de grondstoffen zijn verborgen, kies op de getallen.',
-    rivelate: '🎴 Grondstoffen onthuld!',
   },
 
   battaglia: {
