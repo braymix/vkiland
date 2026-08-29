@@ -9,8 +9,8 @@ import {
   pipWeight,
   vertexFreeWithDistance,
   zeroResources,
-  type Hex,
   type PlayerView,
+  type ViewHex,
   type Resource,
   type ResourceCount,
   type TopoKey,
@@ -22,7 +22,7 @@ export function viewTopoKey(view: PlayerView): TopoKey {
   return boardTopoKey(view.boardRadius, view.boardShape, view.board.hexes);
 }
 
-export function hexById(view: PlayerView): Map<string, Hex> {
+export function hexById(view: PlayerView): Map<string, ViewHex> {
   return new Map(view.board.hexes.map((h) => [h.id, h]));
 }
 
@@ -34,6 +34,9 @@ export function vertexPips(view: PlayerView, vertex: VertexId): ResourceCount {
   for (const hexId of topo.vertexLandHexes[vertex] ?? []) {
     const hex = byId.get(hexId);
     if (!hex || hex.terrain === 'tundra' || hex.token === null) continue;
+    // Modalità Carte Coperte (nel setup): materiale ignoto ⇒ nessun pip
+    // garantito per risorsa (il bot piazza "alla cieca", come gli umani).
+    if (hex.terrain === 'coperta') continue;
     out[hex.terrain] += pipWeight(hex.token);
   }
   return out;

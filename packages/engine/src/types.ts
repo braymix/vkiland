@@ -251,6 +251,15 @@ export interface GameConfig {
    */
   heroes: boolean;
   /**
+   * MODALITÀ CARTE COPERTE (opzionale): durante il setup (piazzamento dei due
+   * insediamenti iniziali) i MATERIALI delle caselle restano nascosti — si
+   * vedono solo i NUMERI. Finito il setup i terreni si rivelano e la partita
+   * procede normalmente. È solo informazione: il motore conosce sempre i
+   * terreni (produzione, generazione); a nasconderli è la vista (`getPlayerView`).
+   * false = partita standard (terreni sempre visibili).
+   */
+  carteCoperte: boolean;
+  /**
    * MODALITÀ SQUADRA (opzionale): un indice di squadra per giocatore
    * (`teams[i]` = squadra del giocatore i). Le squadre sono di ugual dimensione.
    * In squadra strade/approdi/Grande Via/Furia sono in comune e gli scambi solo
@@ -469,6 +478,24 @@ export interface TradeRatioView extends PiecesView {
 // Viste filtrate (informazione nascosta)
 // ---------------------------------------------------------------------------
 
+/**
+ * Terreno come appare in una VISTA. Di norma è un `TerrainType` reale; in
+ * modalità Carte Coperte, durante il setup, il materiale è nascosto e vale
+ * il sentinella `'coperta'` (si conosce solo il numero della casella). Il
+ * motore non usa mai questo valore: esiste solo nelle viste filtrate.
+ */
+export type ViewTerrain = TerrainType | 'coperta';
+
+/** Casella come appare in una vista (il terreno può essere `'coperta'`). */
+export interface ViewHex extends Omit<Hex, 'terrain'> {
+  terrain: ViewTerrain;
+}
+
+/** Tavola come appare in una vista (caselle con terreno eventualmente coperto). */
+export interface ViewBoard extends Omit<Board, 'hexes'> {
+  hexes: ViewHex[];
+}
+
 /** Ciò che TUTTI vedono di un giocatore. */
 export interface PublicPlayer {
   id: PlayerId;
@@ -518,7 +545,7 @@ export interface PrivateSelf {
  * nascosta (mani altrui, ordine del mazzo, stato RNG) non c'è proprio.
  */
 export interface PlayerView {
-  board: Board;
+  board: ViewBoard;
   bank: ResourceCount;
   sagaDeckCount: number;
   players: PublicPlayer[];
@@ -551,6 +578,12 @@ export interface PlayerView {
   capitale: boolean;
   /** Modalità Eroi attiva: la UI mostra gli eroi e le loro abilità attivabili. */
   heroes: boolean;
+  /**
+   * Modalità Carte Coperte attiva. Mentre `phase.type === 'setup'` i terreni di
+   * `board.hexes` sono nascosti (`terrain === 'coperta'`, solo il numero è
+   * visibile); finito il setup i terreni compaiono e si gioca normalmente.
+   */
+  carteCoperte: boolean;
   /**
    * Modalità Squadra: indice di squadra per giocatore (come `config.teams`).
    * Assente = partita a tutti contro tutti. La UI la usa per i colori e per

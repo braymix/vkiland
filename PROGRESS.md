@@ -4,6 +4,24 @@
 
 ## Stato attuale
 
+**MODALITÀ CARTE COPERTE** ✅ — nuova modalità opzionale (locale/hot-seat E
+online) combinabile con le altre. Durante il SETUP (piazzamento dei due
+insediamenti iniziali) i MATERIALI delle caselle restano nascosti: si vedono
+solo i NUMERI. Ogni clan sceglie dove costruire le sue due case «alla cieca»;
+finito il setup i terreni si RIVELANO e la partita procede normalmente. È solo
+informazione: il motore conosce sempre i terreni (produzione/generazione
+invariate) — a nasconderli è la VISTA. `config.carteCoperte` (default false);
+`getPlayerView` maschera i terreni a `'coperta'` (nuovo `ViewTerrain`/`ViewHex`/
+`ViewBoard`) finché `phase.type === 'setup'`, conservando id/coordinate/numero;
+la vista espone `carteCoperte`. I bot piazzano «alla cieca» (le caselle coperte
+non danno pip garantiti). Renderer: tessera «a faccia in giù» in ardesia con rune
+e solo il numero; la cache statica si ri-cuoce alla rivelazione. UI: interruttore
+🎴 nel pannello Modalità (locale e lobby online), promemoria in HUD durante il
+setup e breve annuncio «Materiali rivelati!» alla fine. Propagata online via
+`LobbyConfig.carteCoperte`. 5 test motore dedicati (flag, mascheramento nel
+setup, stato reale sempre integro, rivelazione a fine setup, partita standard
+invariata).
+
 **MODALITÀ SQUADRA** ✅ — nuova modalità opzionale (locale/hot-seat E online;
 italiano) combinabile con TUTTE le altre (calamità, battaglia, tavole grandi e
 «con rientranze»). I giocatori si dividono in squadre di UGUAL dimensione

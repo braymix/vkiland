@@ -519,6 +519,15 @@ export const en: Strings = {
     scegli: 'Choose which of your Strongholds to upgrade into the Capital.',
   },
 
+  carteCoperte: {
+    nome: '🎴 Face-down cards',
+    conCarteCoperte: 'With face-down cards',
+    spiega:
+      'During the initial placement the tiles keep their resources hidden: only the numbers are shown. Choose where to build your two settlements "blind"; once setup is done the terrains are revealed and the game proceeds normally.',
+    setupNota: '🎴 Face-down cards: resources are hidden, choose by the numbers.',
+    rivelate: '🎴 Resources revealed!',
+  },
+
   battaglia: {
     assaltoScegli: 'Pick the opponent building to assault with the card.',
     assaltoLeggeroScegli: 'Pick the opponent road to break with the card.',

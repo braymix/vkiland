@@ -520,6 +520,15 @@ export const de: Strings = {
     scegli: 'WÃ¤hle die Festung, die zur Hauptstadt ausgebaut wird.',
   },
 
+  carteCoperte: {
+    nome: '🎴 Verdeckte Karten',
+    conCarteCoperte: 'Mit verdeckten Karten',
+    spiega:
+      'Während der Startaufstellung bleiben die Rohstoffe der Felder verdeckt: nur die Zahlen sind sichtbar. Wähle „blind“, wo du deine zwei Siedlungen baust; nach der Aufstellung werden die Felder aufgedeckt und das Spiel läuft normal weiter.',
+    setupNota: '🎴 Verdeckte Karten: die Rohstoffe sind verborgen, wähle nach den Zahlen.',
+    rivelate: '🎴 Rohstoffe aufgedeckt!',
+  },
+
   battaglia: {
     assaltoScegli: 'WÃ¤hle das gegnerische GebÃ¤ude fÃ¼r den Karten-Angriff.',
     assaltoLeggeroScegli: 'WÃ¤hle den gegnerischen Pfad, den die Karte zerbricht.',

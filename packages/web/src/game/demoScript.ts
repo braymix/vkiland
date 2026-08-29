@@ -124,7 +124,7 @@ function vertexInfo(view: PlayerView, vertex: VertexId): {
   for (const coord of parseVertexId(vertex)) {
     const id = hexKey(coord);
     const hex = view.board.hexes.find((h) => h.id === id);
-    if (!hex || hex.token === null || hex.terrain === 'tundra') continue;
+    if (!hex || hex.token === null || hex.terrain === 'tundra' || hex.terrain === 'coperta') continue;
     hexes.push(id);
     numbers.push(hex.token);
     if (!resources.includes(hex.terrain)) resources.push(hex.terrain);

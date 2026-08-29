@@ -40,6 +40,11 @@ export interface NewGameOptions {
   /** Modalità Eroi: ogni clan gioca con un eroe. Default false. */
   heroes?: boolean;
   /**
+   * Modalità Carte Coperte: nel setup i materiali delle caselle restano
+   * nascosti (solo i numeri), poi si rivelano. Default false.
+   */
+  carteCoperte?: boolean;
+  /**
    * Modalità Eroi: gli eroi scelti da ciascun giocatore, indicizzati come
    * `players`. Ogni voce può essere un singolo eroe, una LISTA di eroi (il clan
    * gioca con più eroi, tutti distinti) oppure assente/null (nessun eroe).
@@ -134,6 +139,7 @@ export function createGame(options: NewGameOptions): GameState {
     battle: options.battle ?? false,
     capitale: options.capitale ?? false,
     heroes: options.heroes ?? false,
+    carteCoperte: options.carteCoperte ?? false,
     ...(teams
       ? {
           teams: [...teams],

@@ -51,6 +51,8 @@ export interface GameSetup {
   capitale: boolean;
   /** Modalità Eroi: ogni clan gioca con uno o più eroi (default false). */
   heroes?: boolean;
+  /** Modalità Carte Coperte: materiali nascosti nel setup, poi rivelati (default false). */
+  carteCoperte?: boolean;
   /** Modalità Eroi: gli eroi (uno o più, distinti) scelti da ciascun giocatore, indicizzati come `players`. */
   heroAssignments?: (readonly HeroId[])[];
   /** Tavola grande scelta esplicitamente; assente = consigliata dal numero di giocatori. */

@@ -61,6 +61,8 @@ export interface LobbyConfig {
   battle: boolean;
   /** Modalità Capitale: la Capitale, evoluzione della Roccaforte (una sola per clan). */
   capitale: boolean;
+  /** Modalità Carte Coperte: materiali nascosti nel setup, poi rivelati. */
+  carteCoperte?: boolean;
   /** Modalità Eroi: ogni clan gioca con uno o più eroi (scelti per-posto in `LobbySlot.heroes`). */
   heroes?: boolean;
   /**
