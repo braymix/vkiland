@@ -15,7 +15,7 @@ import {
   type HexId,
   type PlayerColor,
   type PlayerView,
-  type TerrainType,
+  type ViewTerrain,
   type VertexId,
 } from '@vikiland/engine';
 import {
@@ -62,22 +62,49 @@ export interface BoardUiState {
   highlightHexes?: HexId[] | undefined;
 }
 
-const TERRAIN_FILL: Record<TerrainType, [string, string]> = {
+const TERRAIN_FILL: Record<ViewTerrain, [string, string]> = {
   legname: ['foresta', 'forestaBordo'],
   pietra: ['cava', 'cavaBordo'],
   lana: ['pascolo', 'pascoloBordo'],
   orzo: ['campo', 'campoBordo'],
   ferro: ['miniera', 'minieraBordo'],
   tundra: ['tundra', 'tundraBordo'],
+  // Carta Coperta (modalità Carte Coperte, nel setup): tessera "a faccia in
+  // giù", ardesia scura; si vede solo il numero, il materiale è nascosto.
+  coperta: ['ferroScuro', 'nero'],
 };
 
-const TERRAIN_DECO: Record<TerrainType, { def: SpriteDef; id: string; at: [number, number][] }> = {
+/**
+ * Rune incisa al centro della carta coperta: un rombo con puntino, così la
+ * tessera "a faccia in giù" si legge subito come nascosta (il numero resta
+ * comunque disegnato sopra).
+ */
+const RUNA_COPERTA: SpriteDef = {
+  map: { r: 'segnalino', o: 'ferroLuce' },
+  rows: [
+    '.....r.....',
+    '....rrr....',
+    '...rr.rr...',
+    '..rr...rr..',
+    '.rr..o..rr.',
+    'rr...o...rr',
+    '.rr..o..rr.',
+    '..rr...rr..',
+    '...rr.rr...',
+    '....rrr....',
+    '.....r.....',
+  ],
+};
+
+const TERRAIN_DECO: Record<ViewTerrain, { def: SpriteDef; id: string; at: [number, number][] }> = {
   legname: { def: PINO, id: 'pino', at: [[-10, -14], [10, -13], [0, 15]] },
   pietra: { def: MATTONE_DECO, id: 'mattone', at: [[-9, -14], [9, 14]] },
   lana: { def: PECORA, id: 'pecora', at: [[-9, -14], [9, 14]] },
   orzo: { def: SPIGA, id: 'spiga', at: [[-11, -14], [11, -14], [0, 15]] },
   ferro: { def: MINERALE, id: 'minerale', at: [[-9, -14], [9, 14]] },
   tundra: { def: CRISTALLO_GHIACCIO, id: 'ghiaccio', at: [[-10, -14], [10, -13], [0, 15]] },
+  // Due rune agli angoli alti: decorano la carta coperta senza coprire il numero.
+  coperta: { def: RUNA_COPERTA, id: 'runaCoperta', at: [[-11, -13], [11, -13]] },
 };
 
 /** Marcatore di evidenziazione (anello bianco con bordo scuro). */

@@ -520,6 +520,15 @@ export const fr: Strings = {
     scegli: 'Choisissez la Forteresse Ã  faire Ã©voluer en Capitale.',
   },
 
+  carteCoperte: {
+    nome: '🎴 Cartes cachées',
+    conCarteCoperte: 'Avec cartes cachées',
+    spiega:
+      'Pendant le placement initial, les matériaux des cases restent cachés : seuls les numéros sont visibles. Choisis « à l’aveugle » où bâtir tes deux colonies ; une fois la mise en place terminée, les terrains sont révélés et la partie se poursuit normalement.',
+    setupNota: '🎴 Cartes cachées : les matériaux sont cachés, choisis d’après les numéros.',
+    rivelate: '🎴 Matériaux révélés !',
+  },
+
   battaglia: {
     assaltoScegli: 'Choisis le bÃ¢timent adverse Ã  prendre dâassaut avec la carte.',
     assaltoLeggeroScegli: 'Choisis le chemin adverse Ã  casser avec la carte.',

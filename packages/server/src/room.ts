@@ -125,6 +125,7 @@ export class GameRoom {
       calamities: config.calamities,
       battle: config.battle,
       capitale: config.capitale,
+      ...(config.carteCoperte ? { carteCoperte: true } : {}),
       // Modalità Eroi: eroi per-posto scelti in lobby (uno o più per clan).
       ...(config.heroes
         ? { heroes: true, heroAssignments: seats.map((s) => s.heroes ?? []) }

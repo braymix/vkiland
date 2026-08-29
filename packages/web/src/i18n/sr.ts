@@ -519,6 +519,15 @@ export const sr: Strings = {
     scegli: 'Izaberi koju TvrÄavu da unaprediÅ¡ u Prestonicu.',
   },
 
+  carteCoperte: {
+    nome: '🎴 Pokrivene karte',
+    conCarteCoperte: 'Sa pokrivenim kartama',
+    spiega:
+      'Tokom početnog postavljanja sirovine polja ostaju pokrivene: vide se samo brojevi. Biraj „naslepo“ gde da sagradiš svoja dva naselja; po završetku postavljanja tereni se otkrivaju i igra teče normalno.',
+    setupNota: '🎴 Pokrivene karte: sirovine su skrivene, biraj po brojevima.',
+    rivelate: '🎴 Sirovine otkrivene!',
+  },
+
   battaglia: {
     assaltoScegli: 'Izaberi protivniÄku graÄevinu za juriÅ¡ kartom.',
     assaltoLeggeroScegli: 'Izaberi protivniÄki put za lomljenje kartom.',

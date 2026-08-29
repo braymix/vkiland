@@ -12,9 +12,12 @@ function phaseMessage(view: PlayerView, censor: (t: string) => string): string {
   switch (view.phase.type) {
     case 'setup': {
       const attivo = view.players[view.setupOrder[view.setupIndex] ?? 0]?.name ?? '';
-      return view.phase.expecting === 'villaggio'
-        ? t(it.faseSetupVillaggio, { nome: attivo })
-        : t(it.faseSetupSentiero, { nome: attivo });
+      const base =
+        view.phase.expecting === 'villaggio'
+          ? t(it.faseSetupVillaggio, { nome: attivo })
+          : t(it.faseSetupSentiero, { nome: attivo });
+      // Modalità Carte Coperte: ricorda che i materiali sono nascosti nel setup.
+      return view.carteCoperte ? `${base} · ${it.carteCoperte.setupNota}` : base;
     }
     case 'preRoll':
       return t(it.faseTiroAtteso, { nome });
