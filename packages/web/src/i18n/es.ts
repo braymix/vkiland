@@ -519,6 +519,15 @@ export const es: Strings = {
     scegli: 'Elige quÃ© Fortaleza convertir en Capital.',
   },
 
+  carteCoperte: {
+    nome: '🎴 Cartas cubiertas',
+    conCarteCoperte: 'Con cartas cubiertas',
+    spiega:
+      'Durante la colocación inicial los materiales de las casillas quedan cubiertos: solo se ven los números. Elige dónde construir tus dos poblados «a ciegas»; terminada la preparación los terrenos se revelan y la partida continúa con normalidad.',
+    setupNota: '🎴 Cartas cubiertas: los materiales están ocultos, elige por los números.',
+    rivelate: '🎴 ¡Materiales revelados!',
+  },
+
   battaglia: {
     assaltoScegli: 'Elige el edificio rival a asaltar con la carta.',
     assaltoLeggeroScegli: 'Elige el camino rival a romper con la carta.',

@@ -731,6 +731,7 @@ function sanitizeConfig(c: LobbyConfig): LobbyConfig {
     calamities: Boolean(c.calamities),
     battle: Boolean(c.battle),
     capitale: Boolean(c.capitale),
+    ...(c.carteCoperte ? { carteCoperte: true } : {}),
     ...(c.heroes
       ? { heroes: true, heroesPerPlayer: clampInt(c.heroesPerPlayer, 1, ALL_HEROES.length, 1) }
       : {}),

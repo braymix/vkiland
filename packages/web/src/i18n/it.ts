@@ -526,6 +526,16 @@ export const it = {
     scegli: 'Scegli quale tua Roccaforte evolvere in Capitale.',
   },
 
+  // --- Modalità Carte Coperte ---
+  carteCoperte: {
+    nome: '🎴 Carte coperte',
+    conCarteCoperte: 'Con carte coperte',
+    spiega:
+      'Durante il piazzamento iniziale i materiali delle caselle restano coperti: si vedono solo i numeri. Scegli dove costruire le tue due case «alla cieca»; finito il setup i terreni si rivelano e la partita procede normalmente.',
+    setupNota: '🎴 Carte coperte: i materiali sono nascosti, scegli in base ai numeri.',
+    rivelate: '🎴 Materiali rivelati!',
+  },
+
   // --- Modalità Battaglia ---
   battaglia: {
     assaltoScegli: 'Scegli l’edificio avversario da assaltare con la carta.',

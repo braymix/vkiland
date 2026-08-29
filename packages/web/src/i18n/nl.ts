@@ -519,6 +519,15 @@ export const nl: Strings = {
     scegli: 'Kies welke Burcht je opwaardeert tot Hoofdstad.',
   },
 
+  carteCoperte: {
+    nome: '🎴 Gedekte kaarten',
+    conCarteCoperte: 'Met gedekte kaarten',
+    spiega:
+      'Tijdens de beginopstelling blijven de grondstoffen van de vakken verborgen: alleen de getallen zijn zichtbaar. Kies "blind" waar je je twee nederzettingen bouwt; na de opstelling worden de terreinen onthuld en gaat het spel normaal verder.',
+    setupNota: '🎴 Gedekte kaarten: de grondstoffen zijn verborgen, kies op de getallen.',
+    rivelate: '🎴 Grondstoffen onthuld!',
+  },
+
   battaglia: {
     assaltoScegli: 'Kies het gebouw van de tegenstander om met de kaart aan te vallen.',
     assaltoLeggeroScegli: 'Kies de weg van de tegenstander om met de kaart te breken.',

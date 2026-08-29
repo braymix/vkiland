@@ -9,9 +9,18 @@ import { clonePhase } from './game';
 import { totalResources } from './resources';
 import { gloryPoints } from './scoring';
 import { friendsOf, isTeamMode } from './teams';
-import type { GameState, PlayerId, PlayerView, PublicPlayer } from './types';
+import type { GameState, PlayerId, PlayerView, PublicPlayer, ViewHex } from './types';
 
 export type Viewer = PlayerId | 'spettatore';
+
+/**
+ * Modalità Carte Coperte: i materiali si nascondono SOLO durante il setup
+ * (piazzamento dei due insediamenti iniziali). Finito il setup — e in ogni
+ * partita standard — i terreni sono visibili come sempre.
+ */
+function terrainsHidden(state: GameState): boolean {
+  return state.config.carteCoperte && state.phase.type === 'setup';
+}
 
 export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
   const players: PublicPlayer[] = state.players.map((p) => ({
@@ -53,9 +62,18 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
 
   const self = viewer === 'spettatore' ? null : state.players[viewer] ?? null;
 
+  // Modalità Carte Coperte: nel setup ogni casella mostra il numero ma NON il
+  // materiale (terreno = 'coperta'); il deserto (senza numero) resta comunque
+  // riconoscibile. Fuori dalla modalità, o finito il setup, i terreni sono
+  // quelli reali.
+  const hideTerrains = terrainsHidden(state);
+  const hexes: ViewHex[] = hideTerrains
+    ? state.board.hexes.map((h) => ({ ...h, terrain: 'coperta' }))
+    : state.board.hexes;
+
   return {
     board: {
-      hexes: state.board.hexes,
+      hexes,
       ports: state.board.ports,
       dragonHex: state.board.dragonHex,
       dragonMovedBy: state.board.dragonMovedBy,
@@ -103,6 +121,7 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
     battle: state.config.battle,
     capitale: state.config.capitale,
     heroes: state.config.heroes,
+    carteCoperte: state.config.carteCoperte,
     ...(state.config.teams
       ? {
           teams: [...state.config.teams],
