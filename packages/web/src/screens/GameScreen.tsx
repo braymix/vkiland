@@ -86,22 +86,6 @@ export function GameScreen({
   const [openCalamityId, setOpenCalamityId] = useState<string | null>(null);
   const seenCalamityIds = useRef<Set<string>>(new Set());
 
-  // Modalità Carte Coperte: quando il setup finisce, i materiali si rivelano.
-  // Un breve annuncio segnala il momento (la tavola passa da "coperta" ai colori).
-  const [revealFlash, setRevealFlash] = useState(false);
-  const wasSetupRef = useRef(false);
-  useEffect(() => {
-    const inSetup = view.phase.type === 'setup';
-    if (view.carteCoperte && wasSetupRef.current && !inSetup) {
-      wasSetupRef.current = false;
-      setRevealFlash(true);
-      const id = setTimeout(() => setRevealFlash(false), 2600);
-      return () => clearTimeout(id);
-    }
-    wasSetupRef.current = inSetup;
-    return;
-  }, [view.phase.type, view.carteCoperte]);
-
   const isMyTurn = view.currentPlayer === viewpoint;
   const isSpectator = snap.spectator ?? false;
   const handRequest = snap.handRequest ?? null;
@@ -503,28 +487,6 @@ export function GameScreen({
       )}
       {/* Sopra mappa e dialoghi, ma sotto tutorial e passaggio di mano. */}
       <DiceRollOverlay roll={snap.lastRoll} />
-      {revealFlash && (
-        <div
-          style={{
-            position: 'fixed',
-            top: '18%',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 60,
-            padding: '10px 18px',
-            borderRadius: 8,
-            background: 'var(--panel, #1a1612)',
-            border: '2px solid var(--accent, #f2c94c)',
-            color: 'var(--ink, #f5f1e6)',
-            fontWeight: 700,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
-            pointerEvents: 'none',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {it.carteCoperte.rivelate}
-        </div>
-      )}
     </div>
   );
 }

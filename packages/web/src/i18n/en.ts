@@ -525,7 +525,6 @@ export const en: Strings = {
     spiega:
       'During the initial placement the tiles keep their resources hidden: only the numbers are shown. Choose where to build your two settlements "blind"; once setup is done the terrains are revealed and the game proceeds normally.',
     setupNota: '🎴 Face-down cards: resources are hidden, choose by the numbers.',
-    rivelate: '🎴 Resources revealed!',
   },
 
   battaglia: {

@@ -525,7 +525,6 @@ export const es: Strings = {
     spiega:
       'Durante la colocación inicial los materiales de las casillas quedan cubiertos: solo se ven los números. Elige dónde construir tus dos poblados «a ciegas»; terminada la preparación los terrenos se revelan y la partida continúa con normalidad.',
     setupNota: '🎴 Cartas cubiertas: los materiales están ocultos, elige por los números.',
-    rivelate: '🎴 ¡Materiales revelados!',
   },
 
   battaglia: {

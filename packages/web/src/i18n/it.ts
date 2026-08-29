@@ -533,7 +533,6 @@ export const it = {
     spiega:
       'Durante il piazzamento iniziale i materiali delle caselle restano coperti: si vedono solo i numeri. Scegli dove costruire le tue due case «alla cieca»; finito il setup i terreni si rivelano e la partita procede normalmente.',
     setupNota: '🎴 Carte coperte: i materiali sono nascosti, scegli in base ai numeri.',
-    rivelate: '🎴 Materiali rivelati!',
   },
 
   // --- Modalità Battaglia ---
