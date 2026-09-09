@@ -222,6 +222,7 @@ export const sr: Strings = {
   campoRientranzeSpiega:
     'Ostrvo nasumiÄnog oblika (zalivi, poluostrva) sa istim brojem polja: moÅ¾eÅ¡ graditi mostove da preÄeÅ¡ zalive Å¡iroke jednu cestu.',
   categoriaModalita: 'ReÅ¾imi',
+  modalitaDado: 'Nasumičan spoj režima',
   categoriaTavola: 'Tabla',
   categoriaOnline: 'Onlajn',
   via: 'Isplovi!',

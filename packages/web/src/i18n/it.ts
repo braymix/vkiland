@@ -230,6 +230,7 @@ export const it = {
   campoRientranzeSpiega:
     'Isola dalla forma casuale (golfi, penisole) con lo stesso numero di caselle: si possono costruire ponti per scavalcare i golfi larghi una strada.',
   categoriaModalita: 'Modalità',
+  modalitaDado: 'Combo casuale di modalità',
   categoriaTavola: 'Tavola',
   categoriaOnline: 'Online',
   via: 'Salpa!',
