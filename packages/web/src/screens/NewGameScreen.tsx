@@ -640,6 +640,31 @@ export function NewGameScreen({
     return val !== defaultDesertCount(total) ? val : undefined;
   };
 
+  /**
+   * Dado «Modalità»: sorteggia una combo casuale delle SOLE modalità di gioco
+   * (calamità, battaglia, capitale, carte/numeri coperti, eroi) — la tavola e
+   * gli altri settaggi non vengono toccati. In online un unico `patch` propaga
+   * tutte le scelte insieme (patch multipli in sequenza si sovrascriverebbero).
+   */
+  const randomizeModes = () => {
+    const flip = () => Math.random() < 0.5;
+    const c = flip();
+    const b = flip();
+    const cap = flip();
+    const cc = flip();
+    const nc = flip();
+    const he = flip();
+    setCalamities(c);
+    setBattle(b);
+    setCapitale(cap);
+    setCarteCoperte(cc);
+    setNumeriCoperti(nc);
+    applyHeroesMode(he);
+    if (mode === 'online') {
+      patch({ calamities: c, battle: b, capitale: cap, carteCoperte: cc, numeriCoperti: nc, heroes: he });
+    }
+  };
+
   // --- Azioni online ---
   const createLobby = () => {
     socketRef.current?.emit('lobby:create', configFromRules(), (res) => {
@@ -1010,6 +1035,7 @@ export function NewGameScreen({
             open={rulesOpen}
             onToggle={() => setRulesOpen(!rulesOpen)}
             classic={rulesAreClassic}
+            onRandomizeModes={randomizeModes}
             targetPG={targetPG}
             bumpTarget={bumpTarget}
             calamities={calamities}
@@ -1287,6 +1313,7 @@ export function NewGameScreen({
             open={rulesOpen}
             onToggle={() => setRulesOpen(!rulesOpen)}
             classic={rulesAreClassic}
+            onRandomizeModes={randomizeModes}
             targetPG={targetPG}
             bumpTarget={bumpTarget}
             calamities={calamities}
@@ -1593,6 +1620,8 @@ interface RulesPresetProps {
   setBattle: (v: boolean) => void;
   capitale: boolean;
   setCapitale: (v: boolean) => void;
+  /** Dado «Modalità»: sorteggia una combo casuale delle modalità di gioco. */
+  onRandomizeModes: () => void;
   /** Modalità Carte Coperte. */
   carteCoperte: boolean;
   setCarteCoperte: (v: boolean) => void;
@@ -1691,8 +1720,21 @@ function RulesPreset(p: RulesPresetProps) {
             </span>
           </div>
 
-          {/* Categoria: Modalità di gioco */}
-          <div style={CAT_STYLE}>{it.categoriaModalita}</div>
+          {/* Categoria: Modalità di gioco (col dado per una combo casuale) */}
+          <div style={{ ...CAT_STYLE, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span>{it.categoriaModalita}</span>
+            <button
+              type="button"
+              className="pxbtn pxbtn--ghost pxbtn--small"
+              disabled={!p.editable}
+              onClick={p.onRandomizeModes}
+              title={it.modalitaDado}
+              aria-label={it.modalitaDado}
+              style={{ padding: '0 4px', lineHeight: 1 }}
+            >
+              🎲
+            </button>
+          </div>
           <label className="check">
             <input
               type="checkbox"
