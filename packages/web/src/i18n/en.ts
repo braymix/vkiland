@@ -222,6 +222,7 @@ export const en: Strings = {
   campoRientranzeSpiega:
     'Randomly shaped island (gulfs, peninsulas) with the same number of tiles: you can build bridges to cross gulfs one road wide.',
   categoriaModalita: 'Modes',
+  modalitaDado: 'Random mix of modes',
   categoriaTavola: 'Board',
   categoriaOnline: 'Online',
   via: 'Set sail!',

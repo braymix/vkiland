@@ -223,6 +223,7 @@ export const fr: Strings = {
   campoRientranzeSpiega:
     'Ãle de forme alÃ©atoire (golfes, pÃ©ninsules) avec le mÃªme nombre de cases : on peut bÃ¢tir des ponts pour franchir les golfes larges dâune route.',
   categoriaModalita: 'Modes',
+  modalitaDado: 'Combo aléatoire de modes',
   categoriaTavola: 'Plateau',
   categoriaOnline: 'En ligne',
   via: 'Larguez les amarres !',

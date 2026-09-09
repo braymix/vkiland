@@ -222,6 +222,7 @@ export const es: Strings = {
   campoRientranzeSpiega:
     'Isla de forma aleatoria (golfos, penÃ­nsulas) con el mismo nÃºmero de casillas: puedes construir puentes para cruzar golfos de una carretera de ancho.',
   categoriaModalita: 'Modos',
+  modalitaDado: 'Combo aleatorio de modos',
   categoriaTavola: 'Tablero',
   categoriaOnline: 'Online',
   via: 'Â¡Zarpar!',

@@ -222,6 +222,7 @@ export const nl: Strings = {
   campoRientranzeSpiega:
     'Eiland met willekeurige vorm (baaien, schiereilanden) met evenveel vakken: je kunt bruggen bouwen om baaien van Ã©Ã©n weg breed over te steken.',
   categoriaModalita: 'Modi',
+  modalitaDado: 'Willekeurige mix van modi',
   categoriaTavola: 'Bord',
   categoriaOnline: 'Online',
   via: 'Uitvaren!',

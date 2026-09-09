@@ -223,6 +223,7 @@ export const de: Strings = {
   campoRientranzeSpiega:
     'ZufÃ¤llig geformte Insel (Buchten, Halbinseln) mit gleich vielen Feldern: Ã¼ber schmale Buchten (eine StraÃe breit) lassen sich BrÃ¼cken bauen.',
   categoriaModalita: 'Modi',
+  modalitaDado: 'Zufälliger Modus-Mix',
   categoriaTavola: 'Spielfeld',
   categoriaOnline: 'Online',
   via: 'In See stechen!',
