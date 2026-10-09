@@ -4,7 +4,16 @@
 
 ## Stato attuale
 
-**VIKINGS AROUND THE WORLD — *le regole sono cambiate!!!*** ⬜ — nuova modalità
+**VIKINGS AROUND THE WORLD — FASE 1 (ENGINE) ✅** — nuovo package `packages/engine-world`
+(puro, deterministico): mappa «Il Mondo» (32 territori da Natural Earth, build con
+`scripts/build-world-map.mjs`), setup a serpentina, Jarl (4 punti: 1 su strada
+propria, 2 fuori, mare solo da un Porto), pedaggio (argento→materiali, doppio con
+la Sala), 6 materiali, costruzioni (strada/villaggio/città/Sala/Porto/Mercato),
+Tassa del Re, scambi banca/giocatori, La Grande Via e Il Grande Viaggiatore,
+override admin della mappa (rinomina/togli con validazioni). 88 test (regole,
+mappa, partite complete casuali-legali deterministiche). Fasi 2–7 da fare.
+
+**VIKINGS AROUND THE WORLD — *le regole sono cambiate!!!*** 🔄 — nuova modalità
 (tutto il resto diventa la «Modalità Classica», invariata). Mappa a territori
 reali (prima mappa «Il Mondo», 32 territori), Jarl che si muove (4 punti:
 1 sulle proprie strade, 2 fuori), pedaggio, 6 materiali con l'argento, Editor

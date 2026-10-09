@@ -14,11 +14,14 @@
   },
   "devDependencies": {
     "eslint": "^9.0.0",
-    "typescript-eslint": "^8.0.0",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "typescript": "catalog:"
+    "polygon-clipping": "^0.15.7",
+    "typescript": "catalog:",
+    "typescript-eslint": "^8.0.0"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }

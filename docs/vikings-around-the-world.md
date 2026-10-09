@@ -270,7 +270,7 @@ servono Porti. È voluto: rende il Porto importante.
 **Pool numeri (29)**: 2×2, 3×3, 4×3, 5×4, 6×3, 8×3, 9×3, 10×3, 11×3, 12×2.
 
 **Forme dei territori** (solo per il disegno): generarle con uno script
-`scripts/build-world-map.ts` che unisce i paesi di **Natural Earth 1:110m**
+`scripts/build-world-map.mjs` (con `scripts/world-map-spec.json`: territori, collegamenti e paesi di ciascun territorio) che unisce i paesi di **Natural Earth 1:110m**
 (dominio pubblico) secondo la tabella sopra, semplifica i poligoni e salva
 `packages/engine-world/src/maps/mondo.json`. Se in ambiente non c'è rete, va
 bene una prima versione con poligoni semplificati scritti a mano (bastano
@@ -548,4 +548,14 @@ complete, missioni dedicate.
 motivazione)*
 
 - Nome della modalità: «Vikings Around the World — le regole sono cambiate!!!».
+- Mappa: poligoni da Natural Earth 1:110m (`scripts/build-world-map.mjs`), uniti per territorio con `polygon-clipping` (devDependency della radice, usata solo dallo script). Russia tagliata a 60°E (Europa/Siberia), USA a 100°O (Est/Ovest; Alaska e Hawaii a Ovest).
+- `engine-world` non importa nulla da `@vikiland/engine` (lint di purezza esteso). `cloneState` condivide `map` (immutabile) e clona il resto in JSON.
+- Id dei collegamenti: `a|b` con i due id in ordine alfabetico (`linkId`).
+- Il tiro del 7: se resta UN solo clan da razziare il furto avviene da sé; con più candidati sceglie chi ha tirato (fase `razzia`). I candidati devono avere almeno 1 carta.
+- Pedaggio: prima argento, poi materiali (scelti con `pay`, altrimenti dalle pile più grandi); se non si ha abbastanza si paga ciò che c'è. Il territorio di partenza del turno è già segnato come «pagato».
+- Scambio banca con l'argento: 1 🪙 → 2 materiali a scelta; 3 materiali UGUALI → 1 🪙 (stesso rapporto 3:1 del Porto); altrimenti 4:1 (3:1 con un tuo Porto).
+- Setup: sono valide solo le caselle non deserto con almeno un collegamento di terra libero; il secondo villaggio dà 1 materiale. L'ordine dei giocatori è fisso (posto 0 per primo).
+- Strada: si può posare se tocca il territorio del Jarl, un tuo territorio o un'altra tua strada. «La Grande Via» è la pista più lunga di strade proprie, interrotta dai territori con edifici avversari.
+- Vittoria controllata solo per chi gioca il turno, dopo ogni costruzione.
+- Pezzi (villaggi/città/Sale/porti/mercati/strade) contati direttamente dal tabellone: una città libera il «pezzo» villaggio.
 - Prima mappa: «Il Mondo», 32 territori (§7).

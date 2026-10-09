@@ -1,0 +1,929 @@
+{
+ "id": "mondo",
+ "name": "Il Mondo",
+ "scale": "mondo",
+ "projection": "equirettangolare",
+ "territories": [
+  {
+   "id": "scandinavia",
+   "name": "Scandinavia",
+   "continent": "Europa",
+   "kind": "ferro",
+   "coastal": true,
+   "center": [
+    15,
+    63
+   ]
+  },
+  {
+   "id": "islanda",
+   "name": "Islanda",
+   "continent": "Europa",
+   "kind": "lana",
+   "coastal": true,
+   "center": [
+    -19,
+    65
+   ]
+  },
+  {
+   "id": "britannia",
+   "name": "Isole Britanniche",
+   "continent": "Europa",
+   "kind": "lana",
+   "coastal": true,
+   "center": [
+    -3,
+    54
+   ]
+  },
+  {
+   "id": "europa_occ",
+   "name": "Europa Occidentale",
+   "continent": "Europa",
+   "kind": "orzo",
+   "coastal": true,
+   "center": [
+    3,
+    47
+   ]
+  },
+  {
+   "id": "iberia",
+   "name": "Penisola Iberica",
+   "continent": "Europa",
+   "kind": "orzo",
+   "coastal": true,
+   "center": [
+    -4,
+    40
+   ]
+  },
+  {
+   "id": "italia",
+   "name": "Italia",
+   "continent": "Europa",
+   "kind": "pietra",
+   "coastal": true,
+   "center": [
+    12,
+    43
+   ]
+  },
+  {
+   "id": "europa_centrale",
+   "name": "Europa Centrale",
+   "continent": "Europa",
+   "kind": "legname",
+   "coastal": true,
+   "center": [
+    15,
+    51
+   ]
+  },
+  {
+   "id": "balcani",
+   "name": "Balcani",
+   "continent": "Europa",
+   "kind": "pietra",
+   "coastal": true,
+   "center": [
+    22,
+    43
+   ]
+  },
+  {
+   "id": "russia_eur",
+   "name": "Russia Europea",
+   "continent": "Europa",
+   "kind": "legname",
+   "coastal": true,
+   "center": [
+    40,
+    56
+   ]
+  },
+  {
+   "id": "medio_oriente",
+   "name": "Medio Oriente",
+   "continent": "Asia",
+   "kind": "pietra",
+   "coastal": true,
+   "center": [
+    37,
+    36
+   ]
+  },
+  {
+   "id": "arabia",
+   "name": "Penisola Arabica",
+   "continent": "Asia",
+   "kind": "deserto",
+   "coastal": true,
+   "center": [
+    45,
+    23
+   ]
+  },
+  {
+   "id": "persia",
+   "name": "Persia",
+   "continent": "Asia",
+   "kind": "ferro",
+   "coastal": true,
+   "center": [
+    54,
+    32
+   ]
+  },
+  {
+   "id": "asia_centrale",
+   "name": "Asia Centrale",
+   "continent": "Asia",
+   "kind": "lana",
+   "coastal": false,
+   "center": [
+    66,
+    45
+   ]
+  },
+  {
+   "id": "siberia",
+   "name": "Siberia",
+   "continent": "Asia",
+   "kind": "legname",
+   "coastal": true,
+   "center": [
+    100,
+    62
+   ]
+  },
+  {
+   "id": "india",
+   "name": "India",
+   "continent": "Asia",
+   "kind": "orzo",
+   "coastal": true,
+   "center": [
+    78,
+    22
+   ]
+  },
+  {
+   "id": "cina",
+   "name": "Cina",
+   "continent": "Asia",
+   "kind": "orzo",
+   "coastal": true,
+   "center": [
+    105,
+    34
+   ]
+  },
+  {
+   "id": "giappone",
+   "name": "Giappone e Corea",
+   "continent": "Asia",
+   "kind": "ferro",
+   "coastal": true,
+   "center": [
+    135,
+    37
+   ]
+  },
+  {
+   "id": "sud_est_asia",
+   "name": "Sud-est Asiatico",
+   "continent": "Asia",
+   "kind": "legname",
+   "coastal": true,
+   "center": [
+    110,
+    5
+   ]
+  },
+  {
+   "id": "nord_africa",
+   "name": "Nord Africa",
+   "continent": "Africa",
+   "kind": "orzo",
+   "coastal": true,
+   "center": [
+    10,
+    32
+   ]
+  },
+  {
+   "id": "sahara",
+   "name": "Sahara",
+   "continent": "Africa",
+   "kind": "deserto",
+   "coastal": false,
+   "center": [
+    10,
+    20
+   ]
+  },
+  {
+   "id": "africa_occ",
+   "name": "Africa Occidentale",
+   "continent": "Africa",
+   "kind": "legname",
+   "coastal": true,
+   "center": [
+    0,
+    9
+   ]
+  },
+  {
+   "id": "africa_or",
+   "name": "Africa Orientale",
+   "continent": "Africa",
+   "kind": "lana",
+   "coastal": true,
+   "center": [
+    37,
+    3
+   ]
+  },
+  {
+   "id": "africa_australe",
+   "name": "Africa Australe",
+   "continent": "Africa",
+   "kind": "ferro",
+   "coastal": true,
+   "center": [
+    25,
+    -22
+   ]
+  },
+  {
+   "id": "groenlandia",
+   "name": "Groenlandia",
+   "continent": "America del Nord",
+   "kind": "deserto",
+   "coastal": true,
+   "center": [
+    -41,
+    72
+   ]
+  },
+  {
+   "id": "canada",
+   "name": "Canada",
+   "continent": "America del Nord",
+   "kind": "legname",
+   "coastal": true,
+   "center": [
+    -100,
+    58
+   ]
+  },
+  {
+   "id": "usa_est",
+   "name": "Stati Uniti Est",
+   "continent": "America del Nord",
+   "kind": "orzo",
+   "coastal": true,
+   "center": [
+    -82,
+    37
+   ]
+  },
+  {
+   "id": "usa_ovest",
+   "name": "Stati Uniti Ovest",
+   "continent": "America del Nord",
+   "kind": "ferro",
+   "coastal": true,
+   "center": [
+    -112,
+    40
+   ]
+  },
+  {
+   "id": "messico",
+   "name": "Messico e Centro America",
+   "continent": "America del Nord",
+   "kind": "pietra",
+   "coastal": true,
+   "center": [
+    -100,
+    20
+   ]
+  },
+  {
+   "id": "ande",
+   "name": "Ande",
+   "continent": "America del Sud",
+   "kind": "pietra",
+   "coastal": true,
+   "center": [
+    -74,
+    -8
+   ]
+  },
+  {
+   "id": "brasile",
+   "name": "Brasile",
+   "continent": "America del Sud",
+   "kind": "legname",
+   "coastal": true,
+   "center": [
+    -52,
+    -10
+   ]
+  },
+  {
+   "id": "argentina",
+   "name": "Argentina",
+   "continent": "America del Sud",
+   "kind": "lana",
+   "coastal": true,
+   "center": [
+    -65,
+    -35
+   ]
+  },
+  {
+   "id": "australia",
+   "name": "Australia",
+   "continent": "Oceania",
+   "kind": "lana",
+   "coastal": true,
+   "center": [
+    134,
+    -25
+   ]
+  }
+ ],
+ "links": [
+  {
+   "a": "scandinavia",
+   "b": "russia_eur",
+   "kind": "terra"
+  },
+  {
+   "a": "scandinavia",
+   "b": "europa_centrale",
+   "kind": "terra"
+  },
+  {
+   "a": "europa_occ",
+   "b": "iberia",
+   "kind": "terra"
+  },
+  {
+   "a": "europa_occ",
+   "b": "italia",
+   "kind": "terra"
+  },
+  {
+   "a": "europa_occ",
+   "b": "europa_centrale",
+   "kind": "terra"
+  },
+  {
+   "a": "italia",
+   "b": "europa_centrale",
+   "kind": "terra"
+  },
+  {
+   "a": "italia",
+   "b": "balcani",
+   "kind": "terra"
+  },
+  {
+   "a": "europa_centrale",
+   "b": "balcani",
+   "kind": "terra"
+  },
+  {
+   "a": "europa_centrale",
+   "b": "russia_eur",
+   "kind": "terra"
+  },
+  {
+   "a": "balcani",
+   "b": "russia_eur",
+   "kind": "terra"
+  },
+  {
+   "a": "balcani",
+   "b": "medio_oriente",
+   "kind": "terra"
+  },
+  {
+   "a": "russia_eur",
+   "b": "siberia",
+   "kind": "terra"
+  },
+  {
+   "a": "russia_eur",
+   "b": "asia_centrale",
+   "kind": "terra"
+  },
+  {
+   "a": "russia_eur",
+   "b": "medio_oriente",
+   "kind": "terra"
+  },
+  {
+   "a": "medio_oriente",
+   "b": "arabia",
+   "kind": "terra"
+  },
+  {
+   "a": "medio_oriente",
+   "b": "persia",
+   "kind": "terra"
+  },
+  {
+   "a": "medio_oriente",
+   "b": "nord_africa",
+   "kind": "terra"
+  },
+  {
+   "a": "persia",
+   "b": "asia_centrale",
+   "kind": "terra"
+  },
+  {
+   "a": "persia",
+   "b": "india",
+   "kind": "terra"
+  },
+  {
+   "a": "asia_centrale",
+   "b": "siberia",
+   "kind": "terra"
+  },
+  {
+   "a": "asia_centrale",
+   "b": "cina",
+   "kind": "terra"
+  },
+  {
+   "a": "siberia",
+   "b": "cina",
+   "kind": "terra"
+  },
+  {
+   "a": "india",
+   "b": "cina",
+   "kind": "terra"
+  },
+  {
+   "a": "india",
+   "b": "sud_est_asia",
+   "kind": "terra"
+  },
+  {
+   "a": "cina",
+   "b": "sud_est_asia",
+   "kind": "terra"
+  },
+  {
+   "a": "cina",
+   "b": "giappone",
+   "kind": "terra"
+  },
+  {
+   "a": "nord_africa",
+   "b": "sahara",
+   "kind": "terra"
+  },
+  {
+   "a": "nord_africa",
+   "b": "africa_or",
+   "kind": "terra"
+  },
+  {
+   "a": "sahara",
+   "b": "africa_occ",
+   "kind": "terra"
+  },
+  {
+   "a": "sahara",
+   "b": "africa_or",
+   "kind": "terra"
+  },
+  {
+   "a": "africa_occ",
+   "b": "africa_or",
+   "kind": "terra"
+  },
+  {
+   "a": "africa_occ",
+   "b": "africa_australe",
+   "kind": "terra"
+  },
+  {
+   "a": "africa_or",
+   "b": "africa_australe",
+   "kind": "terra"
+  },
+  {
+   "a": "canada",
+   "b": "usa_est",
+   "kind": "terra"
+  },
+  {
+   "a": "canada",
+   "b": "usa_ovest",
+   "kind": "terra"
+  },
+  {
+   "a": "usa_est",
+   "b": "usa_ovest",
+   "kind": "terra"
+  },
+  {
+   "a": "usa_ovest",
+   "b": "messico",
+   "kind": "terra"
+  },
+  {
+   "a": "usa_est",
+   "b": "messico",
+   "kind": "terra"
+  },
+  {
+   "a": "messico",
+   "b": "ande",
+   "kind": "terra"
+  },
+  {
+   "a": "ande",
+   "b": "brasile",
+   "kind": "terra"
+  },
+  {
+   "a": "ande",
+   "b": "argentina",
+   "kind": "terra"
+  },
+  {
+   "a": "brasile",
+   "b": "argentina",
+   "kind": "terra"
+  },
+  {
+   "a": "islanda",
+   "b": "scandinavia",
+   "kind": "mare"
+  },
+  {
+   "a": "islanda",
+   "b": "britannia",
+   "kind": "mare"
+  },
+  {
+   "a": "islanda",
+   "b": "groenlandia",
+   "kind": "mare"
+  },
+  {
+   "a": "groenlandia",
+   "b": "canada",
+   "kind": "mare"
+  },
+  {
+   "a": "britannia",
+   "b": "scandinavia",
+   "kind": "mare"
+  },
+  {
+   "a": "britannia",
+   "b": "europa_occ",
+   "kind": "mare"
+  },
+  {
+   "a": "iberia",
+   "b": "nord_africa",
+   "kind": "mare"
+  },
+  {
+   "a": "italia",
+   "b": "nord_africa",
+   "kind": "mare"
+  },
+  {
+   "a": "africa_occ",
+   "b": "brasile",
+   "kind": "mare"
+  },
+  {
+   "a": "arabia",
+   "b": "africa_or",
+   "kind": "mare"
+  },
+  {
+   "a": "persia",
+   "b": "arabia",
+   "kind": "mare"
+  },
+  {
+   "a": "africa_or",
+   "b": "india",
+   "kind": "mare"
+  },
+  {
+   "a": "sud_est_asia",
+   "b": "australia",
+   "kind": "mare"
+  },
+  {
+   "a": "giappone",
+   "b": "usa_ovest",
+   "kind": "mare"
+  },
+  {
+   "a": "siberia",
+   "b": "canada",
+   "kind": "mare"
+  },
+  {
+   "a": "usa_est",
+   "b": "britannia",
+   "kind": "mare"
+  }
+ ],
+ "countries": {
+  "scandinavia": [
+   "NOR",
+   "SWE",
+   "FIN",
+   "DNK"
+  ],
+  "islanda": [
+   "ISL"
+  ],
+  "britannia": [
+   "GBR",
+   "IRL"
+  ],
+  "europa_occ": [
+   "FRA",
+   "BEL",
+   "NLD",
+   "LUX",
+   "CHE"
+  ],
+  "iberia": [
+   "ESP",
+   "PRT"
+  ],
+  "italia": [
+   "ITA"
+  ],
+  "europa_centrale": [
+   "DEU",
+   "POL",
+   "CZE",
+   "SVK",
+   "AUT",
+   "HUN"
+  ],
+  "balcani": [
+   "SVN",
+   "HRV",
+   "BIH",
+   "SRB",
+   "MNE",
+   "KOS",
+   "MKD",
+   "ALB",
+   "GRC",
+   "BGR",
+   "ROU"
+  ],
+  "russia_eur": [
+   "UKR",
+   "BLR",
+   "MDA",
+   "EST",
+   "LVA",
+   "LTU"
+  ],
+  "medio_oriente": [
+   "TUR",
+   "SYR",
+   "LBN",
+   "ISR",
+   "PSX",
+   "JOR",
+   "IRQ",
+   "CYP",
+   "CYN",
+   "GEO",
+   "ARM",
+   "AZE"
+  ],
+  "arabia": [
+   "SAU",
+   "YEM",
+   "OMN",
+   "ARE",
+   "QAT",
+   "KWT"
+  ],
+  "persia": [
+   "IRN",
+   "AFG",
+   "PAK"
+  ],
+  "asia_centrale": [
+   "KAZ",
+   "UZB",
+   "TKM",
+   "KGZ",
+   "TJK",
+   "MNG"
+  ],
+  "india": [
+   "IND",
+   "NPL",
+   "BTN",
+   "BGD",
+   "LKA"
+  ],
+  "cina": [
+   "CHN",
+   "TWN"
+  ],
+  "giappone": [
+   "JPN",
+   "KOR",
+   "PRK"
+  ],
+  "sud_est_asia": [
+   "MMR",
+   "THA",
+   "LAO",
+   "KHM",
+   "VNM",
+   "MYS",
+   "BRN",
+   "IDN",
+   "PHL",
+   "TLS"
+  ],
+  "nord_africa": [
+   "MAR",
+   "DZA",
+   "TUN",
+   "LBY",
+   "EGY",
+   "SAH"
+  ],
+  "sahara": [
+   "MRT",
+   "MLI",
+   "NER",
+   "TCD",
+   "SDN"
+  ],
+  "africa_occ": [
+   "SEN",
+   "GMB",
+   "GNB",
+   "GIN",
+   "SLE",
+   "LBR",
+   "CIV",
+   "GHA",
+   "TGO",
+   "BEN",
+   "BFA",
+   "NGA",
+   "CMR",
+   "GNQ",
+   "GAB",
+   "COG",
+   "CAF"
+  ],
+  "africa_or": [
+   "SDS",
+   "ETH",
+   "ERI",
+   "DJI",
+   "SOM",
+   "SOL",
+   "KEN",
+   "UGA",
+   "RWA",
+   "BDI",
+   "TZA",
+   "COD"
+  ],
+  "africa_australe": [
+   "AGO",
+   "NAM",
+   "BWA",
+   "ZAF",
+   "LSO",
+   "SWZ",
+   "ZMB",
+   "ZWE",
+   "MWI",
+   "MOZ",
+   "MDG"
+  ],
+  "groenlandia": [
+   "GRL"
+  ],
+  "canada": [
+   "CAN"
+  ],
+  "messico": [
+   "MEX",
+   "BLZ",
+   "CRI",
+   "SLV",
+   "GTM",
+   "HND",
+   "NIC",
+   "PAN",
+   "BHS",
+   "CUB",
+   "DOM",
+   "HTI",
+   "JAM",
+   "PRI",
+   "TTO"
+  ],
+  "ande": [
+   "COL",
+   "VEN",
+   "ECU",
+   "PER",
+   "BOL",
+   "CHL"
+  ],
+  "brasile": [
+   "BRA",
+   "GUY",
+   "SUR"
+  ],
+  "argentina": [
+   "ARG",
+   "URY",
+   "PRY",
+   "FLK"
+  ],
+  "australia": [
+   "AUS",
+   "NZL",
+   "PNG",
+   "SLB",
+   "VUT",
+   "NCL"
+  ]
+ },
+ "split": {
+  "RUS": {
+   "west": "russia_eur",
+   "east": "siberia",
+   "cutLon": 60
+  },
+  "USA": {
+   "west": "usa_ovest",
+   "east": "usa_est",
+   "cutLon": -100
+  }
+ },
+ "numberPool": [
+  2,
+  2,
+  3,
+  3,
+  3,
+  4,
+  4,
+  4,
+  5,
+  5,
+  5,
+  5,
+  6,
+  6,
+  6,
+  8,
+  8,
+  8,
+  9,
+  9,
+  9,
+  10,
+  10,
+  10,
+  11,
+  11,
+  11,
+  12,
+  12
+ ],
+ "minPlayers": 2,
+ "maxPlayers": 6
+}
