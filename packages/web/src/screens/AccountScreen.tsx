@@ -8,6 +8,7 @@
  */
 import { useEffect, useState } from 'react';
 import { it } from '../i18n';
+import { wt } from '../i18n/world';
 import { Dialog } from '../components/dialogs/Dialog';
 import {
   apiChangeName,
@@ -32,11 +33,13 @@ interface Props {
   /** Esci dall'account: dimentica la sessione e torna all'entrata. */
   onLogout: () => void;
   onBack: () => void;
+  /** Solo admin: apre l'editor delle mappe di «Vikings Around the World». */
+  onOpenMapEditor?: () => void;
 }
 
 type Panel = 'nome' | 'password' | 'email' | 'censura' | null;
 
-export function AccountScreen({ session, onSessionUpdate, onLogout, onBack }: Props) {
+export function AccountScreen({ session, onSessionUpdate, onLogout, onBack, onOpenMapEditor }: Props) {
   const admin = isAdmin(session.username);
   const { words: censoredWords, reload: reloadCensored } = useCensor();
   const [profile, setProfile] = useState<AccountProfile | null>(null);
@@ -179,6 +182,11 @@ export function AccountScreen({ session, onSessionUpdate, onLogout, onBack }: Pr
               onClick={openCensored}
             >
               🛡️ Parole censurate
+            </button>
+          )}
+          {admin && onOpenMapEditor && (
+            <button className="pxbtn pxbtn--small pxbtn--ghost" onClick={onOpenMapEditor}>
+              🗺️ {wt.editorMappe}
             </button>
           )}
         </div>

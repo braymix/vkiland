@@ -1,4 +1,5 @@
 /** Schermata iniziale (dopo l'entrata): l'hub da cui si raggiunge tutto. */
+import { wt } from '../i18n/world';
 import { useEffect, useState } from 'react';
 import {
   readyChestCount,
@@ -35,6 +36,7 @@ export function MenuScreen({
   isTester,
   progression,
   onNewGame,
+  onNewWorld,
   onLibro,
   onInventory,
   onMissions,
@@ -48,6 +50,8 @@ export function MenuScreen({
   /** Progressione corrente: alimenta i pallini rossi «da fare» sui pulsanti. */
   progression: PlayerProgression;
   onNewGame: () => void;
+  /** Modalità nuova: «Vikings Around the World». */
+  onNewWorld: () => void;
   onLibro: () => void;
   onInventory: () => void;
   onMissions: () => void;
@@ -87,8 +91,14 @@ export function MenuScreen({
       <div className="menu-buttons">
         {/* Nuova partita: da qui la «partita classica» (offline vs bot) e,
             con un account, anche l'online. Niente più popup scherzoso. */}
-        <button className="pxbtn" onClick={onNewGame}>
-          {it.nuovaPartita}
+        {/* Due modalità: la Classica (esagoni) e la nuova, a mappa reale. */}
+        <button className="pxbtn menu-mode" onClick={onNewGame}>
+          ⚔️ {it.nuovaPartita}
+          <small>{wt.classica}</small>
+        </button>
+        <button className="pxbtn menu-mode menu-mode--world" onClick={onNewWorld}>
+          🌍 {wt.mondo}
+          <small>{wt.sottotitolo}</small>
         </button>
         {/* Missioni: partite casuali da vincere per casse gratis (facile/normale).
             Funziona anche senza account (progressione sul dispositivo). */}

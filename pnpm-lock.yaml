@@ -44,6 +44,9 @@ importers:
       eslint-plugin-react-hooks:
         specifier: ^5.2.0
         version: 5.2.0(eslint@9.39.4)
+      polygon-clipping:
+        specifier: ^0.15.7
+        version: 0.15.7
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -56,6 +59,9 @@ importers:
       '@vikiland/engine':
         specifier: workspace:*
         version: link:../engine
+      '@vikiland/engine-world':
+        specifier: workspace:*
+        version: link:../engine-world
     devDependencies:
       typescript:
         specifier: 'catalog:'
@@ -65,6 +71,15 @@ importers:
         version: 3.2.6(@types/node@22.19.21)(terser@5.48.0)(tsx@4.22.4)
 
   packages/engine:
+    devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.6(@types/node@22.19.21)(terser@5.48.0)(tsx@4.22.4)
+
+  packages/engine-world:
     devDependencies:
       typescript:
         specifier: 'catalog:'
@@ -84,6 +99,9 @@ importers:
       '@vikiland/engine':
         specifier: workspace:*
         version: link:../engine
+      '@vikiland/engine-world':
+        specifier: workspace:*
+        version: link:../engine-world
       fastify:
         specifier: ^5.0.0
         version: 5.8.5
@@ -127,6 +145,9 @@ importers:
       '@vikiland/engine':
         specifier: workspace:*
         version: link:../engine
+      '@vikiland/engine-world':
+        specifier: workspace:*
+        version: link:../engine-world
       react:
         specifier: 'catalog:'
         version: 19.2.7
@@ -2400,6 +2421,9 @@ packages:
     resolution: {integrity: sha512-r34yH/GlQpKZbU1BvFFqOjhISRo1MNx1tWYsYvmj6KIRHSPMT2+yHOEb1SG6NMvRoHRF0a07kCOox/9yakl1vg==}
     hasBin: true
 
+  polygon-clipping@0.15.7:
+    resolution: {integrity: sha512-nhfdr83ECBg6xtqOAJab1tbksbBAOMUltN60bU+llHVOL0e5Onm1WpAXXWXVB39L8AJFssoIhEVuy/S90MmotA==}
+
   possible-typed-array-names@1.1.0:
     resolution: {integrity: sha512-/+5VFTchJDoVj3bhoqi6UeymcD00DAwb1nJwamzPvHEszJ4FpF6SNNbUbOS8yI56qHzdV8eK0qEfOSiodkTdxg==}
     engines: {node: '>= 0.4'}
@@ -2518,6 +2542,9 @@ packages:
 
   rfdc@1.4.1:
     resolution: {integrity: sha512-q1b3N5QkRUWUl7iyylaaj3kOpIT0N2i9MqIEQXP73GVsN9cw3fdx8X63cEmWhJGi2PPCF23Ijp7ktmd39rawIA==}
+
+  robust-predicates@3.0.3:
+    resolution: {integrity: sha512-NS3levdsRIUOmiJ8FZWCP7LG3QpJyrs/TE0Zpf1yvZu8cAJJ6QMW92H1c7kWpdIHo8RvmLxN/o2JXTKHp74lUA==}
 
   rollup@4.61.1:
     resolution: {integrity: sha512-I4KW6iuRpuu2uHBLraZ1wNZe0DP7lnRha+VJ9tNaYVaVgKhW0aI3h4RYnoRPeql0flHm/Co55b7snEDcOfOJrA==}
@@ -2646,6 +2673,10 @@ packages:
     resolution: {integrity: sha512-2ymg6oRBpebeZi9UUNsgQ89bhx01TcTkmNTGnNO88imTmbSgy4nfujrgVEFKWpMTEGA11EDkTt7mqObTPdigIA==}
     engines: {node: '>= 8'}
     deprecated: The work that was done in this beta branch won't be included in future versions
+
+  splaytree@3.2.3:
+    resolution: {integrity: sha512-7OXrNWzy6CK+r7Ch9OLPBDTKfB6XlWHjX4P0RU5B3IgFuWPeYN0XtRtlexGRjgbQxpfaUve6jTAwBGWuGntz/w==}
+    engines: {node: '>=18.20 || >=20'}
 
   split2@4.2.0:
     resolution: {integrity: sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==}
@@ -5414,6 +5445,11 @@ snapshots:
       sonic-boom: 4.2.1
       thread-stream: 4.2.0
 
+  polygon-clipping@0.15.7:
+    dependencies:
+      robust-predicates: 3.0.3
+      splaytree: 3.2.3
+
   possible-typed-array-names@1.1.0: {}
 
   postcss@8.5.15:
@@ -5516,6 +5552,8 @@ snapshots:
   reusify@1.1.0: {}
 
   rfdc@1.4.1: {}
+
+  robust-predicates@3.0.3: {}
 
   rollup@4.61.1:
     dependencies:
@@ -5704,6 +5742,8 @@ snapshots:
   source-map@0.8.0-beta.0:
     dependencies:
       whatwg-url: 7.1.0
+
+  splaytree@3.2.3: {}
 
   split2@4.2.0: {}
 

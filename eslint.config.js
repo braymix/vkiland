@@ -13,7 +13,7 @@ export default tseslint.config(
   // (solo import relativi). Questo garantisce che resti riusabile identico
   // per bot, hot-seat e server.
   {
-    files: ['packages/engine/src/**'],
+    files: ['packages/engine/src/**', 'packages/engine-world/src/**'],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -37,8 +37,8 @@ export default tseslint.config(
         {
           patterns: [
             {
-              regex: '^(?!\\.)(?!@vikiland/engine$)',
-              message: 'I bot dipendono solo da @vikiland/engine.',
+              regex: '^(?!\\.)(?!@vikiland/engine(-world)?$)',
+              message: 'I bot dipendono solo dagli engine (@vikiland/engine, @vikiland/engine-world).',
             },
           ],
         },

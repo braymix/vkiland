@@ -15,6 +15,7 @@
     "@fontsource/press-start-2p": "catalog:",
     "@vikiland/bots": "workspace:*",
     "@vikiland/engine": "workspace:*",
+    "@vikiland/engine-world": "workspace:*",
     "react": "catalog:",
     "react-dom": "catalog:",
     "socket.io-client": "^4.8.0"

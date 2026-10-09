@@ -13,8 +13,10 @@ import fastifyCors from '@fastify/cors';
 import { Server, type Socket } from 'socket.io';
 import { sanitizeCosmetics, sanitizeProgression, type Action } from '@vikiland/engine';
 import { AuthService } from './auth';
-import { isAdmin, sanitizeCensoredWords } from './admin';
+import { isAdmin, sanitizeCensoredWords, sanitizeMapOverride } from './admin';
+import { getMapDefinition } from '@vikiland/engine-world';
 import { LobbyManager } from './lobby';
+import { WorldLobbyManager, isErr as isWorldErr } from './worldLobby';
 import { JsonFileStorage, type Storage } from './storage';
 import { isApiError, type ClientToServerEvents, type LoginRequest, type RegisterRequest, type ServerToClientEvents } from './protocol';
 
@@ -73,6 +75,28 @@ const lobbies = new LobbyManager({
   // Gli spettatori ricevono la vista filtrata sullo stesso canale del gioco.
   sendSpectatorUpdate: (userId, update) => io.to(`user:${userId}`).emit('game:update', update),
   notifyHandRequest: (userId, req) => io.to(`user:${userId}`).emit('spectator:handRequest', req),
+});
+
+const worldLobbies = new WorldLobbyManager({
+  broadcastState: (code, stateFor) => {
+    // Ogni presente riceve lo stato con il proprio posto segnato («isYou»).
+    for (const [uid, sockets] of userSockets) {
+      for (const sock of sockets) {
+        if (sock.rooms.has(`world:${code}`)) sock.emit('world:state', stateFor(uid));
+      }
+    }
+  },
+  closed: (code, reason) => {
+    io.to(`world:${code}`).emit('world:closed', { error: reason });
+    io.in(`world:${code}`).socketsLeave(`world:${code}`);
+  },
+  userRemoved: (userId, code, reason) => {
+    io.to(`user:${userId}`).emit('world:closed', { error: reason });
+    io.in(`user:${userId}`).socketsLeave(`world:${code}`);
+  },
+  sendUpdate: (userId, update) => io.to(`user:${userId}`).emit('world:update', update),
+  sendRejected: (userId, message) => io.to(`user:${userId}`).emit('world:rejected', { message }),
+  getOverride: (mapId) => storage.getMapOverrides()[mapId] ?? null,
 });
 
 // ---------------------------------------------------------------------------
@@ -202,6 +226,31 @@ app.post('/api/censored', async (req, reply) => {
   return { words };
 });
 
+// --- Mappe di «Vikings Around the World» -----------------------------------
+// LETTURA pubblica (definizione + override); SCRITTURA solo per l'amministratore.
+
+app.get('/api/maps/:id', async (req, reply) => {
+  const id = (req.params as { id: string }).id;
+  if (!getMapDefinition(id)) return reply.code(404).send({ error: 'Mappa sconosciuta' });
+  return { mapId: id, override: storage.getMapOverrides()[id] ?? null };
+});
+
+app.post('/api/admin/maps/:id', async (req, reply) => {
+  const user = authedUser(req.headers.authorization);
+  if (!user) return reply.code(401).send({ error: 'Sessione non valida' });
+  if (!isAdmin(user.username)) return reply.code(403).send({ error: 'Solo l’amministratore può modificare le mappe' });
+  const id = (req.params as { id: string }).id;
+  const body = (req.body ?? {}) as { reset?: boolean; names?: unknown; removed?: unknown };
+  if (body.reset) {
+    storage.setMapOverride(null, id);
+    return { mapId: id, override: null };
+  }
+  const res = sanitizeMapOverride(body, id, storage.getCensoredWords());
+  if (!res.ok) return reply.code(400).send({ error: res.error });
+  storage.setMapOverride(res.override, id);
+  return { mapId: id, override: res.override };
+});
+
 app.get('/api/health', async () => ({ ok: true }));
 
 function bearerOf(header: string | undefined): string | null {
@@ -228,6 +277,15 @@ io.on('connection', (socket: AnySocket) => {
   if (!set) userSockets.set(userId, (set = new Set()));
   set.add(socket);
   lobbies.setConnected(userId, true);
+  worldLobbies.setConnected(userId, true);
+
+  // Riconnessione a una partita del mondo.
+  const worldRoom = worldLobbies.roomOfUser(userId);
+  if (worldRoom) {
+    socket.join(`world:${worldRoom.code}`);
+    socket.emit('world:state', worldLobbies.toState(worldRoom, userId));
+    if (worldRoom.started) worldLobbies.refresh(userId);
+  }
 
   // Riconnessione: se l'utente era in una lobby/partita, lo riaggancia subito.
   const current = lobbies.lobbyOfUser(userId);
@@ -330,6 +388,46 @@ io.on('connection', (socket: AnySocket) => {
   socket.on('game:refresh', () => lobbies.refreshGame(userId));
   socket.on('game:undo', () => lobbies.handleUndo(userId));
 
+  // --- Vikings Around the World ---
+  socket.on('world:create', (config, cb) => {
+    const res = worldLobbies.create({ id: userId, name }, config);
+    if (!isWorldErr(res)) socket.join(`world:${res.code}`);
+    cb(res);
+  });
+  socket.on('world:updateConfig', (config, cb) => cb(worldLobbies.updateConfig(userId, config)));
+  socket.on('world:list', (cb) => cb(worldLobbies.listPublic()));
+  socket.on('world:join', (code, cb) => {
+    const res = worldLobbies.join(code, { id: userId, name });
+    if (!isWorldErr(res)) {
+      socket.join(`world:${res.code}`);
+      if (res.started) worldLobbies.refresh(userId);
+    }
+    cb(res);
+  });
+  socket.on('world:leave', () => {
+    const room = worldLobbies.roomOfUser(userId);
+    if (room) socket.leave(`world:${room.code}`);
+    worldLobbies.leave(userId);
+  });
+  socket.on('world:addBot', (level) => {
+    const res = worldLobbies.addBot(userId, level);
+    if (isWorldErr(res)) socket.emit('world:rejected', { message: res.error });
+  });
+  socket.on('world:removeSeat', (index) => {
+    const res = worldLobbies.removeSeat(userId, Number(index));
+    if (isWorldErr(res)) socket.emit('world:rejected', { message: res.error });
+  });
+  socket.on('world:start', () => {
+    const res = worldLobbies.start(userId);
+    if (isWorldErr(res)) socket.emit('world:rejected', { message: res.error });
+  });
+  socket.on('world:terminate', () => {
+    const e = worldLobbies.terminate(userId);
+    if (e) socket.emit('world:rejected', { message: e.error });
+  });
+  socket.on('world:action', (action) => worldLobbies.handleAction(userId, action));
+  socket.on('world:refresh', () => worldLobbies.refresh(userId));
+
   socket.on('chat:send', (text) => {
     const res = lobbies.chat({ id: userId, name }, String(text ?? ''));
     if (res) io.to(`lobby:${res.code}`).emit('chat:message', res.message);
@@ -341,6 +439,7 @@ io.on('connection', (socket: AnySocket) => {
     if (!sockets || sockets.size === 0) {
       userSockets.delete(userId);
       lobbies.setConnected(userId, false);
+      worldLobbies.setConnected(userId, false);
     }
   });
 });

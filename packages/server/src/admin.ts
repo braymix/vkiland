@@ -4,6 +4,8 @@
  * censurate (moderazione). Non è un ruolo assegnabile: è deciso dal nome.
  */
 
+import { applyMapOverride, getMapDefinition, type MapOverride } from '@vikiland/engine-world';
+
 /** L'unico amministratore dell'app (confronto case-insensitive). */
 export const ADMIN_USERNAME = 'pana';
 
@@ -38,4 +40,44 @@ export function sanitizeCensoredWords(input: unknown): string[] {
     if (out.length >= MAX_WORDS) break;
   }
   return out;
+}
+
+// ---------------------------------------------------------------------------
+// Editor mappe di «Vikings Around the World» (solo amministratore)
+// ---------------------------------------------------------------------------
+
+const MAX_TERRITORY_NAME = 40;
+
+export type MapOverrideResult = { ok: true; override: MapOverride } | { ok: false; error: string };
+
+/**
+ * Ripulisce un override arrivato dal client: tiene solo id esistenti, nomi
+ * 1–40 caratteri (e senza parole censurate), e rifiuta le mappe ingiocabili
+ * (non connesse, meno di 15 territori produttivi, materiale mancante).
+ */
+export function sanitizeMapOverride(input: unknown, mapId: string, censored: string[] = []): MapOverrideResult {
+  const def = getMapDefinition(mapId);
+  if (!def) return { ok: false, error: 'Mappa sconosciuta.' };
+  const raw = (typeof input === 'object' && input !== null ? input : {}) as { names?: unknown; removed?: unknown };
+  const ids = new Set(def.territories.map((t) => t.id));
+  const names: Record<string, string> = {};
+  if (typeof raw.names === 'object' && raw.names !== null) {
+    for (const [id, value] of Object.entries(raw.names as Record<string, unknown>)) {
+      if (!ids.has(id) || typeof value !== 'string') continue;
+      const name = value.trim().replace(/\s+/g, ' ');
+      if (name.length < 1 || name.length > MAX_TERRITORY_NAME) continue;
+      const lower = name.toLowerCase();
+      if (censored.some((w) => w.trim() !== '' && lower.includes(w.trim().toLowerCase()))) {
+        return { ok: false, error: `Il nome «${name}» contiene una parola non consentita.` };
+      }
+      if (name !== def.territories.find((t) => t.id === id)!.name) names[id] = name;
+    }
+  }
+  const removed = Array.isArray(raw.removed)
+    ? [...new Set((raw.removed as unknown[]).filter((x): x is string => typeof x === 'string' && ids.has(x)))]
+    : [];
+  const override: MapOverride = { mapId, names, removed };
+  const check = applyMapOverride(def, override);
+  if (!check.ok) return { ok: false, error: check.error };
+  return { ok: true, override };
 }

@@ -4,6 +4,76 @@
 
 ## Stato attuale
 
+**VIKINGS AROUND THE WORLD — FASE 1 (ENGINE) ✅** — nuovo package `packages/engine-world`
+(puro, deterministico): mappa «Il Mondo» (32 territori da Natural Earth, build con
+`scripts/build-world-map.mjs`), setup a serpentina, Jarl (4 punti: 1 su strada
+propria, 2 fuori, mare solo da un Porto), pedaggio (argento→materiali, doppio con
+la Sala), 6 materiali, costruzioni (strada/villaggio/città/Sala/Porto/Mercato),
+Tassa del Re, scambi banca/giocatori, La Grande Via e Il Grande Viaggiatore,
+override admin della mappa (rinomina/togli con validazioni). 88 test (regole,
+mappa, partite complete casuali-legali deterministiche). Fasi 2–7 da fare.
+
+**VIKINGS AROUND THE WORLD — FASE 2 (BOT) ✅** — `createWorldBot(level)` in
+`packages/bots/src/world`: il Jarl pianifica (Dijkstra su punti movimento + pedaggi),
+si «accampa» sul territorio libero migliore, scambia con la banca per colmare le
+carte mancanti, costruisce città/Sala/Mercato/Porto/strade. Bilanciamento misurato
+su 30 partite bot-vs-bot: resa dei villaggi portata a 2/3/3 (era 1/2/2) e bersaglio
+di default a 10 PG → ~21 giri a partita (prima ~36). 7 test di simulazione
+(nessuna mossa illegale, partite che finiscono, riproducibilità).
+
+**VIKINGS AROUND THE WORLD — FASE 3 (WEB LOCALE/HOT-SEAT) ✅** — nel menu due pulsanti
+(⚔️ Classica · 🌍 Vikings Around the World). `NewWorldGameScreen` (giocatori umani/bot,
+punti, materiali casuali), `WorldGameScreen` (HUD, mano a 6 materiali, sheet del
+territorio con muovi/costruisci/strade, banca e scambi, scarto, razzia, scelta del
+pedaggio, passaggio del dispositivo, vittoria), renderer Canvas della mappa con
+pan/zoom/pinch (`render/world/worldRenderer.ts`), `LocalWorldController` (bot con
+ritardo, hot-seat, scambi con bot) dietro l'interfaccia `WorldController` che
+userà anche il controller online. Testi in `i18n/world.ts` (it/en; le altre lingue
+ripiegano sull'inglese: da tradurre in Fase 6). 6 test del controller.
+
+**VIKINGS AROUND THE WORLD — FASI 4–5 (ONLINE + EDITOR MAPPE) ✅** — server:
+`WorldLobbyManager` (`packages/server/src/worldLobby.ts`) con eventi socket `world:*`
+(crea/entra/lista pubbliche/bot/avvia/azione/refresh/chiudi), vista filtrata + mosse
+legali per ogni giocatore, bot sul server, timer di turno con mossa di default,
+umani disconnessi giocati dal server, riconnessione (rientro con lo stesso account).
+Le stanze sono in memoria (un riavvio del server le azzera). Web: `WorldOnlineScreen`
+(crea/entra con codice/pubbliche/lobby), `RemoteWorldController`, pulsante 🌐 Online
+nella schermata nuova partita. **Editor mappe admin** (solo `pana`): da Account →
+«Editor mappe», rinomina/togli/ripristina territori con validazione (connessa, ≥15
+territori produttivi, tutti i materiali); salvato in `Storage` (JSON/Postgres),
+`GET /api/maps/:id` pubblico, `POST /api/admin/maps/:id` solo admin; le nuove partite
+(locali con server raggiungibile, e online) applicano l'override. Verificato anche
+con un browser reale (login admin, lobby, partita con bot, salvataggio mappa).
+15 test server (lobby, partita con bot, timer, riconnessione, override).
+
+**VIKINGS AROUND THE WORLD — FASE 6 (TUTORIAL + LINGUE) ✅** — mini-tutorial a 6
+schermate (`WorldTutorialScreen`, pulsante 📖 nella nuova partita) e traduzioni di tutta
+la modalità in italiano, inglese, spagnolo, francese, tedesco, olandese, russo
+(cirillico) e serbo (latino) in `i18n/world.ts` + `i18n/world.langs.ts`; test che
+verificano chiavi valide e segnaposto coerenti. Missioni dedicate: non fatte.
+(Nota: `i18n/ru.ts` della Classica è salvato con codifica doppia/«mojibake» — problema
+preesistente, non toccato.)
+
+**VIKINGS AROUND THE WORLD — FASE 7 («GIOCA NELLA TUA CITTÀ») ✅** — mappe «a zoom»:
+🌍 Mondo (32) → 🗺️ Europa (39 paesi) → 🏳️ Italia (20 regioni) → 🏙️ Milano (24 quartieri
+reali). Generatore comune `scripts/lib/areaMap.mjs` (fusione delle aree piccole,
+proiezione con cos(lat), bordi condivisi → strade, isole agganciate con rotte di mare,
+materiali bilanciati, «continenti» da macro-aree o k-medie) e
+`scripts/build-city-map.mjs "<città>" <id> [distretti]` che genera la mappa di QUALSIASI
+città da OpenStreetMap (confine Nominatim + celle di Voronoi + nomi dei quartieri). Selettore
+mappa per scala nella nuova partita, nella lobby online e nell'editor admin; camera che
+si adatta al riquadro della mappa; nomi dei territori solo se ci stanno. Test: tutte le
+mappe valide/giocabili e bot che finiscono partite su Europa, Italia e Milano.
+Attribuzioni (OSM ODbL, ISTAT/openpolis CC BY 3.0 IT, Natural Earth PD) nel campo
+`credits` mostrato in gioco.
+
+**VIKINGS AROUND THE WORLD — *le regole sono cambiate!!!*** ✅ (tutte le fasi) — nuova modalità
+(tutto il resto diventa la «Modalità Classica», invariata). Mappa a territori
+reali (prima mappa «Il Mondo», 32 territori), Jarl che si muove (4 punti:
+1 sulle proprie strade, 2 fuori), pedaggio, 6 materiali con l'argento, Editor
+mappe per l'admin, poi «Gioca nella tua città». Regolamento, specifica tecnica e
+piano a fasi in [`docs/vikings-around-the-world.md`](./docs/vikings-around-the-world.md).
+
 **MODALITÀ NUMERI COPERTI** ✅ — speculare a Carte Coperte, combinabile con
 TUTTE le altre (Carte Coperte inclusa: con entrambe la casella è del tutto
 cieca). Durante il SETUP restano nascosti i NUMERI (segnalini) delle caselle: si

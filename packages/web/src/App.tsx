@@ -21,11 +21,22 @@ import { MissionsScreen, type PendingMission } from './screens/MissionsScreen';
 import { NewGameScreen } from './screens/NewGameScreen';
 import { ShopScreen } from './screens/ShopScreen';
 import { TutorialScreen } from './screens/TutorialScreen';
+import { NewWorldGameScreen } from './screens/world/NewWorldGameScreen';
+import { WorldGameScreen } from './screens/world/WorldGameScreen';
+import { WorldTutorialScreen } from './screens/world/WorldTutorialScreen';
+import { WorldOnlineScreen } from './screens/world/WorldOnlineScreen';
+import { AdminMapsScreen } from './screens/world/AdminMapsScreen';
+import { LocalWorldController, type WorldSetup } from './game/world/LocalWorldController';
 
 type Route =
   | { screen: 'entry' }
   | { screen: 'menu' }
   | { screen: 'newGame'; mode: 'locale' | 'online' }
+  | { screen: 'newWorld' }
+  | { screen: 'worldOnline' }
+  | { screen: 'worldTutorial' }
+  | { screen: 'adminMaps' }
+  | { screen: 'world'; setup: WorldSetup; gameKey: number }
   | { screen: 'game'; setup: GameSetup; gameKey: number; mission?: Mission }
   | { screen: 'account' }
   | { screen: 'tutorial'; chapter?: number }
@@ -112,6 +123,7 @@ export function App() {
           isTester={progression.tester === true}
           progression={progression}
           onNewGame={() => setRoute({ screen: 'newGame', mode: 'locale' })}
+          onNewWorld={() => setRoute({ screen: 'newWorld' })}
           onLibro={() => setRoute({ screen: 'tutorial' })}
           onInventory={() => setRoute({ screen: 'inventory' })}
           onMissions={() => setRoute({ screen: 'missions' })}
@@ -180,6 +192,7 @@ export function App() {
           }}
           onLogout={onLogout}
           onBack={() => setRoute({ screen: 'menu' })}
+          onOpenMapEditor={() => setRoute({ screen: 'adminMaps' })}
         />
       );
     case 'demo':
@@ -190,6 +203,46 @@ export function App() {
           // L'online richiede un account: senza, si passa dall'entrata.
           onOnline={() =>
             setRoute(hasAccount ? { screen: 'newGame', mode: 'online' } : { screen: 'entry' })
+          }
+        />
+      );
+    case 'newWorld':
+      return (
+        <NewWorldGameScreen
+          defaultName={session?.username}
+          onBack={() => setRoute({ screen: 'menu' })}
+          session={session}
+          onOnline={() => setRoute(hasAccount ? { screen: 'worldOnline' } : { screen: 'entry' })}
+          onTutorial={() => setRoute({ screen: 'worldTutorial' })}
+          onStart={(setup) => setRoute({ screen: 'world', setup, gameKey: Date.now() })}
+        />
+      );
+    case 'worldTutorial':
+      return <WorldTutorialScreen onClose={() => setRoute({ screen: 'newWorld' })} />;
+    case 'worldOnline':
+      if (!session) return null;
+      return (
+        <WorldOnlineScreen
+          session={session}
+          onBack={() => setRoute({ screen: 'menu' })}
+          onInvalidSession={onLogout}
+        />
+      );
+    case 'adminMaps':
+      if (!session) return null;
+      return <AdminMapsScreen session={session} onBack={() => setRoute({ screen: 'account' })} />;
+    case 'world':
+      return (
+        <WorldGameScreen
+          key={route.gameKey}
+          makeController={() => new LocalWorldController(route.setup)}
+          onExit={() => setRoute({ screen: 'menu' })}
+          onRematch={() =>
+            setRoute({
+              screen: 'world',
+              gameKey: Date.now(),
+              setup: { ...route.setup, seed: `world-${Date.now()}-${Math.floor(Math.random() * 1e6)}` },
+            })
           }
         />
       );

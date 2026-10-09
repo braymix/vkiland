@@ -16,6 +16,7 @@
     "@fastify/cors": "^10.0.0",
     "@vikiland/bots": "workspace:*",
     "@vikiland/engine": "workspace:*",
+    "@vikiland/engine-world": "workspace:*",
     "fastify": "^5.0.0",
     "pg": "^8.13.0",
     "socket.io": "^4.8.0"

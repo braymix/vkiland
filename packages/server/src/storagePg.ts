@@ -15,6 +15,7 @@
  * viene eliminata all'avvio (`init`), così i dati residui spariscono dal DB.
  */
 import type { SessionRecord, Storage, UserRecord } from './storage';
+import type { MapOverride } from '@vikiland/engine-world';
 
 /** Sottoinsieme del Pool di `pg` che ci serve (facilita i test con un finto DB). */
 export interface PgLike {
@@ -54,6 +55,8 @@ export class PostgresStorage implements Storage {
   private readonly sessions = new Map<string, SessionRecord>(); // per token
   /** Impostazioni globali in cache (es. parole censurate). */
   private censoredWords: string[] = [];
+  /** Override delle mappe del mondo (chiave `mapOverrides`). */
+  private mapOverrides: Record<string, MapOverride> = {};
   /** Coda di scrittura: serializza le query e ne cattura gli errori. */
   private queue: Promise<unknown> = Promise.resolve();
   /** Schema in cui vivono le tabelle (risolto in `init`, vedi `resolveSchema`). */
@@ -158,6 +161,11 @@ export class PostgresStorage implements Storage {
     const value = (settings.rows[0] as { value?: unknown } | undefined)?.value;
     // `value` è JSONB: pg lo restituisce già come array (o null).
     if (Array.isArray(value)) this.censoredWords = value.filter((w): w is string => typeof w === 'string');
+    const ov = await this.db.query(`SELECT value FROM ${this.t('settings')} WHERE key = $1`, ['mapOverrides']);
+    const ovValue = (ov.rows[0] as { value?: unknown } | undefined)?.value;
+    if (ovValue && typeof ovValue === 'object' && !Array.isArray(ovValue)) {
+      this.mapOverrides = ovValue as Record<string, MapOverride>;
+    }
   }
 
   /**
@@ -284,6 +292,25 @@ export class PostgresStorage implements Storage {
         `INSERT INTO ${this.t('settings')} (key, value) VALUES ($1, $2)
          ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
         ['censoredWords', value]
+      )
+    );
+  }
+
+  getMapOverrides(): Record<string, MapOverride> {
+    return this.mapOverrides;
+  }
+
+  setMapOverride(override: MapOverride | null, mapId: string): void {
+    const all = { ...this.mapOverrides };
+    if (override) all[mapId] = override;
+    else delete all[mapId];
+    this.mapOverrides = all;
+    const value = JSON.stringify(all);
+    this.enqueue(() =>
+      this.db.query(
+        `INSERT INTO ${this.t('settings')} (key, value) VALUES ($1, $2)
+         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
+        ['mapOverrides', value]
       )
     );
   }

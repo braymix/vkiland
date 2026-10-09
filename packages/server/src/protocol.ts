@@ -5,6 +5,7 @@
  * di verità per eventi socket e DTO. Il server è autoritativo: i client
  * inviano `Action` come INTENZIONI; lo stato vero vive solo sul server.
  */
+import type { WorldAction, WorldEvent, WorldPlayerView } from '@vikiland/engine-world';
 import type {
   Action,
   BoardShapeChoice,
@@ -42,6 +43,68 @@ export interface AuthResponse {
 
 export interface ApiError {
   error: string;
+}
+
+// ---------------------------------------------------------------------------
+// Vikings Around the World (modalità nuova): lobby e partita, eventi `world:*`
+// ---------------------------------------------------------------------------
+
+export interface WorldLobbyConfig {
+  /** Punti Gloria per vincere (8–15). */
+  targetPoints: number;
+  /** Secondi per turno (0 = nessun timer). Allo scadere il server gioca una mossa di default. */
+  turnTimerSec: number;
+  /** true = elencata fra le partite pubbliche. */
+  isPublic: boolean;
+  /** Mescola anche i materiali dei territori. */
+  materialiCasuali: boolean;
+  /** Mappa giocata (oggi solo `mondo`). */
+  mapId: string;
+}
+
+export interface WorldSeatInfo {
+  name: string;
+  /** Colore del posto (fissato dal numero del posto). */
+  color: string;
+  /** null = giocatore umano. */
+  bot: WorldBotLevel | null;
+  connected: boolean;
+  isHost: boolean;
+  /** true per il posto di chi riceve questo stato. */
+  isYou: boolean;
+}
+
+export type WorldBotLevel = 'facile' | 'normale' | 'difficile' | 'esperto';
+
+export interface WorldLobbyState {
+  code: string;
+  config: WorldLobbyConfig;
+  seats: WorldSeatInfo[];
+  started: boolean;
+  minPlayers: number;
+  maxPlayers: number;
+  hostName: string;
+}
+
+export interface WorldPublicSummary {
+  code: string;
+  hostName: string;
+  players: number;
+  maxPlayers: number;
+  turnTimerSec: number;
+}
+
+/** Aggiornamento di partita per UN giocatore: vista filtrata + mosse legali. */
+export interface WorldUpdate {
+  view: WorldPlayerView;
+  legal: WorldAction[];
+  /** Eventi dell'ultima azione (filtrati per questo giocatore). */
+  events: WorldEvent[];
+  /** Posto di questo client. */
+  seat: number;
+  /** Un bot sta pensando. */
+  thinking: boolean;
+  seq: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -252,6 +315,11 @@ export interface ServerToClientEvents {
   'spectator:handRequest': (req: HandRequest) => void;
   /** Nuovo messaggio di chat da mostrare (per tutti i presenti nella stanza). */
   'chat:message': (msg: ChatMessage) => void;
+  // --- Vikings Around the World ---
+  'world:state': (state: WorldLobbyState) => void;
+  'world:closed': (e: ApiError) => void;
+  'world:update': (u: WorldUpdate) => void;
+  'world:rejected': (r: { message: string }) => void;
 }
 
 export interface ClientToServerEvents {
@@ -293,6 +361,18 @@ export interface ClientToServerEvents {
   'spectator:respondHand': (spectatorId: string, allow: boolean) => void;
   /** Invia un messaggio di chat alla stanza (lobby o partita in corso). */
   'chat:send': (text: string) => void;
+  // --- Vikings Around the World ---
+  'world:create': (config: WorldLobbyConfig, cb: (res: WorldLobbyState | ApiError) => void) => void;
+  'world:updateConfig': (config: WorldLobbyConfig, cb: (res: WorldLobbyState | ApiError) => void) => void;
+  'world:list': (cb: (rooms: WorldPublicSummary[]) => void) => void;
+  'world:join': (code: string, cb: (res: WorldLobbyState | ApiError) => void) => void;
+  'world:leave': () => void;
+  'world:addBot': (level: WorldBotLevel) => void;
+  'world:removeSeat': (index: number) => void;
+  'world:start': () => void;
+  'world:terminate': () => void;
+  'world:action': (action: WorldAction) => void;
+  'world:refresh': () => void;
 }
 
 export function isApiError(x: unknown): x is ApiError {

@@ -12,9 +12,19 @@ ai classici giochi da tavolo di colonizzazione con esagoni.
 | Package | Descrizione |
 |---|---|
 | `packages/engine` | Motore di gioco **puro** (zero dipendenze): stato + validazione/applicazione mosse, deterministico con PRNG seedato. Riusato identico da bot, hot-seat e server. |
+| `packages/engine-world` | Motore puro di *Vikings Around the World* (mappa a territori, Jarl, pedaggi). |
 | `packages/bots` | IA euristiche dei giocatori artificiali (dipende solo dall'engine). |
 | `packages/web` | Frontend React + TypeScript + Vite, tabellone pixel-art su Canvas. |
 | `packages/server` | Backend multiplayer online: Fastify + Socket.io, stato autoritativo, lobby con codici invito. |
+
+## Modalità
+
+- **⚔️ Viking-Island · Classica** — il gioco originale a esagoni.
+- **🌍 Vikings Around the World** — la modalità nuova: mappa a territori reali
+  (Mondo, Europa, Italia, Milano…), Jarl che si muove, pedaggi, argento. Regole e
+  specifica in [`docs/vikings-around-the-world.md`](./docs/vikings-around-the-world.md).
+  Per giocare nella **tua città**: `node scripts/build-city-map.mjs "Torino, Italia" torino 24`
+  (genera `packages/engine-world/src/maps/torino.json`, poi va registrato in `map.ts`).
 
 ## Comandi
 
