@@ -4,6 +4,7 @@
  * `wt.chiave` legge la lingua attiva; `fmt(testo, {nome})` interpola `{nome}`.
  */
 import { getLang } from './index';
+import { worldLangs } from './world.langs';
 
 const itW = {
   titolo: 'Vikings Around the World',
@@ -178,6 +179,30 @@ const itW = {
   rinominato: 'rinominato',
   mappaNonValida: 'Mappa non valida',
   soloAdmin: 'Solo l’amministratore',
+  // tutorial
+  tutorial: 'Come si gioca',
+  avanti: 'Avanti',
+  fatto: 'Fatto',
+  tut1T: 'Il Jarl',
+  tut1B: 'Ogni clan ha un Jarl: la tua pedina sulla mappa. Fondi un villaggio solo nel territorio in cui si trova.',
+  tut2T: 'Movimento',
+  tut2B: 'Hai 4 punti movimento a turno: 1 per ogni passo sulle tue strade, 2 fuori strada. Il mare si attraversa solo da un tuo Porto.',
+  tut3T: 'Pedaggio',
+  tut3B: 'Entrando in un territorio altrui paghi 1 argento (o 1 materiale). Con la Sala del Jarl il pedaggio è doppio.',
+  tut4T: 'Argento',
+  tut4B: 'L’argento non esce dai dadi: arriva da Mercati, pedaggi e banca. Serve per la Sala del Jarl.',
+  tut5T: 'Costruire',
+  tut5B: 'Strada, Villaggio, Città, Sala del Jarl, Porto e Mercato. Tocca un territorio per vedere cosa puoi fare.',
+  tut6T: 'Vincere',
+  tut6B: 'Con i dadi produce il territorio col numero uscito. Il 7 porta la Tassa del Re. Vince chi arriva per primo ai PG: La Grande Via e Il Grande Viaggiatore valgono 2 PG.',
+  leggiRegole: 'Regole',
+  // mappe
+  scalaMondo: 'Mondo',
+  scalaContinente: 'Continente',
+  scalaNazione: 'Nazione',
+  scalaRegione: 'Regione',
+  scalaCitta: 'Città',
+  territori: 'territori',
 };
 
 export type WorldStrings = typeof itW;
@@ -343,15 +368,37 @@ const enW: WorldStrings = {
   rinominato: 'renamed',
   mappaNonValida: 'Invalid map',
   soloAdmin: 'Admin only',
+  tutorial: 'How to play',
+  avanti: 'Next',
+  fatto: 'Done',
+  tut1T: 'The Jarl',
+  tut1B: 'Every clan has a Jarl: your pawn on the map. You can found a village only in the territory where it stands.',
+  tut2T: 'Movement',
+  tut2B: 'You get 4 movement points per turn: 1 per step on your own roads, 2 off-road. The sea can only be crossed from your own Harbor.',
+  tut3T: 'Toll',
+  tut3B: 'Entering foreign land costs 1 silver (or 1 material). With a Jarl\'s Hall the toll is doubled.',
+  tut4T: 'Silver',
+  tut4B: 'Silver does not come from the dice: it comes from Markets, tolls and the bank. You need it for the Jarl\'s Hall.',
+  tut5T: 'Building',
+  tut5B: 'Road, Village, City, Jarl\'s Hall, Harbor and Market. Tap a territory to see what you can do.',
+  tut6T: 'Winning',
+  tut6B: 'On a roll, the territory with that number produces. A 7 brings the King\'s Tax. First to reach the VP wins: The Great Road and The Great Traveler are worth 2 VP.',
+  leggiRegole: 'Rules',
+  scalaMondo: 'World',
+  scalaContinente: 'Continent',
+  scalaNazione: 'Nation',
+  scalaRegione: 'Region',
+  scalaCitta: 'City',
+  territori: 'territories',
 };
 
-const DICTS: Record<string, WorldStrings> = { it: itW, en: enW };
+const DICTS: Record<string, Partial<WorldStrings>> = { it: itW, en: enW, ...worldLangs };
 
 /** Stringhe della lingua attiva (ripiego: inglese). */
 export const wt = new Proxy({} as WorldStrings, {
   get(_t, prop: string | symbol) {
-    const d = DICTS[getLang()] ?? enW;
-    return (d as Record<string | symbol, unknown>)[prop] ?? (enW as Record<string | symbol, unknown>)[prop];
+    const d = (DICTS[getLang()] ?? enW) as Record<string | symbol, unknown>;
+    return d[prop] ?? (enW as Record<string | symbol, unknown>)[prop];
   },
 }) as WorldStrings;
 

@@ -23,6 +23,7 @@ import { ShopScreen } from './screens/ShopScreen';
 import { TutorialScreen } from './screens/TutorialScreen';
 import { NewWorldGameScreen } from './screens/world/NewWorldGameScreen';
 import { WorldGameScreen } from './screens/world/WorldGameScreen';
+import { WorldTutorialScreen } from './screens/world/WorldTutorialScreen';
 import { WorldOnlineScreen } from './screens/world/WorldOnlineScreen';
 import { AdminMapsScreen } from './screens/world/AdminMapsScreen';
 import { LocalWorldController, type WorldSetup } from './game/world/LocalWorldController';
@@ -33,6 +34,7 @@ type Route =
   | { screen: 'newGame'; mode: 'locale' | 'online' }
   | { screen: 'newWorld' }
   | { screen: 'worldOnline' }
+  | { screen: 'worldTutorial' }
   | { screen: 'adminMaps' }
   | { screen: 'world'; setup: WorldSetup; gameKey: number }
   | { screen: 'game'; setup: GameSetup; gameKey: number; mission?: Mission }
@@ -211,9 +213,12 @@ export function App() {
           onBack={() => setRoute({ screen: 'menu' })}
           session={session}
           onOnline={() => setRoute(hasAccount ? { screen: 'worldOnline' } : { screen: 'entry' })}
+          onTutorial={() => setRoute({ screen: 'worldTutorial' })}
           onStart={(setup) => setRoute({ screen: 'world', setup, gameKey: Date.now() })}
         />
       );
+    case 'worldTutorial':
+      return <WorldTutorialScreen onClose={() => setRoute({ screen: 'newWorld' })} />;
     case 'worldOnline':
       if (!session) return null;
       return (

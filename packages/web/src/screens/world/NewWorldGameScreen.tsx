@@ -12,6 +12,8 @@ interface Props {
   onStart: (setup: WorldSetup) => void;
   /** Passa alla modalità online (richiede un account). */
   onOnline: () => void;
+  /** Apre il mini-tutorial. */
+  onTutorial: () => void;
   /** Sessione online (se c'è): da lì si scaricano gli override admin della mappa. */
   session?: OnlineSession | null;
   /** Nome dell'account (se c'è) per il primo posto. */
@@ -27,7 +29,7 @@ interface Seat {
 const BOT_NAMES = ['Ragnar', 'Freydis', 'Leif', 'Astrid', 'Ivar', 'Sigrid'];
 const KINDS: SeatKind[] = ['umano', 'facile', 'normale', 'difficile', 'esperto'];
 
-export function NewWorldGameScreen({ onBack, onStart, onOnline, session, defaultName }: Props) {
+export function NewWorldGameScreen({ onBack, onStart, onOnline, onTutorial, session, defaultName }: Props) {
   const [seats, setSeats] = useState<Seat[]>([
     { name: defaultName || 'Bjorn', kind: 'umano' },
     { name: BOT_NAMES[0]!, kind: 'normale' },
@@ -71,6 +73,9 @@ export function NewWorldGameScreen({ onBack, onStart, onOnline, session, default
         <button className="pxbtn pxbtn--small">{wt.locale}</button>
         <button className="pxbtn pxbtn--small pxbtn--ghost" onClick={onOnline}>
           🌐 {wt.online}
+        </button>
+        <button className="pxbtn pxbtn--small pxbtn--ghost" onClick={onTutorial}>
+          📖 {wt.leggiRegole}
         </button>
       </div>
       <div className="w-form">

@@ -46,6 +46,14 @@ territori produttivi, tutti i materiali); salvato in `Storage` (JSON/Postgres),
 con un browser reale (login admin, lobby, partita con bot, salvataggio mappa).
 15 test server (lobby, partita con bot, timer, riconnessione, override).
 
+**VIKINGS AROUND THE WORLD — FASE 6 (TUTORIAL + LINGUE) ✅** — mini-tutorial a 6
+schermate (`WorldTutorialScreen`, pulsante 📖 nella nuova partita) e traduzioni di tutta
+la modalità in italiano, inglese, spagnolo, francese, tedesco, olandese, russo
+(cirillico) e serbo (latino) in `i18n/world.ts` + `i18n/world.langs.ts`; test che
+verificano chiavi valide e segnaposto coerenti. Missioni dedicate: non fatte.
+(Nota: `i18n/ru.ts` della Classica è salvato con codifica doppia/«mojibake» — problema
+preesistente, non toccato.)
+
 **VIKINGS AROUND THE WORLD — *le regole sono cambiate!!!*** 🔄 — nuova modalità
 (tutto il resto diventa la «Modalità Classica», invariata). Mappa a territori
 reali (prima mappa «Il Mondo», 32 territori), Jarl che si muove (4 punti:

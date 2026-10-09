@@ -2864,3 +2864,21 @@ html[data-lang='ru'] .welcome-title {
   gap: 6px;
   align-items: center;
 }
+.w-tut {
+  width: min(380px, 92vw);
+  padding: 16px;
+  text-align: center;
+  background: var(--bg-panel);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+.w-tut-ico {
+  font-size: 40px;
+}
+.w-tut h2 {
+  color: var(--accent);
+  font-size: 12px;
+  margin: 0;
+}
