@@ -27,6 +27,11 @@ export const BUILDING_POINTS: Readonly<Record<BuildingKind, number>> = { villagg
 /** Produzione per edificio (un villaggio tocca UN solo territorio: la resa è doppia rispetto alla Classica). */
 export const BUILDING_YIELD: Readonly<Record<BuildingKind, number>> = { villaggio: 2, citta: 3, sala: 3 };
 
+/** Insediamenti (di clan diversi) per territorio. */
+export const MAX_SETTLEMENTS = 2;
+/** Materiali raccolti dal Jarl a ogni tiro (non col 7) nel territorio dove si trova. */
+export const JARL_GATHER = 1;
+
 export const HAND_LIMIT = 7;
 export const MOVE_POINTS = 4;
 export const MOVE_COST_OWN_ROAD = 1;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { applyAction, bankRate } from '../src';
-import { act, blank, give, own } from './helpers';
+import { act, annex, blank, give } from './helpers';
 
 const R = (o: Partial<Record<'legname' | 'pietra' | 'lana' | 'orzo' | 'ferro' | 'argento', number>>) => ({
   legname: 0, pietra: 0, lana: 0, orzo: 0, ferro: 0, argento: 0, ...o,
@@ -11,8 +11,7 @@ describe('banca', () => {
     const s = blank(2);
     give(s, 0, { legname: 8 });
     expect(bankRate(s, 0, 'legname', 'orzo')).toEqual({ giveCount: 4, receiveCount: 1 });
-    own(s, 0, 'italia');
-    s.territories['italia']!.porto = true;
+    annex(s, 0, 'italia', 'porto');
     expect(bankRate(s, 0, 'legname', 'orzo')).toEqual({ giveCount: 3, receiveCount: 1 });
     const t = act(s, { type: 'scambioBanca', player: 0, give: 'legname', receive: 'orzo' });
     expect(t.players[0]!.hand.legname).toBe(5);
@@ -21,8 +20,7 @@ describe('banca', () => {
 
   it('il porto di un avversario non aiuta', () => {
     const s = blank(2);
-    own(s, 1, 'italia');
-    s.territories['italia']!.porto = true;
+    annex(s, 1, 'italia', 'porto');
     expect(bankRate(s, 0, 'legname', 'orzo')).toEqual({ giveCount: 4, receiveCount: 1 });
   });
 

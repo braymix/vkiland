@@ -3,7 +3,7 @@
  * restituisce il NUOVO stato più gli eventi. Mai mutazioni dell'input.
  */
 import type { ApplyResult, WorldAction, WorldEvent } from './actions';
-import { BUILDING_YIELD, BUILD_COSTS, MOVE_POINTS, WORLD_RESOURCES } from './constants';
+import { BUILDING_YIELD, BUILD_COSTS, JARL_GATHER, MOVE_POINTS, WORLD_RESOURCES } from './constants';
 import { cloneState } from './game';
 
 const cloneJson = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
@@ -11,6 +11,7 @@ import { addResources, subResources, totalResources } from './resources';
 import { nextInt, rollDie } from './rng';
 import {
   gloryPoints,
+  settlementOf,
   planMove,
   recomputeGrandeVia,
   recomputeGrandeViaggiatore,
@@ -37,16 +38,26 @@ function produce(state: WorldGameState, total: number, events: WorldEvent[]): vo
   const gains: Extract<WorldEvent, { type: 'produzione' }>['gains'] = [];
   const kindOf = new Map(state.map.territories.map((t) => [t.id, t.kind]));
   for (const ter of Object.values(state.territories)) {
-    if (ter.owner === null || ter.number !== total || ter.building === null) continue;
+    if (ter.number !== total) continue;
     const kind = kindOf.get(ter.id);
     if (!kind || kind === 'deserto') continue;
-    const amount = BUILDING_YIELD[ter.building];
-    state.players[ter.owner]!.hand[kind] += amount;
-    gains.push({ player: ter.owner, territory: ter.id, resource: kind, amount });
-    if (ter.mercato) {
-      state.players[ter.owner]!.hand.argento += 1;
-      gains.push({ player: ter.owner, territory: ter.id, resource: 'argento', amount: 1 });
+    // Producono tutti gli insediamenti del territorio (fino a 2 clan).
+    for (const s of ter.settlements) {
+      const amount = BUILDING_YIELD[s.building];
+      state.players[s.owner]!.hand[kind] += amount;
+      gains.push({ player: s.owner, territory: ter.id, resource: kind, amount });
+      if (s.mercato) {
+        state.players[s.owner]!.hand.argento += 1;
+        gains.push({ player: s.owner, territory: ter.id, resource: 'argento', amount: 1 });
+      }
     }
+  }
+  // Il Jarl di chi ha tirato raccoglie dal territorio in cui si trova.
+  const roller = state.players[state.currentPlayer]!;
+  const here = kindOf.get(roller.jarl);
+  if (here && here !== 'deserto' && JARL_GATHER > 0) {
+    roller.hand[here] += JARL_GATHER;
+    gains.push({ player: roller.id, territory: roller.jarl, resource: here, amount: JARL_GATHER });
   }
   if (gains.length > 0) events.push({ type: 'produzione', gains });
 }
@@ -123,8 +134,7 @@ export function applyAction(prev: WorldGameState, action: WorldAction): ApplyRes
   switch (action.type) {
     case 'piazzaVillaggioIniziale': {
       const t = state.territories[action.territory]!;
-      t.owner = pid;
-      t.building = 'villaggio';
+      t.settlements.push({ owner: pid, building: 'villaggio', porto: false, mercato: false });
       me.jarl = t.id;
       state.setupLastTerritory = t.id;
       events.push({ type: 'costruito', player: pid, what: 'villaggio', at: t.id, setup: true });
@@ -219,13 +229,13 @@ export function applyAction(prev: WorldGameState, action: WorldAction): ApplyRes
     case 'costruisci': {
       const t = state.territories[action.territory]!;
       subResources(me.hand, BUILD_COSTS[action.what]);
+      const mine = settlementOf(t, pid);
       if (action.what === 'villaggio') {
-        t.owner = pid;
-        t.building = 'villaggio';
-      } else if (action.what === 'citta') t.building = 'citta';
-      else if (action.what === 'sala') t.building = 'sala';
-      else if (action.what === 'porto') t.porto = true;
-      else t.mercato = true;
+        t.settlements.push({ owner: pid, building: 'villaggio', porto: false, mercato: false });
+      } else if (action.what === 'citta') mine!.building = 'citta';
+      else if (action.what === 'sala') mine!.building = 'sala';
+      else if (action.what === 'porto') mine!.porto = true;
+      else mine!.mercato = true;
       events.push({ type: 'costruito', player: pid, what: action.what, at: t.id });
       afterBuild(state, events);
       break;

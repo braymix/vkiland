@@ -2,6 +2,8 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactElement } from 'react';
 import {
   BUILD_COSTS,
+  hasRoomFor,
+  settlementOf,
   planMove,
   tollDue,
   mapIndex,
@@ -142,7 +144,6 @@ export function WorldGameScreen({ makeController, onExit, onRematch }: Props) {
 
   function sheet() {
     if (!selected || !selDef || !selState || !hand) return null;
-    const owner = selState.owner !== null ? view.players[selState.owner] : null;
     const isMyJarl = view.players[me]?.jarl === selected;
     const actions: ReactElement[] = [];
     const reach = reachable.get(selected);
@@ -179,13 +180,13 @@ export function WorldGameScreen({ makeController, onExit, onRematch }: Props) {
           </button>
         );
       }
-      const mine = selState.owner === me;
+      const mine = settlementOf(selState, me);
       const relevant: BuildKind[] = [];
-      if (selState.owner === null && selDef.kind !== 'deserto' && isMyJarl) relevant.push('villaggio');
-      if (mine && selState.building === 'villaggio') relevant.push('citta');
-      if (mine && selState.building === 'citta') relevant.push('sala');
-      if (mine && selDef.coastal && !selState.porto) relevant.push('porto');
-      if (mine && !selState.mercato) relevant.push('mercato');
+      if (hasRoomFor(selState, me) && selDef.kind !== 'deserto' && isMyJarl) relevant.push('villaggio');
+      if (mine?.building === 'villaggio') relevant.push('citta');
+      if (mine?.building === 'citta') relevant.push('sala');
+      if (mine && selDef.coastal && !mine.porto) relevant.push('porto');
+      if (mine && !mine.mercato) relevant.push('mercato');
       for (const what of BUILD_ORDER.filter((k) => relevant.includes(k))) {
         const can = legal.some((a) => a.type === 'costruisci' && a.what === what && a.territory === selected);
         actions.push(
@@ -234,18 +235,17 @@ export function WorldGameScreen({ makeController, onExit, onRematch }: Props) {
           </button>
         </div>
         <div className="w-sheet-info">
-          {owner ? (
-            <>
-              <span className="w-dot" style={{ background: colorOf(view, owner.id) }} />{' '}
-              {fmt(wt.proprietario, { nome: owner.name })}
-              {selState.building ? ` · ${wt[selState.building]}` : ''}
-              {selState.porto ? ' · ⚓' : ''}
-              {selState.mercato ? ' · 🪙' : ''}
-            </>
-          ) : (
-            wt.libero
-          )}
-          {isMyJarl ? ` · ${wt.qui}` : ''}
+          {selState.settlements.length === 0 && wt.libero}
+          {selState.settlements.map((s) => (
+            <div key={s.owner}>
+              <span className="w-dot" style={{ background: colorOf(view, s.owner) }} />{' '}
+              {fmt(wt.proprietario, { nome: view.players[s.owner]!.name })} · {wt[s.building]}
+              {s.porto ? ' · ⚓' : ''}
+              {s.mercato ? ' · 🪙' : ''}
+            </div>
+          ))}
+          {selState.settlements.length === 1 && selDef.kind !== 'deserto' && <div className="w-dim">{wt.postoLibero}</div>}
+          {isMyJarl ? <div>{wt.qui}</div> : null}
         </div>
         <div className="w-sheet-actions">{actions}</div>
       </div>
@@ -261,7 +261,7 @@ export function WorldGameScreen({ makeController, onExit, onRematch }: Props) {
       case 'setup':
         return phase.expect === 'strada'
           ? wt.faseSetupStrada
-          : Object.values(view.territories).some((t) => t.owner === me)
+          : Object.values(view.territories).some((t) => settlementOf(t, me))
             ? wt.faseSetupVillaggio2
             : wt.faseSetupVillaggio;
       case 'tiro':

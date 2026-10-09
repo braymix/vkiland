@@ -98,7 +98,7 @@ const es: Dict = {
   passa: 'Pasa el dispositivo a',
   pronto: 'Soy {nome}',
   regoleTesto:
-    'Mueve el Jarl (4 puntos: 1 por tus caminos, 2 fuera). Funda pueblos donde llegue. Entrar en tierra ajena cuesta un peaje. El mar solo desde tu Puerto. Gana quien llegue antes a los PG.',
+    'Mueve el Jarl (4 puntos: 1 por tus caminos, 2 fuera): en cada tirada recoge 1 material donde está. Funda pueblos donde llegue (máx. 2 clanes por territorio). Entrar en tierra ajena cuesta un peaje. El mar solo desde tu Puerto. Gana quien llegue antes a los PG.',
   online: 'Online',
   locale: 'Local',
   creaPartita: 'Crear partida',
@@ -119,7 +119,8 @@ const es: Dict = {
   avanti: 'Siguiente',
   fatto: 'Hecho',
   tut1T: 'El Jarl',
-  tut1B: 'Cada clan tiene un Jarl: tu ficha en el mapa. Solo puedes fundar un pueblo en el territorio donde está.',
+  tut1B:
+    'Cada clan tiene un Jarl: tu ficha en el mapa. Solo puedes fundar un pueblo en el territorio donde está (caben 2 clanes distintos). En cada tirada tuya el Jarl recoge 1 material de ese territorio.',
   tut2T: 'Movimiento',
   tut2B: 'Tienes 4 puntos de movimiento por turno: 1 por paso en tus caminos, 2 fuera. El mar solo se cruza desde tu Puerto.',
   tut3T: 'Peaje',
@@ -141,6 +142,7 @@ const es: Dict = {
   grandeViaggiatore: 'El Gran Viajero',
   logGrandeVia: 'La Gran Ruta es de {nome} ({n})',
   logViaggiatore: 'El Gran Viajero es {nome} ({n} continentes)',
+  postoLibero: 'Hay sitio para otro clan',
 };
 
 const fr: Dict = {
@@ -235,7 +237,7 @@ const fr: Dict = {
   passa: 'Passe l’appareil à',
   pronto: 'Je suis {nome}',
   regoleTesto:
-    'Déplace le Jarl (4 points : 1 sur tes routes, 2 hors route). Fonde des villages où il arrive. Entrer en terre étrangère coûte un péage. La mer seulement depuis ton Port. Le premier aux PV gagne.',
+    'Déplace le Jarl (4 points : 1 sur tes routes, 2 hors route) : à chaque lancer il récolte 1 matériau là où il est. Fonde des villages où il arrive (2 clans max par territoire). Entrer en terre étrangère coûte un péage. La mer seulement depuis ton Port. Le premier aux PV gagne.',
   online: 'En ligne',
   locale: 'Local',
   creaPartita: 'Créer une partie',
@@ -256,7 +258,8 @@ const fr: Dict = {
   avanti: 'Suivant',
   fatto: 'Terminé',
   tut1T: 'Le Jarl',
-  tut1B: 'Chaque clan a un Jarl : ton pion sur la carte. Tu ne fondes un village que dans le territoire où il se trouve.',
+  tut1B:
+    'Chaque clan a un Jarl : ton pion sur la carte. Tu ne fondes un village que dans le territoire où il se trouve (2 clans différents y tiennent). À chacun de tes lancers, le Jarl récolte 1 matériau de ce territoire.',
   tut2T: 'Déplacement',
   tut2B: 'Tu as 4 points de déplacement par tour : 1 par pas sur tes routes, 2 hors route. La mer ne se traverse que depuis ton Port.',
   tut3T: 'Péage',
@@ -278,6 +281,7 @@ const fr: Dict = {
   grandeViaggiatore: 'Le Grand Voyageur',
   logGrandeVia: 'La Grande Route est à {nome} ({n})',
   logViaggiatore: 'Le Grand Voyageur est {nome} ({n} continents)',
+  postoLibero: 'Place pour un autre clan',
 };
 
 const de: Dict = {
@@ -372,7 +376,7 @@ const de: Dict = {
   passa: 'Gib das Gerät an',
   pronto: 'Ich bin {nome}',
   regoleTesto:
-    'Bewege den Jarl (4 Punkte: 1 auf deinen Straßen, 2 abseits). Gründe Dörfer, wo er ankommt. Fremdes Land kostet Zoll. Das Meer nur von deinem Hafen aus. Wer zuerst die SP erreicht, gewinnt.',
+    'Bewege den Jarl (4 Punkte: 1 auf deinen Straßen, 2 abseits): bei jedem Wurf sammelt er 1 Rohstoff, wo er steht. Gründe Dörfer, wo er ankommt (max. 2 Clans pro Gebiet). Fremdes Land kostet Zoll. Das Meer nur von deinem Hafen aus. Wer zuerst die SP erreicht, gewinnt.',
   online: 'Online',
   locale: 'Lokal',
   creaPartita: 'Spiel erstellen',
@@ -393,7 +397,8 @@ const de: Dict = {
   avanti: 'Weiter',
   fatto: 'Fertig',
   tut1T: 'Der Jarl',
-  tut1B: 'Jeder Clan hat einen Jarl: deine Figur auf der Karte. Ein Dorf gründest du nur in dem Gebiet, in dem er steht.',
+  tut1B:
+    'Jeder Clan hat einen Jarl: deine Figur auf der Karte. Ein Dorf gründest du nur in dem Gebiet, in dem er steht (2 verschiedene Clans haben Platz). Bei jedem deiner Würfe sammelt der Jarl 1 Rohstoff dieses Gebiets.',
   tut2T: 'Bewegung',
   tut2B: 'Du hast 4 Bewegungspunkte pro Zug: 1 pro Schritt auf deinen Straßen, 2 abseits. Das Meer überquerst du nur von deinem Hafen aus.',
   tut3T: 'Zoll',
@@ -415,6 +420,7 @@ const de: Dict = {
   grandeViaggiatore: 'Der Große Reisende',
   logGrandeVia: 'Die Große Straße gehört {nome} ({n})',
   logViaggiatore: 'Der Große Reisende ist {nome} ({n} Kontinente)',
+  postoLibero: 'Platz für einen weiteren Clan',
 };
 
 const nl: Dict = {
@@ -509,7 +515,7 @@ const nl: Dict = {
   passa: 'Geef het apparaat aan',
   pronto: 'Ik ben {nome}',
   regoleTesto:
-    'Verplaats de Jarl (4 punten: 1 op je wegen, 2 erbuiten). Sticht dorpen waar hij aankomt. Vreemd gebied kost tol. De zee alleen vanuit je Haven. Wie het eerst de WP haalt, wint.',
+    'Verplaats de Jarl (4 punten: 1 op je wegen, 2 erbuiten): bij elke worp verzamelt hij 1 grondstof waar hij staat. Sticht dorpen waar hij aankomt (max. 2 clans per gebied). Vreemd gebied kost tol. De zee alleen vanuit je Haven. Wie het eerst de WP haalt, wint.',
   online: 'Online',
   locale: 'Lokaal',
   creaPartita: 'Spel maken',
@@ -530,7 +536,8 @@ const nl: Dict = {
   avanti: 'Volgende',
   fatto: 'Klaar',
   tut1T: 'De Jarl',
-  tut1B: 'Elke clan heeft een Jarl: jouw pion op de kaart. Een dorp sticht je alleen in het gebied waar hij staat.',
+  tut1B:
+    'Elke clan heeft een Jarl: jouw pion op de kaart. Een dorp sticht je alleen in het gebied waar hij staat (er passen 2 verschillende clans). Bij elke worp van jou verzamelt de Jarl 1 grondstof van dat gebied.',
   tut2T: 'Bewegen',
   tut2B: 'Je hebt 4 bewegingspunten per beurt: 1 per stap op je wegen, 2 erbuiten. De zee steek je alleen over vanuit je Haven.',
   tut3T: 'Tol',
@@ -552,6 +559,7 @@ const nl: Dict = {
   grandeViaggiatore: 'De Grote Reiziger',
   logGrandeVia: 'De Grote Weg is van {nome} ({n})',
   logViaggiatore: 'De Grote Reiziger is {nome} ({n} continenten)',
+  postoLibero: 'Plaats voor nog een clan',
 };
 
 const ru: Dict = {
@@ -646,7 +654,7 @@ const ru: Dict = {
   passa: 'Передай устройство игроку',
   pronto: 'Я {nome}',
   regoleTesto:
-    'Двигай ярла (4 очка: 1 по своим дорогам, 2 вне дорог). Основывай деревни там, куда он пришёл. Вход на чужую землю стоит пошлины. Море — только из своего порта. Кто первым наберёт ОС, тот победил.',
+    'Двигай ярла (4 очка: 1 по своим дорогам, 2 вне дорог): на каждом броске он собирает 1 ресурс там, где стоит. Основывай деревни там, куда он пришёл (не больше 2 кланов на территории). Вход на чужую землю стоит пошлины. Море — только из своего порта. Кто первым наберёт ОС, тот победил.',
   online: 'Онлайн',
   locale: 'Локально',
   creaPartita: 'Создать игру',
@@ -667,7 +675,8 @@ const ru: Dict = {
   avanti: 'Далее',
   fatto: 'Готово',
   tut1T: 'Ярл',
-  tut1B: 'У каждого клана есть ярл — твоя фишка на карте. Деревню можно основать только на той территории, где он стоит.',
+  tut1B:
+    'У каждого клана есть ярл — твоя фишка на карте. Деревню можно основать только там, где он стоит (помещаются 2 разных клана). На каждом твоём броске ярл собирает 1 ресурс этой территории.',
   tut2T: 'Движение',
   tut2B: 'За ход 4 очка движения: 1 за шаг по своим дорогам, 2 вне дорог. Море можно пересечь только из своего порта.',
   tut3T: 'Пошлина',
@@ -689,6 +698,7 @@ const ru: Dict = {
   grandeViaggiatore: 'Великий путешественник',
   logGrandeVia: 'Великий путь у {nome} ({n})',
   logViaggiatore: 'Великий путешественник — {nome} ({n} материков)',
+  postoLibero: 'Есть место ещё для одного клана',
 };
 
 const sr: Dict = {
@@ -783,7 +793,7 @@ const sr: Dict = {
   passa: 'Predaj uređaj igraču',
   pronto: 'Ja sam {nome}',
   regoleTesto:
-    'Pomeraj jarla (4 poena: 1 po svojim putevima, 2 van puteva). Osnivaj sela gde stigne. Ulazak na tuđu zemlju košta putarinu. More samo iz svoje luke. Ko prvi stigne do PS, pobeđuje.',
+    'Pomeraj jarla (4 poena: 1 po svojim putevima, 2 van puteva): pri svakom bacanju sakuplja 1 resurs tamo gde stoji. Osnivaj sela gde stigne (najviše 2 klana po teritoriji). Ulazak na tuđu zemlju košta putarinu. More samo iz svoje luke. Ko prvi stigne do PS, pobeđuje.',
   online: 'Onlajn',
   locale: 'Lokalno',
   creaPartita: 'Napravi igru',
@@ -804,7 +814,8 @@ const sr: Dict = {
   avanti: 'Dalje',
   fatto: 'Gotovo',
   tut1T: 'Jarl',
-  tut1B: 'Svaki klan ima jarla: tvoju figuru na mapi. Selo možeš osnovati samo na teritoriji gde se on nalazi.',
+  tut1B:
+    'Svaki klan ima jarla: tvoju figuru na mapi. Selo možeš osnovati samo na teritoriji gde se on nalazi (staju 2 različita klana). Pri svakom tvom bacanju jarl sakuplja 1 resurs te teritorije.',
   tut2T: 'Kretanje',
   tut2B: 'Imaš 4 poena kretanja po potezu: 1 za korak po svojim putevima, 2 van puteva. More se prelazi samo iz tvoje luke.',
   tut3T: 'Putarina',
@@ -826,6 +837,7 @@ const sr: Dict = {
   grandeViaggiatore: 'Veliki putnik',
   logGrandeVia: 'Veliki put pripada igraču {nome} ({n})',
   logViaggiatore: 'Veliki putnik je {nome} ({n} kontinenata)',
+  postoLibero: 'Ima mesta za još jedan klan',
 };
 
 export const worldLangs: Record<string, Dict> = { es, fr, de, nl, ru, sr };

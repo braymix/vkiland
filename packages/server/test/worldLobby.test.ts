@@ -164,7 +164,7 @@ describe('partita del mondo sul server', () => {
     expect(last('a')!.view.phase.type).toBe('setup');
     await vi.advanceTimersByTimeAsync(5_100);
     // l'umano non ha giocato: il server ha piazzato il villaggio per lui
-    expect(Object.values(last('a')!.view.territories).some((t) => t.owner === 0)).toBe(true);
+    expect(Object.values(last('a')!.view.territories).some((t) => t.settlements.some((x) => x.owner === 0))).toBe(true);
   });
 
   it('una partita con un umano passivo e bot arriva a un vincitore', async () => {

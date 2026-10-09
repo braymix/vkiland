@@ -94,7 +94,8 @@ describe('bot del mondo', () => {
   it('i bot espandono: a fine partita chi vince controlla più territori e continenti', () => {
     const { state } = simulate('w6', ['normale', 'normale', 'normale']);
     if (state.phase.type !== 'fine') throw new Error('non finita');
-    const mine = Object.values(state.territories).filter((t) => t.owner === (state.phase as { winner: number }).winner);
+    const winner = (state.phase as { winner: number }).winner;
+    const mine = Object.values(state.territories).filter((t) => t.settlements.some((x) => x.owner === winner));
     expect(mine.length).toBeGreaterThanOrEqual(3);
   });
 });

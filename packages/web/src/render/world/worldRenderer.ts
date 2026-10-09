@@ -98,6 +98,8 @@ interface Cache {
   centers: Map<string, [number, number]>;
   /** Larghezza della forma (unità-mondo): decide se il nome ci sta. */
   widths: Map<string, number>;
+  /** Riquadro della forma in coordinate-mondo [minX, minY, maxX, maxY]. */
+  boxes: Map<string, [number, number, number, number]>;
 }
 
 export class WorldRenderer {
@@ -111,6 +113,7 @@ export class WorldRenderer {
     const paths = new Map<string, Path2D>();
     const centers = new Map<string, [number, number]>();
     const widths = new Map<string, number>();
+    const boxes = new Map<string, [number, number, number, number]>();
     for (const t of map.territories) {
       const p = new Path2D();
       for (const ring of t.polygons) {
@@ -125,10 +128,21 @@ export class WorldRenderer {
       centers.set(t.id, toWorld(t.center[0], t.center[1]));
       let lo = Infinity;
       let hi = -Infinity;
-      for (const ring of t.polygons) for (const [lon] of ring) { lo = Math.min(lo, lon); hi = Math.max(hi, lon); }
+      let top = Infinity;
+      let bottom = -Infinity;
+      for (const ring of t.polygons) {
+        for (const [lon, lat] of ring) {
+          lo = Math.min(lo, lon);
+          hi = Math.max(hi, lon);
+          const y = toWorld(lon, lat)[1];
+          top = Math.min(top, y);
+          bottom = Math.max(bottom, y);
+        }
+      }
       widths.set(t.id, hi - lo);
+      boxes.set(t.id, [lo + 180, top, hi + 180, bottom]);
     }
-    this.cache = { map, paths, centers, widths };
+    this.cache = { map, paths, centers, widths, boxes };
     return this.cache;
   }
 
@@ -200,11 +214,29 @@ export class WorldRenderer {
       const st = view.territories[t.id]!;
       ctx.fillStyle = KIND_COLOR[t.kind];
       ctx.fill(path);
-      if (st.owner !== null) {
+      const [first, second] = st.settlements;
+      if (first) {
         ctx.globalAlpha = 0.38;
-        ctx.fillStyle = colorOf(view, st.owner);
+        ctx.fillStyle = colorOf(view, first.owner);
         ctx.fill(path);
         ctx.globalAlpha = 1;
+      }
+      if (second) {
+        // territorio condiviso: righe diagonali col colore del secondo clan
+        ctx.save();
+        ctx.clip(path);
+        ctx.globalAlpha = 0.5;
+        ctx.strokeStyle = colorOf(view, second.owner);
+        ctx.lineWidth = 3 / cam.scale;
+        const step = 7 / cam.scale;
+        const b = cache.boxes.get(t.id)!;
+        for (let x = b[0] - (b[3] - b[1]); x < b[2]; x += step) {
+          ctx.beginPath();
+          ctx.moveTo(x, b[3]);
+          ctx.lineTo(x + (b[3] - b[1]), b[1]);
+          ctx.stroke();
+        }
+        ctx.restore();
       }
       if (input.dimmed?.has(t.id)) {
         ctx.globalAlpha = 0.8;
@@ -296,24 +328,27 @@ export class WorldRenderer {
         ctx.font = `bold ${small ? 8 : 11}px monospace`;
         ctx.fillText(String(st.number), sx, sy + (small ? 0 : 3) + 0.5);
       }
-      // edificio
-      if (st.building && st.owner !== null) {
-        this.drawBuilding(ctx, sx - (small ? 9 : 15), sy + (small ? -7 : -2), st.building, colorOf(view, st.owner), small ? 0.8 : 1.15);
-      }
+      // edifici (fino a 2 clan, uno accanto all'altro)
+      st.settlements.forEach((s, i) => {
+        const dx = (small ? 9 : 15) + i * (small ? 8 : 13);
+        this.drawBuilding(ctx, sx - dx, sy + (small ? -7 : -2), s.building, colorOf(view, s.owner), small ? 0.8 : 1.15);
+      });
+      const hasPort = st.settlements.some((s) => s.porto);
+      const hasMarket = st.settlements.some((s) => s.mercato);
       if (!small) {
         let ax = sx + 16;
-        if (st.porto) {
+        if (hasPort) {
           ctx.font = '12px sans-serif';
           ctx.fillText('⚓', ax, sy - 2);
           ax += 14;
         }
-        if (st.mercato) {
+        if (hasMarket) {
           ctx.font = '12px sans-serif';
           ctx.fillText('🪙', ax, sy - 2);
         }
-      } else if (st.porto || st.mercato) {
+      } else if (hasPort || hasMarket) {
         ctx.font = '9px sans-serif';
-        ctx.fillText(st.porto ? '⚓' : '🪙', sx + 9, sy - 6);
+        ctx.fillText(hasPort ? '⚓' : '🪙', sx + 9, sy - 6);
       }
       // nome: solo se ci sta nella forma (o se il territorio è selezionato)
       if (cam.scale >= (roomy ? 1.4 : 4.6)) {
@@ -345,7 +380,7 @@ export class WorldRenderer {
       const c = cache.centers.get(p.jarl);
       if (!c) continue;
       // Nel setup il Jarl compare solo dopo il primo villaggio.
-      if (view.phase.type === 'setup' && !Object.values(view.territories).some((t) => t.owner === p.id)) continue;
+      if (view.phase.type === 'setup' && !Object.values(view.territories).some((t) => t.settlements.some((s) => s.owner === p.id))) continue;
       const k = offsets.get(p.jarl) ?? 0;
       offsets.set(p.jarl, k + 1);
       const [sx, sy] = worldToScreen(cam, w, h, c[0], c[1]);

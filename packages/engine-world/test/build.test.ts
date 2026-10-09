@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { applyAction, linkId, piecesLeft } from '../src';
-import { ALL_FIVE, act, blank, give, own, road } from './helpers';
+import { ALL_FIVE, act, annex, at, blank, give, own, road } from './helpers';
 
 describe('strade', () => {
   it('costano 1 legname + 1 pietra e devono toccare Jarl / territorio proprio / strada propria', () => {
@@ -48,17 +48,27 @@ describe('villaggio', () => {
     give(s, 0, { ...ALL_FIVE });
     expect(applyAction(s, { type: 'costruisci', player: 0, what: 'villaggio', territory: 'balcani' }).ok).toBe(false);
     const t = act(s, { type: 'costruisci', player: 0, what: 'villaggio', territory: 'italia' });
-    expect(t.territories['italia']).toMatchObject({ owner: 0, building: 'villaggio' });
+    expect(at(t, 'italia', 0)).toMatchObject({ owner: 0, building: 'villaggio' });
     expect(t.players[0]!.hand.legname).toBe(9);
     expect(t.players[0]!.hand.orzo).toBe(9);
-    // già occupato
-    t.currentPlayer = 1;
-    t.players[1]!.jarl = 'italia';
-    give(t, 1, { ...ALL_FIVE });
-    expect(applyAction(t, { type: 'costruisci', player: 1, what: 'villaggio', territory: 'italia' }).ok).toBe(false);
+    // lo stesso clan non ne costruisce un secondo nello stesso territorio
+    expect(applyAction(t, { type: 'costruisci', player: 0, what: 'villaggio', territory: 'italia' }).ok).toBe(false);
     const d = blank(2, 'sahara');
     give(d, 0, { ...ALL_FIVE });
     expect(applyAction(d, { type: 'costruisci', player: 0, what: 'villaggio', territory: 'sahara' }).ok).toBe(false);
+  });
+
+  it('due clan diversi possono abitare lo stesso territorio, un terzo no', () => {
+    const s = blank(3, 'italia');
+    for (const p of [0, 1, 2]) give(s, p, { ...ALL_FIVE });
+    own(s, 0, 'italia');
+    s.currentPlayer = 1;
+    const t = act(s, { type: 'costruisci', player: 1, what: 'villaggio', territory: 'italia' });
+    expect(t.territories['italia']!.settlements.map((x) => x.owner)).toEqual([0, 1]);
+    t.currentPlayer = 2;
+    const r = applyAction(t, { type: 'costruisci', player: 2, what: 'villaggio', territory: 'italia' });
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.code).toBe('TERRITORIO_OCCUPATO');
   });
 
   it('niente regola della distanza: si può fondare accanto a un avversario', () => {
@@ -82,7 +92,7 @@ describe('città, Sala, Porto, Mercato', () => {
     own(s, 0, 'italia');
     give(s, 0, { orzo: 2, ferro: 3 });
     const t = act(s, { type: 'costruisci', player: 0, what: 'citta', territory: 'italia' });
-    expect(t.territories['italia']!.building).toBe('citta');
+    expect(at(t, 'italia', 0)!.building).toBe('citta');
     expect(t.players[0]!.hand.orzo).toBe(0);
     expect(applyAction(s, { type: 'costruisci', player: 0, what: 'citta', territory: 'balcani' }).ok).toBe(false);
   });
@@ -110,11 +120,10 @@ describe('città, Sala, Porto, Mercato', () => {
     own(s, 0, 'asia_centrale'); // non costiero
     expect(applyAction(s, { type: 'costruisci', player: 0, what: 'porto', territory: 'asia_centrale' }).ok).toBe(false);
     const t = act(s, { type: 'costruisci', player: 0, what: 'porto', territory: 'italia' });
-    expect(t.territories['italia']!.porto).toBe(true);
+    expect(at(t, 'italia', 0)!.porto).toBe(true);
     expect(applyAction(t, { type: 'costruisci', player: 0, what: 'porto', territory: 'italia' }).ok).toBe(false);
     for (const id of ['iberia', 'balcani']) {
-      own(t, 0, id);
-      t.territories[id]!.porto = true;
+      annex(t, 0, id, 'porto');
     }
     expect(piecesLeft(t, 0, 'porto')).toBe(0);
     own(t, 0, 'scandinavia');
@@ -126,7 +135,7 @@ describe('città, Sala, Porto, Mercato', () => {
     give(s, 0, { ...ALL_FIVE });
     own(s, 0, 'italia');
     const t = act(s, { type: 'costruisci', player: 0, what: 'mercato', territory: 'italia' });
-    expect(t.territories['italia']).toMatchObject({ building: 'villaggio', mercato: true });
+    expect(at(t, 'italia', 0)).toMatchObject({ building: 'villaggio', mercato: true });
     expect(applyAction(t, { type: 'costruisci', player: 0, what: 'mercato', territory: 'italia' }).ok).toBe(false);
   });
 

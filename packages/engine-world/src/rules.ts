@@ -1,5 +1,6 @@
 /** Regole derivate dallo stato: punteggi, strada più lunga, continenti, movimento, pedaggio. */
 import {
+  MAX_SETTLEMENTS,
   AWARD_POINTS,
   BUILDING_POINTS,
   GRANDE_VIAGGIATORE_MIN,
@@ -12,17 +13,33 @@ import {
 } from './constants';
 import { linkBetween, mapIndex, otherEnd } from './map';
 import { pickFromLargest, totalResources, zeroResources } from './resources';
-import type { PlayerId, ResourceMap, WorldGameState } from './types';
+import type { PlayerId, ResourceMap, Settlement, TerritoryState, WorldGameState } from './types';
+
+// ------------------------------------------------------------ insediamenti
+/** L'insediamento del clan `pid` in questo territorio (se c'è). */
+export function settlementOf(t: Pick<TerritoryState, 'settlements'> | undefined, pid: PlayerId): Settlement | undefined {
+  return t?.settlements.find((s) => s.owner === pid);
+}
+
+/** C'è posto per un nuovo insediamento di `pid` (senza contare il tipo di terreno)? */
+export function hasRoomFor(t: Pick<TerritoryState, 'settlements'> | undefined, pid: PlayerId): boolean {
+  return !!t && t.settlements.length < MAX_SETTLEMENTS && !settlementOf(t, pid);
+}
+
+/** Il territorio è «straniero» per `pid`: abitato da altri e non da lui. */
+export function isForeign(t: Pick<TerritoryState, 'settlements'> | undefined, pid: PlayerId): boolean {
+  return !!t && t.settlements.length > 0 && !settlementOf(t, pid);
+}
 
 // ------------------------------------------------------------------ pezzi
 export function countBuildings(state: WorldGameState, pid: PlayerId, kind: 'villaggio' | 'citta' | 'sala'): number {
   let n = 0;
-  for (const t of Object.values(state.territories)) if (t.owner === pid && t.building === kind) n++;
+  for (const t of Object.values(state.territories)) if (settlementOf(t, pid)?.building === kind) n++;
   return n;
 }
 export function countAnnex(state: WorldGameState, pid: PlayerId, kind: 'porto' | 'mercato'): number {
   let n = 0;
-  for (const t of Object.values(state.territories)) if (t.owner === pid && t[kind]) n++;
+  for (const t of Object.values(state.territories)) if (settlementOf(t, pid)?.[kind]) n++;
   return n;
 }
 export function countRoads(state: WorldGameState, pid: PlayerId): number {
@@ -49,7 +66,7 @@ export function continentsOwned(state: WorldGameState, pid: PlayerId): number {
   const idx = mapIndex(state.map);
   const set = new Set<string>();
   for (const t of Object.values(state.territories)) {
-    if (t.owner === pid) set.add(idx.territory.get(t.id)!.continent);
+    if (settlementOf(t, pid)) set.add(idx.territory.get(t.id)!.continent);
   }
   return set.size;
 }
@@ -71,8 +88,7 @@ export function longestRoadLength(state: WorldGameState, pid: PlayerId): number 
     (adj.get(e.b) ?? adj.set(e.b, []).get(e.b)!).push({ id: e.id, to: e.a });
   }
   const blocked = (t: string): boolean => {
-    const ts = state.territories[t];
-    return !!ts && ts.owner !== null && ts.owner !== pid;
+    return isForeign(state.territories[t], pid);
   };
   let best = 0;
   const used = new Set<string>();
@@ -183,7 +199,7 @@ export function planMove(state: MoveContext, pid: PlayerId, to: string): MovePla
     cost = state.roads[l.id] === pid ? MOVE_COST_OWN_ROAD : MOVE_COST_OTHER;
   } else {
     const here = state.territories[from]!;
-    if (!(here.owner === pid && here.porto)) {
+    if (!settlementOf(here, pid)?.porto) {
       return { ok: false, code: 'SERVE_PORTO', message: 'Per salpare serve un tuo Porto nel territorio di partenza.' };
     }
     cost = MOVE_COST_OTHER;
@@ -198,9 +214,11 @@ export function planMove(state: MoveContext, pid: PlayerId, to: string): MovePla
 export function tollDue(state: MoveContext, pid: PlayerId, to: string): { payee: PlayerId; amount: number } | null {
   const t = state.territories[to];
   const p = state.players[pid]!;
-  if (!t || t.owner === null || t.owner === pid) return null;
+  // Chi ha casa qui non paga; altrimenti si paga al primo arrivato.
+  if (!t || !isForeign(t, pid)) return null;
   if (p.tollsPaidThisTurn.includes(to)) return null;
-  return { payee: t.owner, amount: t.building === 'sala' ? TOLL_SALA : TOLL_BASE };
+  const host = t.settlements[0]!;
+  return { payee: host.owner, amount: host.building === 'sala' ? TOLL_SALA : TOLL_BASE };
 }
 
 export type PaymentResult = { ok: true; payment: ResourceMap } | { ok: false; code: string; message: string };
@@ -248,7 +266,7 @@ export function roadTouchesNetwork(state: WorldGameState, pid: PlayerId, linkIdS
   const jarl = state.players[pid]!.jarl;
   for (const end of [l.a, l.b]) {
     if (end === jarl) return true;
-    if (state.territories[end]?.owner === pid) return true;
+    if (settlementOf(state.territories[end], pid)) return true;
     for (const other of mapIndex(state.map).linksOf.get(end) ?? []) {
       if (other.id !== linkIdStr && state.roads[other.id] === pid) return true;
     }

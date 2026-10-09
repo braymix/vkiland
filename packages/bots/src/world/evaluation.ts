@@ -2,6 +2,8 @@
 import {
   BUILD_COSTS,
   PRODUCED_RESOURCES,
+  isForeign,
+  settlementOf,
   mapIndex,
   otherEnd,
   type PlayerId,
@@ -14,7 +16,7 @@ export const pips = (n: number | null): number => (n === null ? 0 : 6 - Math.abs
 
 export function myTerritories(view: WorldPlayerView, me: PlayerId): string[] {
   return Object.values(view.territories)
-    .filter((t) => t.owner === me)
+    .filter((t) => settlementOf(t, me))
     .map((t) => t.id);
 }
 
@@ -23,10 +25,11 @@ export function productionOf(view: WorldPlayerView, me: PlayerId): Record<Produc
   const idx = mapIndex(view.map);
   const out: Record<ProducedResource, number> = { legname: 0, pietra: 0, lana: 0, orzo: 0, ferro: 0 };
   for (const t of Object.values(view.territories)) {
-    if (t.owner !== me || !t.building) continue;
+    const mine = settlementOf(t, me);
+    if (!mine) continue;
     const kind = idx.territory.get(t.id)!.kind;
     if (kind === 'deserto') continue;
-    out[kind] += pips(t.number) * (t.building === 'villaggio' ? 1 : 2) + (t.mercato ? 0.5 : 0);
+    out[kind] += pips(t.number) * (mine.building === 'villaggio' ? 1 : 2) + (mine.mercato ? 0.5 : 0);
   }
   return out;
 }
@@ -82,11 +85,11 @@ export function jarlPaths(view: WorldPlayerView, me: PlayerId, tollWeight = 1.5)
       const to = otherEnd(l, cur);
       let cost: number;
       if (l.kind === 'terra') cost = view.roads[l.id] === me ? 1 : 2;
-      else if (here.owner === me && here.porto) cost = 2;
-      else if (here.owner === me) cost = 2 + 5; // da costruire il Porto
+      else if (settlementOf(here, me)?.porto) cost = 2;
+      else if (settlementOf(here, me)) cost = 2 + 5; // da costruire il Porto
       else continue;
       const dest = view.territories[to]!;
-      if (dest.owner !== null && dest.owner !== me) cost += dest.building === 'sala' ? tollWeight * 2 : tollWeight;
+      if (isForeign(dest, me)) cost += dest.settlements[0]!.building === 'sala' ? tollWeight * 2 : tollWeight;
       const nd = d0 + cost;
       if (nd < (dist.get(to) ?? Infinity)) {
         dist.set(to, nd);

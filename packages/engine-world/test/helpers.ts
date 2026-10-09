@@ -70,8 +70,20 @@ export function own(
   building: 'villaggio' | 'citta' | 'sala' = 'villaggio'
 ): void {
   const t = s.territories[territory]!;
-  t.owner = pid;
-  t.building = building;
+  const mine = t.settlements.find((x) => x.owner === pid);
+  if (mine) mine.building = building;
+  else t.settlements.push({ owner: pid, building, porto: false, mercato: false });
+}
+
+/** Aggiunge Porto o Mercato all'insediamento di `pid` (creandolo se manca). */
+export function annex(s: WorldGameState, pid: number, territory: string, kind: 'porto' | 'mercato'): void {
+  if (!s.territories[territory]!.settlements.some((x) => x.owner === pid)) own(s, pid, territory);
+  s.territories[territory]!.settlements.find((x) => x.owner === pid)![kind] = true;
+}
+
+/** L'insediamento di `pid` in un territorio (per le asserzioni). */
+export function at(s: WorldGameState, territory: string, pid: number) {
+  return s.territories[territory]!.settlements.find((x) => x.owner === pid);
 }
 
 export function road(s: WorldGameState, pid: number, a: string, b: string): void {
