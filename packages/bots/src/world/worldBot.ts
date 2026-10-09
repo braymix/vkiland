@@ -299,8 +299,8 @@ function dumpTrade(legal: WorldAction[], hand: NonNullable<WorldBotInput['view']
 }
 
 // ---------------------------------------------------- risposta agli scambi
+function respondToTrade(input: WorldBotInput, cfg: LevelCfg): WorldAction {
   const { view, legalActions: legal } = input;
-  const { view, legalActions: legal, player: me } = input;
   const offer = view.pendingTrade;
   const responses = of(legal, 'rispondiScambio');
   const no = responses.find((r) => !r.accept);
