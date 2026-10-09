@@ -37,7 +37,7 @@ describe('produzione', () => {
     own(s, 1, 'iberia', 'citta');
     own(s, 2, 'balcani', 'sala');
     annex(s, 0, 'italia', 'mercato');
-    s.players[0]!.jarl = 'sahara'; // il Jarl nel deserto non raccoglie nulla
+    for (const p of s.players) p.jarl = 'sahara'; // i Jarl nel deserto non raccolgono nulla
     const { state } = rollUntil(s, num);
     expect(state.players[0]!.hand.pietra).toBe(2);
     expect(state.players[0]!.hand.argento).toBe(1);
@@ -65,16 +65,19 @@ describe('produzione', () => {
     expect(state.players[1]!.hand.pietra).toBe(3);
   });
 
-  it('a ogni tiro (non col 7) il Jarl raccoglie 1 materiale dove si trova, anche senza case', () => {
-    const s = blank(2, 'balcani'); // pietra
+  it('il Jarl raccoglie 1 materiale solo quando esce il numero del suo territorio (anche senza case)', () => {
+    const s = blank(3, 'balcani'); // pietra; tutti i Jarl lì
     s.phase = { type: 'tiro' };
+    s.players[2]!.jarl = 'sahara'; // nel deserto niente
     for (const t of Object.values(s.territories)) if (t.number === 4) t.number = 11;
+    s.territories['balcani']!.number = 4;
     const { state, events } = rollUntilWithEvents(s, 4);
-    expect(state.players[0]!.hand.pietra).toBe(1);
-    expect(state.players[1]!.hand.pietra).toBe(0); // solo chi tira
+    expect(state.players[0]!.hand.pietra).toBe(1); // chi tira
+    expect(state.players[1]!.hand.pietra).toBe(1); // anche gli altri Jarl lì
+    expect(totalResources(state.players[2]!.hand)).toBe(0);
     expect(JSON.stringify(events)).toContain('balcani');
-    const seven = rollUntil(s, 7).state;
-    expect(totalResources(seven.players[0]!.hand)).toBe(0); // col 7 niente raccolta
+    const other = rollUntil(s, 9).state; // un altro numero: niente
+    expect(totalResources(other.players[0]!.hand)).toBe(0);
   });
 });
 

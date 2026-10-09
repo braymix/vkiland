@@ -133,7 +133,7 @@ const itW = {
   // regole rapide
   regole: 'Regole in breve',
   regoleTesto:
-    'Muovi il Jarl (4 punti: 1 sulle tue strade, 2 fuori): a ogni tiro raccoglie 1 materiale dove si trova. Fondi villaggi dove arriva (max 2 clan per territorio). Entrare in terra altrui costa un pedaggio. Mare solo da un tuo Porto. Vince chi arriva ai PG per primo.',
+    'Muovi il Jarl (4 punti: 1 sulle tue strade, 2 fuori): quando esce il numero del territorio dove si trova raccoglie 1 materiale. Fondi villaggi dove arriva (max 2 clan per territorio). Entrare in terra altrui costa un pedaggio. Mare solo da un tuo Porto. Vince chi arriva ai PG per primo.',
   grandeVia: 'La Grande Via',
   grandeViaggiatore: 'Il Grande Viaggiatore',
   edifici: 'Edifici',
@@ -184,7 +184,8 @@ const itW = {
   avanti: 'Avanti',
   fatto: 'Fatto',
   tut1T: 'Il Jarl',
-  tut1B: 'Ogni clan ha un Jarl: la tua pedina sulla mappa. Fondi un villaggio solo nel territorio in cui si trova (ci stanno 2 clan diversi). A ogni tuo tiro il Jarl raccoglie 1 materiale di quel territorio.',
+  tut1B:
+    'Ogni clan ha un Jarl: la tua pedina sulla mappa. Fondi un villaggio solo nel territorio in cui si trova (ci stanno 2 clan diversi). Quando esce il numero di quel territorio, il Jarl raccoglie 1 materiale anche senza case.',
   tut2T: 'Movimento',
   tut2B: 'Hai 4 punti movimento a turno: 1 per ogni passo sulle tue strade, 2 fuori strada. Il mare si attraversa solo da un tuo Porto.',
   tut3T: 'Pedaggio',
@@ -204,7 +205,7 @@ const itW = {
   scalaCitta: 'Città',
   territori: 'territori',
   postoLibero: 'C’è posto per un altro clan',
-  raccolta: 'Il Jarl raccoglie dove si trova',
+  raccolta: 'Il Jarl raccoglie quando esce il numero del suo territorio',
 };
 
 export type WorldStrings = typeof itW;
@@ -326,7 +327,7 @@ const enW: WorldStrings = {
   pronto: "I'm {nome}",
   regole: 'Quick rules',
   regoleTesto:
-    "Move the Jarl (4 points: 1 on your roads, 2 elsewhere): on every roll it gathers 1 material where it stands. Found villages where it arrives (max 2 clans per territory). Entering foreign land costs a toll. Sea only from your own Harbor. First to reach the VP wins.",
+    'Move the Jarl (4 points: 1 on your roads, 2 elsewhere): when its territory\'s number is rolled it gathers 1 material. Found villages where it arrives (max 2 clans per territory). Entering foreign land costs a toll. Sea only from your own Harbor. First to reach the VP wins.',
   grandeVia: 'The Great Road',
   grandeViaggiatore: 'The Great Traveler',
   edifici: 'Buildings',
@@ -374,7 +375,8 @@ const enW: WorldStrings = {
   avanti: 'Next',
   fatto: 'Done',
   tut1T: 'The Jarl',
-  tut1B: 'Every clan has a Jarl: your pawn on the map. You can found a village only in the territory where it stands (2 different clans fit). On each of your rolls the Jarl gathers 1 material from that territory.',
+  tut1B:
+    'Every clan has a Jarl: your pawn on the map. You can found a village only in the territory where it stands (2 different clans fit). When that territory\'s number is rolled, the Jarl gathers 1 material even without houses.',
   tut2T: 'Movement',
   tut2B: 'You get 4 movement points per turn: 1 per step on your own roads, 2 off-road. The sea can only be crossed from your own Harbor.',
   tut3T: 'Toll',
@@ -393,7 +395,7 @@ const enW: WorldStrings = {
   scalaCitta: 'City',
   territori: 'territories',
   postoLibero: 'Room for one more clan',
-  raccolta: 'The Jarl gathers where it stands',
+  raccolta: "The Jarl gathers when its territory's number is rolled",
 };
 
 const DICTS: Record<string, Partial<WorldStrings>> = { it: itW, en: enW, ...worldLangs };

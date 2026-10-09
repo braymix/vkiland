@@ -7,10 +7,9 @@
 **VIKINGS AROUND THE WORLD — PARTITE PIÙ CORTE** ✅ — due regole nuove: (1) **fino a 2
 clan diversi per territorio** (producono entrambi; chi ha casa lì non paga il pedaggio,
 gli altri pagano al primo arrivato; Porto/Mercato per insediamento) e (2) **il Jarl
-raccoglie 1 materiale** del territorio dove si trova a ogni tiro (non col 7). Modello
+raccoglie 1 materiale** quando esce il numero del territorio dove si trova (tutti i Jarl). Modello
 dati: `TerritoryState.settlements[]` al posto di owner/building/porto/mercato. Misura
-con 40 partite di bot: da ~21–22 a **~14 giri** (la raccolta del Jarl vale da sola
-~6 giri). Renderer con righe del secondo clan e due casette, sheet con entrambi gli
+con 40 partite di bot: da ~21–22 a **~17 giri**. Pietra disegnata rossa (mattone 🧱). Renderer con righe del secondo clan e due casette, sheet con entrambi gli
 insediamenti, regole/tutorial aggiornati nelle 8 lingue, nuovi test motore.
 
 **VIKINGS AROUND THE WORLD — FASE 1 (ENGINE) ✅** — nuovo package `packages/engine-world`

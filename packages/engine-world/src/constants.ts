@@ -29,7 +29,7 @@ export const BUILDING_YIELD: Readonly<Record<BuildingKind, number>> = { villaggi
 
 /** Insediamenti (di clan diversi) per territorio. */
 export const MAX_SETTLEMENTS = 2;
-/** Materiali raccolti dal Jarl a ogni tiro (non col 7) nel territorio dove si trova. */
+/** Materiali raccolti dal Jarl quando esce il numero del territorio in cui si trova. */
 export const JARL_GATHER = 1;
 
 export const HAND_LIMIT = 7;

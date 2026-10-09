@@ -33,7 +33,7 @@ const LAT_TOP = 85;
 
 export const KIND_COLOR: Record<TerritoryKind, string> = {
   legname: '#3f7d3a',
-  pietra: '#8f8f9a',
+  pietra: '#b4533a', // mattone rosso (con il legname fa la strada)
   lana: '#bde08f',
   orzo: '#e3c340',
   ferro: '#5d5d88',
@@ -41,7 +41,7 @@ export const KIND_COLOR: Record<TerritoryKind, string> = {
 };
 export const KIND_EMOJI: Record<TerritoryKind, string> = {
   legname: '🌲',
-  pietra: '⛰️',
+  pietra: '🧱',
   lana: '🐑',
   orzo: '🌾',
   ferro: '⚒️',

@@ -5,7 +5,7 @@ import { colorOf } from '../../render/world/worldRenderer';
 
 export const RES_EMOJI: Record<WorldResource, string> = {
   legname: '🪵',
-  pietra: '🪨',
+  pietra: '🧱',
   lana: '🐑',
   orzo: '🌾',
   ferro: '⛏️',

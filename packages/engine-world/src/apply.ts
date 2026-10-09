@@ -52,12 +52,14 @@ function produce(state: WorldGameState, total: number, events: WorldEvent[]): vo
       }
     }
   }
-  // Il Jarl di chi ha tirato raccoglie dal territorio in cui si trova.
-  const roller = state.players[state.currentPlayer]!;
-  const here = kindOf.get(roller.jarl);
-  if (here && here !== 'deserto' && JARL_GATHER > 0) {
-    roller.hand[here] += JARL_GATHER;
-    gains.push({ player: roller.id, territory: roller.jarl, resource: here, amount: JARL_GATHER });
+  // Ogni Jarl che si trova nel territorio col numero uscito raccoglie 1 materiale
+  // (anche senza case lì): come un piccolo villaggio che si sposta.
+  for (const p of state.players) {
+    const ter = state.territories[p.jarl];
+    const here = kindOf.get(p.jarl);
+    if (!ter || ter.number !== total || !here || here === 'deserto' || JARL_GATHER <= 0) continue;
+    p.hand[here] += JARL_GATHER;
+    gains.push({ player: p.id, territory: p.jarl, resource: here, amount: JARL_GATHER });
   }
   if (gains.length > 0) events.push({ type: 'produzione', gains });
 }
