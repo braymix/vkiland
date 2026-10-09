@@ -4,6 +4,13 @@
 
 ## Stato attuale
 
+**VIKINGS AROUND THE WORLD — *le regole sono cambiate!!!*** ⬜ — nuova modalità
+(tutto il resto diventa la «Modalità Classica», invariata). Mappa a territori
+reali (prima mappa «Il Mondo», 32 territori), Jarl che si muove (4 punti:
+1 sulle proprie strade, 2 fuori), pedaggio, 6 materiali con l'argento, Editor
+mappe per l'admin, poi «Gioca nella tua città». Regolamento, specifica tecnica e
+piano a fasi in [`docs/vikings-around-the-world.md`](./docs/vikings-around-the-world.md).
+
 **MODALITÀ NUMERI COPERTI** ✅ — speculare a Carte Coperte, combinabile con
 TUTTE le altre (Carte Coperte inclusa: con entrambe la casella è del tutto
 cieca). Durante il SETUP restano nascosti i NUMERI (segnalini) delle caselle: si
