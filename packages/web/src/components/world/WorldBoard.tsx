@@ -6,6 +6,8 @@ import {
   WORLD_W,
   WorldRenderer,
   fitCamera,
+  mapBounds,
+  type Bounds,
   type Camera,
 } from '../../render/world/worldRenderer';
 
@@ -37,6 +39,17 @@ export const WorldBoard = forwardRef<WorldBoardHandle, Props>(function WorldBoar
   propsRef.current = { view, selected, reachable, highlights, dimmed };
   const rafRef = useRef(0);
   const initialised = useRef(false);
+  const boundsRef = useRef<Bounds | null>(null);
+  const boundsMap = useRef<unknown>(null);
+  /** Riquadro della mappa attuale (ricalcolato solo se cambia la mappa). */
+  const bounds = useCallback((): Bounds => {
+    const m = propsRef.current.view.map;
+    if (boundsMap.current !== m || !boundsRef.current) {
+      boundsRef.current = mapBounds(m);
+      boundsMap.current = m;
+    }
+    return boundsRef.current;
+  }, []);
 
   const draw = useCallback(() => {
     rafRef.current = 0;
@@ -58,18 +71,18 @@ export const WorldBoard = forwardRef<WorldBoardHandle, Props>(function WorldBoar
     if (!rafRef.current) rafRef.current = requestAnimationFrame(draw);
   }, [draw]);
 
-  const clamp = (c: Camera): Camera => {
-    const fit = fitCamera(sizeRef.current.w, sizeRef.current.h).scale;
+  const clamp = useCallback((c: Camera): Camera => {
+    const fit = fitCamera(sizeRef.current.w, sizeRef.current.h, bounds()).scale;
     return {
       scale: Math.max(fit * 0.9, Math.min(12, c.scale)),
       cx: Math.max(0, Math.min(WORLD_W, c.cx)),
       cy: Math.max(0, Math.min(WORLD_H, c.cy)),
     };
-  };
+  }, [bounds]);
 
   useImperativeHandle(ref, () => ({
     fit() {
-      camRef.current = fitCamera(sizeRef.current.w, sizeRef.current.h);
+      camRef.current = fitCamera(sizeRef.current.w, sizeRef.current.h, bounds());
       schedule();
     },
     centerOn(id, zoom = 3.2) {
@@ -107,7 +120,7 @@ export const WorldBoard = forwardRef<WorldBoardHandle, Props>(function WorldBoar
         const me = v.viewer;
         const jarl = me !== null && v.phase.type !== 'setup' ? v.players[me]?.jarl : null;
         const c = jarl ? rendererRef.current?.center(v.map, jarl) : null;
-        const fit = fitCamera(w, h);
+        const fit = fitCamera(w, h, bounds());
         camRef.current = c ? clamp({ scale: Math.max(fit.scale, 3), cx: c[0], cy: c[1] }) : fit;
       } else camRef.current = clamp(camRef.current);
       schedule();
@@ -119,7 +132,7 @@ export const WorldBoard = forwardRef<WorldBoardHandle, Props>(function WorldBoar
       ro.disconnect();
       cancelAnimationFrame(rafRef.current);
     };
-  }, [schedule]);
+  }, [schedule, clamp, bounds]);
 
   useEffect(() => {
     schedule();

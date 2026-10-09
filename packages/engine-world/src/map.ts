@@ -4,6 +4,9 @@
  * lavora solo sul grafo (mondo, nazione o città sono la stessa cosa).
  */
 import mondoJson from './maps/mondo.json';
+import europaJson from './maps/europa.json';
+import italiaJson from './maps/italia.json';
+import milanoJson from './maps/milano.json';
 import { MIN_PRODUCTIVE_TERRITORIES, PRODUCED_RESOURCES } from './constants';
 import { shuffle, type RngState } from './rng';
 import type {
@@ -14,9 +17,19 @@ import type {
   TerritoryDef,
 } from './types';
 
+/**
+ * Registro delle mappe, dalla più grande alla più piccola (la scelta in gioco
+ * è «a zoom»: Mondo → Continente → Nazione → Città). Altre città si generano
+ * con `scripts/build-city-map.mjs`.
+ */
 export const MAPS: Readonly<Record<string, MapDefinition>> = {
   mondo: mondoJson as unknown as MapDefinition,
+  europa: europaJson as unknown as MapDefinition,
+  italia: italiaJson as unknown as MapDefinition,
+  milano: milanoJson as unknown as MapDefinition,
 };
+
+export const SCALE_ORDER: readonly MapDefinition['scale'][] = ['mondo', 'continente', 'nazione', 'regione', 'citta'];
 
 export function getMapDefinition(id: string): MapDefinition | null {
   return MAPS[id] ?? null;
@@ -132,6 +145,7 @@ export function freezeMap(def: MapDefinition): FrozenMap {
     projection: def.projection,
     territories: def.territories.map((t) => ({ ...t })),
     links: def.links.map((l) => ({ ...l, id: linkId(l.a, l.b) })),
+    ...(def.credits ? { credits: def.credits } : {}),
   };
 }
 

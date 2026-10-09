@@ -6,6 +6,7 @@ import { connectSocket, type OnlineSession, type ServerSocket } from '../../onli
 import { RemoteWorldController } from '../../game/world/RemoteWorldController';
 import { fmt, wt } from '../../i18n/world';
 import { WorldGameScreen } from './WorldGameScreen';
+import { MapSelect } from '../../components/world/MapSelect';
 
 interface Props {
   session: OnlineSession;
@@ -233,6 +234,8 @@ export function WorldOnlineScreen({ session, onBack, onInvalidSession }: Props) 
 function ConfigForm({ config, onChange }: { config: WorldLobbyConfig; onChange: (p: Partial<WorldLobbyConfig>) => void }) {
   return (
     <>
+      <div className="w-lab">{wt.mappa}</div>
+      <MapSelect value={config.mapId} onChange={(id) => onChange({ mapId: id })} />
       <div className="w-lab">
         {wt.puntiVittoria}: {config.targetPoints}
       </div>

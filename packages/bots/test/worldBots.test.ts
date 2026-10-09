@@ -13,10 +13,17 @@ import { createWorldBot } from '../src';
 
 const COLORS = ['#c33', '#36c', '#3a3', '#cc3', '#a3a', '#3cc'];
 
-function simulate(seed: string, levels: BotLevel[], target = 10, maxSteps = 40000): { state: WorldGameState; steps: number } {
+function simulate(
+  seed: string,
+  levels: BotLevel[],
+  target = 10,
+  maxSteps = 40000,
+  mapId = 'mondo'
+): { state: WorldGameState; steps: number } {
   let s = createGame(
     defaultConfig({
       seed,
+      mapId,
       targetPoints: target,
       players: levels.map((l, i) => ({ name: `B${i}`, color: COLORS[i]!, bot: l })),
     })
@@ -62,6 +69,18 @@ describe('bot del mondo', () => {
       const { state, steps } = simulate(seed, levels);
       expect(state.phase.type).toBe('fine');
       expect(steps).toBeLessThan(40000);
+    });
+  }
+
+  for (const [mapId, levels] of [
+    ['europa', ['normale', 'normale', 'difficile']],
+    ['italia', ['normale', 'normale']],
+    ['milano', ['normale', 'normale', 'normale', 'facile']],
+  ] as [string, BotLevel[]][]) {
+    it(`mappa «${mapId}»: i bot giocano senza mosse illegali e la partita finisce`, () => {
+      const { state, steps } = simulate(`map-${mapId}`, levels, 8, 60000, mapId);
+      expect(state.phase.type).toBe('fine');
+      expect(steps).toBeLessThan(60000);
     });
   }
 

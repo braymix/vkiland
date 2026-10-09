@@ -1,6 +1,7 @@
 /** Impostazione di una partita locale a «Vikings Around the World» (bot e hot-seat). */
 import { useState } from 'react';
 import { MAPS, MAX_TARGET_POINTS, MIN_TARGET_POINTS, DEFAULT_TARGET_POINTS, type BotLevel } from '@vikiland/engine-world';
+import { MapSelect } from '../../components/world/MapSelect';
 import { wt } from '../../i18n/world';
 import { PLAYER_COLORS } from '../../render/world/worldRenderer';
 import type { WorldSetup, WorldSeatSetup } from '../../game/world/LocalWorldController';
@@ -118,13 +119,15 @@ export function NewWorldGameScreen({ onBack, onStart, onOnline, onTutorial, sess
         )}
 
         <div className="w-lab">{wt.mappa}</div>
-        <select className="w-input" value={mapId} onChange={(e) => setMapId(e.target.value)}>
-          {Object.values(MAPS).map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.id === 'mondo' ? wt.mappaMondo : m.name}
-            </option>
-          ))}
-        </select>
+        <MapSelect
+          value={mapId}
+          onChange={(id) => {
+            setMapId(id);
+            const max = MAPS[id]!.maxPlayers;
+            setSeats((x) => x.slice(0, max));
+          }}
+        />
+        {map.credits && <div className="w-dim">{map.credits}</div>}
 
         <div className="w-lab">
           {wt.puntiVittoria}: {target}

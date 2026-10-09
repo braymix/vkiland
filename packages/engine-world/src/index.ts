@@ -8,6 +8,7 @@ export { getLegalActions, getDefaultAction, defaultDiscard, whoMustAct } from '.
 export { getPlayerView, filterEventsForPlayer, type Viewer } from './view';
 export {
   MAPS,
+  SCALE_ORDER,
   getMapDefinition,
   validateMap,
   applyMapOverride,

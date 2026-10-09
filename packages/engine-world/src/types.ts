@@ -33,13 +33,15 @@ export interface LinkDef {
 export interface MapDefinition {
   id: string;
   name: string;
-  scale: 'mondo' | 'nazione' | 'regione' | 'citta';
+  scale: 'mondo' | 'continente' | 'nazione' | 'regione' | 'citta';
   projection: 'equirettangolare' | 'mercatore';
   territories: TerritoryDef[];
   links: LinkDef[];
   numberPool: number[];
   minPlayers: number;
   maxPlayers: number;
+  /** Attribuzione dei dati (es. OpenStreetMap, ISTAT). */
+  credits?: string;
 }
 
 /** Override dell'admin (rinomina / togli territori). */
@@ -62,6 +64,7 @@ export interface FrozenMap {
   projection: MapDefinition['projection'];
   territories: TerritoryDef[];
   links: FrozenLink[];
+  credits?: string;
 }
 
 // ------------------------------------------------------------- giocatori

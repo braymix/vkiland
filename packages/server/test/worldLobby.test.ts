@@ -64,6 +64,18 @@ describe('lobby del mondo', () => {
     expect(isErr(mgr.start('a'))).toBe(true);
   });
 
+  it('mappe d\'area: la lobby usa i posti della mappa scelta e parte con quella mappa', () => {
+    const { mgr, last } = setup();
+    const c = mgr.create(A, { mapId: 'italia' });
+    if (isErr(c)) throw new Error('create');
+    expect(c.config.mapId).toBe('italia');
+    expect(c.maxPlayers).toBe(4); // 19 territori produttivi → 4 giocatori
+    for (let i = 0; i < 3; i++) expect(mgr.addBot('a', 'facile')).toBe(true);
+    expect(isErr(mgr.addBot('a', 'facile'))).toBe(true);
+    expect(mgr.start('a')).toBe(true);
+    expect(last('a')!.view.map.id).toBe('italia');
+  });
+
   it('config: sanitizeWorldConfig limita punti, timer e mappa', () => {
     expect(sanitizeWorldConfig({ targetPoints: 1, turnTimerSec: 9999, mapId: 'x' })).toMatchObject({
       targetPoints: 8,

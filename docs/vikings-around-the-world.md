@@ -4,7 +4,7 @@
 > **nuova modalità** di Viking-Island. Tutto ciò che esiste oggi diventa la
 > **Modalità Classica** e NON va toccato nelle regole.
 >
-> Stato: ⬜ da fare. Aggiornare `PROGRESS.md` a ogni fase completata.
+> Stato: ✅ Fasi 1–7 implementate (vedi `PROGRESS.md` e §11). Restano: missioni dedicate, persistenza delle stanze online, chat/spettatori nella nuova modalità.
 
 ---
 
@@ -561,6 +561,7 @@ motivazione)*
 - Posti online: colore fissato dal numero del posto; nessuna chat, spettatori o scelta eroi in questa modalità (v1).
 - Scambi fra giocatori online: il proponente conferma con chi ha accettato (banner nella schermata); in locale la risposta di un bot è immediata, fra umani sullo stesso dispositivo l'accordo è «a voce».
 - Editor mappe: limitato alla mappa `mondo`; i nomi passano dal filtro delle parole censurate del server.
+- **Fase 7 — mappe «a zoom»**: oltre a Il Mondo (32) ci sono **Europa** (39 paesi, Natural Earth), **Italia** (20 regioni, ISTAT/openpolis CC BY 3.0 IT) e **Milano** (24 quartieri reali, © OpenStreetMap, ODbL). Un generatore comune (`scripts/lib/areaMap.mjs`) fonde le aree piccole, proietta con cos(lat) nel riquadro del mondo, ricava i confini condivisi come collegamenti di terra, aggancia le isole con rotte di mare, bilancia i materiali e assegna i «continenti» (macro-aree o k-medie con nomi di direzione). `scripts/build-area-maps.mjs` rifà Italia/Europa; **`scripts/build-city-map.mjs "<città>" <id> [distretti]`** genera la mappa di QUALSIASI città: confine da Nominatim, distretti = celle di Voronoi di un k-medie sull'interno, nomi dai quartieri OSM (reverse geocoding, 1 richiesta ogni ~2 s). Il JSON si committa e si registra in `maps/` + `MAPS` (nessun download a runtime). Overpass non era raggiungibile dall'ambiente di sviluppo, perciò i distretti di Milano sono sintetici (Voronoi) e non i NIL ufficiali; con Overpass si possono usare i confini veri passando le aree a `buildAreaMap`.
 - Vittoria controllata solo per chi gioca il turno, dopo ogni costruzione.
 - Pezzi (villaggi/città/Sale/porti/mercati/strade) contati direttamente dal tabellone: una città libera il «pezzo» villaggio.
 - Prima mappa: «Il Mondo», 32 territori (§7).

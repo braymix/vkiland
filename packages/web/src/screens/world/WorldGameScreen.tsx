@@ -157,12 +157,14 @@ export function WorldGameScreen({ makeController, onExit, onRematch }: Props) {
           );
         }
       }
+      const village = view.players[me]?.jarl; // nel setup il Jarl sta sull'ultimo villaggio
       for (const a of legalOf('piazzaStradaIniziale')) {
         const l = idx.link.get(a.link)!;
         if (l.a === selected || l.b === selected) {
+          const other = view.map.territories.find((t) => t.id === (l.a === village ? l.b : l.a))!;
           actions.push(
             <button key={a.link} className="pxbtn" onClick={() => send(a) && setSelected(null)}>
-              🛤️ {fmt(wt.stradaVerso, { nome: selDef.name })}
+              🛤️ {fmt(wt.stradaVerso, { nome: other.name })}
             </button>
           );
         }
@@ -380,7 +382,7 @@ export function WorldGameScreen({ makeController, onExit, onRematch }: Props) {
         </div>
       </div>
 
-      {dlg === 'costi' && <CostsDialog onClose={() => setDlg(null)} />}
+      {dlg === 'costi' && <CostsDialog credits={view.map.credits} onClose={() => setDlg(null)} />}
       {dlg === 'scambi' && (
         <TradeDialog
           view={view}

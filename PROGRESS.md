@@ -54,7 +54,20 @@ verificano chiavi valide e segnaposto coerenti. Missioni dedicate: non fatte.
 (Nota: `i18n/ru.ts` della Classica è salvato con codifica doppia/«mojibake» — problema
 preesistente, non toccato.)
 
-**VIKINGS AROUND THE WORLD — *le regole sono cambiate!!!*** 🔄 — nuova modalità
+**VIKINGS AROUND THE WORLD — FASE 7 («GIOCA NELLA TUA CITTÀ») ✅** — mappe «a zoom»:
+🌍 Mondo (32) → 🗺️ Europa (39 paesi) → 🏳️ Italia (20 regioni) → 🏙️ Milano (24 quartieri
+reali). Generatore comune `scripts/lib/areaMap.mjs` (fusione delle aree piccole,
+proiezione con cos(lat), bordi condivisi → strade, isole agganciate con rotte di mare,
+materiali bilanciati, «continenti» da macro-aree o k-medie) e
+`scripts/build-city-map.mjs "<città>" <id> [distretti]` che genera la mappa di QUALSIASI
+città da OpenStreetMap (confine Nominatim + celle di Voronoi + nomi dei quartieri). Selettore
+mappa per scala nella nuova partita, nella lobby online e nell'editor admin; camera che
+si adatta al riquadro della mappa; nomi dei territori solo se ci stanno. Test: tutte le
+mappe valide/giocabili e bot che finiscono partite su Europa, Italia e Milano.
+Attribuzioni (OSM ODbL, ISTAT/openpolis CC BY 3.0 IT, Natural Earth PD) nel campo
+`credits` mostrato in gioco.
+
+**VIKINGS AROUND THE WORLD — *le regole sono cambiate!!!*** ✅ (tutte le fasi) — nuova modalità
 (tutto il resto diventa la «Modalità Classica», invariata). Mappa a territori
 reali (prima mappa «Il Mondo», 32 territori), Jarl che si muove (4 punti:
 1 sulle proprie strade, 2 fuori), pedaggio, 6 materiali con l'argento, Editor

@@ -59,15 +59,45 @@ export function screenToWorld(c: Camera, w: number, h: number, sx: number, sy: n
   return [(sx - w / 2) / c.scale + c.cx, (sy - h / 2) / c.scale + c.cy];
 }
 
-export function fitCamera(w: number, h: number): Camera {
-  const scale = Math.min(w / WORLD_W, h / WORLD_H) * 0.98;
-  return { scale, cx: WORLD_W / 2, cy: WORLD_H / 2 };
+export interface Bounds {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+}
+
+const FULL_WORLD: Bounds = { minX: 0, minY: 0, maxX: WORLD_W, maxY: WORLD_H };
+
+/** Riquadro (in coordinate-mondo) occupato dalla mappa: serve per «adatta allo schermo». */
+export function mapBounds(map: FrozenMap): Bounds {
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const t of map.territories) {
+    for (const ring of t.polygons) {
+      for (const [lon, lat] of ring) {
+        const [x, y] = toWorld(lon, lat);
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+  return Number.isFinite(minX) ? { minX, minY, maxX, maxY } : FULL_WORLD;
+}
+
+export function fitCamera(w: number, h: number, b: Bounds = FULL_WORLD): Camera {
+  const bw = Math.max(1, b.maxX - b.minX);
+  const bh = Math.max(1, b.maxY - b.minY);
+  const scale = Math.min(w / bw, h / bh) * 0.94;
+  return { scale, cx: (b.minX + b.maxX) / 2, cy: (b.minY + b.maxY) / 2 };
 }
 
 interface Cache {
   map: FrozenMap;
   paths: Map<string, Path2D>;
   centers: Map<string, [number, number]>;
+  /** Larghezza della forma (unità-mondo): decide se il nome ci sta. */
+  widths: Map<string, number>;
 }
 
 export class WorldRenderer {
@@ -80,6 +110,7 @@ export class WorldRenderer {
     if (this.cache && this.cache.map === map) return this.cache;
     const paths = new Map<string, Path2D>();
     const centers = new Map<string, [number, number]>();
+    const widths = new Map<string, number>();
     for (const t of map.territories) {
       const p = new Path2D();
       for (const ring of t.polygons) {
@@ -92,8 +123,12 @@ export class WorldRenderer {
       }
       paths.set(t.id, p);
       centers.set(t.id, toWorld(t.center[0], t.center[1]));
+      let lo = Infinity;
+      let hi = -Infinity;
+      for (const ring of t.polygons) for (const [lon] of ring) { lo = Math.min(lo, lon); hi = Math.max(hi, lon); }
+      widths.set(t.id, hi - lo);
     }
-    this.cache = { map, paths, centers };
+    this.cache = { map, paths, centers, widths };
     return this.cache;
   }
 
@@ -241,7 +276,8 @@ export class WorldRenderer {
       const [sx, sy] = worldToScreen(cam, w, h, wx, wy);
       if (sx < -40 || sy < -40 || sx > w + 40 || sy > h + 40) continue;
       const st = view.territories[t.id]!;
-      const small = cam.scale < 1.6;
+      const roomy = view.map.territories.length <= 45; // mappe d'area: territori grandi
+      const small = cam.scale < (roomy ? 0.9 : 1.6);
       // materiale + numero
       if (!small) {
         ctx.font = '13px sans-serif';
@@ -279,14 +315,17 @@ export class WorldRenderer {
         ctx.font = '9px sans-serif';
         ctx.fillText(st.porto ? '⚓' : '🪙', sx + 9, sy - 6);
       }
-      // nome
-      if (cam.scale >= 4.6) {
-        ctx.font = '9px "Press Start 2P", monospace';
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = 'rgba(10,16,24,0.85)';
-        ctx.strokeText(t.name, sx, sy + 22);
-        ctx.fillStyle = '#f0e9d6';
-        ctx.fillText(t.name, sx, sy + 22);
+      // nome: solo se ci sta nella forma (o se il territorio è selezionato)
+      if (cam.scale >= (roomy ? 1.4 : 4.6)) {
+        ctx.font = '7px "Press Start 2P", monospace';
+        const fits = ctx.measureText(t.name).width <= (cache.widths.get(t.id) ?? 0) * cam.scale * 1.2;
+        if (fits || input.selected === t.id) {
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = 'rgba(10,16,24,0.85)';
+          ctx.strokeText(t.name, sx, sy + 22);
+          ctx.fillStyle = '#f0e9d6';
+          ctx.fillText(t.name, sx, sy + 22);
+        }
       }
       // costo di movimento
       const reach = input.reachable.get(t.id);

@@ -9,6 +9,7 @@ import {
   type MapOverride,
 } from '@vikiland/engine-world';
 import { WorldBoard } from '../../components/world/WorldBoard';
+import { MapSelect } from '../../components/world/MapSelect';
 import { wt } from '../../i18n/world';
 import type { OnlineSession } from '../../online/connection';
 import { apiGetMapOverride, apiSaveMapOverride } from '../../online/worldApi';
@@ -18,12 +19,12 @@ interface Props {
   onBack: () => void;
 }
 
-const MAP_ID = 'mondo';
 const EMPTY = new Set<string>();
 const NO_REACH = new Map<string, { cost: number; toll: number }>();
 
 export function AdminMapsScreen({ session, onBack }: Props) {
-  const base = MAPS[MAP_ID]!;
+  const [mapId, setMapId] = useState('mondo');
+  const base = MAPS[mapId]!;
   const [names, setNames] = useState<Record<string, string>>({});
   const [removed, setRemoved] = useState<string[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -31,25 +32,28 @@ export function AdminMapsScreen({ session, onBack }: Props) {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    void apiGetMapOverride(session.serverUrl, MAP_ID, 6000).then((o) => {
+    setNames({});
+    setRemoved([]);
+    setSelected(null);
+    void apiGetMapOverride(session.serverUrl, mapId, 6000).then((o) => {
       if (o) {
         setNames(o.names);
         setRemoved(o.removed);
       }
     });
-  }, [session.serverUrl]);
+  }, [session.serverUrl, mapId]);
 
   // Vista della mappa intera (senza override), per poter anche ripristinare.
   const view = useMemo(
     () =>
       getPlayerView(
-        createGame(defaultConfig({ seed: 'editor', players: [{ name: 'a', color: '#d9534f' }, { name: 'b', color: '#4a90d9' }] })),
+        createGame(defaultConfig({ seed: 'editor', mapId, players: [{ name: 'a', color: '#d9534f' }, { name: 'b', color: '#4a90d9' }] })),
         null
       ),
-    []
+    [mapId]
   );
   const dimmed = useMemo(() => new Set(removed), [removed]);
-  const draft: MapOverride = { mapId: MAP_ID, names, removed };
+  const draft: MapOverride = { mapId, names, removed };
   const check = applyMapOverride(base, draft);
   const sel = selected ? base.territories.find((t) => t.id === selected) : null;
   const isRemoved = !!sel && removed.includes(sel.id);
@@ -57,7 +61,7 @@ export function AdminMapsScreen({ session, onBack }: Props) {
   const save = async () => {
     setBusy(true);
     try {
-      await apiSaveMapOverride(session, MAP_ID, { names, removed });
+      await apiSaveMapOverride(session, mapId, { names, removed });
       setMsg({ text: wt.salvato, ok: true });
     } catch (e) {
       setMsg({ text: e instanceof Error ? e.message : String(e), ok: false });
@@ -68,7 +72,7 @@ export function AdminMapsScreen({ session, onBack }: Props) {
   const reset = async () => {
     setBusy(true);
     try {
-      await apiSaveMapOverride(session, MAP_ID, { reset: true });
+      await apiSaveMapOverride(session, mapId, { reset: true });
       setNames({});
       setRemoved([]);
       setMsg({ text: wt.salvato, ok: true });
@@ -83,6 +87,7 @@ export function AdminMapsScreen({ session, onBack }: Props) {
     <div className="w-screen">
       <div className="w-top">
         <div className="w-lab">🗺️ {wt.editorMappe}</div>
+        <MapSelect value={mapId} onChange={setMapId} />
         <div className="w-dim">{wt.editorInfo}</div>
       </div>
       <div className="w-boardwrap">

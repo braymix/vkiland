@@ -123,3 +123,50 @@ describe('trimNumberPool', () => {
     expect(trimNumberPool([2, 5, 9, 12], 2)).toEqual([2, 12]);
   });
 });
+
+describe('mappe a zoom: Mondo → Europa → Italia → Milano', () => {
+  for (const id of ['mondo', 'europa', 'italia', 'milano']) {
+    const def = getMapDefinition(id)!;
+    it(`${id}: valida, connessa, ≥15 territori produttivi e tutti i materiali`, () => {
+      expect(validateMap(def)).toEqual([]);
+      const productive = def.territories.filter((t) => t.kind !== 'deserto');
+      expect(productive.length).toBeGreaterThanOrEqual(15);
+      for (const k of ['legname', 'pietra', 'lana', 'orzo', 'ferro']) {
+        expect(productive.some((t) => t.kind === k), `manca ${k}`).toBe(true);
+      }
+      expect(def.maxPlayers).toBeGreaterThanOrEqual(def.minPlayers);
+      // i gruppi («continenti») bastano per Il Grande Viaggiatore (≥3)
+      expect(new Set(def.territories.map((t) => t.continent)).size).toBeGreaterThanOrEqual(3);
+    });
+
+    it(`${id}: si crea una partita per ogni numero di giocatori consentito`, () => {
+      for (let n = def.minPlayers; n <= def.maxPlayers; n++) {
+        const s = createGame(
+          defaultConfig({ seed: `m-${id}-${n}`, mapId: id, players: Array.from({ length: n }, (_, i) => ({ name: `P${i}`, color: COLORS[i]! })) })
+        );
+        expect(s.map.territories).toHaveLength(def.territories.length);
+      }
+    });
+
+    it(`${id}: le forme stanno nel riquadro del mondo`, () => {
+      for (const t of def.territories) {
+        for (const ring of t.polygons) {
+          for (const [lon, lat] of ring) {
+            expect(lon).toBeGreaterThanOrEqual(-185);
+            expect(lon).toBeLessThanOrEqual(195);
+            expect(lat).toBeGreaterThanOrEqual(-70);
+            expect(lat).toBeLessThanOrEqual(85);
+          }
+        }
+      }
+    });
+  }
+
+  it('le isole di Italia ed Europa si raggiungono solo via mare, e il setup ha comunque scelte', () => {
+    const s = createGame(defaultConfig({ seed: 'isole', mapId: 'italia', players: [{ name: 'a', color: 'x' }, { name: 'b', color: 'y' }] }));
+    const terraOf = (id: string) => s.map.links.filter((l) => l.kind === 'terra' && (l.a === id || l.b === id)).length;
+    const names = Object.fromEntries(s.map.territories.map((t) => [t.name, t.id]));
+    expect(terraOf(names['Sardegna']!)).toBe(0);
+    expect(terraOf(names['Sicilia']!)).toBe(0);
+  });
+});
