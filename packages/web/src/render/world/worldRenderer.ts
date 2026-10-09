@@ -23,6 +23,8 @@ export interface WorldDrawInput {
   reachable: Map<string, { cost: number; toll: number }>;
   /** Territori da evidenziare (scelte valide di setup/costruzione). */
   highlights: Set<string>;
+  /** Territori «tolti» (editor mappe): disegnati spenti. */
+  dimmed?: Set<string>;
 }
 
 export const WORLD_W = 370;
@@ -166,6 +168,12 @@ export class WorldRenderer {
       if (st.owner !== null) {
         ctx.globalAlpha = 0.38;
         ctx.fillStyle = colorOf(view, st.owner);
+        ctx.fill(path);
+        ctx.globalAlpha = 1;
+      }
+      if (input.dimmed?.has(t.id)) {
+        ctx.globalAlpha = 0.8;
+        ctx.fillStyle = '#1b2430';
         ctx.fill(path);
         ctx.globalAlpha = 1;
       }

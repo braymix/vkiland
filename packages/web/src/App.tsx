@@ -23,6 +23,8 @@ import { ShopScreen } from './screens/ShopScreen';
 import { TutorialScreen } from './screens/TutorialScreen';
 import { NewWorldGameScreen } from './screens/world/NewWorldGameScreen';
 import { WorldGameScreen } from './screens/world/WorldGameScreen';
+import { WorldOnlineScreen } from './screens/world/WorldOnlineScreen';
+import { AdminMapsScreen } from './screens/world/AdminMapsScreen';
 import { LocalWorldController, type WorldSetup } from './game/world/LocalWorldController';
 
 type Route =
@@ -30,6 +32,8 @@ type Route =
   | { screen: 'menu' }
   | { screen: 'newGame'; mode: 'locale' | 'online' }
   | { screen: 'newWorld' }
+  | { screen: 'worldOnline' }
+  | { screen: 'adminMaps' }
   | { screen: 'world'; setup: WorldSetup; gameKey: number }
   | { screen: 'game'; setup: GameSetup; gameKey: number; mission?: Mission }
   | { screen: 'account' }
@@ -186,6 +190,7 @@ export function App() {
           }}
           onLogout={onLogout}
           onBack={() => setRoute({ screen: 'menu' })}
+          onOpenMapEditor={() => setRoute({ screen: 'adminMaps' })}
         />
       );
     case 'demo':
@@ -204,9 +209,23 @@ export function App() {
         <NewWorldGameScreen
           defaultName={session?.username}
           onBack={() => setRoute({ screen: 'menu' })}
+          session={session}
+          onOnline={() => setRoute(hasAccount ? { screen: 'worldOnline' } : { screen: 'entry' })}
           onStart={(setup) => setRoute({ screen: 'world', setup, gameKey: Date.now() })}
         />
       );
+    case 'worldOnline':
+      if (!session) return null;
+      return (
+        <WorldOnlineScreen
+          session={session}
+          onBack={() => setRoute({ screen: 'menu' })}
+          onInvalidSession={onLogout}
+        />
+      );
+    case 'adminMaps':
+      if (!session) return null;
+      return <AdminMapsScreen session={session} onBack={() => setRoute({ screen: 'account' })} />;
     case 'world':
       return (
         <WorldGameScreen

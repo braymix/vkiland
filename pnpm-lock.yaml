@@ -99,6 +99,9 @@ importers:
       '@vikiland/engine':
         specifier: workspace:*
         version: link:../engine
+      '@vikiland/engine-world':
+        specifier: workspace:*
+        version: link:../engine-world
       fastify:
         specifier: ^5.0.0
         version: 5.8.5

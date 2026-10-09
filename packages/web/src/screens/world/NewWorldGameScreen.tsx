@@ -4,10 +4,16 @@ import { MAPS, MAX_TARGET_POINTS, MIN_TARGET_POINTS, DEFAULT_TARGET_POINTS, type
 import { wt } from '../../i18n/world';
 import { PLAYER_COLORS } from '../../render/world/worldRenderer';
 import type { WorldSetup, WorldSeatSetup } from '../../game/world/LocalWorldController';
+import { defaultServerUrl, type OnlineSession } from '../../online/connection';
+import { apiGetMapOverride } from '../../online/worldApi';
 
 interface Props {
   onBack: () => void;
   onStart: (setup: WorldSetup) => void;
+  /** Passa alla modalità online (richiede un account). */
+  onOnline: () => void;
+  /** Sessione online (se c'è): da lì si scaricano gli override admin della mappa. */
+  session?: OnlineSession | null;
   /** Nome dell'account (se c'è) per il primo posto. */
   defaultName?: string | undefined;
 }
@@ -21,7 +27,7 @@ interface Seat {
 const BOT_NAMES = ['Ragnar', 'Freydis', 'Leif', 'Astrid', 'Ivar', 'Sigrid'];
 const KINDS: SeatKind[] = ['umano', 'facile', 'normale', 'difficile', 'esperto'];
 
-export function NewWorldGameScreen({ onBack, onStart, defaultName }: Props) {
+export function NewWorldGameScreen({ onBack, onStart, onOnline, session, defaultName }: Props) {
   const [seats, setSeats] = useState<Seat[]>([
     { name: defaultName || 'Bjorn', kind: 'umano' },
     { name: BOT_NAMES[0]!, kind: 'normale' },
@@ -36,7 +42,9 @@ export function NewWorldGameScreen({ onBack, onStart, defaultName }: Props) {
   const map = MAPS[mapId]!;
   const canAdd = seats.length < map.maxPlayers;
 
-  const start = () => {
+  const start = async () => {
+    // Con un server raggiungibile si applicano rinomine/rimozioni dell'admin.
+    const override = await apiGetMapOverride(session?.serverUrl ?? defaultServerUrl(), mapId);
     const players: WorldSeatSetup[] = seats.map((s, i) => ({
       name: s.name.trim() || `P${i + 1}`,
       color: PLAYER_COLORS[i % PLAYER_COLORS.length]!,
@@ -48,6 +56,7 @@ export function NewWorldGameScreen({ onBack, onStart, defaultName }: Props) {
       targetPoints: target,
       materialiCasuali: random,
       mapId,
+      override,
     });
   };
 
@@ -58,6 +67,12 @@ export function NewWorldGameScreen({ onBack, onStart, defaultName }: Props) {
       <h1 className="menu-title" style={{ fontSize: 16 }}>
         🌍 {wt.nuovaMondo}
       </h1>
+      <div className="w-tabs">
+        <button className="pxbtn pxbtn--small">{wt.locale}</button>
+        <button className="pxbtn pxbtn--small pxbtn--ghost" onClick={onOnline}>
+          🌐 {wt.online}
+        </button>
+      </div>
       <div className="w-form">
         <div className="w-lab">{wt.giocatori}</div>
         {seats.map((s, i) => (
@@ -125,7 +140,7 @@ export function NewWorldGameScreen({ onBack, onStart, defaultName }: Props) {
         <button className="pxbtn pxbtn--ghost" onClick={onBack}>
           {wt.indietro}
         </button>
-        <button className="pxbtn" disabled={seats.length < 2} onClick={start}>
+        <button className="pxbtn" disabled={seats.length < 2} onClick={() => void start()}>
           ⛵ {wt.inizia}
         </button>
       </div>

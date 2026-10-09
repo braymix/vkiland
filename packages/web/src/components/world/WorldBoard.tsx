@@ -20,11 +20,12 @@ interface Props {
   selected: string | null;
   reachable: Map<string, { cost: number; toll: number }>;
   highlights: Set<string>;
+  dimmed?: Set<string>;
   onSelect: (id: string | null) => void;
 }
 
 export const WorldBoard = forwardRef<WorldBoardHandle, Props>(function WorldBoard(
-  { view, selected, reachable, highlights, onSelect },
+  { view, selected, reachable, highlights, dimmed, onSelect },
   ref
 ) {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -32,8 +33,8 @@ export const WorldBoard = forwardRef<WorldBoardHandle, Props>(function WorldBoar
   const rendererRef = useRef<WorldRenderer | null>(null);
   const camRef = useRef<Camera>({ scale: 2, cx: WORLD_W / 2, cy: WORLD_H / 2 });
   const sizeRef = useRef({ w: 300, h: 300 });
-  const propsRef = useRef({ view, selected, reachable, highlights });
-  propsRef.current = { view, selected, reachable, highlights };
+  const propsRef = useRef({ view, selected, reachable, highlights, dimmed });
+  propsRef.current = { view, selected, reachable, highlights, dimmed };
   const rafRef = useRef(0);
   const initialised = useRef(false);
 
@@ -50,6 +51,7 @@ export const WorldBoard = forwardRef<WorldBoardHandle, Props>(function WorldBoar
       selected: p.selected,
       reachable: p.reachable,
       highlights: p.highlights,
+      ...(p.dimmed ? { dimmed: p.dimmed } : {}),
     });
   }, []);
   const schedule = useCallback(() => {
@@ -121,7 +123,7 @@ export const WorldBoard = forwardRef<WorldBoardHandle, Props>(function WorldBoar
 
   useEffect(() => {
     schedule();
-  }, [view, selected, reachable, highlights, schedule]);
+  }, [view, selected, reachable, highlights, dimmed, schedule]);
 
   // Gesti: un dito = pan (o tocco), due dita = pinch, rotella = zoom.
   const pointers = useRef(new Map<number, { x: number; y: number }>());

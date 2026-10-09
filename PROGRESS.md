@@ -31,6 +31,21 @@ ritardo, hot-seat, scambi con bot) dietro l'interfaccia `WorldController` che
 userà anche il controller online. Testi in `i18n/world.ts` (it/en; le altre lingue
 ripiegano sull'inglese: da tradurre in Fase 6). 6 test del controller.
 
+**VIKINGS AROUND THE WORLD — FASI 4–5 (ONLINE + EDITOR MAPPE) ✅** — server:
+`WorldLobbyManager` (`packages/server/src/worldLobby.ts`) con eventi socket `world:*`
+(crea/entra/lista pubbliche/bot/avvia/azione/refresh/chiudi), vista filtrata + mosse
+legali per ogni giocatore, bot sul server, timer di turno con mossa di default,
+umani disconnessi giocati dal server, riconnessione (rientro con lo stesso account).
+Le stanze sono in memoria (un riavvio del server le azzera). Web: `WorldOnlineScreen`
+(crea/entra con codice/pubbliche/lobby), `RemoteWorldController`, pulsante 🌐 Online
+nella schermata nuova partita. **Editor mappe admin** (solo `pana`): da Account →
+«Editor mappe», rinomina/togli/ripristina territori con validazione (connessa, ≥15
+territori produttivi, tutti i materiali); salvato in `Storage` (JSON/Postgres),
+`GET /api/maps/:id` pubblico, `POST /api/admin/maps/:id` solo admin; le nuove partite
+(locali con server raggiungibile, e online) applicano l'override. Verificato anche
+con un browser reale (login admin, lobby, partita con bot, salvataggio mappa).
+15 test server (lobby, partita con bot, timer, riconnessione, override).
+
 **VIKINGS AROUND THE WORLD — *le regole sono cambiate!!!*** 🔄 — nuova modalità
 (tutto il resto diventa la «Modalità Classica», invariata). Mappa a territori
 reali (prima mappa «Il Mondo», 32 territori), Jarl che si muove (4 punti:

@@ -54,6 +54,14 @@ export function WorldGameScreen({ makeController, onExit, onRematch }: Props) {
   const myTurn = view.currentPlayer === me;
   const hand = view.hand;
 
+  const seenError = useRef(0);
+  useEffect(() => {
+    if (snap.error && snap.error.id !== seenError.current) {
+      seenError.current = snap.error.id;
+      flash(snap.error.message);
+    }
+  }, [snap.error]);
+
   const flash = (msg: string) => {
     setToast(msg);
     window.setTimeout(() => setToast((m) => (m === msg ? null : m)), 2200);
@@ -267,6 +275,7 @@ export function WorldGameScreen({ makeController, onExit, onRematch }: Props) {
   }
 
   const incoming = view.pendingTrade && view.pendingTrade.from !== me ? view.pendingTrade : null;
+  const outgoing = view.pendingTrade && view.pendingTrade.from === me ? view.pendingTrade : null;
   const lastLog = snap.log.slice(-3);
 
   return (
@@ -316,6 +325,32 @@ export function WorldGameScreen({ makeController, onExit, onRematch }: Props) {
               <button
                 className="pxbtn pxbtn--small pxbtn--ghost"
                 onClick={() => send({ type: 'rispondiScambio', player: me, offerId: incoming.id, accept: false })}
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
+        {outgoing && (
+          <div className="w-offer">
+            <div>
+              <CostRow cost={outgoing.give} /> → <CostRow cost={outgoing.receive} /> · {wt.aspetta}
+            </div>
+            <div className="w-offer-btns">
+              {Object.entries(outgoing.responses)
+                .filter(([, r]) => r === 'accettata')
+                .map(([pid]) => (
+                  <button
+                    key={pid}
+                    className="pxbtn pxbtn--small"
+                    onClick={() => send({ type: 'confermaScambio', player: me, offerId: outgoing.id, with: Number(pid) })}
+                  >
+                    ✓ {view.players[Number(pid)]!.name}
+                  </button>
+                ))}
+              <button
+                className="pxbtn pxbtn--small pxbtn--ghost"
+                onClick={() => send({ type: 'annullaScambio', player: me, offerId: outgoing.id })}
               >
                 ✕
               </button>

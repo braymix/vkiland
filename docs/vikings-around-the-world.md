@@ -557,6 +557,10 @@ motivazione)*
 - Setup: sono valide solo le caselle non deserto con almeno un collegamento di terra libero; il secondo villaggio dà 1 materiale. L'ordine dei giocatori è fisso (posto 0 per primo).
 - Strada: si può posare se tocca il territorio del Jarl, un tuo territorio o un'altra tua strada. «La Grande Via» è la pista più lunga di strade proprie, interrotta dai territori con edifici avversari.
 - **Bilanciamento (misurato con 30 partite bot-vs-bot, 4 giocatori)**: con resa 1/2/2 una partita a 10 PG durava ~36 giri, a 12 PG ~41; il motivo è che un villaggio tocca UN solo territorio (nella Classica ne tocca fino a 3). Con resa **2/3/3** si scende a ~21 giri. Perciò: villaggio produce 2, città 3, Sala 3, bersaglio di default **10 PG** (§3, §5.3, §6 aggiornati).
+- Online: invece di un `GameEngineAdapter` generico dentro `GameRoom`, la modalità ha un gestore SEPARATO (`WorldLobbyManager`) e propri eventi `world:*`: lascia intatta la lobby classica (770 righe) e il suo storage. Niente `gameKind` su lobby/storage per ora; le stanze del mondo non sono persistite (volatili).
+- Posti online: colore fissato dal numero del posto; nessuna chat, spettatori o scelta eroi in questa modalità (v1).
+- Scambi fra giocatori online: il proponente conferma con chi ha accettato (banner nella schermata); in locale la risposta di un bot è immediata, fra umani sullo stesso dispositivo l'accordo è «a voce».
+- Editor mappe: limitato alla mappa `mondo`; i nomi passano dal filtro delle parole censurate del server.
 - Vittoria controllata solo per chi gioca il turno, dopo ogni costruzione.
 - Pezzi (villaggi/città/Sale/porti/mercati/strade) contati direttamente dal tabellone: una città libera il «pezzo» villaggio.
 - Prima mappa: «Il Mondo», 32 territori (§7).

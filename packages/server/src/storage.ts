@@ -9,6 +9,7 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import type { PlayerCosmetics, PlayerProgression } from '@vikiland/engine';
+import type { MapOverride } from '@vikiland/engine-world';
 
 export interface UserRecord {
   id: string;
@@ -46,13 +47,19 @@ export interface Storage {
    */
   getCensoredWords(): string[];
   setCensoredWords(words: string[]): void;
+  /**
+   * Override delle mappe di «Vikings Around the World» (rinomine/rimozioni
+   * dell'amministratore), per id mappa.
+   */
+  getMapOverrides(): Record<string, MapOverride>;
+  setMapOverride(override: MapOverride | null, mapId: string): void;
 }
 
 interface JsonDb {
   users: UserRecord[];
   sessions: SessionRecord[];
   /** Impostazioni globali (es. lista parole censurate). */
-  settings?: { censoredWords?: string[] };
+  settings?: { censoredWords?: string[]; mapOverrides?: Record<string, MapOverride> };
 }
 
 export class JsonFileStorage implements Storage {
@@ -153,6 +160,18 @@ export class JsonFileStorage implements Storage {
     this.db.settings = { ...(this.db.settings ?? {}), censoredWords: words };
     this.flush();
   }
+
+  getMapOverrides(): Record<string, MapOverride> {
+    return this.db.settings?.mapOverrides ?? {};
+  }
+
+  setMapOverride(override: MapOverride | null, mapId: string): void {
+    const all = { ...(this.db.settings?.mapOverrides ?? {}) };
+    if (override) all[mapId] = override;
+    else delete all[mapId];
+    this.db.settings = { ...(this.db.settings ?? {}), mapOverrides: all };
+    this.flush();
+  }
 }
 
 /** Storage volatile per i test. */
@@ -191,5 +210,15 @@ export class MemoryStorage implements Storage {
   }
   setCensoredWords(words: string[]): void {
     this.censoredWords = words;
+  }
+  private mapOverrides: Record<string, MapOverride> = {};
+  getMapOverrides(): Record<string, MapOverride> {
+    return this.mapOverrides;
+  }
+  setMapOverride(override: MapOverride | null, mapId: string): void {
+    const all = { ...this.mapOverrides };
+    if (override) all[mapId] = override;
+    else delete all[mapId];
+    this.mapOverrides = all;
   }
 }

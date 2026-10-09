@@ -58,6 +58,8 @@ export interface WorldSnapshot {
   /** Eventi dell'ultima azione (per animazioni/dadi). */
   lastEvents: WorldEvent[];
   seq: number;
+  /** Rifiuto arrivato dal server (solo online): mostrato come avviso non bloccante. */
+  error: { id: number; message: string } | null;
 }
 
 const BOT_DELAY_MS = 650;
@@ -266,6 +268,7 @@ export class LocalWorldController implements WorldController {
       winner: phase.type === 'fine' ? phase.winner : null,
       lastEvents: this.lastEvents,
       seq: this.seq,
+      error: null,
     };
   }
 
