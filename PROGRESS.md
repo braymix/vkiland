@@ -13,6 +13,14 @@ Tassa del Re, scambi banca/giocatori, La Grande Via e Il Grande Viaggiatore,
 override admin della mappa (rinomina/togli con validazioni). 88 test (regole,
 mappa, partite complete casuali-legali deterministiche). Fasi 2–7 da fare.
 
+**VIKINGS AROUND THE WORLD — FASE 2 (BOT) ✅** — `createWorldBot(level)` in
+`packages/bots/src/world`: il Jarl pianifica (Dijkstra su punti movimento + pedaggi),
+si «accampa» sul territorio libero migliore, scambia con la banca per colmare le
+carte mancanti, costruisce città/Sala/Mercato/Porto/strade. Bilanciamento misurato
+su 30 partite bot-vs-bot: resa dei villaggi portata a 2/3/3 (era 1/2/2) e bersaglio
+di default a 10 PG → ~21 giri a partita (prima ~36). 7 test di simulazione
+(nessuna mossa illegale, partite che finiscono, riproducibilità).
+
 **VIKINGS AROUND THE WORLD — *le regole sono cambiate!!!*** 🔄 — nuova modalità
 (tutto il resto diventa la «Modalità Classica», invariata). Mappa a territori
 reali (prima mappa «Il Mondo», 32 territori), Jarl che si muove (4 punti:

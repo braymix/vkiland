@@ -87,9 +87,9 @@ L'argento è la "moneta": serve per le costruzioni di prestigio e paga i pedaggi
 | Costruzione | Costo | Dove | Effetto | PG |
 |---|---|---|---|---|
 | **Strada** | 1🪵 1🪨 | su un collegamento `terra` libero che tocca il territorio del **tuo Jarl** o un territorio **tuo** o un'altra tua strada | muoversi lungo le proprie strade costa la metà (§4.2); conta per «La Grande Via» | 0 |
-| **Villaggio** | 1🪵 1🪨 1🐑 1🌾 | nel territorio dove si trova **il tuo Jarl**, se è **libero** (nessun edificio) e non è deserto | il territorio diventa **tuo**: produce 1 e incassa pedaggi | 1 |
-| **Città** | 2🌾 3⛏️ | su un tuo villaggio (ovunque, il Jarl non serve) | produce 2 | 2 |
-| **Sala del Jarl** | 2🪙 2⛏️ 1🪨 1🌾 | su una tua città (max 1 per clan) | produce 2; pedaggio doppio (§4.3) | 4 |
+| **Villaggio** | 1🪵 1🪨 1🐑 1🌾 | nel territorio dove si trova **il tuo Jarl**, se è **libero** (nessun edificio) e non è deserto | il territorio diventa **tuo**: produce 2 e incassa pedaggi | 1 |
+| **Città** | 2🌾 3⛏️ | su un tuo villaggio (ovunque, il Jarl non serve) | produce 3 | 2 |
+| **Sala del Jarl** | 2🪙 2⛏️ 1🪨 1🌾 | su una tua città (max 1 per clan) | produce 3; pedaggio doppio (§4.3) | 4 |
 | **Porto** | 1🪵 1🐑 1⛏️ | su un tuo territorio **costiero** (max 1 per territorio) | abilita le rotte `mare` in partenza da lì; scambi con la banca **3:1** | 0 |
 | **Mercato** | 1🪨 1🐑 1🌾 | su un tuo territorio (max 1 per territorio) | quando esce il numero del territorio, **+1 🪙** oltre alla produzione | 0 |
 
@@ -160,8 +160,8 @@ della Classica — fuori dalla v1.)
 3. **Fine turno**.
 
 ### 5.3 Produzione
-Per ogni territorio con il numero uscito: il proprietario prende **1** materiale
-del territorio con un Villaggio, **2** con Città o Sala del Jarl. Se c'è un
+Per ogni territorio con il numero uscito: il proprietario prende **2** materiali
+del territorio con un Villaggio, **3** con Città o Sala del Jarl. Se c'è un
 **Mercato**, anche **+1 🪙**. Banca illimitata (come la Classica).
 
 ### 5.4 Scambi
@@ -193,7 +193,7 @@ Non c'è nessuna pedina che blocca i territori.
 | **La Grande Via**: strada continua più lunga, minimo 5 collegamenti | 2 |
 | **Il Grande Viaggiatore**: chi possiede territori nel maggior numero di **continenti** (minimo 3; a parità resta a chi l'aveva) | 2 |
 
-**Si vince a 12 PG** (impostabile da 8 a 15) alla fine della propria azione,
+**Si vince a 10 PG** (impostabile da 8 a 15) alla fine della propria azione,
 come nella Classica.
 
 Fuori dalla v1 (idee per dopo, solo se la v1 regge): Carte Saga dedicate,
@@ -556,6 +556,7 @@ motivazione)*
 - Scambio banca con l'argento: 1 🪙 → 2 materiali a scelta; 3 materiali UGUALI → 1 🪙 (stesso rapporto 3:1 del Porto); altrimenti 4:1 (3:1 con un tuo Porto).
 - Setup: sono valide solo le caselle non deserto con almeno un collegamento di terra libero; il secondo villaggio dà 1 materiale. L'ordine dei giocatori è fisso (posto 0 per primo).
 - Strada: si può posare se tocca il territorio del Jarl, un tuo territorio o un'altra tua strada. «La Grande Via» è la pista più lunga di strade proprie, interrotta dai territori con edifici avversari.
+- **Bilanciamento (misurato con 30 partite bot-vs-bot, 4 giocatori)**: con resa 1/2/2 una partita a 10 PG durava ~36 giri, a 12 PG ~41; il motivo è che un villaggio tocca UN solo territorio (nella Classica ne tocca fino a 3). Con resa **2/3/3** si scende a ~21 giri. Perciò: villaggio produce 2, città 3, Sala 3, bersaglio di default **10 PG** (§3, §5.3, §6 aggiornati).
 - Vittoria controllata solo per chi gioca il turno, dopo ogni costruzione.
 - Pezzi (villaggi/città/Sale/porti/mercati/strade) contati direttamente dal tabellone: una città libera il «pezzo» villaggio.
 - Prima mappa: «Il Mondo», 32 territori (§7).

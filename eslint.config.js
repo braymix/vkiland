@@ -37,8 +37,8 @@ export default tseslint.config(
         {
           patterns: [
             {
-              regex: '^(?!\\.)(?!@vikiland/engine$)',
-              message: 'I bot dipendono solo da @vikiland/engine.',
+              regex: '^(?!\\.)(?!@vikiland/engine(-world)?$)',
+              message: 'I bot dipendono solo dagli engine (@vikiland/engine, @vikiland/engine-world).',
             },
           ],
         },

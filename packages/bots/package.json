@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vikiland/engine": "workspace:*"
+    "@vikiland/engine": "workspace:*",
+    "@vikiland/engine-world": "workspace:*"
   },
   "devDependencies": {
     "typescript": "catalog:",

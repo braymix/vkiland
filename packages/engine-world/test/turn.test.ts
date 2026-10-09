@@ -15,7 +15,7 @@ function rollUntil(s: WorldGameState, total: number): { state: WorldGameState } 
 }
 
 describe('produzione', () => {
-  it('villaggio 1, città 2, Sala 2; il Mercato aggiunge 1 argento', () => {
+  it('villaggio 2, città 3, Sala 3; il Mercato aggiunge 1 argento', () => {
     const s = blank(3, 'italia');
     s.phase = { type: 'tiro' };
     const num = 8;
@@ -27,10 +27,10 @@ describe('produzione', () => {
     own(s, 2, 'balcani', 'sala');
     s.territories['italia']!.mercato = true;
     const { state } = rollUntil(s, num);
-    expect(state.players[0]!.hand.pietra).toBe(1);
+    expect(state.players[0]!.hand.pietra).toBe(2);
     expect(state.players[0]!.hand.argento).toBe(1);
-    expect(state.players[1]!.hand.orzo).toBe(2);
-    expect(state.players[2]!.hand.pietra).toBe(2);
+    expect(state.players[1]!.hand.orzo).toBe(3);
+    expect(state.players[2]!.hand.pietra).toBe(3);
     expect(state.phase.type).toBe('azioni');
   });
 

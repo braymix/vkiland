@@ -21,3 +21,6 @@ import type { Bot } from './types';
 export function createBot(level: BotLevel): Bot {
   return createHeuristicBot(level);
 }
+
+// Vikings Around the World
+export { createWorldBot, type WorldBot, type WorldBotInput } from './world';

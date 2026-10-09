@@ -24,8 +24,8 @@ export const PIECE_LIMITS = { strada: 15, villaggio: 6, citta: 4, sala: 1, porto
 /** Punti Gloria per edificio. */
 export const BUILDING_POINTS: Readonly<Record<BuildingKind, number>> = { villaggio: 1, citta: 2, sala: 4 };
 
-/** Produzione per edificio. */
-export const BUILDING_YIELD: Readonly<Record<BuildingKind, number>> = { villaggio: 1, citta: 2, sala: 2 };
+/** Produzione per edificio (un villaggio tocca UN solo territorio: la resa è doppia rispetto alla Classica). */
+export const BUILDING_YIELD: Readonly<Record<BuildingKind, number>> = { villaggio: 2, citta: 3, sala: 3 };
 
 export const HAND_LIMIT = 7;
 export const MOVE_POINTS = 4;
@@ -38,7 +38,7 @@ export const GRANDE_VIA_MIN = 5;
 export const GRANDE_VIAGGIATORE_MIN = 3;
 export const AWARD_POINTS = 2;
 
-export const DEFAULT_TARGET_POINTS = 12;
+export const DEFAULT_TARGET_POINTS = 10;
 export const MIN_TARGET_POINTS = 8;
 export const MAX_TARGET_POINTS = 15;
 
