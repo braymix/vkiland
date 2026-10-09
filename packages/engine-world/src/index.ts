@@ -35,6 +35,7 @@ export {
   countBuildings,
   countRoads,
   type MovePlan,
+  type MoveContext,
   type ScoreBreakdown,
 } from './rules';
 export {

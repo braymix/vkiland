@@ -21,6 +21,7 @@ export function getPlayerView(state: WorldGameState, viewer: Viewer): WorldPlaye
       ...(p.bot ? { bot: p.bot } : {}),
       jarl: p.jarl,
       movePointsLeft: p.movePointsLeft,
+      tollsPaidThisTurn: p.tollsPaidThisTurn,
       handCount: totalResources(p.hand),
       points: gloryPoints(state, p.id),
     })),

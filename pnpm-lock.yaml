@@ -142,6 +142,9 @@ importers:
       '@vikiland/engine':
         specifier: workspace:*
         version: link:../engine
+      '@vikiland/engine-world':
+        specifier: workspace:*
+        version: link:../engine-world
       react:
         specifier: 'catalog:'
         version: 19.2.7

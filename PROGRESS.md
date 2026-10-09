@@ -21,6 +21,16 @@ su 30 partite bot-vs-bot: resa dei villaggi portata a 2/3/3 (era 1/2/2) e bersag
 di default a 10 PG → ~21 giri a partita (prima ~36). 7 test di simulazione
 (nessuna mossa illegale, partite che finiscono, riproducibilità).
 
+**VIKINGS AROUND THE WORLD — FASE 3 (WEB LOCALE/HOT-SEAT) ✅** — nel menu due pulsanti
+(⚔️ Classica · 🌍 Vikings Around the World). `NewWorldGameScreen` (giocatori umani/bot,
+punti, materiali casuali), `WorldGameScreen` (HUD, mano a 6 materiali, sheet del
+territorio con muovi/costruisci/strade, banca e scambi, scarto, razzia, scelta del
+pedaggio, passaggio del dispositivo, vittoria), renderer Canvas della mappa con
+pan/zoom/pinch (`render/world/worldRenderer.ts`), `LocalWorldController` (bot con
+ritardo, hot-seat, scambi con bot) dietro l'interfaccia `WorldController` che
+userà anche il controller online. Testi in `i18n/world.ts` (it/en; le altre lingue
+ripiegano sull'inglese: da tradurre in Fase 6). 6 test del controller.
+
 **VIKINGS AROUND THE WORLD — *le regole sono cambiate!!!*** 🔄 — nuova modalità
 (tutto il resto diventa la «Modalità Classica», invariata). Mappa a territori
 reali (prima mappa «Il Mondo», 32 territori), Jarl che si muove (4 punti:

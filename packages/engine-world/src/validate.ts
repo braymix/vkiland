@@ -55,7 +55,7 @@ const ERR = {
 
 /** Rapporto di scambio con la banca: quante carte dai e quante ricevi. */
 export function bankRate(
-  state: WorldGameState,
+  state: Pick<WorldGameState, 'territories'>,
   pid: PlayerId,
   give: WorldResource,
   receive: WorldResource

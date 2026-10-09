@@ -157,6 +157,8 @@ export interface WorldPublicPlayer {
   bot?: BotLevel;
   jarl: string;
   movePointsLeft: number;
+  /** Territori già «pagati» nel turno (pedaggio non più dovuto). */
+  tollsPaidThisTurn: string[];
   handCount: number;
   points: number;
 }

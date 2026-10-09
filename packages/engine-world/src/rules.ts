@@ -158,9 +158,20 @@ export interface MovePlan {
   cost: number;
 }
 
+/**
+ * Il minimo che serve per calcolare movimento e pedaggi: lo soddisfano sia lo
+ * stato completo sia la vista di un giocatore (così la UI mostra i costi).
+ */
+export interface MoveContext {
+  map: WorldGameState['map'];
+  territories: WorldGameState['territories'];
+  roads: WorldGameState['roads'];
+  players: { jarl: string; movePointsLeft: number; tollsPaidThisTurn: string[] }[];
+}
+
 export type MovePlanResult = { ok: true; plan: MovePlan } | { ok: false; code: string; message: string };
 
-export function planMove(state: WorldGameState, pid: PlayerId, to: string): MovePlanResult {
+export function planMove(state: MoveContext, pid: PlayerId, to: string): MovePlanResult {
   const p = state.players[pid]!;
   const from = p.jarl;
   if (!state.territories[to]) return { ok: false, code: 'TERRITORIO_INESISTENTE', message: 'Territorio inesistente.' };
@@ -184,7 +195,7 @@ export function planMove(state: WorldGameState, pid: PlayerId, to: string): Move
 }
 
 /** Pedaggio dovuto entrando in `to` (null se nulla è dovuto). */
-export function tollDue(state: WorldGameState, pid: PlayerId, to: string): { payee: PlayerId; amount: number } | null {
+export function tollDue(state: MoveContext, pid: PlayerId, to: string): { payee: PlayerId; amount: number } | null {
   const t = state.territories[to];
   const p = state.players[pid]!;
   if (!t || t.owner === null || t.owner === pid) return null;
@@ -252,7 +263,7 @@ export function freeTerraLinks(state: WorldGameState, territory: string): string
 }
 
 /** Territori raggiungibili con un singolo passo dal Jarl (con costo). */
-export function reachableMoves(state: WorldGameState, pid: PlayerId): MovePlan[] {
+export function reachableMoves(state: MoveContext, pid: PlayerId): MovePlan[] {
   const out: MovePlan[] = [];
   const idx = mapIndex(state.map);
   const from = state.players[pid]!.jarl;
