@@ -15,6 +15,8 @@ import {
 import { isProductive, mapIndex } from './map';
 import { hasAtLeast, isValidResourceMap, overlapping, totalResources } from './resources';
 import {
+  hasRoomFor,
+  settlementOf,
   freeTerraLinks,
   piecesLeft,
   planMove,
@@ -35,7 +37,7 @@ const ERR = {
   turno: err('NON_IL_TUO_TURNO', 'Non è il tuo turno.'),
   territorio: err('TERRITORIO_INESISTENTE', 'Territorio inesistente.'),
   deserto: err('DESERTO', 'Nel deserto non si può costruire.'),
-  occupato: err('TERRITORIO_OCCUPATO', 'Questo territorio è già occupato.'),
+  occupato: err('TERRITORIO_OCCUPATO', 'Qui non c’è posto: al massimo 2 clan diversi per territorio.'),
   nonTuo: err('NON_TUO', 'Questo territorio non è tuo.'),
   collegamento: err('COLLEGAMENTO_INESISTENTE', 'Collegamento inesistente.'),
   soloTerra: err('SOLO_TERRA', 'Le strade si costruiscono solo sui collegamenti di terra.'),
@@ -63,7 +65,7 @@ export function bankRate(
   if (give === receive) return null;
   if (give === 'argento') return { giveCount: 1, receiveCount: SILVER_SELL };
   if (receive === 'argento') return { giveCount: SILVER_BUY, receiveCount: 1 };
-  const hasPort = Object.values(state.territories).some((t) => t.owner === pid && t.porto);
+  const hasPort = Object.values(state.territories).some((t) => settlementOf(t, pid)?.porto);
   return { giveCount: hasPort ? PORT_RATIO : BANK_RATIO, receiveCount: 1 };
 }
 
@@ -76,8 +78,8 @@ export function razziaCandidates(state: WorldGameState, pid: PlayerId): PlayerId
   const out = new Set<PlayerId>();
   for (const id of around) {
     const t = state.territories[id];
-    if (t && t.owner !== null && t.owner !== pid && t.building !== null) {
-      if (totalResources(state.players[t.owner]!.hand) > 0) out.add(t.owner);
+    for (const s of t?.settlements ?? []) {
+      if (s.owner !== pid && totalResources(state.players[s.owner]!.hand) > 0) out.add(s.owner);
     }
   }
   return [...out].sort((a, b) => a - b);
@@ -103,7 +105,7 @@ export function isLegal(state: WorldGameState, action: WorldAction): ValidationE
       const t = state.territories[action.territory];
       if (!t) return ERR.territorio;
       if (!isProductive(idx.territory.get(t.id)!)) return ERR.deserto;
-      if (t.owner !== null) return ERR.occupato;
+      if (!hasRoomFor(t, pid)) return ERR.occupato;
       if (freeTerraLinks(state, t.id).length === 0) {
         return err('SENZA_STRADE', 'Serve un territorio con almeno un collegamento di terra libero.');
       }
@@ -168,19 +170,22 @@ export function isLegal(state: WorldGameState, action: WorldAction): ValidationE
       if (piecesLeft(state, pid, what) <= 0) return ERR.pezzi;
       if (what === 'villaggio') {
         if (!isProductive(idx.territory.get(t.id)!)) return ERR.deserto;
-        if (t.owner !== null) return ERR.occupato;
+        if (!hasRoomFor(t, pid)) return ERR.occupato;
         if (me.jarl !== t.id) return ERR.jarlAltrove;
-      } else if (what === 'citta') {
-        if (!(t.owner === pid && t.building === 'villaggio')) return ERR.upgrade;
-      } else if (what === 'sala') {
-        if (!(t.owner === pid && t.building === 'citta')) return ERR.upgrade;
-      } else if (what === 'porto') {
-        if (t.owner !== pid) return ERR.nonTuo;
-        if (!idx.territory.get(t.id)!.coastal) return ERR.costiero;
-        if (t.porto) return ERR.giaPresente;
       } else {
-        if (t.owner !== pid) return ERR.nonTuo;
-        if (t.mercato) return ERR.giaPresente;
+        const mine = settlementOf(t, pid);
+        if (what === 'citta') {
+          if (mine?.building !== 'villaggio') return ERR.upgrade;
+        } else if (what === 'sala') {
+          if (mine?.building !== 'citta') return ERR.upgrade;
+        } else if (what === 'porto') {
+          if (!mine) return ERR.nonTuo;
+          if (!idx.territory.get(t.id)!.coastal) return ERR.costiero;
+          if (mine.porto) return ERR.giaPresente;
+        } else {
+          if (!mine) return ERR.nonTuo;
+          if (mine.mercato) return ERR.giaPresente;
+        }
       }
       return hasAtLeast(me.hand, BUILD_COSTS[what]) ? null : ERR.risorse;
     }

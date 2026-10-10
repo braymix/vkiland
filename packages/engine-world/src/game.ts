@@ -66,10 +66,7 @@ export function createGame(config: WorldGameConfig, opts: NewWorldGameOptions = 
     territories[t.id] = {
       id: t.id,
       number: numbers[t.id] ?? null,
-      owner: null,
-      building: null,
-      porto: false,
-      mercato: false,
+      settlements: [],
     };
   }
 

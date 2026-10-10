@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { applyAction, getDefaultAction, getLegalActions, getPlayerView, filterEventsForPlayer, totalResources, type WorldGameState } from '../src';
-import { act, blank, give, own } from './helpers';
+import { act, annex, blank, give, own } from './helpers';
 
 /** Forza un tiro: ripete (avanzando il PRNG) finché i dadi danno `total`. */
 function rollUntil(s: WorldGameState, total: number): { state: WorldGameState } {
@@ -9,6 +9,17 @@ function rollUntil(s: WorldGameState, total: number): { state: WorldGameState } 
     const r = applyAction(cur, { type: 'tiraDadi', player: cur.currentPlayer });
     if (!r.ok) throw new Error(r.error.message);
     if (r.state.dice![0] + r.state.dice![1] === total) return { state: r.state };
+    cur = { ...cur, rng: r.state.rng };
+  }
+  throw new Error('impossibile ottenere il tiro');
+}
+
+function rollUntilWithEvents(s: WorldGameState, total: number) {
+  let cur = s;
+  for (let i = 0; i < 2000; i++) {
+    const r = applyAction(cur, { type: 'tiraDadi', player: cur.currentPlayer });
+    if (!r.ok) throw new Error(r.error.message);
+    if (r.state.dice![0] + r.state.dice![1] === total) return { state: r.state, events: r.events };
     cur = { ...cur, rng: r.state.rng };
   }
   throw new Error('impossibile ottenere il tiro');
@@ -25,7 +36,8 @@ describe('produzione', () => {
     own(s, 0, 'italia', 'villaggio');
     own(s, 1, 'iberia', 'citta');
     own(s, 2, 'balcani', 'sala');
-    s.territories['italia']!.mercato = true;
+    annex(s, 0, 'italia', 'mercato');
+    for (const p of s.players) p.jarl = 'sahara'; // i Jarl nel deserto non raccolgono nulla
     const { state } = rollUntil(s, num);
     expect(state.players[0]!.hand.pietra).toBe(2);
     expect(state.players[0]!.hand.argento).toBe(1);
@@ -37,9 +49,35 @@ describe('produzione', () => {
   it('un territorio senza edificio non produce', () => {
     const s = blank(2, 'italia');
     s.phase = { type: 'tiro' };
-    for (const t of Object.values(s.territories)) t.number = t.number === 5 ? 5 : t.number;
+    s.players[0]!.jarl = 'sahara';
     const { state } = rollUntil(s, 5);
     for (const p of state.players) expect(totalResources(p.hand)).toBe(0);
+  });
+
+  it('due clan nello stesso territorio producono entrambi', () => {
+    const s = blank(2, 'sahara');
+    s.phase = { type: 'tiro' };
+    s.territories['italia']!.number = 9;
+    own(s, 0, 'italia');
+    own(s, 1, 'italia', 'citta');
+    const { state } = rollUntil(s, 9);
+    expect(state.players[0]!.hand.pietra).toBe(2);
+    expect(state.players[1]!.hand.pietra).toBe(3);
+  });
+
+  it('il Jarl raccoglie 1 materiale solo quando esce il numero del suo territorio (anche senza case)', () => {
+    const s = blank(3, 'balcani'); // pietra; tutti i Jarl lì
+    s.phase = { type: 'tiro' };
+    s.players[2]!.jarl = 'sahara'; // nel deserto niente
+    for (const t of Object.values(s.territories)) if (t.number === 4) t.number = 11;
+    s.territories['balcani']!.number = 4;
+    const { state, events } = rollUntilWithEvents(s, 4);
+    expect(state.players[0]!.hand.pietra).toBe(1); // chi tira
+    expect(state.players[1]!.hand.pietra).toBe(1); // anche gli altri Jarl lì
+    expect(totalResources(state.players[2]!.hand)).toBe(0);
+    expect(JSON.stringify(events)).toContain('balcani');
+    const other = rollUntil(s, 9).state; // un altro numero: niente
+    expect(totalResources(other.players[0]!.hand)).toBe(0);
   });
 });
 

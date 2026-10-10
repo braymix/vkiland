@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { applyAction, planMove, reachableMoves } from '../src';
-import { act, blank, give, own, road } from './helpers';
+import { act, annex, blank, give, own, road } from './helpers';
 
 describe('movimento del Jarl', () => {
   it('1 punto su una tua strada, 2 su terra senza strada: 4 punti = 4 passi su strada', () => {
@@ -53,10 +53,9 @@ describe('movimento del Jarl', () => {
   it('il mare si attraversa solo partendo da un tuo Porto (costo 2)', () => {
     const s = blank(2, 'scandinavia');
     expect(applyAction(s, { type: 'muovi', player: 0, to: 'islanda' }).ok).toBe(false);
-    own(s, 1, 'scandinavia');
-    s.territories['scandinavia']!.porto = true; // porto di un avversario: non vale
+    annex(s, 1, 'scandinavia', 'porto'); // porto di un avversario: non vale
     expect(applyAction(s, { type: 'muovi', player: 0, to: 'islanda' }).ok).toBe(false);
-    own(s, 0, 'scandinavia');
+    annex(s, 0, 'scandinavia', 'porto'); // il proprio porto, nello stesso territorio
     const t = act(s, { type: 'muovi', player: 0, to: 'islanda' });
     expect(t.players[0]!.jarl).toBe('islanda');
     expect(t.players[0]!.movePointsLeft).toBe(2);
@@ -167,6 +166,25 @@ describe('pedaggio', () => {
     give(s, 0, { argento: 5 });
     const t = act(s, { type: 'muovi', player: 0, to: 'europa_occ' });
     expect(t.players[0]!.hand.argento).toBe(5);
+  });
+
+  it('territorio condiviso: chi ci abita non paga; gli altri pagano al primo arrivato', () => {
+    const s = blank(3, 'iberia');
+    own(s, 1, 'europa_occ', 'sala'); // primo arrivato (con Sala)
+    own(s, 2, 'europa_occ');
+    give(s, 0, { argento: 5 });
+    give(s, 2, { argento: 5 });
+    const t = act(s, { type: 'muovi', player: 0, to: 'europa_occ' });
+    expect(t.players[1]!.hand.argento).toBe(2); // doppio: la Sala è del padrone di casa
+    expect(t.players[2]!.hand.argento).toBe(5);
+    // il giocatore 2 abita lì: entrando non paga
+    const u = blank(3, 'iberia');
+    own(u, 1, 'europa_occ');
+    own(u, 2, 'europa_occ');
+    give(u, 2, { argento: 5 });
+    u.currentPlayer = 2;
+    const v = act(u, { type: 'muovi', player: 2, to: 'europa_occ' });
+    expect(v.players[2]!.hand.argento).toBe(5);
   });
 
   it('il pedaggio riparte al turno dopo', () => {

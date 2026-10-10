@@ -10,6 +10,8 @@
  */
 import {
   PRODUCED_RESOURCES,
+  hasRoomFor,
+  settlementOf,
   mapIndex,
   nextInt,
   seedRng,
@@ -113,7 +115,7 @@ function decideSetup(input: WorldBotInput): WorldAction {
       // vicinato: territori liberi appetibili raggiungibili
       for (const l of idx.linksOf.get(v.territory) ?? []) {
         const o = l.a === v.territory ? l.b : l.a;
-        if (view.territories[o]!.owner === null) score += pips(view.territories[o]!.number) * 0.12;
+        if (hasRoomFor(view.territories[o], me)) score += pips(view.territories[o]!.number) * 0.12;
       }
       if (score > bestScore) {
         bestScore = score;
@@ -127,7 +129,7 @@ function decideSetup(input: WorldBotInput): WorldAction {
   let bestScore = -Infinity;
   for (const r of roads) {
     const l = idx.link.get(r.link)!;
-    const here = Object.values(view.territories).find((t) => t.owner === me && !hasRoadAt(view, me, t.id)) ?? null;
+    const here = Object.values(view.territories).find((t) => settlementOf(t, me) && !hasRoadAt(view, me, t.id)) ?? null;
     const other = here && (l.a === here.id ? l.b : l.a);
     const score = other ? territoryValue(view, me, other) : 0;
     if (score > bestScore) {
@@ -173,7 +175,7 @@ function decideActions(input: WorldBotInput, cfg: LevelCfg): WorldAction {
   if (sala) return sala;
   const hereState = view.territories[here]!;
   const hereDef = idx.territory.get(here)!;
-  const hereIsFree = hereState.owner === null && hereDef.kind !== 'deserto';
+  const hereIsFree = hasRoomFor(hereState, me) && hereDef.kind !== 'deserto';
   const village = builds.find((b) => b.what === 'villaggio' && b.territory === here);
   if (village) return village;
   const city = bestBuild('citta');
@@ -186,7 +188,7 @@ function decideActions(input: WorldBotInput, cfg: LevelCfg): WorldAction {
   for (const t of view.map.territories) {
     if (t.id === here || t.kind === 'deserto') continue;
     const st = view.territories[t.id]!;
-    if (st.owner !== null) continue;
+    if (!hasRoomFor(st, me)) continue;
     const d = paths.dist.get(t.id);
     if (d === undefined) continue;
     const score = territoryValue(view, me, t.id) - 0.9 * d;
@@ -201,7 +203,7 @@ function decideActions(input: WorldBotInput, cfg: LevelCfg): WorldAction {
   // 3) Obiettivo di carte: villaggio (se si accampa), poi città, poi Sala.
   let goal = camping ? COST.villaggio : null;
   if (!goal) {
-    const mine = Object.values(view.territories).filter((t) => t.owner === me);
+    const mine = Object.values(view.territories).map((t) => settlementOf(t, me)).filter((x) => !!x);
     if (mine.some((t) => t.building === 'citta')) goal = COST.sala;
     else if (mine.some((t) => t.building === 'villaggio')) goal = COST.citta;
   }
@@ -217,7 +219,8 @@ function decideActions(input: WorldBotInput, cfg: LevelCfg): WorldAction {
     if (m) return m;
   }
   const step = target ? firstStep(paths, here, target) : null;
-  if (step && step.kind === 'mare' && view.territories[here]!.owner === me && !view.territories[here]!.porto) {
+  const mineHere = settlementOf(view.territories[here], me);
+  if (step && step.kind === 'mare' && mineHere && !mineHere.porto) {
     const port = builds.find((b) => b.what === 'porto' && b.territory === here);
     if (port) return port;
   }

@@ -49,7 +49,7 @@ function policy(legal: WorldAction[], s: WorldGameState): WorldAction[] {
   const banks = legal.filter((a) => a.type === 'scambioBanca' && a.give !== 'argento' && me.hand[a.give] >= 4 && a.receive !== 'argento');
   if (banks.length > 0) return banks;
   const moves = legal.filter((a) => a.type === 'muovi');
-  const toFree = moves.filter((a) => a.type === 'muovi' && s.territories[a.to]!.owner === null);
+  const toFree = moves.filter((a) => a.type === 'muovi' && s.territories[a.to]!.settlements.length < 2 && !s.territories[a.to]!.settlements.some((x) => x.owner === s.currentPlayer));
   if (toFree.length > 0) return toFree;
   if (roads.length > 0 && me.hand.legname > 1) return roads;
   if (moves.length > 0 && me.movePointsLeft > 1) return moves;
@@ -65,7 +65,7 @@ function checkInvariants(s: WorldGameState): void {
   for (const p of s.players) {
     const roads = Object.values(s.roads).filter((o) => o === p.id).length;
     expect(roads).toBeLessThanOrEqual(PIECE_LIMITS.strada);
-    const own = Object.values(s.territories).filter((t) => t.owner === p.id);
+    const own = Object.values(s.territories).flatMap((t) => t.settlements.filter((x) => x.owner === p.id));
     expect(own.filter((t) => t.building === 'villaggio').length).toBeLessThanOrEqual(PIECE_LIMITS.villaggio);
     expect(own.filter((t) => t.building === 'citta').length).toBeLessThanOrEqual(PIECE_LIMITS.citta);
     expect(own.filter((t) => t.building === 'sala').length).toBeLessThanOrEqual(PIECE_LIMITS.sala);
@@ -73,9 +73,9 @@ function checkInvariants(s: WorldGameState): void {
     expect(own.filter((t) => t.mercato).length).toBeLessThanOrEqual(PIECE_LIMITS.mercato);
   }
   for (const t of Object.values(s.territories)) {
-    // porto/mercato solo su territori posseduti; edificio <=> proprietario
-    if (t.porto || t.mercato) expect(t.owner).not.toBeNull();
-    expect(t.building === null).toBe(t.owner === null);
+    // al massimo 2 insediamenti, di clan diversi
+    expect(t.settlements.length).toBeLessThanOrEqual(2);
+    expect(new Set(t.settlements.map((x) => x.owner)).size).toBe(t.settlements.length);
   }
 }
 

@@ -44,15 +44,15 @@ describe('setup a serpentina', () => {
     }
   });
 
-  it('non si può partire da un deserto, né da un territorio occupato', () => {
-    const s = newGame(2, 'setup4');
-    const r = applyAction(s, { type: 'piazzaVillaggioIniziale', player: 0, territory: 'sahara' });
+  it('non si può partire da un deserto; un territorio ospita al massimo 2 clan diversi', () => {
+    let s = newGame(3, 'setup4');
+    expect(applyAction(s, { type: 'piazzaVillaggioIniziale', player: 0, territory: 'sahara' }).ok).toBe(false);
+    s = act(s, { type: 'piazzaVillaggioIniziale', player: 0, territory: 'italia' });
+    s = act(s, { type: 'piazzaStradaIniziale', player: 0, link: 'balcani|italia' });
+    s = act(s, { type: 'piazzaVillaggioIniziale', player: 1, territory: 'italia' }); // secondo clan: ok
+    s = act(s, { type: 'piazzaStradaIniziale', player: 1, link: 'europa_occ|italia' });
+    const r = applyAction(s, { type: 'piazzaVillaggioIniziale', player: 2, territory: 'italia' }); // terzo: no
     expect(r.ok).toBe(false);
-    const s2 = act(s, getLegalActions(s, 0)[0]!);
-    const taken = Object.values(s2.territories).find((t) => t.owner === 0)!.id;
-    const s3 = act(s2, getLegalActions(s2, 0)[0]!);
-    const r2 = applyAction(s3, { type: 'piazzaVillaggioIniziale', player: 1, territory: taken });
-    expect(r2.ok).toBe(false);
   });
 
   it('le isole raggiungibili solo via mare non sono scelte valide', () => {

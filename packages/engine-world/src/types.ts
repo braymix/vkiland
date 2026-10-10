@@ -91,13 +91,19 @@ export interface WorldGameConfig {
 
 export type BuildingKind = 'villaggio' | 'citta' | 'sala';
 
+/** Un insediamento di un clan in un territorio (al massimo 2 per territorio, di clan diversi). */
+export interface Settlement {
+  owner: PlayerId;
+  building: BuildingKind;
+  porto: boolean;
+  mercato: boolean;
+}
+
 export interface TerritoryState {
   id: string;
   number: number | null;
-  owner: PlayerId | null;
-  building: BuildingKind | null;
-  porto: boolean;
-  mercato: boolean;
+  /** In ordine di arrivo: il primo è «il padrone di casa» che incassa i pedaggi. */
+  settlements: Settlement[];
 }
 
 export interface WorldPlayerState {

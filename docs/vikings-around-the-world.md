@@ -94,9 +94,10 @@ L'argento è la "moneta": serve per le costruzioni di prestigio e paga i pedaggi
 | **Mercato** | 1🪨 1🐑 1🌾 | su un tuo territorio (max 1 per territorio) | quando esce il numero del territorio, **+1 🪙** oltre alla produzione | 0 |
 
 Regole generali:
-- **Un solo proprietario per territorio**: un territorio con un edificio è di quel
-  clan e nessun altro ci può costruire. Porto e Mercato sono **annessi**: non
-  occupano un posto, si aggiungono a un territorio già tuo.
+- **Fino a 2 clan per territorio**: in un territorio possono vivere al massimo
+  **due insediamenti di clan diversi** (un clan non ne ha due nello stesso posto).
+  Quando esce il numero producono entrambi. Porto e Mercato sono **annessi** del
+  proprio insediamento: non occupano un posto.
 - Niente "regola della distanza" della Classica: si può fondare un villaggio
   accanto a quello di un avversario.
 - Upgrade (Città, Sala) e annessi (Porto, Mercato) **non richiedono il Jarl**.
@@ -123,12 +124,13 @@ Il movimento si fa **dopo il tiro** e può essere spezzato fra altre azioni
 (muovo 1, costruisco, muovo ancora…) finché restano punti.
 
 ### 4.3 Pedaggio ("la tassa")
-Quando il tuo Jarl **entra** in un territorio di un altro clan, paghi il pedaggio
-al proprietario:
+Quando il tuo Jarl **entra** in un territorio abitato da altri clan **e non da te**,
+paghi il pedaggio al **primo arrivato** (il «padrone di casa»); se ci hai una casa
+anche tu, non paghi nulla:
 - se hai argento paghi **1 🪙**;
 - altrimenti paghi **1 materiale a tua scelta**;
 - se non hai nulla, non paghi nulla.
-- Se il territorio ha la **Sala del Jarl**, il pedaggio è **doppio** (2 🪙, o
+- Se il padrone di casa ha lì la **Sala del Jarl**, il pedaggio è **doppio** (2 🪙, o
   2 materiali a scelta, o quel che hai fino a 2).
 
 Limiti: si paga al massimo **una volta per territorio per turno** (andare e
@@ -163,6 +165,10 @@ della Classica — fuori dalla v1.)
 Per ogni territorio con il numero uscito: il proprietario prende **2** materiali
 del territorio con un Villaggio, **3** con Città o Sala del Jarl. Se c'è un
 **Mercato**, anche **+1 🪙**. Banca illimitata (come la Classica).
+
+**Raccolta del Jarl**: quando esce il numero del territorio in cui si trova un
+Jarl, il suo clan **raccoglie 1 materiale** di quel territorio (vale per tutti i
+Jarl, anche senza case lì; niente nel deserto).
 
 ### 5.4 Scambi
 - Con la **banca**: 4:1 qualsiasi materiale (argento compreso).
@@ -562,6 +568,7 @@ motivazione)*
 - Scambi fra giocatori online: il proponente conferma con chi ha accettato (banner nella schermata); in locale la risposta di un bot è immediata, fra umani sullo stesso dispositivo l'accordo è «a voce».
 - Editor mappe: limitato alla mappa `mondo`; i nomi passano dal filtro delle parole censurate del server.
 - **Fase 7 — mappe «a zoom»**: oltre a Il Mondo (32) ci sono **Europa** (39 paesi, Natural Earth), **Italia** (20 regioni, ISTAT/openpolis CC BY 3.0 IT) e **Milano** (24 quartieri reali, © OpenStreetMap, ODbL). Un generatore comune (`scripts/lib/areaMap.mjs`) fonde le aree piccole, proietta con cos(lat) nel riquadro del mondo, ricava i confini condivisi come collegamenti di terra, aggancia le isole con rotte di mare, bilancia i materiali e assegna i «continenti» (macro-aree o k-medie con nomi di direzione). `scripts/build-area-maps.mjs` rifà Italia/Europa; **`scripts/build-city-map.mjs "<città>" <id> [distretti]`** genera la mappa di QUALSIASI città: confine da Nominatim, distretti = celle di Voronoi di un k-medie sull'interno, nomi dai quartieri OSM (reverse geocoding, 1 richiesta ogni ~2 s). Il JSON si committa e si registra in `maps/` + `MAPS` (nessun download a runtime). Overpass non era raggiungibile dall'ambiente di sviluppo, perciò i distretti di Milano sono sintetici (Voronoi) e non i NIL ufficiali; con Overpass si possono usare i confini veri passando le aree a `buildAreaMap`.
+- **Partite più corte (misurate con 40 partite bot-vs-bot, 4 giocatori, 10 PG)**: base ~21–22 giri; con «2 clan per territorio» da sola ~20; con la «raccolta del Jarl» a ogni tiro ~15; con entrambe ~14. Poi la raccolta è stata limitata a quando esce il numero del territorio del Jarl (scelta di design): con le due regole insieme **~17 giri** (−20% rispetto alla base). La pietra è disegnata rossa (mattone, 🧱). Le due regole sono costanti in `constants.ts` (`MAX_SETTLEMENTS`, `JARL_GATHER`). Il pedaggio di un territorio condiviso va al primo arrivato.
 - Vittoria controllata solo per chi gioca il turno, dopo ogni costruzione.
 - Pezzi (villaggi/città/Sale/porti/mercati/strade) contati direttamente dal tabellone: una città libera il «pezzo» villaggio.
 - Prima mappa: «Il Mondo», 32 territori (§7).
