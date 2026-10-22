@@ -4,6 +4,23 @@
 
 ## Stato attuale
 
+**VIKINGS AROUND THE WORLD — EROI (sempre attivi)** ✅ — gli eroi della Classica
+arrivano nel Mondo come caratteristica **sempre attiva** (niente interruttore):
+ogni clan gioca con **un** eroe, **stessi personaggi** e **stesso sblocco** (la
+progressione dell'account: 5 «Dono» comuni sempre disponibili, 5 non comuni da
+casse/frammenti). Effetti uguali alla Classica tranne due adattati alle regole
+del Mondo: **Njord** = un **Porto gratis** per partita (niente approdi specifici),
+**Ulfar** = Jarl con **5 punti movimento** (niente Drago/Berserker). Gli altri:
+Dono (+1 materiale a inizio turno), Mercante (4× scambio 2-a-1), Apripista (2
+strade per villaggio nel setup), Maestro (+1 a strade/villaggi/città). Motore
+`engine-world` indipendente (`src/heroes.ts` = id + effetti; nomi/descrizioni/art
+dalla Classica e da `i18n/world`); azioni estese con `scambioBanca.mercante` e
+`costruisci.free`; evento `eroeGuadagno`. Scelta eroe nella nuova partita e nella
+lobby online (`world:setHero`), picker riusato dalla Classica (eroi non sbloccati
+bloccati). Ritratto in HUD, pulsanti «Mercante 2:1» e «Porto gratis» in gioco.
+Tutte le 8 lingue, tutorial con schermata eroi, docs aggiornati. +7 test motore,
++2 bot (10 eroi), +1 server, i18n.
+
 **VIKINGS AROUND THE WORLD — PARTITE PIÙ CORTE** ✅ — due regole nuove: (1) **fino a 2
 clan diversi per territorio** (producono entrambi; chi ha casa lì non paga il pedaggio,
 gli altri pagano al primo arrivato; Porto/Mercato per insediamento) e (2) **il Jarl

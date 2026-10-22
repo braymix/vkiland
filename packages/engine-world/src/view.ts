@@ -24,6 +24,8 @@ export function getPlayerView(state: WorldGameState, viewer: Viewer): WorldPlaye
       tollsPaidThisTurn: p.tollsPaidThisTurn,
       handCount: totalResources(p.hand),
       points: gloryPoints(state, p.id),
+      ...(p.hero ? { hero: p.hero } : {}),
+      ...(p.heroUses ? { heroUses: { ...p.heroUses } } : {}),
     })),
     hand: viewer === null ? null : { ...state.players[viewer]!.hand },
     currentPlayer: state.currentPlayer,

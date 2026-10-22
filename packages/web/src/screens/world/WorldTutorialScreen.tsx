@@ -8,6 +8,7 @@ const SLIDES = [
   { icon: '🪙', t: 'tut3T', b: 'tut3B' },
   { icon: '⚖️', t: 'tut4T', b: 'tut4B' },
   { icon: '🔨', t: 'tut5T', b: 'tut5B' },
+  { icon: '🛡️', t: 'tut7T', b: 'tut7B' },
   { icon: '🏆', t: 'tut6T', b: 'tut6B' },
 ] as const;
 

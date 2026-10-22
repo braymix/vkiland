@@ -5,7 +5,7 @@
  * di verità per eventi socket e DTO. Il server è autoritativo: i client
  * inviano `Action` come INTENZIONI; lo stato vero vive solo sul server.
  */
-import type { WorldAction, WorldEvent, WorldPlayerView } from '@vikiland/engine-world';
+import type { WorldAction, WorldEvent, WorldHeroId, WorldPlayerView } from '@vikiland/engine-world';
 import type {
   Action,
   BoardShapeChoice,
@@ -72,6 +72,8 @@ export interface WorldSeatInfo {
   isHost: boolean;
   /** true per il posto di chi riceve questo stato. */
   isYou: boolean;
+  /** Eroe del posto (sempre attivo nel Mondo). */
+  hero?: WorldHeroId;
 }
 
 export type WorldBotLevel = 'facile' | 'normale' | 'difficile' | 'esperto';
@@ -369,6 +371,8 @@ export interface ClientToServerEvents {
   'world:leave': () => void;
   'world:addBot': (level: WorldBotLevel) => void;
   'world:removeSeat': (index: number) => void;
+  /** Sceglie l'eroe di un posto (il proprio, o — per l'host — quello di un bot). */
+  'world:setHero': (index: number, hero: WorldHeroId) => void;
   'world:start': () => void;
   'world:terminate': () => void;
   'world:action': (action: WorldAction) => void;

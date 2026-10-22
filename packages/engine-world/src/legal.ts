@@ -67,9 +67,15 @@ export function getLegalActions(state: WorldGameState, pid: PlayerId): WorldActi
     for (const what of ['villaggio', 'citta', 'sala', 'porto', 'mercato'] as const) {
       push({ type: 'costruisci', player: pid, what, territory: t.id });
     }
+    // Porto gratis dell'eroe Njord (mutaporto).
+    push({ type: 'costruisci', player: pid, what: 'porto', territory: t.id, free: true });
   }
   for (const give of WORLD_RESOURCES) {
-    for (const receive of WORLD_RESOURCES) push({ type: 'scambioBanca', player: pid, give, receive });
+    for (const receive of WORLD_RESOURCES) {
+      push({ type: 'scambioBanca', player: pid, give, receive });
+      // Scambio 2-a-1 dell'eroe Mercante (Gest), solo tra materiali.
+      push({ type: 'scambioBanca', player: pid, give, receive, mercante: true });
+    }
   }
   push({ type: 'fineTurno', player: pid });
   return out;

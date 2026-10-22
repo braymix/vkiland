@@ -49,6 +49,8 @@ export const MAX_TARGET_POINTS = 15;
 
 export const BANK_RATIO = 4;
 export const PORT_RATIO = 3;
+/** Rapporto dell'eroe Mercante (Gest): 2 materiali -> 1 materiale. */
+export const MERCANTE_RATIO = 2;
 /** 1 argento -> 2 materiali; 3 materiali uguali -> 1 argento. */
 export const SILVER_SELL = 2;
 export const SILVER_BUY = 3;

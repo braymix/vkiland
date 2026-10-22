@@ -221,7 +221,10 @@ function decideActions(input: WorldBotInput, cfg: LevelCfg): WorldAction {
   const step = target ? firstStep(paths, here, target) : null;
   const mineHere = settlementOf(view.territories[here], me);
   if (step && step.kind === 'mare' && mineHere && !mineHere.porto) {
-    const port = builds.find((b) => b.what === 'porto' && b.territory === here);
+    // Preferisce il Porto gratis dell'eroe Njord, se disponibile.
+    const port =
+      builds.find((b) => b.what === 'porto' && b.territory === here && b.free) ??
+      builds.find((b) => b.what === 'porto' && b.territory === here);
     if (port) return port;
   }
 
@@ -278,7 +281,8 @@ function bankTradeToward(
     const spare = hand[t.give] - goal[t.give];
     if (spare <= 0 && t.give !== 'argento') continue;
     if (t.give === 'argento' && hand.argento <= goal.argento) continue;
-    const score = miss[t.receive as ProducedResource] * 2 + spare;
+    // Il Mercante (2-a-1) è strettamente più conveniente: lo si preferisce.
+    const score = miss[t.receive as ProducedResource] * 2 + spare + (t.mercante ? 1.5 : 0);
     if (score > bestScore) {
       bestScore = score;
       best = t;

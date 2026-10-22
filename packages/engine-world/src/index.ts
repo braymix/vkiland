@@ -51,6 +51,7 @@ export {
   WORLD_RESOURCES,
   HAND_LIMIT,
   MOVE_POINTS,
+  MERCANTE_RATIO,
   MAX_SETTLEMENTS,
   JARL_GATHER,
   DEFAULT_TARGET_POINTS,
@@ -59,5 +60,20 @@ export {
   MIN_PRODUCTIVE_TERRITORIES,
   type WorldBuildable,
 } from './constants';
+export {
+  WORLD_HERO_EFFECTS,
+  ALL_WORLD_HERO_IDS,
+  worldHeroEffect,
+  heroOf,
+  hasHero,
+  heroUsesLeft,
+  movePointsFor,
+  setupRoadsFor,
+  effectivePieceLimit,
+  initialHeroUses,
+  sanitizeWorldHero,
+  type WorldHeroId,
+  type WorldHeroEffect,
+} from './heroes';
 export { zeroResources, totalResources, hasAtLeast, oneOf } from './resources';
 export { seedRng, nextInt, rollDie, shuffle, type RngState } from './rng';

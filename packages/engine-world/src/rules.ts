@@ -7,10 +7,10 @@ import {
   GRANDE_VIA_MIN,
   MOVE_COST_OTHER,
   MOVE_COST_OWN_ROAD,
-  PIECE_LIMITS,
   TOLL_BASE,
   TOLL_SALA,
 } from './constants';
+import { effectivePieceLimit } from './heroes';
 import { linkBetween, mapIndex, otherEnd } from './map';
 import { pickFromLargest, totalResources, zeroResources } from './resources';
 import type { PlayerId, ResourceMap, Settlement, TerritoryState, WorldGameState } from './types';
@@ -58,7 +58,8 @@ export function piecesLeft(
       : kind === 'porto' || kind === 'mercato'
         ? countAnnex(state, pid, kind)
         : countBuildings(state, pid, kind);
-  return PIECE_LIMITS[kind] - used;
+  // Il Maestro Costruttore (Sindri) alza di 1 il limite di strade/villaggi/città.
+  return effectivePieceLimit(state, pid, kind) - used;
 }
 
 // -------------------------------------------------------------- continenti

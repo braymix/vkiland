@@ -1,7 +1,10 @@
 /** Pezzi di interfaccia condivisi di «Vikings Around the World». */
 import { WORLD_RESOURCES, type ResourceMap, type WorldPlayerView, type WorldResource } from '@vikiland/engine-world';
+import type { HeroId } from '@vikiland/engine';
 import { wt } from '../../i18n/world';
 import { colorOf } from '../../render/world/worldRenderer';
+import { HeroArt } from '../HeroArt';
+import { worldHeroName } from '../../game/world/worldHero';
 
 export const RES_EMOJI: Record<WorldResource, string> = {
   legname: '🪵',
@@ -89,7 +92,15 @@ export function PlayersBar({ view }: { view: WorldPlayerView }) {
           className={`w-player${p.id === view.currentPlayer ? ' w-player--on' : ''}${p.id === view.viewer ? ' w-player--me' : ''}`}
         >
           <span className="w-dot" style={{ background: colorOf(view, p.id) }} />
-          <span className="w-pname">{p.bot ? '🤖 ' : ''}{p.name}</span>
+          <span className="w-pname">
+            {p.hero && (
+              <span className="w-phero" title={`${worldHeroName(p.hero)} — ${wt.eroe}`}>
+                <HeroArt hero={p.hero as HeroId} size={16} />
+              </span>
+            )}
+            {p.bot ? '🤖 ' : ''}
+            {p.name}
+          </span>
           <span className="w-pstat">
             {p.points}
             {wt.punti} · {p.handCount}🎴

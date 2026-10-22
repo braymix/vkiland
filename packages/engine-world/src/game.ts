@@ -4,6 +4,7 @@ import {
   MAX_TARGET_POINTS,
   MIN_TARGET_POINTS,
 } from './constants';
+import { initialHeroUses, sanitizeWorldHero } from './heroes';
 import { applyMapOverride, assignNumbers, freezeMap, getMapDefinition, isProductive, validateMap } from './map';
 import { seedRng, shuffle } from './rng';
 import { zeroResources } from './resources';
@@ -71,16 +72,22 @@ export function createGame(config: WorldGameConfig, opts: NewWorldGameOptions = 
   }
 
   const first = def.territories[0]!.id;
-  const players: WorldPlayerState[] = config.players.map((pc, i) => ({
-    id: i,
-    name: pc.name,
-    color: pc.color,
-    ...(pc.bot ? { bot: pc.bot } : {}),
-    hand: zeroResources(),
-    jarl: first,
-    movePointsLeft: 0,
-    tollsPaidThisTurn: [],
-  }));
+  const players: WorldPlayerState[] = config.players.map((pc, i) => {
+    const hero = sanitizeWorldHero(pc.hero);
+    const uses = initialHeroUses(hero);
+    return {
+      id: i,
+      name: pc.name,
+      color: pc.color,
+      ...(pc.bot ? { bot: pc.bot } : {}),
+      hand: zeroResources(),
+      jarl: first,
+      movePointsLeft: 0,
+      tollsPaidThisTurn: [],
+      ...(hero ? { hero } : {}),
+      ...(uses ? { heroUses: uses } : {}),
+    };
+  });
 
   const order = Array.from({ length: n }, (_, i) => i);
   const setupOrder = [...order, ...[...order].reverse()];

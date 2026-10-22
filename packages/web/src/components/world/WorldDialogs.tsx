@@ -48,7 +48,7 @@ export function CostsDialog({ onClose, credits }: { onClose: () => void; credits
 
 interface TradeProps {
   view: WorldPlayerView;
-  onBank: (give: WorldResource, receive: WorldResource) => void;
+  onBank: (give: WorldResource, receive: WorldResource, mercante?: boolean) => void;
   onPlayers: ((give: ResourceMap, receive: ResourceMap, to: PlayerId | null) => string | null) | null;
   onClose: () => void;
 }
@@ -58,7 +58,13 @@ export function TradeDialog({ view, onBank, onPlayers, onClose }: TradeProps) {
   const hand = view.hand!;
   const [give, setGive] = useState<WorldResource>('legname');
   const [receive, setReceive] = useState<WorldResource>('orzo');
-  const rate = give === receive ? null : bankRate(view, view.viewer!, give, receive);
+  // Eroe Mercante (Gest): scambio 2-a-1 (solo materiali), a usi limitati.
+  const self = view.players[view.viewer!];
+  const mercanteLeft = self?.hero === 'mercante' ? self.heroUses?.mercante ?? 0 : 0;
+  const [useMercante, setUseMercante] = useState(false);
+  const mercanteActive = useMercante && mercanteLeft > 0;
+  const mercanteBad = mercanteActive && (give === 'argento' || receive === 'argento');
+  const rate = give === receive || mercanteBad ? null : bankRate(view, view.viewer!, give, receive, mercanteActive);
   const can = !!rate && hand[give] >= rate.giveCount;
 
   const [g, setG] = useState<ResourceMap>(emptyMap());
@@ -108,11 +114,17 @@ export function TradeDialog({ view, onBank, onPlayers, onClose }: TradeProps) {
           <div className="w-rate">
             {rate ? fmt(wt.rapporto, { dai: `${rate.giveCount}${RES_EMOJI[give]}`, ricevi: `${rate.receiveCount}${RES_EMOJI[receive]}` }) : '—'}
           </div>
+          {mercanteLeft > 0 && (
+            <label className="w-check" title={fmt(wt.mercanteNota, { n: mercanteLeft })}>
+              <input type="checkbox" checked={useMercante} onChange={(e) => setUseMercante(e.target.checked)} />{' '}
+              🧭 {fmt(wt.mercanteLeft, { n: mercanteLeft })}
+            </label>
+          )}
           <div className="dialog-buttons">
             <button className="pxbtn pxbtn--ghost" onClick={onClose}>
               {wt.chiudi}
             </button>
-            <button className="pxbtn" disabled={!can} onClick={() => onBank(give, receive)}>
+            <button className="pxbtn" disabled={!can} onClick={() => onBank(give, receive, mercanteActive)}>
               {wt.scambia}
             </button>
           </div>

@@ -200,6 +200,22 @@ export function WorldGameScreen({ makeController, onExit, onRematch }: Props) {
           </button>
         );
       }
+      // Porto gratis dell'eroe Njord (mutaporto).
+      const freePort = legal.some(
+        (a) => a.type === 'costruisci' && a.what === 'porto' && a.free === true && a.territory === selected
+      );
+      if (freePort) {
+        actions.push(
+          <button
+            key="porto-free"
+            className="pxbtn"
+            title={wt.portoGratisNota}
+            onClick={() => send({ type: 'costruisci', player: me, what: 'porto', territory: selected, free: true }) && setSelected(null)}
+          >
+            ⚓ {wt.portoGratis} 🎁
+          </button>
+        );
+      }
       if (mine || isMyJarl) {
         for (const l of idx.linksOf.get(selected) ?? []) {
           if (l.kind !== 'terra' || view.roads[l.id] !== undefined) continue;
@@ -387,8 +403,8 @@ export function WorldGameScreen({ makeController, onExit, onRematch }: Props) {
         <TradeDialog
           view={view}
           onClose={() => setDlg(null)}
-          onBank={(give, receive) => {
-            send({ type: 'scambioBanca', player: me, give, receive });
+          onBank={(give, receive, mercante) => {
+            send({ type: 'scambioBanca', player: me, give, receive, ...(mercante ? { mercante: true } : {}) });
           }}
           onPlayers={
             ctl.proposeTrade

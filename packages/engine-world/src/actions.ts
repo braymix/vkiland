@@ -1,7 +1,9 @@
 /** Azioni, eventi ed errori di Vikings Around the World. */
+import type { WorldHeroId } from './heroes';
 import type {
   BuildingKind,
   PlayerId,
+  ProducedResource,
   ResourceMap,
   TradeOffer,
   WorldGameState,
@@ -20,9 +22,11 @@ export type WorldAction =
   | { type: 'muovi'; player: PlayerId; to: string; pay?: ResourceMap }
   // --- Costruzioni ---
   | { type: 'costruisciStrada'; player: PlayerId; link: string }
-  | { type: 'costruisci'; player: PlayerId; what: BuildingKind | 'porto' | 'mercato'; territory: string }
+  /** `free` (solo eroe Njord): costruisci un Porto senza pagarne il costo (1 volta per partita). */
+  | { type: 'costruisci'; player: PlayerId; what: BuildingKind | 'porto' | 'mercato'; territory: string; free?: boolean }
   // --- Scambi ---
-  | { type: 'scambioBanca'; player: PlayerId; give: WorldResource; receive: WorldResource }
+  /** `mercante` (solo eroe Gest): scambio banca 2-a-1 anziché 4/3-a-1 (fino a 4 volte per partita). */
+  | { type: 'scambioBanca'; player: PlayerId; give: WorldResource; receive: WorldResource; mercante?: boolean }
   | { type: 'proponiScambio'; player: PlayerId; give: ResourceMap; receive: ResourceMap; to: PlayerId | null }
   | { type: 'rispondiScambio'; player: PlayerId; offerId: number; accept: boolean }
   | { type: 'confermaScambio'; player: PlayerId; offerId: number; with: PlayerId }
@@ -49,6 +53,7 @@ export type WorldEvent =
   | { type: 'scambioRifiutato'; offerId: number }
   | { type: 'scambioConcluso'; offer: TradeOffer; with: PlayerId }
   | { type: 'scambioAnnullato'; offerId: number }
+  | { type: 'eroeGuadagno'; player: PlayerId; hero: WorldHeroId; resource: ProducedResource; amount: number }
   | { type: 'grandeVia'; holder: PlayerId | null; length: number }
   | { type: 'grandeViaggiatore'; holder: PlayerId | null; continents: number }
   | { type: 'vittoria'; player: PlayerId };

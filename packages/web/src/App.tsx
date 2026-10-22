@@ -210,6 +210,7 @@ export function App() {
       return (
         <NewWorldGameScreen
           defaultName={session?.username}
+          progression={progression}
           onBack={() => setRoute({ screen: 'menu' })}
           session={session}
           onOnline={() => setRoute(hasAccount ? { screen: 'worldOnline' } : { screen: 'entry' })}
@@ -224,6 +225,7 @@ export function App() {
       return (
         <WorldOnlineScreen
           session={session}
+          progression={progression}
           onBack={() => setRoute({ screen: 'menu' })}
           onInvalidSession={onLogout}
         />

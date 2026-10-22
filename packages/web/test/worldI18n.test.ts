@@ -11,10 +11,13 @@ describe('traduzioni di Vikings Around the World', () => {
   for (const [lang, dict] of Object.entries(worldLangs)) {
     it(`${lang}: chiavi valide e stessi segnaposto dell'originale`, () => {
       for (const [key, value] of Object.entries(dict)) {
+        // Le traduzioni contengono solo stringhe semplici (heroDesc è un oggetto,
+        // tradotto solo in it/en: le lingue ripiegano sull'inglese).
+        if (typeof value !== 'string') continue;
         expect(typeof base[key], `chiave sconosciuta ${lang}.${key}`).toBe('string');
-        expect(value!.length, `${lang}.${key} vuota`).toBeGreaterThan(0);
+        expect(value.length, `${lang}.${key} vuota`).toBeGreaterThan(0);
         // Il confronto con l'italiano (lingua attiva nei test = en/it): stessi segnaposto.
-        expect(placeholders(value!), `${lang}.${key}`).toEqual(placeholders(base[key]!));
+        expect(placeholders(value), `${lang}.${key}`).toEqual(placeholders(base[key] as string));
       }
     });
 

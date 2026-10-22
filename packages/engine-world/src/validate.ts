@@ -7,11 +7,13 @@ import {
   BANK_RATIO,
   BUILD_COSTS,
   HAND_LIMIT,
+  MERCANTE_RATIO,
   PORT_RATIO,
   SILVER_BUY,
   SILVER_SELL,
   WORLD_RESOURCES,
 } from './constants';
+import { hasHero, heroUsesLeft } from './heroes';
 import { isProductive, mapIndex } from './map';
 import { hasAtLeast, isValidResourceMap, overlapping, totalResources } from './resources';
 import {
@@ -55,16 +57,21 @@ const ERR = {
   nonConsentito: err('NON_CONSENTITO', 'Azione non consentita.'),
 };
 
-/** Rapporto di scambio con la banca: quante carte dai e quante ricevi. */
+/**
+ * Rapporto di scambio con la banca: quante carte dai e quante ricevi.
+ * `mercante` (eroe Gest) forza il 2-a-1 tra materiali (non vale per l'argento).
+ */
 export function bankRate(
   state: Pick<WorldGameState, 'territories'>,
   pid: PlayerId,
   give: WorldResource,
-  receive: WorldResource
+  receive: WorldResource,
+  mercante = false
 ): { giveCount: number; receiveCount: number } | null {
   if (give === receive) return null;
   if (give === 'argento') return { giveCount: 1, receiveCount: SILVER_SELL };
   if (receive === 'argento') return { giveCount: SILVER_BUY, receiveCount: 1 };
+  if (mercante) return { giveCount: MERCANTE_RATIO, receiveCount: 1 };
   const hasPort = Object.values(state.territories).some((t) => settlementOf(t, pid)?.porto);
   return { giveCount: hasPort ? PORT_RATIO : BANK_RATIO, receiveCount: 1 };
 }
@@ -187,13 +194,24 @@ export function isLegal(state: WorldGameState, action: WorldAction): ValidationE
           if (mine.mercato) return ERR.giaPresente;
         }
       }
+      // Porto gratis dell'eroe Njord (mutaporto): niente costo, serve un uso disponibile.
+      if (action.free) {
+        if (what !== 'porto') return ERR.nonConsentito;
+        if (!hasHero(state, pid, 'mutaporto') || heroUsesLeft(state, pid, 'portoGratis') <= 0) return ERR.nonConsentito;
+        return null;
+      }
       return hasAtLeast(me.hand, BUILD_COSTS[what]) ? null : ERR.risorse;
     }
     case 'scambioBanca': {
       if (phase.type !== 'azioni') return ERR.fase;
       if (pid !== state.currentPlayer) return ERR.turno;
       if (!WORLD_RESOURCES.includes(action.give) || !WORLD_RESOURCES.includes(action.receive)) return ERR.scambio;
-      const rate = bankRate(state, pid, action.give, action.receive);
+      if (action.mercante) {
+        // Mercante errante (Gest): solo materiale->materiale, con un uso disponibile.
+        if (action.give === 'argento' || action.receive === 'argento') return ERR.scambio;
+        if (!hasHero(state, pid, 'mercante') || heroUsesLeft(state, pid, 'mercante') <= 0) return ERR.nonConsentito;
+      }
+      const rate = bankRate(state, pid, action.give, action.receive, action.mercante);
       if (!rate) return ERR.scambio;
       return me.hand[action.give] >= rate.giveCount ? null : ERR.risorse;
     }

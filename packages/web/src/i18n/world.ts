@@ -206,6 +206,33 @@ const itW = {
   territori: 'territori',
   postoLibero: 'C’è posto per un altro clan',
   raccolta: 'Il Jarl raccoglie quando esce il numero del suo territorio',
+  // eroi (sempre attivi nel Mondo)
+  eroe: 'Eroe',
+  scegliEroe: 'Scegli eroe',
+  cambiaEroe: 'Cambia eroe',
+  eroeDi: 'Eroe di {nome}',
+  eroiIntro: 'Ogni clan gioca con un eroe: stessi personaggi e stesso sblocco della Classica.',
+  mercanteBtn: 'Mercante 2:1',
+  mercanteLeft: 'Mercante 2:1 ({n})',
+  mercanteNota: 'Scambio 2-a-1 con la banca, {n} volte rimaste.',
+  portoGratis: 'Porto gratis',
+  portoGratisNota: 'Njord: costruisci un Porto senza costo (1 volta).',
+  logEroeGuadagno: '{nome} · eroe: +1 {risorsa}',
+  tut7T: 'Eroi',
+  tut7B:
+    'Ogni clan gioca con un eroe (stessi personaggi e stesso sblocco della Classica): i «Dono» danno +1 materiale a inizio turno, altri regalano scambi 2-a-1, un Porto gratis, una costruzione in più o un punto movimento extra.',
+  heroDesc: {
+    donoLegname: 'All’inizio di ogni tuo turno guadagni 1 legname.',
+    donoPietra: 'All’inizio di ogni tuo turno guadagni 1 pietra.',
+    donoLana: 'All’inizio di ogni tuo turno guadagni 1 lana.',
+    donoOrzo: 'All’inizio di ogni tuo turno guadagni 1 orzo.',
+    donoFerro: 'All’inizio di ogni tuo turno guadagni 1 ferro.',
+    mutaporto: 'Una volta per partita costruisci un Porto senza pagarne il costo.',
+    mercante: 'Quattro volte per partita fai uno scambio 2-a-1 con la banca (solo materiali).',
+    apripista: 'Nel setup piazzi 2 strade per ogni villaggio iniziale.',
+    maestro: 'Hai una costruzione in più di strade, villaggi e città.',
+    comandante: 'Il tuo Jarl ha 5 punti movimento invece di 4.',
+  } as Record<string, string>,
 };
 
 export type WorldStrings = typeof itW;
@@ -396,6 +423,32 @@ const enW: WorldStrings = {
   territori: 'territories',
   postoLibero: 'Room for one more clan',
   raccolta: "The Jarl gathers when its territory's number is rolled",
+  eroe: 'Hero',
+  scegliEroe: 'Choose hero',
+  cambiaEroe: 'Change hero',
+  eroeDi: 'Hero of {nome}',
+  eroiIntro: 'Every clan plays with a hero: same characters and same unlocks as Classic.',
+  mercanteBtn: 'Merchant 2:1',
+  mercanteLeft: 'Merchant 2:1 ({n})',
+  mercanteNota: '2-for-1 bank trade, {n} left.',
+  portoGratis: 'Free Port',
+  portoGratisNota: 'Njord: build a Port at no cost (once).',
+  logEroeGuadagno: '{nome} · hero: +1 {risorsa}',
+  tut7T: 'Heroes',
+  tut7B:
+    'Every clan plays with a hero (same characters and unlocks as Classic): the «Gifts» grant +1 material at the start of your turn, others give 2-for-1 trades, a free Port, an extra building or an extra move point.',
+  heroDesc: {
+    donoLegname: 'At the start of each of your turns you gain 1 wood.',
+    donoPietra: 'At the start of each of your turns you gain 1 stone.',
+    donoLana: 'At the start of each of your turns you gain 1 wool.',
+    donoOrzo: 'At the start of each of your turns you gain 1 barley.',
+    donoFerro: 'At the start of each of your turns you gain 1 iron.',
+    mutaporto: 'Once per game you build a Port without paying its cost.',
+    mercante: 'Four times per game you make a 2-for-1 bank trade (materials only).',
+    apripista: 'During setup you place 2 roads for each starting village.',
+    maestro: 'You have one extra road, village and city.',
+    comandante: 'Your Jarl has 5 move points instead of 4.',
+  } as Record<string, string>,
 };
 
 const DICTS: Record<string, Partial<WorldStrings>> = { it: itW, en: enW, ...worldLangs };

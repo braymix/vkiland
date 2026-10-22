@@ -76,6 +76,28 @@ describe('lobby del mondo', () => {
     expect(last('a')!.view.map.id).toBe('italia');
   });
 
+  it('eroi: ogni posto ne ha uno; setHero cambia il proprio (e l\'host quello dei bot) e la partita parte con gli eroi', () => {
+    const { mgr, last } = setup();
+    const c = mgr.create(A, {});
+    if (isErr(c)) throw new Error('create');
+    // Ogni posto parte con un eroe assegnato.
+    expect(c.seats[0]!.hero).toBeTruthy();
+    const j = mgr.join(c.code, B);
+    if (isErr(j)) throw new Error('join');
+    expect(j.seats[1]!.hero).toBeTruthy();
+    mgr.addBot('a', 'normale');
+    // Il proprio posto: ok. Il posto altrui umano: vietato.
+    expect(mgr.setHero('b', 1, 'comandante')).toBe(true);
+    expect(isErr(mgr.setHero('b', 0, 'mercante'))).toBe(true);
+    // L'host può scegliere l'eroe del bot (posto 2); un eroe non valido è rifiutato.
+    expect(mgr.setHero('a', 2, 'maestro')).toBe(true);
+    expect(isErr(mgr.setHero('a', 2, 'nessuno' as never))).toBe(true);
+    expect(mgr.start('a')).toBe(true);
+    const view = last('a')!.view;
+    expect(view.players[1]!.hero).toBe('comandante');
+    expect(view.players[2]!.hero).toBe('maestro');
+  });
+
   it('config: sanitizeWorldConfig limita punti, timer e mappa', () => {
     expect(sanitizeWorldConfig({ targetPoints: 1, turnTimerSec: 9999, mapId: 'x' })).toMatchObject({
       targetPoints: 8,

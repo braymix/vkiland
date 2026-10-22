@@ -1,8 +1,12 @@
 /** Impostazione di una partita locale a «Vikings Around the World» (bot e hot-seat). */
 import { useState } from 'react';
-import { MAPS, MAX_TARGET_POINTS, MIN_TARGET_POINTS, DEFAULT_TARGET_POINTS, type BotLevel } from '@vikiland/engine-world';
+import { MAPS, MAX_TARGET_POINTS, MIN_TARGET_POINTS, DEFAULT_TARGET_POINTS, ALL_WORLD_HERO_IDS, WORLD_HERO_EFFECTS, type BotLevel, type WorldHeroId } from '@vikiland/engine-world';
+import { unlockedHeroIds, type HeroId, type PlayerProgression } from '@vikiland/engine';
 import { MapSelect } from '../../components/world/MapSelect';
-import { wt } from '../../i18n/world';
+import { HeroPicker } from '../../components/HeroPicker';
+import { HeroArt } from '../../components/HeroArt';
+import { wt, fmt } from '../../i18n/world';
+import { worldHeroDescribe, worldHeroName } from '../../game/world/worldHero';
 import { PLAYER_COLORS } from '../../render/world/worldRenderer';
 import type { WorldSetup, WorldSeatSetup } from '../../game/world/LocalWorldController';
 import { defaultServerUrl, type OnlineSession } from '../../online/connection';
@@ -19,26 +23,41 @@ interface Props {
   session?: OnlineSession | null;
   /** Nome dell'account (se c'è) per il primo posto. */
   defaultName?: string | undefined;
+  /** Progressione dell'account: gli eroi non sbloccati restano bloccati nel picker. */
+  progression?: PlayerProgression;
 }
 
 type SeatKind = 'umano' | BotLevel;
 interface Seat {
   name: string;
   kind: SeatKind;
+  hero: WorldHeroId;
 }
 
 const BOT_NAMES = ['Ragnar', 'Freydis', 'Leif', 'Astrid', 'Ivar', 'Sigrid'];
 const KINDS: SeatKind[] = ['umano', 'facile', 'normale', 'difficile', 'esperto'];
+/** Eroi comuni (i «Dono»): sempre sbloccati. */
+const COMMON_HEROES = ALL_WORLD_HERO_IDS.filter((id) => WORLD_HERO_EFFECTS[id].donoResource);
+const pick = <T,>(arr: readonly T[]): T => arr[Math.floor(Math.random() * arr.length)]!;
 
-export function NewWorldGameScreen({ onBack, onStart, onOnline, onTutorial, session, defaultName }: Props) {
+export function NewWorldGameScreen({ onBack, onStart, onOnline, onTutorial, session, defaultName, progression }: Props) {
+  // Eroe di default: un comune (sempre sbloccato) per gli umani, uno qualsiasi per i bot.
+  const unlocked = progression ? unlockedHeroIds(progression) : null;
+  const humanPool = (): WorldHeroId[] => {
+    const u = (unlocked ?? []).filter((id) => (ALL_WORLD_HERO_IDS as string[]).includes(id)) as WorldHeroId[];
+    return u.length ? u : [...COMMON_HEROES];
+  };
+  const defaultHero = (isBot: boolean): WorldHeroId => (isBot ? pick(ALL_WORLD_HERO_IDS) : pick(humanPool()));
+
   const [seats, setSeats] = useState<Seat[]>([
-    { name: defaultName || 'Bjorn', kind: 'umano' },
-    { name: BOT_NAMES[0]!, kind: 'normale' },
-    { name: BOT_NAMES[1]!, kind: 'normale' },
+    { name: defaultName || 'Bjorn', kind: 'umano', hero: defaultHero(false) },
+    { name: BOT_NAMES[0]!, kind: 'normale', hero: defaultHero(true) },
+    { name: BOT_NAMES[1]!, kind: 'normale', hero: defaultHero(true) },
   ]);
   const [target, setTarget] = useState(DEFAULT_TARGET_POINTS);
   const [random, setRandom] = useState(false);
   const [mapId, setMapId] = useState('mondo');
+  const [heroSeat, setHeroSeat] = useState<number | null>(null);
 
   const update = (i: number, patch: Partial<Seat>) =>
     setSeats((s) => s.map((x, k) => (k === i ? { ...x, ...patch } : x)));
@@ -52,6 +71,7 @@ export function NewWorldGameScreen({ onBack, onStart, onOnline, onTutorial, sess
       name: s.name.trim() || `P${i + 1}`,
       color: PLAYER_COLORS[i % PLAYER_COLORS.length]!,
       bot: s.kind === 'umano' ? null : s.kind,
+      hero: s.hero,
     }));
     onStart({
       seed: `world-${Date.now()}-${Math.floor(Math.random() * 1e6)}`,
@@ -107,12 +127,19 @@ export function NewWorldGameScreen({ onBack, onStart, onOnline, onTutorial, sess
                 ✕
               </button>
             )}
+            <button
+              className="pxbtn pxbtn--ghost pxbtn--small w-hero-btn"
+              onClick={() => setHeroSeat(i)}
+              title={wt.scegliEroe}
+            >
+              <HeroArt hero={s.hero as HeroId} size={20} /> {worldHeroName(s.hero)}
+            </button>
           </div>
         ))}
         {canAdd && (
           <button
             className="pxbtn pxbtn--ghost pxbtn--small"
-            onClick={() => setSeats((x) => [...x, { name: BOT_NAMES[x.length % BOT_NAMES.length]!, kind: 'normale' }])}
+            onClick={() => setSeats((x) => [...x, { name: BOT_NAMES[x.length % BOT_NAMES.length]!, kind: 'normale', hero: defaultHero(true) }])}
           >
             {wt.aggiungi}
           </button>
@@ -152,6 +179,21 @@ export function NewWorldGameScreen({ onBack, onStart, onOnline, onTutorial, sess
           ⛵ {wt.inizia}
         </button>
       </div>
+      {heroSeat !== null && (
+        <HeroPicker
+          title={fmt(wt.eroeDi, { nome: seats[heroSeat]!.name || `P${heroSeat + 1}` })}
+          selected={[seats[heroSeat]!.hero as HeroId]}
+          maxCount={1}
+          describe={worldHeroDescribe}
+          // I bot possono usare anche eroi non ancora sbloccati dall'account.
+          {...(seats[heroSeat]!.kind === 'umano' && progression ? { progression } : {})}
+          onChange={(next) => {
+            const h = (next[next.length - 1] as WorldHeroId) ?? seats[heroSeat]!.hero;
+            update(heroSeat, { hero: h });
+          }}
+          onClose={() => setHeroSeat(null)}
+        />
+      )}
     </div>
   );
 }

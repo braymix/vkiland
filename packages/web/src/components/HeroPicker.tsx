@@ -51,9 +51,14 @@ interface Props {
    * sono selezionabili (contesti che non gestiscono lo sblocco).
    */
   progression?: PlayerProgression;
+  /**
+   * Descrizione alternativa dell'abilità (es. in «Vikings Around the World»
+   * alcuni effetti sono adattati). Se assente si usa quella del registro.
+   */
+  describe?: (h: HeroDef) => string;
 }
 
-export function HeroPicker({ title, selected, maxCount, onChange, onClose, progression }: Props) {
+export function HeroPicker({ title, selected, maxCount, onChange, onClose, progression, describe }: Props) {
   const byRarity: Record<HeroRarity, HeroDef[]> = {
     comune: [],
     nonComune: [],
@@ -69,6 +74,9 @@ export function HeroPicker({ title, selected, maxCount, onChange, onClose, progr
       onChange(selected.filter((h) => h !== id));
     } else if (!full) {
       onChange([...selected, id]);
+    } else if (maxCount === 1) {
+      // Scelta singola: un nuovo eroe sostituisce quello selezionato.
+      onChange([id]);
     }
   };
 
@@ -135,8 +143,9 @@ export function HeroPicker({ title, selected, maxCount, onChange, onClose, progr
                 // non sbloccati restano bloccati col progresso dei frammenti.
                 const locked = progression ? !isHeroUnlocked(progression, h.id) : false;
                 const frags = progression ? fragmentsOf(progression, h.id) : 0;
-                // Con la lista piena, i non selezionati non si possono aggiungere.
-                const disabled = locked || (!active && full);
+                // Con la lista piena, i non selezionati non si possono aggiungere
+                // (tranne in scelta singola, dove un clic sostituisce).
+                const disabled = locked || (!active && full && maxCount !== 1);
                 return (
                   <button
                     key={h.id}
@@ -155,7 +164,7 @@ export function HeroPicker({ title, selected, maxCount, onChange, onClose, progr
                       display: 'flex',
                       flexDirection: 'column',
                       gap: 4,
-                      opacity: locked || (!active && full) ? 0.55 : 1,
+                      opacity: locked || (!active && full && maxCount !== 1) ? 0.55 : 1,
                       background: active ? 'rgba(255,255,255,0.08)' : 'transparent',
                       borderColor: active ? RARITY_COLOR[rarity] : undefined,
                       outline: active ? `2px solid ${RARITY_COLOR[rarity]}` : 'none',
@@ -199,7 +208,9 @@ export function HeroPicker({ title, selected, maxCount, onChange, onClose, progr
                         <div style={{ fontSize: 8, color: 'var(--ink-dim)' }}>{h.ability}</div>
                       </div>
                     </div>
-                    <div style={{ fontSize: 8, lineHeight: 1.5, color: 'var(--ink)' }}>{h.description}</div>
+                    <div style={{ fontSize: 8, lineHeight: 1.5, color: 'var(--ink)' }}>
+                      {describe ? describe(h) : h.description}
+                    </div>
                     {locked && (
                       <div style={{ fontSize: 8, color: RARITY_COLOR[rarity] }}>
                         🔒 {inv.frammenti(frags, FRAGMENTS_PER_HERO)} · {inv.pickerSbloccaDaCasse}

@@ -3,13 +3,15 @@
  * restituisce il NUOVO stato più gli eventi. Mai mutazioni dell'input.
  */
 import type { ApplyResult, WorldAction, WorldEvent } from './actions';
-import { BUILDING_YIELD, BUILD_COSTS, JARL_GATHER, MOVE_POINTS, WORLD_RESOURCES } from './constants';
+import { BUILDING_YIELD, BUILD_COSTS, JARL_GATHER, WORLD_RESOURCES } from './constants';
 import { cloneState } from './game';
+import { movePointsFor, setupRoadsFor, worldHeroEffect } from './heroes';
 
 const cloneJson = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
 import { addResources, subResources, totalResources } from './resources';
 import { nextInt, rollDie } from './rng';
 import {
+  freeTerraLinks,
   gloryPoints,
   settlementOf,
   planMove,
@@ -28,10 +30,16 @@ function beginTurn(state: WorldGameState, pid: PlayerId, events: WorldEvent[]): 
   state.dice = null;
   state.pendingTrade = null;
   const p = state.players[pid]!;
-  p.movePointsLeft = MOVE_POINTS;
+  p.movePointsLeft = movePointsFor(state, pid);
   // Nel territorio di partenza non si paga pedaggio.
   p.tollsPaidThisTurn = [p.jarl];
   events.push({ type: 'turnoIniziato', player: pid, turnNumber: state.turnNumber });
+  // Eroe «Dono»: +1 del suo materiale all'inizio di ogni turno.
+  const eff = worldHeroEffect(p.hero);
+  if (eff?.donoResource) {
+    p.hand[eff.donoResource] += 1;
+    events.push({ type: 'eroeGuadagno', player: pid, hero: eff.id, resource: eff.donoResource, amount: 1 });
+  }
 }
 
 function produce(state: WorldGameState, total: number, events: WorldEvent[]): void {
@@ -148,12 +156,19 @@ export function applyAction(prev: WorldGameState, action: WorldAction): ApplyRes
           events.push({ type: 'produzione', gains: [{ player: pid, territory: t.id, resource: kind, amount: 1 }] });
         }
       }
-      state.phase = { type: 'setup', expect: 'strada' };
+      // L'Apripista (Vegard) piazza 2 strade per ciascun villaggio iniziale.
+      state.phase = { type: 'setup', expect: 'strada', roadsLeft: setupRoadsFor(state, pid) };
       break;
     }
     case 'piazzaStradaIniziale': {
       state.roads[action.link] = pid;
       events.push({ type: 'costruito', player: pid, what: 'strada', at: action.link, setup: true });
+      const roadsLeft = (state.phase.type === 'setup' ? state.phase.roadsLeft ?? 1 : 1) - 1;
+      if (roadsLeft > 0 && freeTerraLinks(state, state.setupLastTerritory!).length > 0) {
+        // Ancora una strada da posare attorno allo stesso villaggio (Apripista).
+        state.phase = { type: 'setup', expect: 'strada', roadsLeft };
+        break;
+      }
       state.setupIndex += 1;
       state.setupLastTerritory = null;
       if (state.setupIndex >= state.setupOrder.length) {
@@ -230,7 +245,12 @@ export function applyAction(prev: WorldGameState, action: WorldAction): ApplyRes
     }
     case 'costruisci': {
       const t = state.territories[action.territory]!;
-      subResources(me.hand, BUILD_COSTS[action.what]);
+      // Porto gratis dell'eroe Njord: niente costo, consuma un uso.
+      if (action.free && action.what === 'porto') {
+        if (me.heroUses) me.heroUses.portoGratis = (me.heroUses.portoGratis ?? 0) - 1;
+      } else {
+        subResources(me.hand, BUILD_COSTS[action.what]);
+      }
       const mine = settlementOf(t, pid);
       if (action.what === 'villaggio') {
         t.settlements.push({ owner: pid, building: 'villaggio', porto: false, mercato: false });
@@ -243,9 +263,11 @@ export function applyAction(prev: WorldGameState, action: WorldAction): ApplyRes
       break;
     }
     case 'scambioBanca': {
-      const rate = bankRate(state, pid, action.give, action.receive)!;
+      const rate = bankRate(state, pid, action.give, action.receive, action.mercante)!;
       me.hand[action.give] -= rate.giveCount;
       me.hand[action.receive] += rate.receiveCount;
+      // Mercante errante (Gest): consuma un uso dell'abilità.
+      if (action.mercante && me.heroUses) me.heroUses.mercante = (me.heroUses.mercante ?? 0) - 1;
       events.push({
         type: 'scambioBanca',
         player: pid,

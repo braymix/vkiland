@@ -143,6 +143,20 @@ const es: Dict = {
   logGrandeVia: 'La Gran Ruta es de {nome} ({n})',
   logViaggiatore: 'El Gran Viajero es {nome} ({n} continentes)',
   postoLibero: 'Hay sitio para otro clan',
+  // eroi
+  eroe: 'Héroe',
+  scegliEroe: 'Elegir héroe',
+  cambiaEroe: 'Cambiar héroe',
+  eroeDi: 'Héroe de {nome}',
+  eroiIntro: 'Cada clan juega con un héroe: mismos personajes y mismos desbloqueos que en la Clásica.',
+  mercanteBtn: 'Mercader 2:1',
+  mercanteLeft: 'Mercader 2:1 ({n})',
+  mercanteNota: 'Cambio 2 por 1 con la banca, quedan {n}.',
+  portoGratis: 'Puerto gratis',
+  portoGratisNota: 'Njord: construye un Puerto sin coste (una vez).',
+  logEroeGuadagno: '{nome} · héroe: +1 {risorsa}',
+  tut7T: 'Héroes',
+  tut7B: 'Cada clan juega con un héroe (mismos personajes y desbloqueos que en la Clásica): los «Dones» dan +1 material al inicio del turno; otros ofrecen cambios 2 por 1, un Puerto gratis, una construcción extra o un punto de movimiento más.',
 };
 
 const fr: Dict = {
@@ -282,6 +296,20 @@ const fr: Dict = {
   logGrandeVia: 'La Grande Route est à {nome} ({n})',
   logViaggiatore: 'Le Grand Voyageur est {nome} ({n} continents)',
   postoLibero: 'Place pour un autre clan',
+  // héros
+  eroe: 'Héros',
+  scegliEroe: 'Choisir un héros',
+  cambiaEroe: 'Changer de héros',
+  eroeDi: 'Héros de {nome}',
+  eroiIntro: 'Chaque clan joue avec un héros : mêmes personnages et mêmes déblocages que la Classique.',
+  mercanteBtn: 'Marchand 2:1',
+  mercanteLeft: 'Marchand 2:1 ({n})',
+  mercanteNota: 'Échange 2 contre 1 avec la banque, {n} restants.',
+  portoGratis: 'Port gratuit',
+  portoGratisNota: 'Njord : construis un Port sans coût (une fois).',
+  logEroeGuadagno: '{nome} · héros : +1 {risorsa}',
+  tut7T: 'Héros',
+  tut7B: 'Chaque clan joue avec un héros (mêmes personnages et déblocages que la Classique) : les « Dons » donnent +1 matériau en début de tour, d’autres offrent des échanges 2 contre 1, un Port gratuit, une construction en plus ou un point de mouvement supplémentaire.',
 };
 
 const de: Dict = {
@@ -421,6 +449,20 @@ const de: Dict = {
   logGrandeVia: 'Die Große Straße gehört {nome} ({n})',
   logViaggiatore: 'Der Große Reisende ist {nome} ({n} Kontinente)',
   postoLibero: 'Platz für einen weiteren Clan',
+  // Helden
+  eroe: 'Held',
+  scegliEroe: 'Held wählen',
+  cambiaEroe: 'Held ändern',
+  eroeDi: 'Held von {nome}',
+  eroiIntro: 'Jeder Clan spielt mit einem Helden: dieselben Figuren und Freischaltungen wie im Klassischen.',
+  mercanteBtn: 'Händler 2:1',
+  mercanteLeft: 'Händler 2:1 ({n})',
+  mercanteNota: '2-zu-1-Tausch mit der Bank, {n} übrig.',
+  portoGratis: 'Gratis-Hafen',
+  portoGratisNota: 'Njord: baue einen Hafen ohne Kosten (einmal).',
+  logEroeGuadagno: '{nome} · Held: +1 {risorsa}',
+  tut7T: 'Helden',
+  tut7B: 'Jeder Clan spielt mit einem Helden (dieselben Figuren und Freischaltungen wie im Klassischen): die «Gaben» geben +1 Material zu Beginn des Zuges, andere bieten 2-zu-1-Tausch, einen Gratis-Hafen, ein zusätzliches Gebäude oder einen Bewegungspunkt mehr.',
 };
 
 const nl: Dict = {
@@ -560,6 +602,20 @@ const nl: Dict = {
   logGrandeVia: 'De Grote Weg is van {nome} ({n})',
   logViaggiatore: 'De Grote Reiziger is {nome} ({n} continenten)',
   postoLibero: 'Plaats voor nog een clan',
+  // helden
+  eroe: 'Held',
+  scegliEroe: 'Held kiezen',
+  cambiaEroe: 'Held wijzigen',
+  eroeDi: 'Held van {nome}',
+  eroiIntro: 'Elke clan speelt met een held: dezelfde personages en dezelfde ontgrendelingen als Klassiek.',
+  mercanteBtn: 'Handelaar 2:1',
+  mercanteLeft: 'Handelaar 2:1 ({n})',
+  mercanteNota: '2-voor-1-ruil met de bank, nog {n}.',
+  portoGratis: 'Gratis haven',
+  portoGratisNota: 'Njord: bouw een haven zonder kosten (één keer).',
+  logEroeGuadagno: '{nome} · held: +1 {risorsa}',
+  tut7T: 'Helden',
+  tut7B: 'Elke clan speelt met een held (dezelfde personages en ontgrendelingen als Klassiek): de «Gaven» geven +1 materiaal aan het begin van je beurt, andere geven 2-voor-1-ruil, een gratis haven, een extra gebouw of een extra bewegingspunt.',
 };
 
 const ru: Dict = {
@@ -699,6 +755,20 @@ const ru: Dict = {
   logGrandeVia: 'Великий путь у {nome} ({n})',
   logViaggiatore: 'Великий путешественник — {nome} ({n} материков)',
   postoLibero: 'Есть место ещё для одного клана',
+  // герои
+  eroe: 'Герой',
+  scegliEroe: 'Выбрать героя',
+  cambiaEroe: 'Сменить героя',
+  eroeDi: 'Герой {nome}',
+  eroiIntro: 'Каждый клан играет с героем: те же персонажи и то же открытие, что и в Классике.',
+  mercanteBtn: 'Купец 2:1',
+  mercanteLeft: 'Купец 2:1 ({n})',
+  mercanteNota: 'Обмен 2 к 1 с банком, осталось {n}.',
+  portoGratis: 'Бесплатный порт',
+  portoGratisNota: 'Ньорд: построй порт без затрат (один раз).',
+  logEroeGuadagno: '{nome} · герой: +1 {risorsa}',
+  tut7T: 'Герои',
+  tut7B: 'Каждый клан играет с героем (те же персонажи и открытие, что и в Классике): «Дары» дают +1 материал в начале хода, другие дают обмен 2 к 1, бесплатный порт, лишнюю постройку или лишнее очко движения.',
 };
 
 const sr: Dict = {
@@ -838,6 +908,20 @@ const sr: Dict = {
   logGrandeVia: 'Veliki put pripada igraču {nome} ({n})',
   logViaggiatore: 'Veliki putnik je {nome} ({n} kontinenata)',
   postoLibero: 'Ima mesta za još jedan klan',
+  // heroji
+  eroe: 'Heroj',
+  scegliEroe: 'Izaberi heroja',
+  cambiaEroe: 'Promeni heroja',
+  eroeDi: 'Heroj klana {nome}',
+  eroiIntro: 'Svaki klan igra sa herojem: isti likovi i isto otključavanje kao u Klasičnom.',
+  mercanteBtn: 'Trgovac 2:1',
+  mercanteLeft: 'Trgovac 2:1 ({n})',
+  mercanteNota: 'Razmena 2 za 1 sa bankom, preostalo {n}.',
+  portoGratis: 'Besplatna luka',
+  portoGratisNota: 'Njord: sagradi luku bez troška (jednom).',
+  logEroeGuadagno: '{nome} · heroj: +1 {risorsa}',
+  tut7T: 'Heroji',
+  tut7B: 'Svaki klan igra sa herojem (isti likovi i otključavanje kao u Klasičnom): «Darovi» daju +1 materijal na početku poteza, drugi daju razmenu 2 za 1, besplatnu luku, dodatnu gradnju ili dodatni poen kretanja.',
 };
 
 export const worldLangs: Record<string, Dict> = { es, fr, de, nl, ru, sr };

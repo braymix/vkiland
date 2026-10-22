@@ -6,8 +6,10 @@ import {
   getLegalActions,
   getPlayerView,
   whoMustAct,
+  ALL_WORLD_HERO_IDS,
   type BotLevel,
   type WorldGameState,
+  type WorldHeroId,
 } from '@vikiland/engine-world';
 import { createWorldBot } from '../src';
 
@@ -18,14 +20,20 @@ function simulate(
   levels: BotLevel[],
   target = 10,
   maxSteps = 40000,
-  mapId = 'mondo'
+  mapId = 'mondo',
+  heroes?: (WorldHeroId | undefined)[]
 ): { state: WorldGameState; steps: number } {
   let s = createGame(
     defaultConfig({
       seed,
       mapId,
       targetPoints: target,
-      players: levels.map((l, i) => ({ name: `B${i}`, color: COLORS[i]!, bot: l })),
+      players: levels.map((l, i) => ({
+        name: `B${i}`,
+        color: COLORS[i]!,
+        bot: l,
+        ...(heroes?.[i] ? { hero: heroes[i] } : {}),
+      })),
     })
   );
   const bots = levels.map((l) => createWorldBot(l));
@@ -83,6 +91,24 @@ describe('bot del mondo', () => {
       expect(steps).toBeLessThan(60000);
     });
   }
+
+  it('con gli eroi: nessuna mossa illegale e la partita finisce (tutti i 10 eroi coinvolti)', () => {
+    // Due partite da 5 clan coprono tutti e 10 gli eroi.
+    const half = ALL_WORLD_HERO_IDS.slice(0, 5);
+    const other = ALL_WORLD_HERO_IDS.slice(5);
+    const a = simulate('heroesA', ['normale', 'normale', 'difficile', 'facile', 'esperto'], 10, 60000, 'mondo', half);
+    const b = simulate('heroesB', ['normale', 'normale', 'difficile', 'facile', 'esperto'], 10, 60000, 'mondo', other);
+    expect(a.state.phase.type).toBe('fine');
+    expect(b.state.phase.type).toBe('fine');
+  });
+
+  it('con gli eroi è riproducibile: stesso seed e stessi eroi = stesso stato', () => {
+    const heroes: (WorldHeroId | undefined)[] = ['comandante', 'mercante', 'apripista'];
+    const a = simulate('rep-h', ['normale', 'difficile', 'normale'], 10, 40000, 'mondo', heroes);
+    const b = simulate('rep-h', ['normale', 'difficile', 'normale'], 10, 40000, 'mondo', heroes);
+    expect(a.state.phase).toEqual(b.state.phase);
+    expect(a.state.turnNumber).toBe(b.state.turnNumber);
+  });
 
   it('è riproducibile: stesso seed = stesso vincitore e stesso numero di turni', () => {
     const a = simulate('rep', ['normale', 'difficile', 'normale']);

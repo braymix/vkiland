@@ -2,6 +2,7 @@
  * Tipi di «Vikings Around the World»: mappa a territori, stato di gioco e vista.
  * Motore puro e separato dalla Modalità Classica (nessun import da @vikiland/engine).
  */
+import type { WorldHeroId } from './heroes';
 import type { RngState } from './rng';
 
 // ---------------------------------------------------------------- risorse
@@ -75,6 +76,8 @@ export interface WorldPlayerConfig {
   name: string;
   color: string;
   bot?: BotLevel;
+  /** Eroe del clan (sempre attivo nel Mondo). Assente = nessun eroe. */
+  hero?: WorldHeroId;
 }
 
 export interface WorldGameConfig {
@@ -116,6 +119,10 @@ export interface WorldPlayerState {
   movePointsLeft: number;
   /** Territori già «pagati» nel turno (compreso quello di partenza). */
   tollsPaidThisTurn: string[];
+  /** Eroe del clan (sempre attivo nel Mondo). */
+  hero?: WorldHeroId;
+  /** Usi rimasti delle abilità a consumo (es. mercante, portoGratis). */
+  heroUses?: Record<string, number>;
 }
 
 export interface TradeOffer {
@@ -128,7 +135,7 @@ export interface TradeOffer {
 }
 
 export type WorldPhase =
-  | { type: 'setup'; expect: 'villaggio' | 'strada' }
+  | { type: 'setup'; expect: 'villaggio' | 'strada'; roadsLeft?: number }
   | { type: 'tiro' }
   | { type: 'scarto'; pending: PlayerId[] }
   | { type: 'razzia'; candidates: PlayerId[] }
@@ -170,6 +177,10 @@ export interface WorldPublicPlayer {
   tollsPaidThisTurn: string[];
   handCount: number;
   points: number;
+  /** Eroe del clan (informazione pubblica, come nella Classica). */
+  hero?: WorldHeroId;
+  /** Usi rimasti delle abilità a consumo (pubblici: informazione innocua). */
+  heroUses?: Record<string, number>;
 }
 
 export interface WorldPlayerView {

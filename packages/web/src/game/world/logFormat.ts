@@ -64,6 +64,8 @@ export function formatWorldEvent(e: WorldEvent, ctx: LogContext): string | null 
       return e.holder === null ? null : fmt(wt.logGrandeVia, { nome: P(e.holder), n: e.length });
     case 'grandeViaggiatore':
       return e.holder === null ? null : fmt(wt.logViaggiatore, { nome: P(e.holder), n: e.continents });
+    case 'eroeGuadagno':
+      return fmt(wt.logEroeGuadagno, { nome: P(e.player), risorsa: resName(e.resource) });
     case 'vittoria':
       return fmt(wt.logVittoria, { nome: P(e.player) });
     case 'setupFinito':

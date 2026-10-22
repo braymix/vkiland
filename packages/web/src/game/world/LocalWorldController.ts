@@ -21,6 +21,7 @@ import {
   type WorldGameState,
   type WorldPlayerView,
   type MapOverride,
+  type WorldHeroId,
 } from '@vikiland/engine-world';
 import { createWorldBot, type WorldBot } from '@vikiland/bots';
 import { formatWorldEvent } from './logFormat';
@@ -29,6 +30,8 @@ export interface WorldSeatSetup {
   name: string;
   color: string;
   bot: BotLevel | null;
+  /** Eroe del clan (sempre attivo nel Mondo). */
+  hero?: WorldHeroId;
 }
 
 export interface WorldSetup {
@@ -102,7 +105,12 @@ export class LocalWorldController implements WorldController {
         targetPoints: setup.targetPoints,
         mapId: setup.mapId,
         materialiCasuali: setup.materialiCasuali,
-        players: setup.players.map((p) => ({ name: p.name, color: p.color, ...(p.bot ? { bot: p.bot } : {}) })),
+        players: setup.players.map((p) => ({
+          name: p.name,
+          color: p.color,
+          ...(p.bot ? { bot: p.bot } : {}),
+          ...(p.hero ? { hero: p.hero } : {}),
+        })),
       }),
       { override: setup.override ?? null }
     );

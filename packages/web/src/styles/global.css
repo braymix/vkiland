@@ -2579,6 +2579,27 @@ html[data-lang='ru'] .welcome-title {
 .w-player--me .w-pname {
   color: var(--accent);
 }
+.w-pname {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.w-phero {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+.w-phero canvas,
+.w-phero img,
+.w-hero-btn canvas,
+.w-hero-btn img {
+  image-rendering: pixelated;
+  vertical-align: middle;
+}
+.w-hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
 .w-dot {
   display: inline-block;
   width: 10px;

@@ -203,7 +203,42 @@ Non c'è nessuna pedina che blocca i territori.
 come nella Classica.
 
 Fuori dalla v1 (idee per dopo, solo se la v1 regge): Carte Saga dedicate,
-Calamità, Squadra, Eroi.
+Calamità, Squadra.
+
+---
+
+## 6.bis Eroi (sempre attivi)
+
+A differenza della Classica (dove sono una modalità opzionale), in «Vikings
+Around the World» gli eroi sono **sempre attivi**: ogni clan gioca con
+**esattamente un eroe**, scelto nella nuova partita (locale) o nella lobby
+(online). Sono gli **stessi personaggi** della Classica e si **sbloccano allo
+stesso modo** (la progressione dell'account con casse/frammenti: i 5 «Dono»
+comuni sono sempre disponibili, i 5 non comuni si farmano). I bot ricevono un
+eroe casuale; gli umani partono da un «Dono» (sempre sbloccato) e possono
+cambiarlo con uno qualunque dei loro eroi sbloccati.
+
+Il motore `packages/engine-world` resta indipendente da `@vikiland/engine`:
+`src/heroes.ts` contiene solo gli id (`WorldHeroId`, le stesse stringhe della
+Classica) e gli **effetti** nel contesto del Mondo; nomi, descrizioni e pixel
+art restano nella Classica/`i18n`. Due effetti sono adattati alle regole del
+Mondo:
+
+| Eroe (id) | Effetto nel Mondo |
+|---|---|
+| Bjornar/Steinar/Ullr/Freyr/Eldgrim (`dono*`) | a inizio turno +1 del materiale (legname/pietra/lana/orzo/ferro) |
+| Gest `mercante` | 4 volte per partita uno scambio banca **2-a-1** (solo materiali) |
+| Vegard `apripista` | nel setup **2 strade** per ogni villaggio iniziale |
+| Sindri `maestro` | +1 al limite di **strade, villaggi e città** (Sala/Porto/Mercato invariati) |
+| Njord `mutaporto` | una volta per partita costruisci un **Porto gratis** (adattato: niente approdi specifici) |
+| Ulfar `comandante` | il Jarl ha **5 punti movimento** invece di 4 (adattato: niente Drago/Berserker) |
+
+Implementazione: `WorldPlayerConfig.hero` / `WorldPlayerState.hero` +
+`heroUses`; Dono applicato in `beginTurn` (evento `eroeGuadagno`); azioni
+estese con campi opzionali `scambioBanca.mercante` e `costruisci.free`; limiti
+pezzi via `effectivePieceLimit`; punti movimento via `movePointsFor`; strade
+di setup via `setupRoadsFor` (fase setup con `roadsLeft`). Online: `WorldSeatInfo.hero`
+e evento `world:setHero`.
 
 ---
 
@@ -564,7 +599,7 @@ motivazione)*
 - Strada: si può posare se tocca il territorio del Jarl, un tuo territorio o un'altra tua strada. «La Grande Via» è la pista più lunga di strade proprie, interrotta dai territori con edifici avversari.
 - **Bilanciamento (misurato con 30 partite bot-vs-bot, 4 giocatori)**: con resa 1/2/2 una partita a 10 PG durava ~36 giri, a 12 PG ~41; il motivo è che un villaggio tocca UN solo territorio (nella Classica ne tocca fino a 3). Con resa **2/3/3** si scende a ~21 giri. Perciò: villaggio produce 2, città 3, Sala 3, bersaglio di default **10 PG** (§3, §5.3, §6 aggiornati).
 - Online: invece di un `GameEngineAdapter` generico dentro `GameRoom`, la modalità ha un gestore SEPARATO (`WorldLobbyManager`) e propri eventi `world:*`: lascia intatta la lobby classica (770 righe) e il suo storage. Niente `gameKind` su lobby/storage per ora; le stanze del mondo non sono persistite (volatili).
-- Posti online: colore fissato dal numero del posto; nessuna chat, spettatori o scelta eroi in questa modalità (v1).
+- Posti online: colore fissato dal numero del posto; nessuna chat o spettatori in questa modalità (v1). **Eroi: sempre attivi** (vedi §6.bis); ogni posto ne sceglie uno (`world:setHero`).
 - Scambi fra giocatori online: il proponente conferma con chi ha accettato (banner nella schermata); in locale la risposta di un bot è immediata, fra umani sullo stesso dispositivo l'accordo è «a voce».
 - Editor mappe: limitato alla mappa `mondo`; i nomi passano dal filtro delle parole censurate del server.
 - **Fase 7 — mappe «a zoom»**: oltre a Il Mondo (32) ci sono **Europa** (39 paesi, Natural Earth), **Italia** (20 regioni, ISTAT/openpolis CC BY 3.0 IT) e **Milano** (24 quartieri reali, © OpenStreetMap, ODbL). Un generatore comune (`scripts/lib/areaMap.mjs`) fonde le aree piccole, proietta con cos(lat) nel riquadro del mondo, ricava i confini condivisi come collegamenti di terra, aggancia le isole con rotte di mare, bilancia i materiali e assegna i «continenti» (macro-aree o k-medie con nomi di direzione). `scripts/build-area-maps.mjs` rifà Italia/Europa; **`scripts/build-city-map.mjs "<città>" <id> [distretti]`** genera la mappa di QUALSIASI città: confine da Nominatim, distretti = celle di Voronoi di un k-medie sull'interno, nomi dai quartieri OSM (reverse geocoding, 1 richiesta ogni ~2 s). Il JSON si committa e si registra in `maps/` + `MAPS` (nessun download a runtime). Overpass non era raggiungibile dall'ambiente di sviluppo, perciò i distretti di Milano sono sintetici (Voronoi) e non i NIL ufficiali; con Overpass si possono usare i confini veri passando le aree a `buildAreaMap`.

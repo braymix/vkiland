@@ -417,6 +417,10 @@ io.on('connection', (socket: AnySocket) => {
     const res = worldLobbies.removeSeat(userId, Number(index));
     if (isWorldErr(res)) socket.emit('world:rejected', { message: res.error });
   });
+  socket.on('world:setHero', (index, hero) => {
+    const res = worldLobbies.setHero(userId, Number(index), hero);
+    if (isWorldErr(res)) socket.emit('world:rejected', { message: res.error });
+  });
   socket.on('world:start', () => {
     const res = worldLobbies.start(userId);
     if (isWorldErr(res)) socket.emit('world:rejected', { message: res.error });

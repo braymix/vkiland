@@ -18,6 +18,9 @@ import {
   getMapDefinition,
   getPlayerView,
   whoMustAct,
+  sanitizeWorldHero,
+  ALL_WORLD_HERO_IDS,
+  WORLD_HERO_EFFECTS,
   DEFAULT_TARGET_POINTS,
   MAX_TARGET_POINTS,
   MIN_TARGET_POINTS,
@@ -26,6 +29,7 @@ import {
   type WorldAction,
   type WorldEvent,
   type WorldGameState,
+  type WorldHeroId,
 } from '@vikiland/engine-world';
 import { createWorldBot, type WorldBot } from '@vikiland/bots';
 import type {
@@ -64,7 +68,15 @@ interface Seat {
   name: string;
   bot: WorldBotLevel | null;
   connected: boolean;
+  /** Eroe del posto (sempre attivo nel Mondo). */
+  hero: WorldHeroId;
 }
+
+/** Eroi comuni (i «Dono»): sempre sbloccati — default sicuro per gli umani. */
+const COMMON_WORLD_HEROES = ALL_WORLD_HERO_IDS.filter((id) => WORLD_HERO_EFFECTS[id].donoResource);
+const pick = <T>(arr: readonly T[]): T => arr[Math.floor(Math.random() * arr.length)]!;
+/** Un umano parte da un Dono (sempre disponibile); un bot da un eroe qualunque. */
+const defaultHero = (isBot: boolean): WorldHeroId => (isBot ? pick(ALL_WORLD_HERO_IDS) : pick(COMMON_WORLD_HEROES));
 
 interface Room {
   code: string;
@@ -130,6 +142,7 @@ export class WorldLobbyManager {
       connected: s.bot ? true : s.connected,
       isHost: s.userId === room.hostId,
       isYou: viewer !== null && s.userId === viewer,
+      hero: s.hero,
     }));
     return {
       code: room.code,
@@ -157,7 +170,7 @@ export class WorldLobbyManager {
       code,
       hostId: user.id,
       config: sanitizeWorldConfig(config),
-      seats: [{ userId: user.id, name: user.name, bot: null, connected: true }],
+      seats: [{ userId: user.id, name: user.name, bot: null, connected: true, hero: defaultHero(false) }],
       started: false,
       state: null,
       bots: [],
@@ -211,7 +224,7 @@ export class WorldLobbyManager {
     if (room.started) return err('La partita è già iniziata.');
     if (room.seats.length >= this.maxPlayers(room)) return err('La partita è al completo.');
     if (room.seats.some((s) => s.name.toLowerCase() === user.name.toLowerCase())) return err('Nome già presente.');
-    room.seats.push({ userId: user.id, name: user.name, bot: null, connected: true });
+    room.seats.push({ userId: user.id, name: user.name, bot: null, connected: true, hero: defaultHero(false) });
     this.byUser.set(user.id, room.code);
     this.broadcast(room);
     return this.toState(room, user.id);
@@ -247,7 +260,24 @@ export class WorldLobbyManager {
     if (room.seats.length >= this.maxPlayers(room)) return err('La partita è al completo.');
     const used = new Set(room.seats.map((s) => s.name));
     const name = BOT_NAMES.find((n) => !used.has(n)) ?? `Bot${room.seats.length + 1}`;
-    room.seats.push({ userId: null, name, bot: level, connected: true });
+    room.seats.push({ userId: null, name, bot: level, connected: true, hero: defaultHero(true) });
+    this.broadcast(room);
+    return true;
+  }
+
+  /** Sceglie l'eroe di un posto: il proprio, o — se host — quello di un bot. */
+  setHero(userId: string, index: number, hero: WorldHeroId): Result<true> {
+    const room = this.roomOfUser(userId);
+    if (!room) return err('Non sei in nessuna lobby.');
+    if (room.started) return err('La partita è già iniziata.');
+    const seat = room.seats[index];
+    if (!seat) return err('Posto non valido.');
+    const isHost = room.hostId === userId;
+    const isOwn = seat.userId === userId;
+    if (!isOwn && !(isHost && seat.bot)) return err('Non puoi scegliere questo eroe.');
+    const clean = sanitizeWorldHero(hero);
+    if (!clean) return err('Eroe non valido.');
+    seat.hero = clean;
     this.broadcast(room);
     return true;
   }
@@ -304,6 +334,7 @@ export class WorldLobbyManager {
             name: s.name,
             color: PALETTE[i % PALETTE.length]!,
             ...(s.bot ? { bot: s.bot } : {}),
+            hero: s.hero,
           })),
         }),
         { override: checked.ok ? override : null }

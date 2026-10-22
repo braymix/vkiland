@@ -1,23 +1,30 @@
 /** Online di «Vikings Around the World»: crea/entra, lobby con bot e avvio, poi la partita. */
 import { useEffect, useRef, useState } from 'react';
 import type { ApiError, WorldBotLevel, WorldLobbyConfig, WorldLobbyState, WorldPublicSummary } from '@vikiland/server/protocol';
-import { DEFAULT_TARGET_POINTS, MAX_TARGET_POINTS, MIN_TARGET_POINTS } from '@vikiland/engine-world';
+import { DEFAULT_TARGET_POINTS, MAX_TARGET_POINTS, MIN_TARGET_POINTS, type WorldHeroId } from '@vikiland/engine-world';
+import type { HeroId, PlayerProgression } from '@vikiland/engine';
 import { connectSocket, type OnlineSession, type ServerSocket } from '../../online/connection';
 import { RemoteWorldController } from '../../game/world/RemoteWorldController';
 import { fmt, wt } from '../../i18n/world';
 import { WorldGameScreen } from './WorldGameScreen';
 import { MapSelect } from '../../components/world/MapSelect';
+import { HeroPicker } from '../../components/HeroPicker';
+import { HeroArt } from '../../components/HeroArt';
+import { worldHeroDescribe, worldHeroName } from '../../game/world/worldHero';
 
 interface Props {
   session: OnlineSession;
   onBack: () => void;
   onInvalidSession: () => void;
+  /** Progressione dell'account: gli eroi non sbloccati restano bloccati nel picker. */
+  progression?: PlayerProgression;
 }
 
 const isError = (x: unknown): x is ApiError => typeof x === 'object' && x !== null && 'error' in x;
 const LEVELS: WorldBotLevel[] = ['facile', 'normale', 'difficile', 'esperto'];
 
-export function WorldOnlineScreen({ session, onBack, onInvalidSession }: Props) {
+export function WorldOnlineScreen({ session, onBack, onInvalidSession, progression }: Props) {
+  const [heroSeat, setHeroSeat] = useState<number | null>(null);
   const socketRef = useRef<ServerSocket | null>(null);
   const [connected, setConnected] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -175,6 +182,15 @@ export function WorldOnlineScreen({ session, onBack, onInvalidSession }: Props) 
                 {s.isYou ? ` · ${wt.tu}` : ''}
                 {!s.connected ? ` · ${wt.disconnesso}` : ''}
               </span>
+              {(s.isYou || (amHost && s.bot)) && (
+                <button
+                  className="pxbtn pxbtn--ghost pxbtn--small w-hero-btn"
+                  onClick={() => setHeroSeat(i)}
+                  title={wt.scegliEroe}
+                >
+                  {s.hero ? <HeroArt hero={s.hero as HeroId} size={20} /> : null} {worldHeroName(s.hero)}
+                </button>
+              )}
               {amHost && !s.isHost && (
                 <button className="pxbtn pxbtn--ghost pxbtn--small" onClick={() => socket?.emit('world:removeSeat', i)}>
                   ✕
@@ -227,6 +243,22 @@ export function WorldOnlineScreen({ session, onBack, onInvalidSession }: Props) 
           {wt.indietro}
         </button>
       </div>
+
+      {lobby && heroSeat !== null && lobby.seats[heroSeat] && (
+        <HeroPicker
+          title={fmt(wt.eroeDi, { nome: lobby.seats[heroSeat]!.name })}
+          selected={lobby.seats[heroSeat]!.hero ? [lobby.seats[heroSeat]!.hero as HeroId] : []}
+          maxCount={1}
+          describe={worldHeroDescribe}
+          // I bot possono usare anche eroi non ancora sbloccati dall'account.
+          {...(lobby.seats[heroSeat]!.isYou && progression ? { progression } : {})}
+          onChange={(next) => {
+            const h = next[next.length - 1] as WorldHeroId | undefined;
+            if (h) socket?.emit('world:setHero', heroSeat, h);
+          }}
+          onClose={() => setHeroSeat(null)}
+        />
+      )}
     </div>
   );
 }
