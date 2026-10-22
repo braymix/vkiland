@@ -21,6 +21,13 @@ import {
   redeemUncommon,
   COMMON_HERO_IDS,
   UNCOMMON_HERO_IDS,
+  FARMABLE_HERO_IDS,
+  RARE_HERO_IDS,
+  LEGENDARY_HERO_IDS,
+  fragmentsNeeded,
+  FRAGMENTS_BY_RARITY,
+  rollChestRarity,
+  pickChestRewardOf,
   MAX_CHESTS,
   FRAGMENTS_PER_HERO,
   currentChestDurationMs,
@@ -41,6 +48,49 @@ describe('rarità degli eroi', () => {
     expect(UNCOMMON_HERO_IDS.length).toBeGreaterThan(0);
     for (const id of COMMON_HERO_IDS) expect(UNCOMMON_HERO_IDS).not.toContain(id);
   });
+
+  it('esistono rari e leggendari (solo Mondo) e servono più frammenti', () => {
+    expect(RARE_HERO_IDS.length).toBeGreaterThan(0);
+    expect(LEGENDARY_HERO_IDS.length).toBeGreaterThan(0);
+    // I rari costano più dei non comuni, i leggendari più dei rari.
+    expect(FRAGMENTS_BY_RARITY.rara).toBeGreaterThan(FRAGMENTS_BY_RARITY.nonComune);
+    expect(FRAGMENTS_BY_RARITY.leggendaria).toBeGreaterThan(FRAGMENTS_BY_RARITY.rara);
+    for (const id of RARE_HERO_IDS) expect(fragmentsNeeded(id)).toBe(FRAGMENTS_BY_RARITY.rara);
+    for (const id of LEGENDARY_HERO_IDS) expect(fragmentsNeeded(id)).toBe(FRAGMENTS_BY_RARITY.leggendaria);
+    for (const id of COMMON_HERO_IDS) expect(fragmentsNeeded(id)).toBe(0);
+  });
+});
+
+describe('casse a tier (rarità) e frammenti per rarità', () => {
+  it('rollChestRarity resta tra le rarità valide agli estremi di rand', () => {
+    expect(rollChestRarity(() => 0)).toBe('leggendaria');
+    expect(rollChestRarity(() => 0.999999)).toBe('nonComune');
+  });
+
+  it('una cassa rara dà frammenti di un eroe raro; servono i frammenti pieni', () => {
+    const hero = RARE_HERO_IDS[0]!;
+    expect(pickChestRewardOf('rara', () => 0)).toBe(hero);
+    // Un solo frammento non basta a sbloccare un raro.
+    const first = applyFragment({}, hero);
+    expect(first.unlockedNow).toBe(false);
+    expect(first.fragments).toBe(1);
+    // Con i frammenti pieni meno uno, l'ultimo sblocca.
+    const quasi: PlayerProgression = { fragments: { [hero]: FRAGMENTS_BY_RARITY.rara - 1 } };
+    const last = applyFragment(quasi, hero);
+    expect(last.fragments).toBe(FRAGMENTS_BY_RARITY.rara);
+    expect(last.unlockedNow).toBe(true);
+    expect(isHeroUnlocked(last.progression, hero)).toBe(true);
+  });
+
+  it('openChest di una cassa leggendaria dà un frammento leggendario', () => {
+    const now = 1000;
+    const prog: PlayerProgression = {
+      chests: [{ id: 'leg', rarity: 'leggendaria', startedAt: 0, durationMs: 500 }],
+    };
+    const res = openChest(prog, 'leg', now, () => 0);
+    expect(res).not.toBeNull();
+    expect(LEGENDARY_HERO_IDS).toContain(res!.heroId);
+  });
 });
 
 describe('isHeroUnlocked / unlockedHeroIds', () => {
@@ -53,8 +103,8 @@ describe('isHeroUnlocked / unlockedHeroIds', () => {
 
   it('il tester ha ogni eroe disponibile', () => {
     const prog: PlayerProgression = { tester: true };
-    for (const id of UNCOMMON_HERO_IDS) expect(isHeroUnlocked(prog, id)).toBe(true);
-    expect(unlockedHeroIds(prog).length).toBe(COMMON_HERO_IDS.length + UNCOMMON_HERO_IDS.length);
+    for (const id of FARMABLE_HERO_IDS) expect(isHeroUnlocked(prog, id)).toBe(true);
+    expect(unlockedHeroIds(prog).length).toBe(COMMON_HERO_IDS.length + FARMABLE_HERO_IDS.length);
   });
 
   it('un non comune sbloccato è disponibile', () => {

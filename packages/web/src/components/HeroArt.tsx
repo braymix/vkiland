@@ -51,6 +51,15 @@ const HERO_PALETTES: Readonly<Record<HeroId, Palette>> = {
   apripista: { H: '#9c6b3f', A: '#6b4526', B: '#3a2416', S: SKIN },
   maestro: { H: '#b06a2c', A: '#7a4518', B: '#4a3020', S: SKIN },
   comandante: { H: '#7a5c8f', A: '#4d3a5c', B: '#2b2030', S: SKIN },
+  // Rari (solo Mondo).
+  navigatore: { H: '#1f7a8c', A: '#13525e', B: '#0d3b44', S: SKIN },
+  salvacondotto: { H: '#c0c6cf', A: '#8a94a3', B: '#5e6673', S: SKIN },
+  fondatrice: { H: '#b5793a', A: '#834f22', B: '#5a3418', S: SKIN },
+  tesoriera: { H: '#d4af37', A: '#9c7d1e', B: '#6b5412', S: SKIN },
+  razziatore: { H: '#8c2f2f', A: '#5e1d1d', B: '#3a1212', S: SKIN },
+  // Leggendari (solo Mondo).
+  allfather: { H: '#4a4e8c', A: '#2e315e', B: '#1b1d3b', S: SKIN },
+  reginadelnord: { H: '#7a2f6b', A: '#531d49', B: '#36122f', S: SKIN },
 };
 
 function colorFor(role: string, pal: Palette): string | null {

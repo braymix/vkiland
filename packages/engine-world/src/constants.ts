@@ -31,6 +31,8 @@ export const BUILDING_YIELD: Readonly<Record<BuildingKind, number>> = { villaggi
 export const MAX_SETTLEMENTS = 2;
 /** Materiali raccolti dal Jarl quando esce il numero del territorio in cui si trova. */
 export const JARL_GATHER = 1;
+/** Argento in più di un Mercato quando esce il numero del suo territorio. */
+export const MARKET_SILVER = 1;
 
 export const HAND_LIMIT = 7;
 export const MOVE_POINTS = 4;

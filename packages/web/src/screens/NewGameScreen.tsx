@@ -21,6 +21,7 @@ import {
   maxDesertCount,
   resolveBoardSpec,
   ALL_HEROES,
+  HERO_REGISTRY,
   unlockedHeroIds,
   heroDef,
   type BoardShapeChoice,
@@ -59,7 +60,9 @@ import { TutorialScreen } from './TutorialScreen';
 const BOT_NAMES = ['Astrid', 'Leif', 'Sigrid', 'Ragnhild', 'Olaf', 'Freya'];
 
 /** Numero massimo di eroi per clan (l'intera raccolta): niente doppioni. */
-const MAX_HEROES = ALL_HEROES.length;
+// Numero massimo di eroi per clan nella Classica: solo gli eroi giocabili qui
+// (i `worldOnly` esistono solo nel Mondo e non si contano).
+const MAX_HEROES = ALL_HEROES.filter((h) => !h.worldOnly).length;
 /** Preset del «numero di eroi» offerti come scorciatoie. */
 const HERO_COUNT_PRESETS = [1, 3, 5, 7];
 
@@ -204,9 +207,12 @@ export function NewGameScreen({
   // Insieme degli eroi utilizzabili nella prevalorizzazione: quelli SBLOCCATI
   // (se nessuno è sbloccato, ripiego sull'intera raccolta per non lasciare i
   // posti vuoti nei contesti senza progressione).
+  // Nella Classica gli eroi `worldOnly` (rari/leggendari) NON sono giocabili:
+  // esistono solo in «Vikings Around the World».
   const heroPool = (): HeroId[] => {
-    const unlocked = unlockedHeroIds(progression);
-    return unlocked.length ? unlocked : ALL_HEROES.map((h) => h.id);
+    const classic = (ids: HeroId[]): HeroId[] => ids.filter((id) => !HERO_REGISTRY[id].worldOnly);
+    const unlocked = classic(unlockedHeroIds(progression));
+    return unlocked.length ? unlocked : classic(ALL_HEROES.map((h) => h.id));
   };
   /** `n` eroi casuali DISTINTI presi dal pool disponibile. */
   const randomHeroesList = (n: number): HeroId[] => {

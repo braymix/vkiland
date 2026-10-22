@@ -2,7 +2,6 @@
 import {
   MAX_SETTLEMENTS,
   AWARD_POINTS,
-  BUILDING_POINTS,
   GRANDE_VIAGGIATORE_MIN,
   GRANDE_VIA_MIN,
   MOVE_COST_OTHER,
@@ -10,7 +9,7 @@ import {
   TOLL_BASE,
   TOLL_SALA,
 } from './constants';
-import { effectivePieceLimit } from './heroes';
+import { buildingPointsFor, effectivePieceLimit } from './heroes';
 import { linkBetween, mapIndex, otherEnd } from './map';
 import { pickFromLargest, totalResources, zeroResources } from './resources';
 import type { PlayerId, ResourceMap, Settlement, TerritoryState, WorldGameState } from './types';
@@ -122,9 +121,9 @@ export interface ScoreBreakdown {
 }
 
 export function scoreBreakdown(state: WorldGameState, pid: PlayerId): ScoreBreakdown {
-  const villaggi = countBuildings(state, pid, 'villaggio') * BUILDING_POINTS.villaggio;
-  const citta = countBuildings(state, pid, 'citta') * BUILDING_POINTS.citta;
-  const sale = countBuildings(state, pid, 'sala') * BUILDING_POINTS.sala;
+  const villaggi = countBuildings(state, pid, 'villaggio') * buildingPointsFor(state, pid, 'villaggio');
+  const citta = countBuildings(state, pid, 'citta') * buildingPointsFor(state, pid, 'citta');
+  const sale = countBuildings(state, pid, 'sala') * buildingPointsFor(state, pid, 'sala');
   const grandeVia = state.grandeVia.holder === pid ? AWARD_POINTS : 0;
   const grandeViaggiatore = state.grandeViaggiatore.holder === pid ? AWARD_POINTS : 0;
   return { villaggi, citta, sale, grandeVia, grandeViaggiatore, total: villaggi + citta + sale + grandeVia + grandeViaggiatore };

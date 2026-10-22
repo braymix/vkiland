@@ -12,8 +12,8 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   ALL_HEROES,
-  RARITY_ORDER,
-  FRAGMENTS_PER_HERO,
+  ALL_RARITY_ORDER,
+  fragmentsNeeded,
   CHEST_DISCOUNT_ACTIVE,
   MAX_CHESTS,
   chestReady,
@@ -132,7 +132,7 @@ function HeroCollection({ prog }: { prog: PlayerProgression }) {
           : it.eroi.rarita.leggendaria;
   return (
     <>
-      {RARITY_ORDER.map((rarity) => {
+      {ALL_RARITY_ORDER.map((rarity) => {
         const heroes = ALL_HEROES.filter((h) => h.rarity === rarity);
         if (heroes.length === 0) return null;
         return (
@@ -144,6 +144,7 @@ function HeroCollection({ prog }: { prog: PlayerProgression }) {
               {heroes.map((h) => {
                 const unlocked = isHeroUnlocked(prog, h.id);
                 const frags = fragmentsOf(prog, h.id);
+                const need = fragmentsNeeded(h.id);
                 return (
                   <div key={h.id} className={`hero-cell ${unlocked ? '' : 'hero-cell--locked'}`}>
                     <div style={{ position: 'relative' }}>
@@ -158,11 +159,11 @@ function HeroCollection({ prog }: { prog: PlayerProgression }) {
                     <div className="hero-cell-state">
                       {unlocked
                         ? `✓ ${inv.sbloccato}`
-                        : inv.frammenti(frags, FRAGMENTS_PER_HERO)}
+                        : inv.frammenti(frags, need)}
                     </div>
                     {!unlocked && (
                       <div className="hero-cell-bar">
-                        <span style={{ width: `${(frags / FRAGMENTS_PER_HERO) * 100}%` }} />
+                        <span style={{ width: `${(frags / need) * 100}%` }} />
                       </div>
                     )}
                   </div>
@@ -523,7 +524,7 @@ export function InventoryScreen({ onBack }: { onBack: () => void }) {
                 ? inv.notSprecato
                 : openResult.unlockedNow
                   ? inv.notSblocco(heroDef(openResult.heroId)?.name ?? '')
-                  : inv.notProgresso(openResult.fragments, FRAGMENTS_PER_HERO)}
+                  : inv.notProgresso(openResult.fragments, fragmentsNeeded(openResult.heroId))}
             </div>
           </div>
           <div className="dialog-buttons">

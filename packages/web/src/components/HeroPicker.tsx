@@ -8,7 +8,7 @@
 import {
   ALL_HEROES,
   RARITY_ORDER,
-  FRAGMENTS_PER_HERO,
+  fragmentsNeeded,
   isHeroUnlocked,
   fragmentsOf,
   type HeroDef,
@@ -56,9 +56,24 @@ interface Props {
    * alcuni effetti sono adattati). Se assente si usa quella del registro.
    */
   describe?: (h: HeroDef) => string;
+  /**
+   * Rarità mostrate, in ordine. Default: solo quelle della Classica
+   * (comune/non comune). Il Mondo passa tutte le rarità, così appaiono anche
+   * i rari e i leggendari `worldOnly`.
+   */
+  rarityOrder?: readonly HeroRarity[];
 }
 
-export function HeroPicker({ title, selected, maxCount, onChange, onClose, progression, describe }: Props) {
+export function HeroPicker({
+  title,
+  selected,
+  maxCount,
+  onChange,
+  onClose,
+  progression,
+  describe,
+  rarityOrder = RARITY_ORDER,
+}: Props) {
   const byRarity: Record<HeroRarity, HeroDef[]> = {
     comune: [],
     nonComune: [],
@@ -117,7 +132,8 @@ export function HeroPicker({ title, selected, maxCount, onChange, onClose, progr
           </div>
         </div>
 
-        {RARITY_ORDER.map((rarity) => (
+        {rarityOrder.map((rarity) => (
+          byRarity[rarity].length === 0 ? null :
           <div key={rarity} style={{ marginBottom: 12 }}>
             <div
               style={{
@@ -213,7 +229,7 @@ export function HeroPicker({ title, selected, maxCount, onChange, onClose, progr
                     </div>
                     {locked && (
                       <div style={{ fontSize: 8, color: RARITY_COLOR[rarity] }}>
-                        🔒 {inv.frammenti(frags, FRAGMENTS_PER_HERO)} · {inv.pickerSbloccaDaCasse}
+                        🔒 {inv.frammenti(frags, fragmentsNeeded(h.id))} · {inv.pickerSbloccaDaCasse}
                       </div>
                     )}
                   </button>

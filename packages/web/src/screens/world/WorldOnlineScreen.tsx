@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ApiError, WorldBotLevel, WorldLobbyConfig, WorldLobbyState, WorldPublicSummary } from '@vikiland/server/protocol';
 import { DEFAULT_TARGET_POINTS, MAX_TARGET_POINTS, MIN_TARGET_POINTS, type WorldHeroId } from '@vikiland/engine-world';
-import type { HeroId, PlayerProgression } from '@vikiland/engine';
+import { ALL_RARITY_ORDER, type HeroId, type PlayerProgression } from '@vikiland/engine';
 import { connectSocket, type OnlineSession, type ServerSocket } from '../../online/connection';
 import { RemoteWorldController } from '../../game/world/RemoteWorldController';
 import { fmt, wt } from '../../i18n/world';
@@ -249,6 +249,7 @@ export function WorldOnlineScreen({ session, onBack, onInvalidSession, progressi
           title={fmt(wt.eroeDi, { nome: lobby.seats[heroSeat]!.name })}
           selected={lobby.seats[heroSeat]!.hero ? [lobby.seats[heroSeat]!.hero as HeroId] : []}
           maxCount={1}
+          rarityOrder={ALL_RARITY_ORDER}
           describe={worldHeroDescribe}
           // I bot possono usare anche eroi non ancora sbloccati dall'account.
           {...(lobby.seats[heroSeat]!.isYou && progression ? { progression } : {})}

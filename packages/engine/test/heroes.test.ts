@@ -65,13 +65,15 @@ function toMainInPlace(s: GameState): void {
 
 describe('registro eroi', () => {
   it('ogni eroe ha nome, abilità e rarità coerenti; i «Dono» hanno una risorsa', () => {
-    expect(ALL_HEROES.length).toBe(10);
+    expect(ALL_HEROES.length).toBe(Object.keys(HERO_REGISTRY).length);
     for (const h of ALL_HEROES) {
       expect(HERO_REGISTRY[h.id]).toBe(h);
       expect(h.name.length).toBeGreaterThan(0);
       expect(h.ability.length).toBeGreaterThan(0);
       if (h.rarity === 'comune') expect(h.donoResource).toBeDefined();
       if (h.useKey) expect(h.usesPerGame).toBeGreaterThan(0);
+      // Rari e leggendari esistono solo per la modalità Mondo.
+      if (h.rarity === 'rara' || h.rarity === 'leggendaria') expect(h.worldOnly).toBe(true);
     }
   });
 });

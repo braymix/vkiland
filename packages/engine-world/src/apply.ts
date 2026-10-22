@@ -3,9 +3,19 @@
  * restituisce il NUOVO stato più gli eventi. Mai mutazioni dell'input.
  */
 import type { ApplyResult, WorldAction, WorldEvent } from './actions';
-import { BUILDING_YIELD, BUILD_COSTS, JARL_GATHER, WORLD_RESOURCES } from './constants';
+import { BUILDING_YIELD, WORLD_RESOURCES } from './constants';
 import { cloneState } from './game';
-import { movePointsFor, setupRoadsFor, worldHeroEffect } from './heroes';
+import {
+  buildCostFor,
+  jarlGatherFor,
+  marketSilverFor,
+  movePointsFor,
+  paysToll,
+  razziaAllFor,
+  setupRoadsFor,
+  startTurnSilverFor,
+  worldHeroEffect,
+} from './heroes';
 
 const cloneJson = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
 import { addResources, subResources, totalResources } from './resources';
@@ -40,6 +50,12 @@ function beginTurn(state: WorldGameState, pid: PlayerId, events: WorldEvent[]): 
     p.hand[eff.donoResource] += 1;
     events.push({ type: 'eroeGuadagno', player: pid, hero: eff.id, resource: eff.donoResource, amount: 1 });
   }
+  // Odino (allfather): +1 argento all'inizio di ogni turno.
+  const silver = startTurnSilverFor(state, pid);
+  if (silver > 0 && p.hero) {
+    p.hand.argento += silver;
+    events.push({ type: 'eroeGuadagno', player: pid, hero: p.hero, resource: 'argento', amount: silver });
+  }
 }
 
 function produce(state: WorldGameState, total: number, events: WorldEvent[]): void {
@@ -55,8 +71,9 @@ function produce(state: WorldGameState, total: number, events: WorldEvent[]): vo
       state.players[s.owner]!.hand[kind] += amount;
       gains.push({ player: s.owner, territory: ter.id, resource: kind, amount });
       if (s.mercato) {
-        state.players[s.owner]!.hand.argento += 1;
-        gains.push({ player: s.owner, territory: ter.id, resource: 'argento', amount: 1 });
+        const silver = marketSilverFor(state, s.owner);
+        state.players[s.owner]!.hand.argento += silver;
+        gains.push({ player: s.owner, territory: ter.id, resource: 'argento', amount: silver });
       }
     }
   }
@@ -65,9 +82,10 @@ function produce(state: WorldGameState, total: number, events: WorldEvent[]): vo
   for (const p of state.players) {
     const ter = state.territories[p.jarl];
     const here = kindOf.get(p.jarl);
-    if (!ter || ter.number !== total || !here || here === 'deserto' || JARL_GATHER <= 0) continue;
-    p.hand[here] += JARL_GATHER;
-    gains.push({ player: p.id, territory: p.jarl, resource: here, amount: JARL_GATHER });
+    const gather = jarlGatherFor(state, p.id);
+    if (!ter || ter.number !== total || !here || here === 'deserto' || gather <= 0) continue;
+    p.hand[here] += gather;
+    gains.push({ player: p.id, territory: p.jarl, resource: here, amount: gather });
   }
   if (gains.length > 0) events.push({ type: 'produzione', gains });
 }
@@ -98,6 +116,10 @@ function enterRazziaStage(state: WorldGameState, events: WorldEvent[]): void {
   const thief = state.currentPlayer;
   const candidates = razziaCandidates(state, thief);
   if (candidates.length === 0) {
+    state.phase = { type: 'azioni' };
+  } else if (razziaAllFor(state, thief)) {
+    // Ragnar (razziatore): ruba una carta da OGNI clan a portata.
+    for (const victim of candidates) doSteal(state, thief, victim, events);
     state.phase = { type: 'azioni' };
   } else if (candidates.length === 1) {
     doSteal(state, thief, candidates[0]!, events);
@@ -225,7 +247,8 @@ export function applyAction(prev: WorldGameState, action: WorldAction): ApplyRes
       me.movePointsLeft -= plan.plan.cost;
       me.jarl = action.to;
       events.push({ type: 'mosso', player: pid, from: plan.plan.from, to: action.to, cost: plan.plan.cost });
-      const toll = tollDue(state, pid, action.to);
+      // Freydis (salvacondotto) non paga mai pedaggi.
+      const toll = paysToll(state, pid) ? tollDue(state, pid, action.to) : null;
       if (toll) {
         const r = resolveToll(me.hand, toll.amount, action.pay);
         if (!r.ok) throw new Error('unreachable');
@@ -237,7 +260,7 @@ export function applyAction(prev: WorldGameState, action: WorldAction): ApplyRes
       break;
     }
     case 'costruisciStrada': {
-      subResources(me.hand, BUILD_COSTS.strada);
+      subResources(me.hand, buildCostFor(state, pid, 'strada'));
       state.roads[action.link] = pid;
       events.push({ type: 'costruito', player: pid, what: 'strada', at: action.link });
       afterBuild(state, events);
@@ -249,7 +272,7 @@ export function applyAction(prev: WorldGameState, action: WorldAction): ApplyRes
       if (action.free && action.what === 'porto') {
         if (me.heroUses) me.heroUses.portoGratis = (me.heroUses.portoGratis ?? 0) - 1;
       } else {
-        subResources(me.hand, BUILD_COSTS[action.what]);
+        subResources(me.hand, buildCostFor(state, pid, action.what));
       }
       const mine = settlementOf(t, pid);
       if (action.what === 'villaggio') {

@@ -16,11 +16,15 @@
  *     MAX_CHESTS in lavorazione;
  *   - un account con flag `tester` ha ogni eroe già disponibile.
  */
-import { HERO_REGISTRY, type HeroId } from './heroes';
+import { HERO_REGISTRY, type HeroId, type HeroRarity } from './heroes';
 import type { BotLevel } from './types';
 
-/** Per ora esistono solo casse «non comuni». */
-export type ChestRarity = 'nonComune';
+/**
+ * Rarità di una cassa. La maggior parte sono «non comuni»; le casse «rara» e
+ * «leggendaria» sono molto più rare (vedi `rollChestRarity`) e danno frammenti
+ * degli eroi `worldOnly` corrispondenti, che richiedono MOLTI più frammenti.
+ */
+export type ChestRarity = 'nonComune' | 'rara' | 'leggendaria';
 
 /** Una cassa in caricamento (o pronta, se il tempo è scaduto). */
 export interface ChestSlot {
@@ -84,6 +88,23 @@ export const MAX_CHESTS = 3;
 /** Frammenti necessari per sbloccare un eroe non comune. */
 export const FRAGMENTS_PER_HERO = 5;
 
+/**
+ * Frammenti necessari per rarità. Gli eroi rari e leggendari richiedono MOLTI
+ * più frammenti: sono più forti e si farmano «molto di più». I comuni sono
+ * sempre sbloccati (0 frammenti).
+ */
+export const FRAGMENTS_BY_RARITY: Readonly<Record<HeroRarity, number>> = {
+  comune: 0,
+  nonComune: FRAGMENTS_PER_HERO,
+  rara: 15,
+  leggendaria: 30,
+};
+
+/** Frammenti necessari per sbloccare l'eroe `id` (dalla sua rarità). */
+export function fragmentsNeeded(id: HeroId): number {
+  return FRAGMENTS_BY_RARITY[HERO_REGISTRY[id].rarity];
+}
+
 const HOUR_MS = 60 * 60 * 1000;
 
 /** Durata «normale» del caricamento di una cassa (9 ore). */
@@ -112,8 +133,31 @@ export const UNCOMMON_HERO_IDS: readonly HeroId[] = Object.values(HERO_REGISTRY)
   .filter((h) => h.rarity === 'nonComune')
   .map((h) => h.id);
 
+/** Id degli eroi RARI (worldOnly, da farmare con le casse rare). */
+export const RARE_HERO_IDS: readonly HeroId[] = Object.values(HERO_REGISTRY)
+  .filter((h) => h.rarity === 'rara')
+  .map((h) => h.id);
+
+/** Id degli eroi LEGGENDARI (worldOnly, da farmare con le casse leggendarie). */
+export const LEGENDARY_HERO_IDS: readonly HeroId[] = Object.values(HERO_REGISTRY)
+  .filter((h) => h.rarity === 'leggendaria')
+  .map((h) => h.id);
+
 const COMMON_SET = new Set<HeroId>(COMMON_HERO_IDS);
 const UNCOMMON_SET = new Set<HeroId>(UNCOMMON_HERO_IDS);
+
+/** Tutti gli eroi FARMABILI (non comuni + rari + leggendari): tutti tranne i comuni. */
+export const FARMABLE_HERO_IDS: readonly HeroId[] = [
+  ...UNCOMMON_HERO_IDS,
+  ...RARE_HERO_IDS,
+  ...LEGENDARY_HERO_IDS,
+];
+const FARMABLE_SET = new Set<HeroId>(FARMABLE_HERO_IDS);
+
+/** Il pool di eroi farmabili di una data rarità di cassa. */
+function heroPoolForChest(rarity: ChestRarity): readonly HeroId[] {
+  return rarity === 'leggendaria' ? LEGENDARY_HERO_IDS : rarity === 'rara' ? RARE_HERO_IDS : UNCOMMON_HERO_IDS;
+}
 
 // --- Query pure -------------------------------------------------------------
 
@@ -161,18 +205,43 @@ export function addChest(
   prog: PlayerProgression,
   now: number,
   makeId: () => string,
-  durationMs: number = currentChestDurationMs()
+  durationMs: number = currentChestDurationMs(),
+  rarity: ChestRarity = 'nonComune'
 ): PlayerProgression {
   if (!canEarnChest(prog)) return prog;
-  const chest: ChestSlot = { id: makeId(), rarity: 'nonComune', startedAt: now, durationMs };
+  const chest: ChestSlot = { id: makeId(), rarity, startedAt: now, durationMs };
   return { ...prog, chests: [...(prog.chests ?? []), chest] };
+}
+
+/**
+ * Probabilità delle rarità di cassa a fine partita: quasi sempre «non comune»,
+ * di rado «rara», molto di rado «leggendaria». Così gli eroi di rarità
+ * superiore costano «molto di più» (cassa rara + tanti frammenti).
+ */
+export const CHEST_RARITY_WEIGHTS: Readonly<Record<ChestRarity, number>> = {
+  nonComune: 0.8,
+  rara: 0.17,
+  leggendaria: 0.03,
+};
+
+/** Sorteggia la rarità di una cassa guadagnata (pesi `CHEST_RARITY_WEIGHTS`). */
+export function rollChestRarity(rand: () => number = Math.random): ChestRarity {
+  const r = rand();
+  if (r < CHEST_RARITY_WEIGHTS.leggendaria) return 'leggendaria';
+  if (r < CHEST_RARITY_WEIGHTS.leggendaria + CHEST_RARITY_WEIGHTS.rara) return 'rara';
+  return 'nonComune';
+}
+
+/** Sceglie un eroe (uniforme) nel pool farmabile della rarità `rarity`. */
+export function pickChestRewardOf(rarity: ChestRarity, rand: () => number = Math.random): HeroId {
+  const pool = heroPoolForChest(rarity);
+  const idx = Math.min(pool.length - 1, Math.floor(rand() * pool.length));
+  return pool[idx]!;
 }
 
 /** Sceglie l'eroe non comune del frammento (uniforme tra i non comuni). */
 export function pickChestReward(rand: () => number = Math.random): HeroId {
-  const pool = UNCOMMON_HERO_IDS;
-  const idx = Math.min(pool.length - 1, Math.floor(rand() * pool.length));
-  return pool[idx]!;
+  return pickChestRewardOf('nonComune', rand);
 }
 
 /**
@@ -180,19 +249,20 @@ export function pickChestReward(rand: () => number = Math.random): HeroId {
  * casse). Se l'eroe è già sbloccato il frammento è sprecato.
  */
 export function applyFragment(prog: PlayerProgression, heroId: HeroId): ChestOpenResult {
+  const need = fragmentsNeeded(heroId);
   const already = isHeroUnlocked(prog, heroId);
   if (already) {
     return {
       progression: prog,
       heroId,
-      fragments: FRAGMENTS_PER_HERO,
+      fragments: need,
       unlockedNow: false,
       wasted: true,
     };
   }
-  const count = Math.min(FRAGMENTS_PER_HERO, fragmentsOf(prog, heroId) + 1);
+  const count = Math.min(need, fragmentsOf(prog, heroId) + 1);
   const fragments = { ...(prog.fragments ?? {}), [heroId]: count };
-  const unlockedNow = count >= FRAGMENTS_PER_HERO;
+  const unlockedNow = count >= need;
   const unlocked = unlockedNow
     ? Array.from(new Set([...(prog.unlocked ?? []), heroId]))
     : prog.unlocked;
@@ -218,7 +288,7 @@ export function openChest(
     ...prog,
     chests: (prog.chests ?? []).filter((c) => c.id !== chestId),
   };
-  const heroId = pickChestReward(rand);
+  const heroId = pickChestRewardOf(chest.rarity, rand);
   return applyFragment(withoutChest, heroId);
 }
 
@@ -580,7 +650,9 @@ function cleanChest(raw: unknown): ChestSlot | null {
       ? body.durationMs
       : null;
   if (id === null || startedAt === null || durationMs === null) return null;
-  return { id, rarity: 'nonComune', startedAt, durationMs };
+  const rarity: ChestRarity =
+    body.rarity === 'rara' || body.rarity === 'leggendaria' ? body.rarity : 'nonComune';
+  return { id, rarity, startedAt, durationMs };
 }
 
 /**
@@ -620,7 +692,7 @@ export function sanitizeProgression(raw: unknown): PlayerProgression {
   const unlocked = new Set<HeroId>();
   if (Array.isArray(body.unlocked)) {
     for (const id of body.unlocked) {
-      if (typeof id === 'string' && UNCOMMON_SET.has(id as HeroId)) unlocked.add(id as HeroId);
+      if (typeof id === 'string' && FARMABLE_SET.has(id as HeroId)) unlocked.add(id as HeroId);
     }
   }
 
@@ -634,11 +706,12 @@ export function sanitizeProgression(raw: unknown): PlayerProgression {
   const fragments: Partial<Record<HeroId, number>> = {};
   if (typeof body.fragments === 'object' && body.fragments !== null) {
     for (const [id, value] of Object.entries(body.fragments as Record<string, unknown>)) {
-      if (!UNCOMMON_SET.has(id as HeroId)) continue;
+      if (!FARMABLE_SET.has(id as HeroId)) continue;
+      const need = fragmentsNeeded(id as HeroId);
       const n = typeof value === 'number' && Number.isFinite(value) ? Math.floor(value) : 0;
-      const clamped = Math.max(0, Math.min(FRAGMENTS_PER_HERO, n));
+      const clamped = Math.max(0, Math.min(need, n));
       if (clamped > 0) fragments[id as HeroId] = clamped;
-      if (clamped >= FRAGMENTS_PER_HERO) unlocked.add(id as HeroId);
+      if (clamped >= need) unlocked.add(id as HeroId);
     }
   }
   if (Object.keys(fragments).length) out.fragments = fragments;

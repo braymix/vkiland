@@ -233,6 +233,23 @@ Mondo:
 | Njord `mutaporto` | una volta per partita costruisci un **Porto gratis** (adattato: niente approdi specifici) |
 | Ulfar `comandante` | il Jarl ha **5 punti movimento** invece di 4 (adattato: niente Drago/Berserker) |
 
+**Eroi di rarità superiore (SOLO Mondo, flag `worldOnly`).** Più forti dei non
+comuni e pensati per le regole del Mondo. Si sbloccano come gli altri (casse e
+frammenti) ma costano **molto di più**: le casse «rara»/«leggendaria» sono rare
+(pesi in `CHEST_RARITY_WEIGHTS`: ~80% comune, ~17% rara, ~3% leggendaria) e
+servono molti più frammenti (`FRAGMENTS_BY_RARITY`: rara 15, leggendaria 30).
+La Classica non li propone nella scelta; restano collezionabili nell'Inventario.
+
+| Eroe (id) · rarità | Effetto nel Mondo |
+|---|---|
+| Leif `navigatore` · rara | il Jarl ha **6 punti movimento** |
+| Freydis `salvacondotto` · rara | **non paga mai pedaggi**; il Jarl raccoglie **2 materiali** invece di 1 |
+| Astrid `fondatrice` · rara | i Villaggi costano **1 orzo in meno** |
+| Sigrid `tesoriera` · rara | i Mercati fruttano **2 argento** invece di 1 |
+| Ragnar `razziatore` · rara | con la Tassa del Re (7) ruba **da ogni clan a portata**, non da uno solo |
+| Odino `allfather` · leggendaria | a inizio turno **+1 argento**, Jarl **6 punti movimento** e raccolta **2 materiali** |
+| Thora `reginadelnord` · leggendaria | i suoi edifici valgono **più PG** (Villaggio 2, Città 3, Sala del Jarl 6) |
+
 Implementazione: `WorldPlayerConfig.hero` / `WorldPlayerState.hero` +
 `heroUses`; Dono applicato in `beginTurn` (evento `eroeGuadagno`); azioni
 estese con campi opzionali `scambioBanca.mercante` e `costruisci.free`; limiti

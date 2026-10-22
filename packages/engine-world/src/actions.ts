@@ -3,7 +3,6 @@ import type { WorldHeroId } from './heroes';
 import type {
   BuildingKind,
   PlayerId,
-  ProducedResource,
   ResourceMap,
   TradeOffer,
   WorldGameState,
@@ -53,7 +52,7 @@ export type WorldEvent =
   | { type: 'scambioRifiutato'; offerId: number }
   | { type: 'scambioConcluso'; offer: TradeOffer; with: PlayerId }
   | { type: 'scambioAnnullato'; offerId: number }
-  | { type: 'eroeGuadagno'; player: PlayerId; hero: WorldHeroId; resource: ProducedResource; amount: number }
+  | { type: 'eroeGuadagno'; player: PlayerId; hero: WorldHeroId; resource: WorldResource; amount: number }
   | { type: 'grandeVia'; holder: PlayerId | null; length: number }
   | { type: 'grandeViaggiatore'; holder: PlayerId | null; continents: number }
   | { type: 'vittoria'; player: PlayerId };

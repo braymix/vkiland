@@ -232,6 +232,13 @@ const itW = {
     apripista: 'Nel setup piazzi 2 strade per ogni villaggio iniziale.',
     maestro: 'Hai una costruzione in più di strade, villaggi e città.',
     comandante: 'Il tuo Jarl ha 5 punti movimento invece di 4.',
+    navigatore: 'Il tuo Jarl ha 6 punti movimento invece di 4.',
+    salvacondotto: 'Non paghi mai pedaggi e il tuo Jarl raccoglie 2 materiali invece di 1.',
+    fondatrice: 'I tuoi Villaggi costano 1 orzo in meno.',
+    tesoriera: 'I tuoi Mercati fruttano 2 argento invece di 1.',
+    razziatore: 'Con la Tassa del Re (7) rubi una carta da OGNI clan a portata, non da uno solo.',
+    allfather: 'A inizio turno guadagni 1 argento, il Jarl ha 6 punti movimento e raccoglie 2 materiali.',
+    reginadelnord: 'I tuoi edifici valgono di più: Villaggio 2, Città 3, Sala del Jarl 6 Punti Gloria.',
   } as Record<string, string>,
 };
 
@@ -448,6 +455,13 @@ const enW: WorldStrings = {
     apripista: 'During setup you place 2 roads for each starting village.',
     maestro: 'You have one extra road, village and city.',
     comandante: 'Your Jarl has 5 move points instead of 4.',
+    navigatore: 'Your Jarl has 6 move points instead of 4.',
+    salvacondotto: 'You never pay tolls and your Jarl gathers 2 materials instead of 1.',
+    fondatrice: 'Your Villages cost 1 less barley.',
+    tesoriera: 'Your Markets yield 2 silver instead of 1.',
+    razziatore: 'With the King’s Tax (7) you steal a card from EVERY clan in range, not just one.',
+    allfather: 'At the start of your turn you gain 1 silver, your Jarl has 6 move points and gathers 2 materials.',
+    reginadelnord: 'Your buildings are worth more: Village 2, City 3, Jarl’s Hall 6 Glory Points.',
   } as Record<string, string>,
 };
 

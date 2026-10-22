@@ -1,7 +1,7 @@
 /** Impostazione di una partita locale a «Vikings Around the World» (bot e hot-seat). */
 import { useState } from 'react';
 import { MAPS, MAX_TARGET_POINTS, MIN_TARGET_POINTS, DEFAULT_TARGET_POINTS, ALL_WORLD_HERO_IDS, WORLD_HERO_EFFECTS, type BotLevel, type WorldHeroId } from '@vikiland/engine-world';
-import { unlockedHeroIds, type HeroId, type PlayerProgression } from '@vikiland/engine';
+import { ALL_RARITY_ORDER, unlockedHeroIds, type HeroId, type PlayerProgression } from '@vikiland/engine';
 import { MapSelect } from '../../components/world/MapSelect';
 import { HeroPicker } from '../../components/HeroPicker';
 import { HeroArt } from '../../components/HeroArt';
@@ -184,6 +184,7 @@ export function NewWorldGameScreen({ onBack, onStart, onOnline, onTutorial, sess
           title={fmt(wt.eroeDi, { nome: seats[heroSeat]!.name || `P${heroSeat + 1}` })}
           selected={[seats[heroSeat]!.hero as HeroId]}
           maxCount={1}
+          rarityOrder={ALL_RARITY_ORDER}
           describe={worldHeroDescribe}
           // I bot possono usare anche eroi non ancora sbloccati dall'account.
           {...(seats[heroSeat]!.kind === 'umano' && progression ? { progression } : {})}

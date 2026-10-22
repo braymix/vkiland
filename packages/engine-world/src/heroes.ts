@@ -13,9 +13,16 @@
  *   - Njord «Signore dei Mari»  → una volta per partita costruisci un Porto GRATIS;
  *   - Ulfar «Comandante»        → il tuo Jarl ha +1 punto movimento (passivo).
  */
-import { MOVE_POINTS, PIECE_LIMITS } from './constants';
+import {
+  BUILD_COSTS,
+  BUILDING_POINTS,
+  JARL_GATHER,
+  MARKET_SILVER,
+  MOVE_POINTS,
+  PIECE_LIMITS,
+} from './constants';
 import type { WorldBuildable } from './constants';
-import type { PlayerId, ProducedResource, WorldGameState } from './types';
+import type { BuildingKind, PlayerId, ProducedResource, ResourceMap, WorldGameState } from './types';
 
 /** Gli id coincidono con quelli della Classica (`@vikiland/engine` HeroId). */
 export type WorldHeroId =
@@ -30,7 +37,16 @@ export type WorldHeroId =
   | 'mercante'
   | 'apripista'
   | 'maestro'
-  | 'comandante';
+  | 'comandante'
+  // Rari (solo Mondo): più forti dei non comuni.
+  | 'navigatore'
+  | 'salvacondotto'
+  | 'fondatrice'
+  | 'tesoriera'
+  | 'razziatore'
+  // Leggendari (solo Mondo): cambiano il modo di giocare.
+  | 'allfather'
+  | 'reginadelnord';
 
 export interface WorldHeroEffect {
   id: WorldHeroId;
@@ -54,6 +70,25 @@ export const WORLD_HERO_EFFECTS: Readonly<Record<WorldHeroId, WorldHeroEffect>> 
   apripista: { id: 'apripista' },
   maestro: { id: 'maestro' },
   comandante: { id: 'comandante' },
+  // Rari.
+  navigatore: { id: 'navigatore' },
+  salvacondotto: { id: 'salvacondotto' },
+  fondatrice: { id: 'fondatrice' },
+  tesoriera: { id: 'tesoriera' },
+  razziatore: { id: 'razziatore' },
+  // Leggendari.
+  allfather: { id: 'allfather' },
+  reginadelnord: { id: 'reginadelnord' },
+};
+
+/**
+ * Punti movimento in più del Jarl per effetto dell'eroe (sommati a MOVE_POINTS):
+ * Comandante/Leif/Odino. Un clan ha UN solo eroe, quindi si applica al più uno.
+ */
+const MOVE_BONUS: Partial<Record<WorldHeroId, number>> = {
+  comandante: 1,
+  navigatore: 2,
+  allfather: 2,
 };
 
 export const ALL_WORLD_HERO_IDS: readonly WorldHeroId[] = Object.keys(WORLD_HERO_EFFECTS) as WorldHeroId[];
@@ -77,9 +112,56 @@ export function heroUsesLeft(state: WorldGameState, pid: PlayerId, key: string):
   return state.players[pid]?.heroUses?.[key] ?? 0;
 }
 
-/** Punti movimento del Jarl per questo clan: il Comandante (Ulfar) ne ha +1. */
+/** Punti movimento del Jarl: base + bonus dell'eroe (Comandante +1, Leif/Odino +2). */
 export function movePointsFor(state: WorldGameState, pid: PlayerId): number {
-  return MOVE_POINTS + (hasHero(state, pid, 'comandante') ? 1 : 0);
+  const hero = heroOf(state, pid);
+  return MOVE_POINTS + (hero ? MOVE_BONUS[hero] ?? 0 : 0);
+}
+
+/**
+ * Materiali raccolti dal Jarl quando esce il numero del suo territorio.
+ * Freydis (salvacondotto) e Odino (allfather) raccolgono 2 invece di 1.
+ */
+export function jarlGatherFor(state: WorldGameState, pid: PlayerId): number {
+  return hasHero(state, pid, 'salvacondotto') || hasHero(state, pid, 'allfather') ? 2 : JARL_GATHER;
+}
+
+/** Il clan `pid` paga i pedaggi? No per Freydis (salvacondotto). */
+export function paysToll(state: WorldGameState, pid: PlayerId): boolean {
+  return !hasHero(state, pid, 'salvacondotto');
+}
+
+/** Argento in più del Mercato per questo clan: Sigrid (tesoriera) ne dà 2 invece di 1. */
+export function marketSilverFor(state: WorldGameState, pid: PlayerId): number {
+  return hasHero(state, pid, 'tesoriera') ? 2 : MARKET_SILVER;
+}
+
+/** Argento guadagnato a inizio turno dall'eroe (Odino +1), 0 per gli altri. */
+export function startTurnSilverFor(state: WorldGameState, pid: PlayerId): number {
+  return hasHero(state, pid, 'allfather') ? 1 : 0;
+}
+
+/** Con la Tassa del Re (7) il clan ruba da OGNI candidato? Sì per Ragnar (razziatore). */
+export function razziaAllFor(state: WorldGameState, pid: PlayerId): boolean {
+  return hasHero(state, pid, 'razziatore');
+}
+
+/**
+ * Costo di una costruzione per questo clan: Astrid (fondatrice) sconta 1 orzo
+ * sul Villaggio. Ritorna una copia (mai il costo condiviso).
+ */
+export function buildCostFor(state: WorldGameState, pid: PlayerId, what: WorldBuildable): ResourceMap {
+  const base = { ...BUILD_COSTS[what] };
+  if (what === 'villaggio' && hasHero(state, pid, 'fondatrice') && base.orzo > 0) base.orzo -= 1;
+  return base;
+}
+
+/** Punti Gloria di un edificio per questo clan: Thora (reginadelnord) li alza. */
+export function buildingPointsFor(state: WorldGameState, pid: PlayerId, kind: BuildingKind): number {
+  if (hasHero(state, pid, 'reginadelnord')) {
+    return kind === 'villaggio' ? 2 : kind === 'citta' ? 3 : 6;
+  }
+  return BUILDING_POINTS[kind];
 }
 
 /** Strade iniziali che il clan piazza per ciascun villaggio nel setup: l'Apripista (Vegard) ne piazza 2. */

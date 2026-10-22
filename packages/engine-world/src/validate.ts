@@ -5,7 +5,6 @@
 import type { ValidationError, WorldAction } from './actions';
 import {
   BANK_RATIO,
-  BUILD_COSTS,
   HAND_LIMIT,
   MERCANTE_RATIO,
   PORT_RATIO,
@@ -13,7 +12,7 @@ import {
   SILVER_SELL,
   WORLD_RESOURCES,
 } from './constants';
-import { hasHero, heroUsesLeft } from './heroes';
+import { buildCostFor, hasHero, heroUsesLeft, paysToll } from './heroes';
 import { isProductive, mapIndex } from './map';
 import { hasAtLeast, isValidResourceMap, overlapping, totalResources } from './resources';
 import {
@@ -150,7 +149,8 @@ export function isLegal(state: WorldGameState, action: WorldAction): ValidationE
       if (pid !== state.currentPlayer) return ERR.turno;
       const plan = planMove(state, pid, action.to);
       if (!plan.ok) return err(plan.code, plan.message);
-      const toll = tollDue(state, pid, action.to);
+      // Freydis (salvacondotto) non paga mai pedaggi.
+      const toll = paysToll(state, pid) ? tollDue(state, pid, action.to) : null;
       if (toll) {
         const r = resolveToll(me.hand, toll.amount, action.pay);
         if (!r.ok) return err(r.code, r.message);
@@ -166,7 +166,7 @@ export function isLegal(state: WorldGameState, action: WorldAction): ValidationE
       if (state.roads[l.id] !== undefined) return ERR.stradaPresente;
       if (!roadTouchesNetwork(state, pid, l.id)) return ERR.nonConnessa;
       if (piecesLeft(state, pid, 'strada') <= 0) return ERR.pezzi;
-      return hasAtLeast(me.hand, BUILD_COSTS.strada) ? null : ERR.risorse;
+      return hasAtLeast(me.hand, buildCostFor(state, pid, 'strada')) ? null : ERR.risorse;
     }
     case 'costruisci': {
       if (phase.type !== 'azioni') return ERR.fase;
@@ -200,7 +200,7 @@ export function isLegal(state: WorldGameState, action: WorldAction): ValidationE
         if (!hasHero(state, pid, 'mutaporto') || heroUsesLeft(state, pid, 'portoGratis') <= 0) return ERR.nonConsentito;
         return null;
       }
-      return hasAtLeast(me.hand, BUILD_COSTS[what]) ? null : ERR.risorse;
+      return hasAtLeast(me.hand, buildCostFor(state, pid, what)) ? null : ERR.risorse;
     }
     case 'scambioBanca': {
       if (phase.type !== 'azioni') return ERR.fase;

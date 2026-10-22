@@ -26,7 +26,16 @@ export type HeroId =
   | 'mercante'
   | 'apripista'
   | 'maestro'
-  | 'comandante';
+  | 'comandante'
+  // Rari: SOLO per la modalità Mondo (`worldOnly`). Più forti dei non comuni.
+  | 'navigatore'
+  | 'salvacondotto'
+  | 'fondatrice'
+  | 'tesoriera'
+  | 'razziatore'
+  // Leggendari: SOLO per la modalità Mondo. Cambiano il modo di giocare.
+  | 'allfather'
+  | 'reginadelnord';
 
 export interface HeroDef {
   id: HeroId;
@@ -39,6 +48,13 @@ export interface HeroDef {
   description: string;
   /** Emoji-simbolo di ripiego per la card (la pixel art vive nel client). */
   emblem: string;
+  /**
+   * Eroe disponibile SOLO in «Vikings Around the World»: è più forte e sfrutta
+   * le regole del Mondo (Jarl, pedaggi, continenti). La Classica non lo propone
+   * nella scelta, ma resta collezionabile nell'Inventario. L'effetto vive in
+   * `@vikiland/engine-world`.
+   */
+  worldOnly?: boolean;
   /** Solo eroi «Dono»: il materiale guadagnato (+1) a inizio turno. */
   donoResource?: Resource;
   /** Usi limitati PER PARTITA (mutaporto=1, mercante=4). Assente = illimitato/passivo. */
@@ -143,13 +159,87 @@ export const HERO_REGISTRY: Readonly<Record<HeroId, HeroDef>> = {
     emblem: '🐺',
     description: 'Quando giochi un Berserker sposti il Drago due volte (due spostamenti e due furti).',
   },
+
+  // --- Rari (SOLO modalità Mondo) ---
+  navigatore: {
+    id: 'navigatore',
+    name: 'Leif',
+    ability: 'Figlio dei Venti',
+    rarity: 'rara',
+    emblem: '⛵',
+    worldOnly: true,
+    description: 'Solo nel Mondo: il tuo Jarl ha 2 punti movimento in più (6 invece di 4).',
+  },
+  salvacondotto: {
+    id: 'salvacondotto',
+    name: 'Freydis',
+    ability: 'Salvacondotto',
+    rarity: 'rara',
+    emblem: '🛡️',
+    worldOnly: true,
+    description:
+      'Solo nel Mondo: non paghi mai pedaggi e, quando esce il numero del territorio del tuo Jarl, raccogli 2 materiali invece di 1.',
+  },
+  fondatrice: {
+    id: 'fondatrice',
+    name: 'Astrid',
+    ability: 'Fondatrice',
+    rarity: 'rara',
+    emblem: '🏘️',
+    worldOnly: true,
+    description: 'Solo nel Mondo: i tuoi Villaggi costano 1 orzo in meno.',
+  },
+  tesoriera: {
+    id: 'tesoriera',
+    name: 'Sigrid',
+    ability: 'Signora dei Mercati',
+    rarity: 'rara',
+    emblem: '🪙',
+    worldOnly: true,
+    description: 'Solo nel Mondo: i tuoi Mercati fruttano 2 argento invece di 1.',
+  },
+  razziatore: {
+    id: 'razziatore',
+    name: 'Ragnar',
+    ability: 'Razziatore',
+    rarity: 'rara',
+    emblem: '🪓',
+    worldOnly: true,
+    description: 'Solo nel Mondo: con la Tassa del Re (7) rubi una carta da OGNI clan a portata, non da uno solo.',
+  },
+
+  // --- Leggendari (SOLO modalità Mondo) ---
+  allfather: {
+    id: 'allfather',
+    name: 'Odino',
+    ability: 'Padre di Tutti',
+    rarity: 'leggendaria',
+    emblem: '👁️',
+    worldOnly: true,
+    description:
+      'Solo nel Mondo: a inizio turno guadagni 1 argento, il tuo Jarl ha 2 punti movimento in più e raccoglie 2 materiali.',
+  },
+  reginadelnord: {
+    id: 'reginadelnord',
+    name: 'Thora',
+    ability: 'Regina del Nord',
+    rarity: 'leggendaria',
+    emblem: '👑',
+    worldOnly: true,
+    description:
+      'Solo nel Mondo: i tuoi edifici valgono di più (Villaggio 2, Città 3, Sala del Jarl 6 Punti Gloria).',
+  },
 };
 
 /**
- * Rarità con eroi disponibili, in ordine (per la schermata di scelta). Per ora
- * ci si ferma a «non comune»: niente eroi troppo forti.
+ * Rarità scegliibili nella MODALITÀ CLASSICA, in ordine (per la schermata di
+ * scelta). Ci si ferma a «non comune»: i rari e i leggendari sono `worldOnly`
+ * e non hanno effetto nella Classica.
  */
 export const RARITY_ORDER: readonly HeroRarity[] = ['comune', 'nonComune'];
+
+/** Tutte le rarità, in ordine (per l'Inventario: mostra anche rari e leggendari). */
+export const ALL_RARITY_ORDER: readonly HeroRarity[] = ['comune', 'nonComune', 'rara', 'leggendaria'];
 
 export const ALL_HEROES: readonly HeroDef[] = Object.values(HERO_REGISTRY);
 

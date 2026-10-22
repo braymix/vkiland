@@ -4,6 +4,20 @@
 
 ## Stato attuale
 
+**VIKINGS AROUND THE WORLD — EROI DI RARITÀ SUPERIORE (solo Mondo)** ✅ — 7 nuovi
+eroi `worldOnly`, più forti e pensati per le regole del Mondo: 5 **rari** —
+Leif `navigatore` (Jarl 6 punti movimento), Freydis `salvacondotto` (non paga
+pedaggi + Jarl raccoglie 2), Astrid `fondatrice` (Villaggio −1 orzo), Sigrid
+`tesoriera` (Mercati +2 argento), Ragnar `razziatore` (col 7 ruba da ogni clan a
+portata) — e 2 **leggendari** — Odino `allfather` (+1 argento a inizio turno,
+Jarl 6 punti e raccolta 2) e Thora `reginadelnord` (edifici +PG: 2/3/6). Costano
+**molto di più**: casse a rarità (`rollChestRarity`: ~80/17/3%) e più frammenti
+(`FRAGMENTS_BY_RARITY`: rara 15, leggendaria 30). La Classica non li propone
+(filtro `worldOnly`), restano collezionabili nell'Inventario (tutte e 4 le
+rarità, barra per `fragmentsNeeded`). Effetti puri in `engine-world/heroes.ts`
+(helper + hook in apply/validate/rules), arte e descrizioni (IT/EN) aggiunte.
++8 test motore, docs aggiornati.
+
 **VIKINGS AROUND THE WORLD — EROI (sempre attivi)** ✅ — gli eroi della Classica
 arrivano nel Mondo come caratteristica **sempre attiva** (niente interruttore):
 ogni clan gioca con **un** eroe, **stessi personaggi** e **stesso sblocco** (la

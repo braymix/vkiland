@@ -8,6 +8,7 @@
 import {
   sanitizeProgression,
   addChest,
+  rollChestRarity,
   canEarnChest,
   openChest as engineOpenChest,
   claimFreeChest as engineClaimFreeChest,
@@ -100,7 +101,9 @@ export async function awardChestForFinishedGame(
 ): Promise<PlayerProgression> {
   const current = await loadProgression(session);
   if (!canEarnChest(current)) return current; // già 3 casse in lavorazione
-  const next = addChest(current, Date.now(), makeChestId);
+  // La rarità della cassa è sorteggiata: quasi sempre comune, di rado rara,
+  // molto di rado leggendaria (così i rari/leggendari costano «molto di più»).
+  const next = addChest(current, Date.now(), makeChestId, undefined, rollChestRarity());
   return saveProgression(session, next);
 }
 
