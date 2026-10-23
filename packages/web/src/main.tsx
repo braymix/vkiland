@@ -12,10 +12,13 @@ import { App } from './App';
 import { Maintenance } from './Maintenance';
 import { CensorProvider } from './game/censor';
 
-// Deploy di anteprima su Netlify: non ancora pronto al pubblico.
-const MAINTENANCE_HOSTS = ['sensational-youtiao-0963bc.netlify.app'];
+// Il gioco va sempre giocato dal dominio ufficiale (apex, non sottodomini):
+// chi arriva da altri indirizzi (anteprime, vecchi link, domini copiati)
+// vede l'invito a passare su viking-island.it. 'localhost'/'127.0.0.1'
+// restano aperti per lo sviluppo locale.
+const ALLOWED_HOSTS = ['viking-island.it', 'localhost', '127.0.0.1'];
 
-if (MAINTENANCE_HOSTS.includes(window.location.hostname)) {
+if (!ALLOWED_HOSTS.includes(window.location.hostname)) {
   createRoot(document.getElementById('root')!).render(<Maintenance />);
 } else {
   // PWA: il service worker rende l'app installabile e giocabile offline
