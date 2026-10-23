@@ -7,6 +7,11 @@ import type { WorldStrings } from './world';
 type Dict = Partial<WorldStrings>;
 
 const es: Dict = {
+  modalitaMondo: 'Modo de juego',
+  assaltoCastello: 'Asalto al castillo',
+  assaltoCastelloSub: 'Desembarca en el Burgo y toma la Torre',
+  inViaggio: 'De viaje',
+  inViaggioSub: 'Conquista el mundo real, mapa a mapa',
   sottotitolo: '¡las reglas han cambiado!',
   classica: 'Viking-Island · Clásica',
   nuovaMondo: 'Nueva partida por el mundo',
@@ -160,6 +165,11 @@ const es: Dict = {
 };
 
 const fr: Dict = {
+  modalitaMondo: 'Mode de jeu',
+  assaltoCastello: 'Assaut du château',
+  assaltoCastelloSub: 'Débarque dans le Bourg et prends le Donjon',
+  inViaggio: 'En voyage',
+  inViaggioSub: 'Conquiers le vrai monde, carte par carte',
   sottotitolo: 'les règles ont changé !!!',
   classica: 'Viking-Island · Classique',
   nuovaMondo: 'Nouvelle partie autour du monde',
@@ -313,6 +323,11 @@ const fr: Dict = {
 };
 
 const de: Dict = {
+  modalitaMondo: 'Spielmodus',
+  assaltoCastello: 'Sturm auf die Burg',
+  assaltoCastelloSub: 'Lande im Vorort und erobere den Bergfried',
+  inViaggio: 'Auf Reisen',
+  inViaggioSub: 'Erobere die echte Welt, Karte für Karte',
   sottotitolo: 'die Regeln haben sich geändert!!!',
   classica: 'Viking-Island · Klassisch',
   nuovaMondo: 'Neues Spiel um die Welt',
@@ -466,6 +481,11 @@ const de: Dict = {
 };
 
 const nl: Dict = {
+  modalitaMondo: 'Spelmodus',
+  assaltoCastello: 'Aanval op het kasteel',
+  assaltoCastelloSub: 'Land in het Dorp en verover de Donjon',
+  inViaggio: 'Op reis',
+  inViaggioSub: 'Verover de echte wereld, kaart voor kaart',
   sottotitolo: 'de regels zijn veranderd!!!',
   classica: 'Viking-Island · Klassiek',
   nuovaMondo: 'Nieuw spel rond de wereld',
@@ -619,6 +639,11 @@ const nl: Dict = {
 };
 
 const ru: Dict = {
+  modalitaMondo: 'Режим игры',
+  assaltoCastello: 'Штурм замка',
+  assaltoCastelloSub: 'Высадись в посаде и захвати донжон',
+  inViaggio: 'В путешествие',
+  inViaggioSub: 'Завоюй настоящий мир, карта за картой',
   sottotitolo: 'правила изменились!!!',
   classica: 'Viking-Island · Классика',
   nuovaMondo: 'Новая игра вокруг света',
@@ -772,6 +797,11 @@ const ru: Dict = {
 };
 
 const sr: Dict = {
+  modalitaMondo: 'Režim igre',
+  assaltoCastello: 'Napad na zamak',
+  assaltoCastelloSub: 'Iskrcaj se u podgrađu i osvoji kulu',
+  inViaggio: 'Na put',
+  inViaggioSub: 'Osvoji pravi svet, mapu po mapu',
   sottotitolo: 'pravila su se promenila!!!',
   classica: 'Viking-Island · Klasična',
   nuovaMondo: 'Nova igra oko sveta',

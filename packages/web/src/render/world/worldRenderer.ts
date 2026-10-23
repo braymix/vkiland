@@ -261,8 +261,13 @@ export class WorldRenderer {
     for (const id of input.highlights) {
       const path = cache.paths.get(id);
       if (!path) continue;
-      ctx.lineWidth = 2 / cam.scale;
-      ctx.strokeStyle = 'rgba(255,226,122,0.9)';
+      // velo luminoso + bordo spesso: le scelte valide (es. il Borgo nel setup) si vedono subito
+      ctx.globalAlpha = 0.2;
+      ctx.fillStyle = '#ffe27a';
+      ctx.fill(path);
+      ctx.globalAlpha = 1;
+      ctx.lineWidth = 3.5 / cam.scale;
+      ctx.strokeStyle = 'rgba(255,226,122,0.95)';
       ctx.stroke(path);
     }
     for (const id of input.reachable.keys()) {

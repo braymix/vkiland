@@ -48,6 +48,8 @@ export interface LinkDef {
  */
 export interface CastleMeta {
   rings: number;
+  /** Anello di ogni territorio: 0 = Mastio, `rings` = Borgo (il più esterno). */
+  ringOf: Record<string, number>;
   /** Segmenti di MURO (lon/lat): lati fra anelli interni SENZA varco. */
   walls: [[number, number], [number, number]][];
   /** Segmenti di FOSSATO (lon/lat): lati fra cortile esterno e borgo SENZA ponte. */

@@ -8,6 +8,7 @@ import { RemoteWorldController } from '../../game/world/RemoteWorldController';
 import { fmt, wt } from '../../i18n/world';
 import { WorldGameScreen } from './WorldGameScreen';
 import { MapSelect } from '../../components/world/MapSelect';
+import { CASTLE_MAP_ID, DEFAULT_JOURNEY_MAP, WorldModeSwitch, modeOfMap } from '../../components/world/WorldModeSwitch';
 import { HeroPicker } from '../../components/HeroPicker';
 import { HeroArt } from '../../components/HeroArt';
 import { worldHeroDescribe, worldHeroName } from '../../game/world/worldHero';
@@ -267,9 +268,17 @@ export function WorldOnlineScreen({ session, onBack, onInvalidSession, progressi
 function ConfigForm({ config, onChange }: { config: WorldLobbyConfig; onChange: (p: Partial<WorldLobbyConfig>) => void }) {
   return (
     <>
-      <div className="w-lab">{wt.mappa}</div>
-      <MapSelect value={config.mapId} onChange={(id) => onChange({ mapId: id })} />
-      {config.mapId === 'castello' && (
+      <WorldModeSwitch
+        value={modeOfMap(config.mapId)}
+        onChange={(mode) => onChange({ mapId: mode === 'castello' ? CASTLE_MAP_ID : DEFAULT_JOURNEY_MAP })}
+      />
+      {config.mapId !== CASTLE_MAP_ID && (
+        <>
+          <div className="w-lab">{wt.mappa}</div>
+          <MapSelect value={config.mapId} onChange={(id) => onChange({ mapId: id })} />
+        </>
+      )}
+      {config.mapId === CASTLE_MAP_ID && (
         <>
           <div className="w-lab">
             {wt.castelloAnelli}: {config.castleRings ?? 3}

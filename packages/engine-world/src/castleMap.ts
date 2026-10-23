@@ -20,7 +20,7 @@
  * I metadati grafici (segmenti di muro, contorno del fossato, quali link sono
  * porte/scale/passaggi) sono pre-calcolati in `castle` per il renderer.
  */
-import { linkId } from './map';
+import { isProductive, linkId } from './map';
 import { nextInt, seedRng, shuffle, type RngState } from './rng';
 import type { CastleMeta, LinkDef, MapDefinition, TerritoryDef, TerritoryKind } from './types';
 
@@ -310,7 +310,10 @@ export function generateCastleMap(seed: string, rings: number): MapDefinition {
     }
   }
 
-  const castle: CastleMeta = { rings: n, walls: wallSegs, moat: moatSegs, gates, drawbridges, scale, tunnels };
+  const ringOf: Record<string, number> = {};
+  for (const c of cells) ringOf[idOf(c.q, c.r)] = cube(c.q, c.r);
+
+  const castle: CastleMeta = { rings: n, ringOf, walls: wallSegs, moat: moatSegs, gates, drawbridges, scale, tunnels };
 
   const productive = total - deserts;
   const map: MapDefinition = {
@@ -347,4 +350,43 @@ function edgeBetween(
     [round(mx + px), round(my + py)],
     [round(mx - px), round(my - py)],
   ];
+}
+
+/** «Bellezza» di un numero: i puntini del dado (6/8 → 5 … 2/12 → 1). */
+function pips(num: number): number {
+  return 6 - Math.abs(7 - num);
+}
+
+/**
+ * Assegna i numeri ai territori produttivi del castello PESANDO PER ANELLO: più si
+ * va verso il Mastio più i numeri sono belli (6/8), verso il Borgo più brutti
+ * (2/12). Resta casuale: ogni territorio riceve un punteggio «anello + rumore»,
+ * i territori si ordinano per punteggio e ricevono i numeri dal migliore al
+ * peggiore (con spareggi casuali). Gli anelli vicini si sovrappongono un po', ma
+ * in media il centro è nettamente più ricco del bordo.
+ *
+ * Il vincolo «6 e 8 non adiacenti» NON si applica qui: i 6/8 si concentrano di
+ * proposito vicino al centro, quindi sarebbe quasi sempre impossibile da rispettare.
+ */
+export function assignCastleNumbers(def: MapDefinition, rng: RngState): [Record<string, number>, RngState] {
+  const castle = def.castle!;
+  const productive = def.territories.filter(isProductive);
+  const NOISE = 0.35; // ampiezza del caso rispetto alla distanza fra anelli (1/N)
+  let s = rng;
+  const [pool, s1] = shuffle(s, def.numberPool);
+  s = s1;
+  const sortedPool = [...pool].sort((a, b) => pips(b) - pips(a)); // stabile: lo spareggio è lo shuffle
+  const scored: { id: string; score: number }[] = [];
+  for (const t of productive) {
+    const [roll, s2] = nextInt(s, 1000);
+    s = s2;
+    const inner = (castle.rings - (castle.ringOf[t.id] ?? castle.rings)) / castle.rings; // 1 = Mastio
+    scored.push({ id: t.id, score: inner + (roll / 1000 - 0.5) * 2 * NOISE });
+  }
+  scored.sort((a, b) => b.score - a.score);
+  const num: Record<string, number> = {};
+  scored.forEach((t, i) => {
+    num[t.id] = sortedPool[i]!;
+  });
+  return [num, s];
 }

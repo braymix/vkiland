@@ -95,6 +95,60 @@ describe('mappa castello (Mondo) — generazione', () => {
   });
 });
 
+const pips = (n: number): number => 6 - Math.abs(7 - n);
+
+describe('mappa castello (Mondo) — setup e numeri per anello', () => {
+  it('all’inizio si fonda solo nel Borgo (anello più esterno)', () => {
+    for (const rings of [2, 3, 4]) {
+      const s = castleState(`setup-${rings}`, rings);
+      const castle = s.map.castle!;
+      const actor = whoMustAct(s);
+      const legal = getLegalActions(s, actor).filter((a) => a.type === 'piazzaVillaggioIniziale');
+      expect(legal.length).toBeGreaterThan(0);
+      for (const a of legal) {
+        if (a.type === 'piazzaVillaggioIniziale') expect(castle.ringOf[a.territory]).toBe(castle.rings);
+      }
+      // Un territorio interno produttivo è rifiutato con il codice dedicato.
+      const inner = s.map.territories.find((t) => t.kind !== 'deserto' && castle.ringOf[t.id] === 1)!;
+      const r = applyAction(s, { type: 'piazzaVillaggioIniziale', player: actor, territory: inner.id });
+      expect(r.ok).toBe(false);
+      if (!r.ok) expect(r.error.code).toBe('SOLO_ANELLO_ESTERNO');
+    }
+  });
+
+  it('i numeri migliorano verso il centro (in media) ma restano casuali', () => {
+    const n = 3;
+    const sum = new Array(n + 1).fill(0) as number[];
+    const cnt = new Array(n + 1).fill(0) as number[];
+    let outerGood = 0;
+    for (let i = 0; i < 60; i++) {
+      const s = castleState(`num-${i}`, n);
+      const castle = s.map.castle!;
+      for (const t of Object.values(s.territories)) {
+        if (t.number === null) continue;
+        const ring = castle.ringOf[t.id]!;
+        sum[ring]! += pips(t.number);
+        cnt[ring]!++;
+        if (ring === n && pips(t.number) >= 4) outerGood++;
+      }
+    }
+    const mean = sum.map((v, r) => v / cnt[r]!);
+    for (let r = 1; r <= n; r++) expect(mean[r]!).toBeLessThan(mean[r - 1]! + 0.05);
+    expect(mean[0]! - mean[n]!).toBeGreaterThan(1.2); // centro nettamente più ricco del bordo
+    expect(outerGood).toBeGreaterThan(0); // niente regola rigida: nel Borgo qualche bel numero c'è
+  });
+
+  it('i numeri sono quelli del mazzo (nessuno perso o duplicato)', () => {
+    const s = castleState('pool', 4);
+    const got = Object.values(s.territories)
+      .map((t) => t.number)
+      .filter((x): x is number => x !== null)
+      .sort((a, b) => a - b);
+    const pool = [...generateCastleMap('pool', 4).numberPool].sort((a, b) => a - b);
+    expect(got).toEqual(pool);
+  });
+});
+
 describe('mappa castello (Mondo) — partita', () => {
   function playRandom(seed: string, rings: number, maxSteps = 30000): WorldGameState {
     let s = castleState(seed, rings, 3);

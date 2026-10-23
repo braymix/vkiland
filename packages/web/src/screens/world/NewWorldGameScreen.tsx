@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { MAPS, MAX_TARGET_POINTS, MIN_TARGET_POINTS, DEFAULT_TARGET_POINTS, ALL_WORLD_HERO_IDS, WORLD_HERO_EFFECTS, type BotLevel, type WorldHeroId } from '@vikiland/engine-world';
 import { ALL_RARITY_ORDER, unlockedHeroIds, type HeroId, type PlayerProgression } from '@vikiland/engine';
 import { MapSelect } from '../../components/world/MapSelect';
+import { CASTLE_MAP_ID, DEFAULT_JOURNEY_MAP, WorldModeSwitch, modeOfMap, type WorldMode } from '../../components/world/WorldModeSwitch';
 import { HeroPicker } from '../../components/HeroPicker';
 import { HeroArt } from '../../components/HeroArt';
 import { wt, fmt } from '../../i18n/world';
@@ -90,6 +91,15 @@ export function NewWorldGameScreen({ onBack, onStart, onOnline, onTutorial, sess
     });
   };
 
+  /** Cambio modalità: castello = mappa generata, viaggio = mappe reali (parte dal Mondo). */
+  const pickMode = (mode: WorldMode): void => {
+    if (modeOfMap(mapId) === mode) return;
+    const id = mode === 'castello' ? CASTLE_MAP_ID : DEFAULT_JOURNEY_MAP;
+    setMapId(id);
+    const max = id === CASTLE_MAP_ID ? 6 : MAPS[id]!.maxPlayers;
+    setSeats((x) => x.slice(0, max));
+  };
+
   const label = (k: SeatKind): string => (k === 'umano' ? wt.umano : `🤖 ${wt[k]}`);
 
   return (
@@ -107,6 +117,7 @@ export function NewWorldGameScreen({ onBack, onStart, onOnline, onTutorial, sess
         </button>
       </div>
       <div className="w-form">
+        <WorldModeSwitch value={modeOfMap(mapId)} onChange={pickMode} />
         <div className="w-lab">{wt.giocatori}</div>
         {seats.map((s, i) => (
           <div key={i} className="w-seat">
@@ -152,16 +163,19 @@ export function NewWorldGameScreen({ onBack, onStart, onOnline, onTutorial, sess
           </button>
         )}
 
-        <div className="w-lab">{wt.mappa}</div>
-        <MapSelect
-          value={mapId}
-          onChange={(id) => {
-            setMapId(id);
-            const max = id === 'castello' ? 6 : MAPS[id]!.maxPlayers;
-            setSeats((x) => x.slice(0, max));
-          }}
-        />
-        {map.credits && <div className="w-dim">{map.credits}</div>}
+        {!isCastle && (
+          <>
+            <div className="w-lab">{wt.mappa}</div>
+            <MapSelect
+              value={mapId}
+              onChange={(id) => {
+                setMapId(id);
+                setSeats((x) => x.slice(0, MAPS[id]!.maxPlayers));
+              }}
+            />
+            {map.credits && <div className="w-dim">{map.credits}</div>}
+          </>
+        )}
         {isCastle && (
           <>
             <div className="w-lab">
