@@ -15,7 +15,7 @@ import { fmt, wt } from '../../i18n/world';
 import { colorOf } from '../../render/world/worldRenderer';
 import { CostRow, RES_EMOJI, WorldStepper, emptyMap, sumMap } from './WorldUi';
 
-export function CostsDialog({ onClose, credits }: { onClose: () => void; credits?: string | undefined }) {
+export function CostsDialog({ onClose, credits, castle }: { onClose: () => void; credits?: string | undefined; castle?: boolean }) {
   const rows: [string, keyof typeof BUILD_COSTS, string][] = [
     [wt.strada, 'strada', '0'],
     [wt.villaggio, 'villaggio', '1'],
@@ -35,7 +35,7 @@ export function CostsDialog({ onClose, credits }: { onClose: () => void; credits
           </div>
         ))}
       </div>
-      <p className="w-rules">{wt.regoleTesto}</p>
+      <p className="w-rules">{castle ? wt.regoleCastello : wt.regoleTesto}</p>
       {credits && <p className="w-dim">{credits}</p>}
       <div className="dialog-buttons">
         <button className="pxbtn" onClick={onClose}>

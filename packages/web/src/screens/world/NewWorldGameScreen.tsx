@@ -188,7 +188,6 @@ export function NewWorldGameScreen({ onBack, onStart, onOnline, onTutorial, sess
               value={castleRings}
               onChange={(e) => setCastleRings(Number(e.target.value))}
             />
-            <div className="w-dim">{wt.castelloSpiega}</div>
           </>
         )}
 
@@ -205,7 +204,7 @@ export function NewWorldGameScreen({ onBack, onStart, onOnline, onTutorial, sess
         <label className="w-check">
           <input type="checkbox" checked={random} onChange={(e) => setRandom(e.target.checked)} /> {wt.materialiCasuali}
         </label>
-        <p className="w-rules">{wt.regoleTesto}</p>
+        <p className="w-rules">{isCastle ? wt.regoleCastello : wt.regoleTesto}</p>
       </div>
       <div className="dialog-buttons">
         <button className="pxbtn pxbtn--ghost" onClick={onBack}>

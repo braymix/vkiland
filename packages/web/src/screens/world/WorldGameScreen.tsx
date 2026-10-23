@@ -398,7 +398,7 @@ export function WorldGameScreen({ makeController, onExit, onRematch }: Props) {
         </div>
       </div>
 
-      {dlg === 'costi' && <CostsDialog credits={view.map.credits} onClose={() => setDlg(null)} />}
+      {dlg === 'costi' && <CostsDialog credits={view.map.credits} castle={!!view.map.castle} onClose={() => setDlg(null)} />}
       {dlg === 'scambi' && (
         <TradeDialog
           view={view}
