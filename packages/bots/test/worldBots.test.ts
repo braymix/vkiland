@@ -125,3 +125,12 @@ describe('bot del mondo', () => {
     expect(mine.length).toBeGreaterThanOrEqual(3);
   });
 });
+
+describe('bot sul castello', () => {
+  it('fondano nel Borgo, non giocano mosse illegali e chiudono la partita', () => {
+    for (const seed of ['c1', 'c2', 'c3']) {
+      const { state, steps } = simulate(seed, ['normale', 'difficile', 'facile'], 10, 60000, 'castello');
+      expect(state.phase.type, `partita ${seed} non conclusa (${steps} passi)`).toBe('fine');
+    }
+  }, 120_000);
+});

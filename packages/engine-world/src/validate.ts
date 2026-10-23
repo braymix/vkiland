@@ -112,6 +112,11 @@ export function isLegal(state: WorldGameState, action: WorldAction): ValidationE
       if (!t) return ERR.territorio;
       if (!isProductive(idx.territory.get(t.id)!)) return ERR.deserto;
       if (!hasRoomFor(t, pid)) return ERR.occupato;
+      // Castello: all'inizio si sbarca solo nel Borgo, l'anello più esterno.
+      const castle = state.map.castle;
+      if (castle && castle.ringOf[t.id] !== castle.rings) {
+        return err('SOLO_ANELLO_ESTERNO', 'All’inizio si può fondare solo nel Borgo, l’anello più esterno.');
+      }
       if (freeTerraLinks(state, t.id).length === 0) {
         return err('SENZA_STRADE', 'Serve un territorio con almeno un collegamento di terra libero.');
       }

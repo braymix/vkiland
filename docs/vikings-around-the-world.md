@@ -117,6 +117,9 @@ territorio. Il Jarl non si può catturare né bloccare.
 - Muoversi lungo un collegamento `terra` **senza** tua strada: costa **2 punti**.
 - Muoversi lungo una rotta `mare`: costa **2 punti** e si può fare solo
   **partendo da un territorio dove hai un Porto**.
+- **Castello — setup e numeri**: le casette iniziali si fondano solo nel **Borgo**
+  (anello più esterno). I numeri dei territori migliorano verso il Mastio e peggiorano
+  verso il Borgo (in media; resta casuale).
 - Muoversi lungo un `muro` (mappa **Castello**): **scavalcare** costa **3 punti**
   e non è mai scontato da una strada (sui muri non si costruisce).
 

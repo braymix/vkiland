@@ -6,7 +6,7 @@ import {
 } from './constants';
 import { initialHeroUses, sanitizeWorldHero } from './heroes';
 import { applyMapOverride, assignNumbers, freezeMap, getMapDefinition, isProductive, validateMap } from './map';
-import { generateCastleMap } from './castleMap';
+import { assignCastleNumbers, generateCastleMap } from './castleMap';
 import { seedRng, shuffle } from './rng';
 import { zeroResources } from './resources';
 import type {
@@ -67,7 +67,10 @@ export function createGame(config: WorldGameConfig, opts: NewWorldGameOptions = 
     def = { ...def, territories };
   }
 
-  const [numbers, rng2] = assignNumbers(def, rng, config.avoidAdjacent68);
+  // Castello: numeri migliori verso il Mastio, peggiori verso il Borgo (a caso entro certi limiti).
+  const [numbers, rng2] = def.castle
+    ? assignCastleNumbers(def, rng)
+    : assignNumbers(def, rng, config.avoidAdjacent68);
   rng = rng2;
 
   const territories: Record<string, TerritoryState> = {};

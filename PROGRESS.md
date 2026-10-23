@@ -4,6 +4,19 @@
 
 ## Stato attuale
 
+**VIKINGS AROUND THE WORLD — DUE MODALITÀ + CASTELLO PER ANELLI** ✅ — entrando nel Mondo
+(nuova partita locale e lobby online) si sceglie fra due pulsanti: **🏰 Assalto al castello**
+(la mappa Castello generata, con cursore anelli 2–4) e **🧭 In viaggio** (le mappe reali:
+Mondo, Europa, Italia, Milano). Il Castello esce dal selettore mappe. **Setup**: nel Castello
+le casette iniziali si fondano **solo nel Borgo**, l'anello più esterno (errore
+`SOLO_ANELLO_ESTERNO`; le mosse legali e i bot lo rispettano; le caselle valide sono ora
+evidenziate con velo + bordo spesso). **Numeri per anello**: `assignCastleNumbers` dà a ogni
+territorio un punteggio «anello + rumore» e consegna i numeri dal migliore al peggiore: in
+media il centro (6/8) è nettamente più ricco del bordo (2/12) ma resta casuale e gli anelli
+vicini si sovrappongono. Nel Castello NON vale «6 e 8 non adiacenti» (con il centro ricco
+sarebbe quasi sempre impossibile). `CastleMeta.ringOf` dà l'anello di ogni territorio.
+Test: setup solo nel Borgo, gradiente dei numeri su 60 seed, mazzo conservato, bot su castello.
+
 **VIKINGS AROUND THE WORLD — CASTELLO: RESA E GIOCABILITÀ** ✅ — rifatta la grafica:
 muri della lunghezza esatta del lato (prima sbordavano di 1,8×), l'ultimo confine è
 il **fossato** con **ponti levatoi** di legno (cortile esterno ↔ Borgo, 1 porta in più),

@@ -2820,6 +2820,33 @@ html[data-lang='ru'] .welcome-title {
   color: var(--accent);
   margin-top: 6px;
 }
+/* Scelta modalità del Mondo: due pulsanti grandi affiancati. */
+.w-mode {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 6px 0 10px;
+}
+.w-mode-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 6px;
+  text-align: center;
+}
+.w-mode-ico {
+  font-size: 26px;
+  line-height: 1.3;
+}
+.w-mode-name {
+  font-size: 10px;
+}
+.w-mode-btn small {
+  font-size: 7px;
+  line-height: 1.4;
+  opacity: 0.85;
+}
 .w-rate {
   text-align: center;
   font-size: 11px;
