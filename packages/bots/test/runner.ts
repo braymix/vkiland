@@ -24,7 +24,8 @@ export function runBotGame(
   maxSteps = 8000,
   onAction?: (type: string) => void,
   calamities = false,
-  battle = false
+  battle = false,
+  extra?: { boardShape?: 'castello' | 'rientranze'; castleRings?: number }
 ): GameRunResult {
   let state = createGame({
     seed,
@@ -35,6 +36,8 @@ export function runBotGame(
     })),
     ...(calamities ? { calamities: true } : {}),
     ...(battle ? { battle: true } : {}),
+    ...(extra?.boardShape ? { boardShape: extra.boardShape } : {}),
+    ...(extra?.castleRings != null ? { castleRings: extra.castleRings } : {}),
   });
 
   let steps = 0;

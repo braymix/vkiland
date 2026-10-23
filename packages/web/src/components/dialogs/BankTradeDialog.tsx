@@ -29,7 +29,7 @@ export function BankTradeDialog({ view, onSubmit, onClose }: Props) {
   // e bloccherebbe scambi in realtà legali.
   // Chiave della topologia REALE (firma sulle isole «con rientranze» / «campo
   // libero», codice sulle tavole fisse): serve a mappare gli approdi ai vertici.
-  const topoKey = boardTopoKey(view.boardRadius, view.boardShape, view.board.hexes);
+  const topoKey = boardTopoKey(view.boardRadius, view.boardShape, view.board.hexes, view.board.castle);
   // In modalità squadra gli approdi sono in comune: si contano gli edifici di
   // TUTTI i compagni (friendsOf ⇒ {me} fuori dalla modalità, quindi invariato).
   // Senza questo la UI mostrerebbe il rapporto del solo giocatore e bloccherebbe

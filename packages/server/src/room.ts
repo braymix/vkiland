@@ -133,6 +133,7 @@ export class GameRoom {
         : {}),
       ...(config.boardSize ? { boardSize: config.boardSize } : {}),
       ...(config.boardShape ? { boardShape: config.boardShape } : {}),
+      ...(config.castleRings != null ? { castleRings: config.castleRings } : {}),
       ...(config.hexCount != null ? { hexCount: config.hexCount } : {}),
       ...(config.desertCount != null ? { desertCount: config.desertCount } : {}),
       // Modalità Squadra: assegnazione per-posto + colori/bersaglio dalla lobby.

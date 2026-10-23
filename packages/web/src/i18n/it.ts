@@ -220,6 +220,10 @@ export const it = {
   campoGigante: 'Campo gigante',
   campoGiganteSpiega: '37 caselle — consigliato per 7–8 giocatori.',
   campoRientranze: 'Con rientranze',
+  campoCastello: 'Castello',
+  castelloAnelli: 'Anelli',
+  campoCastelloSpiega:
+    'Struttura esagonale ad anelli (mastio, mura, cortili, fossato): tutto casuale. Le mura si attraversano solo da porte (ponti levatoi sul fossato), scale (serve un tuo edificio ai piedi), passaggi segreti e brecce. Niente approdi.',
   campoLibero: 'Campo libero',
   campoLiberoSpiega:
     'Scegli tu quante caselle ha la tavola ({min}–{max}): un’isola compatta di quel numero di caselle. Vince sulla taglia e sulla forma qui sopra.',

@@ -76,7 +76,7 @@ export function longestRoadLength(
  * non va a nessuno finché qualcuno non resta da solo in testa.
  */
 export function recomputeGrandeVia(state: GameState, events: GameEvent[]): void {
-  const topoKey = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes);
+  const topoKey = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes, state.board.castle);
   const teams = state.config.teams;
   // In modalità squadra il "detentore" è una SQUADRA; la lunghezza è quella
   // della rete combinata. Trattiamo ogni entità (squadra o singolo) allo stesso

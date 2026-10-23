@@ -5,7 +5,7 @@
  * controllo girerà sul server contro i client manomessi.
  */
 import type { Action, ValidationError } from './actions';
-import { boardTopoKey, getTopology, type TopoKey } from './board/topology';
+import { boardTopoKey, getTopology, type BoardTopology, type TopoKey } from './board/topology';
 import {
   calamityBlocksBankTrade,
   calamityBlocksRoad,
@@ -106,6 +106,10 @@ const ERR = {
     'SENTIERO_PROTETTO',
     'Questa strada è collegata su entrambi i lati: puoi spezzare solo quelle all’estremità.'
   ),
+  scalaSenzaPiede: err(
+    'SCALA_SENZA_PIEDE',
+    'Per scavalcare il muro con una scala serve un tuo edificio ai suoi piedi.'
+  ),
   nessunaCalamita: err(
     'NESSUNA_CALAMITA',
     'Non c’è nessuna calamità in corso da cambiare in questo giro.'
@@ -200,10 +204,34 @@ function mainPhaseGuard(state: GameState, player: PlayerId): ValidationError | n
   return null;
 }
 
+/**
+ * Mappa CASTELLO — regola delle SCALE («scavalcare» il muro): una scala si può
+ * costruire SOLO se il giocatore ha già un proprio edificio (villaggio /
+ * roccaforte / capitale) su uno dei due vertici ai piedi del muro. Ritorna true
+ * se lo spigolo è una scala e il piede manca (va bloccata). Per gli spigoli
+ * normali (o fuori dal castello) ritorna sempre false.
+ */
+function ladderBlocked(
+  state: GameState,
+  player: PlayerId,
+  edge: string,
+  topo: BoardTopology
+): boolean {
+  const ladders = state.board.castle?.ladders;
+  if (!ladders || !ladders.includes(edge)) return false;
+  const vs = topo.edgeVertices[edge];
+  if (!vs) return true;
+  const me = state.players[player]!;
+  const hasFoot = vs.some(
+    (v) => me.villages.includes(v) || me.strongholds.includes(v) || me.capitals.includes(v)
+  );
+  return !hasFoot;
+}
+
 export function isLegal(state: GameState, action: Action): ValidationError | null {
   if (state.phase.type === 'gameOver') return ERR.partitaFinita;
   if (!isPlayerId(state, action.player)) return ERR.giocatoreInesistente;
-  const radius = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes);
+  const radius = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes, state.board.castle);
   const topo = getTopology(radius);
   const me = state.players[action.player]!;
   // Modalità squadra: i compagni (sé compreso). Fuori dalla modalità è {player},
@@ -243,6 +271,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
         );
         if (!touchesVillage && !touchesOwnRoad) return ERR.nonConnesso;
       }
+      if (ladderBlocked(state, action.player, action.edge, topo)) return ERR.scalaSenzaPiede;
       return null;
     }
 
@@ -296,6 +325,7 @@ export function isLegal(state: GameState, action: Action): ValidationError | nul
       if (roadOwnerAt(state, action.edge) !== null) return ERR.spigoloOccupato;
       if (me.roads.length >= effectivePieceLimit(state, action.player, 'sentiero')) return ERR.pezziEsauriti;
       if (!roadConnects(state, action.player, action.edge, radius, friends)) return ERR.nonConnesso;
+      if (ladderBlocked(state, action.player, action.edge, topo)) return ERR.scalaSenzaPiede;
       if (!hasAtLeast(me.resources, BUILD_COSTS.sentiero)) return ERR.risorseInsufficienti;
       return null;
     }

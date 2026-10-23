@@ -213,6 +213,10 @@ export const de: Strings = {
   campoGigante: 'Riesiges Feld',
   campoGiganteSpiega: '37 Felder â empfohlen fÃ¼r 7â8 Spieler.',
   campoRientranze: 'Mit Einbuchtungen',
+  campoCastello: 'Burg',
+  castelloAnelli: 'Ringe',
+  campoCastelloSpiega:
+    'Eine sechseckige Ringstruktur (Bergfried, Mauern, Höfe, Graben), komplett zufällig. Mauern werden nur durch Tore (Zugbrücken über den Graben), Leitern (du brauchst ein eigenes Gebäude am Fuß), Geheimgänge und Breschen überwunden. Keine Häfen.',
   campoLibero: 'Freies Feld',
   campoLiberoSpiega:
     'WÃ¤hle, wie viele Felder das Spielbrett hat ({min}â{max}): eine kompakte Insel mit so vielen Feldern. Hat Vorrang vor GrÃ¶Ãe und Form oben.',

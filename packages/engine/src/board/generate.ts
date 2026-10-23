@@ -1,7 +1,7 @@
 /** Generazione procedurale (e deterministica, dato l'RNG) della tavola. */
 import { SMALL_BOARD, type BoardSpec } from '../constants';
 import { nextInt, shuffle, type RngState } from '../rng';
-import type { Board, BoardShapeChoice, Hex, Port } from '../types';
+import type { Board, BoardShapeChoice, CastleLayout, Hex, Port } from '../types';
 import {
   type AxialCoord,
   boardHexes,
@@ -9,7 +9,14 @@ import {
   hexNeighbors,
   rientranzeRegionRadius,
 } from './coords';
-import { getTopology, shapeSignature, type BoardTopology, type TopoKey } from './topology';
+import { castleCrossingEdges } from './castle';
+import {
+  castleSignature,
+  getTopology,
+  shapeSignature,
+  type BoardTopology,
+  type TopoKey,
+} from './topology';
 
 function hasAdjacent68(hexes: readonly Hex[]): boolean {
   const byKey = new Map(hexes.map((h) => [h.id, h]));
@@ -112,16 +119,31 @@ export function generateBoard(
   rngIn: RngState,
   avoidAdjacent68: boolean,
   spec: BoardSpec = SMALL_BOARD,
-  shape?: BoardShapeChoice
+  shape?: BoardShapeChoice,
+  /**
+   * Mappa «Castello»: la terra e il descrittore sono generati PRIMA (in
+   * `game.ts`), perché la taglia della terra — e quindi i sacchetti dello
+   * `spec` — dipende dalla struttura generata. Qui si usano così come sono.
+   */
+  prebuiltCastle?: { land: AxialCoord[]; castle: CastleLayout }
 ): [Board, RngState] {
   let rng = rngIn;
 
   // 0) La FORMA della tavola: esagono fisso della taglia, oppure isola casuale
   //    «con rientranze» con lo stesso numero di caselle (così i sacchetti
-  //    terreni/segnalini restano validi identici).
+  //    terreni/segnalini restano validi identici), oppure «castello» ad anelli.
   let land: AxialCoord[];
   let topoKey: TopoKey;
-  if (shape === 'libera') {
+  let castle: CastleLayout | undefined;
+  if (shape === 'castello') {
+    if (!prebuiltCastle) throw new Error('generateBoard: castello senza terra pre-generata');
+    land = prebuiltCastle.land;
+    castle = prebuiltCastle.castle;
+    topoKey = castleSignature(
+      land.map((c) => ({ id: hexKey(c) })),
+      castleCrossingEdges(castle)
+    );
+  } else if (shape === 'libera') {
     // Campo libero: isola COMPATTA di `terrainPool.length` caselle, cresciuta
     // dentro l'esagono del raggio geometrico (spec.code) scelto per contenerla.
     // Se le caselle riempiono l'intero esagono la forma è un esagono perfetto.
@@ -186,5 +208,14 @@ export function generateBoard(
   // 4) Il Drago parte dalla tundra.
   const tundra = hexes.find((h) => h.terrain === 'tundra')!;
 
-  return [{ hexes, ports, dragonHex: tundra.id, dragonMovedBy: null }, rng];
+  return [
+    {
+      hexes,
+      ports,
+      dragonHex: tundra.id,
+      dragonMovedBy: null,
+      ...(castle ? { castle } : {}),
+    },
+    rng,
+  ];
 }

@@ -151,7 +151,7 @@ function applyInstantCalamity(state: GameState, card: CalamityCard, events: Game
       // delle due iniziali) far crollare. Senza bersagli validi: non crolla nulla.
       const pid = playerWithMostRoads(state);
       if (pid === null) return false;
-      const radius = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes);
+      const radius = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes, state.board.castle);
       if (franaTargets(state.players[pid]!, radius).length === 0) return false;
       state.phase = { type: 'calamityFrana', player: pid };
       return true;
@@ -265,7 +265,7 @@ function playerWithMostRoads(state: GameState): PlayerId | null {
 /** Giocatori col MINIMO di strade che possono effettivamente piazzarne, in ordine di turno. */
 function fewestRoadsPlaceable(state: GameState): PlayerId[] {
   const min = Math.min(...state.players.map((p) => p.roads.length));
-  const radius = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes);
+  const radius = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes, state.board.castle);
   return state.turnOrder.filter((pid) => {
     const p = state.players[pid]!;
     return (

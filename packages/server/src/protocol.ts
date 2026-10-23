@@ -145,9 +145,12 @@ export interface LobbyConfig {
   boardSize?: BoardSizeChoice;
   /**
    * Forma della tavola: 'rientranze' = isola casuale (golfi, penisole, ponti)
-   * con lo stesso numero di caselle della taglia. Assente = esagono classico.
+   * con lo stesso numero di caselle della taglia; 'castello' = struttura ad
+   * anelli (mastio, mura, cortili, fossato). Assente = esagono classico.
    */
   boardShape?: BoardShapeChoice;
+  /** Mappa Castello: numero di mura/cortili (2..4). Solo con `boardShape === 'castello'`. */
+  castleRings?: number;
   /**
    * «Campo libero»: numero TOTALE di caselle scelto a mano. Se presente vince
    * sulla taglia/forma preset (isola compatta di tante caselle). Assente = preset.

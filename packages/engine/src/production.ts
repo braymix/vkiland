@@ -13,7 +13,7 @@ import type { GameState, Resource, ResourceCount } from './types';
  * se la richiede uno solo, riceve quel che resta.
  */
 export function produceResources(state: GameState, total: number, events: GameEvent[]): void {
-  const topo = getTopology(boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes));
+  const topo = getTopology(boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes, state.board.castle));
   const demand = new Map<number, ResourceCount>(); // giocatore → richiesta
   // RAZZIA: la carta è posata su UNA casella. Solo la produzione di QUELLA casella
   // (quando esce il suo numero) è dirottata al razziatore; tutte le altre caselle,
@@ -129,7 +129,7 @@ export function produceForSetupVillage(
   vertex: string,
   events: GameEvent[]
 ): void {
-  const topo = getTopology(boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes));
+  const topo = getTopology(boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes, state.board.castle));
   const byId = new Map(state.board.hexes.map((h) => [h.id, h]));
   const gained = zeroResources();
   for (const hexId of topo.vertexLandHexes[vertex]!) {

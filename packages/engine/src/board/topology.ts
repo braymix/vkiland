@@ -20,6 +20,12 @@ import {
   parseVertexId,
   vertexId,
 } from './coords';
+import {
+  type CastleLayout,
+  castleCrossingEdges,
+  isTunnelId,
+  parseTunnelId,
+} from './castle';
 
 /**
  * CHIAVE della topologia. Due forme:
@@ -35,6 +41,12 @@ import {
 export type TopoKey = number | string;
 
 const SHAPE_PREFIX = 'S:';
+const CASTLE_PREFIX = 'C:';
+// Separa, nella firma del castello, le caselle di terra dagli attraversamenti.
+const CASTLE_SEP = '#';
+// Separatore della LISTA attraversamenti: gli id di spigolo/galleria contengono
+// già `;` e `,`, quindi serve un carattere che non compare mai in un id.
+const CROSS_SEP = '~';
 
 /**
  * Firma canonica di una forma di tavola: le chiavi delle caselle di terra,
@@ -45,24 +57,57 @@ export function shapeSignature(hexes: readonly { id: string }[]): string {
   return SHAPE_PREFIX + hexes.map((h) => h.id).slice().sort().join(';');
 }
 
+/**
+ * Firma del CASTELLO: le caselle di terra E gli attraversamenti (porte, scale,
+ * gallerie). A differenza delle rientranze, questi NON sono ricavabili dalla
+ * sola terra (sono scelti a caso dal generatore), quindi entrano nella chiave e
+ * vanno passati accanto alle caselle (vedi `boardTopoKey`).
+ */
+export function castleSignature(
+  hexes: readonly { id: string }[],
+  crossings: readonly string[]
+): string {
+  const land = hexes.map((h) => h.id).slice().sort().join(';');
+  const cross = crossings.slice().sort().join(CROSS_SEP);
+  return CASTLE_PREFIX + land + CASTLE_SEP + cross;
+}
+
 function isShapeKey(key: TopoKey): key is string {
   return typeof key === 'string';
+}
+
+function isCastleKey(key: TopoKey): key is string {
+  return typeof key === 'string' && key.startsWith(CASTLE_PREFIX);
 }
 
 function parseShapeKey(key: string): AxialCoord[] {
   return key.slice(SHAPE_PREFIX.length).split(';').filter(Boolean).map(parseHexKey);
 }
 
+/** Decodifica una firma castello in caselle di terra + spigoli-attraversamento. */
+function parseCastleKey(key: string): { land: AxialCoord[]; crossings: string[] } {
+  const [landPart, crossPart = ''] = key.slice(CASTLE_PREFIX.length).split(CASTLE_SEP);
+  return {
+    land: landPart!.split(';').filter(Boolean).map(parseHexKey),
+    crossings: crossPart.split(CROSS_SEP).filter(Boolean),
+  };
+}
+
 /**
- * `TopoKey` per un tabellone: la firma della forma se è «con rientranze»,
- * altrimenti il codice numerico (comportamento classico). È l'unico punto in cui
- * si decide quale topologia usare, condiviso da engine, bot e renderer.
+ * `TopoKey` per un tabellone: la firma della forma se è «con rientranze» o un
+ * «castello», altrimenti il codice numerico (comportamento classico). È l'unico
+ * punto in cui si decide quale topologia usare, condiviso da engine, bot e
+ * renderer. Il castello aggiunge alla chiave i suoi attraversamenti.
  */
 export function boardTopoKey(
   boardRadius: number,
-  boardShape: 'rientranze' | 'libera' | undefined,
-  hexes: readonly { id: string }[]
+  boardShape: 'rientranze' | 'libera' | 'castello' | undefined,
+  hexes: readonly { id: string }[],
+  castle?: CastleLayout
 ): TopoKey {
+  if (boardShape === 'castello' && castle) {
+    return castleSignature(hexes, castleCrossingEdges(castle));
+  }
   // Ogni forma NON esagonale (rientranze o campo libero) porta la topologia
   // nelle proprie caselle: si usa la firma. Solo l'esagono fisso usa il codice.
   return boardShape ? shapeSignature(hexes) : boardRadius;
@@ -111,15 +156,32 @@ export function getTopology(key: TopoKey = BOARD_RADIUS): BoardTopology {
   if (hit) return hit;
 
   // Le tavole a forma fissa (chiave numerica) sono convesse e SENZA ponti; le
-  // tavole «con rientranze» (chiave-firma) portano la forma con sé e abilitano i
-  // ponti sui golfi.
-  const land = isShapeKey(key) ? parseShapeKey(key) : boardHexes(key);
-  const topo = buildTopology(land, isShapeKey(key));
+  // tavole «con rientranze» (chiave-firma `S:`) portano la forma con sé e
+  // abilitano i ponti sui golfi; il «castello» (chiave-firma `C:`) porta anche
+  // gli attraversamenti espliciti (porte, scale, gallerie).
+  let topo: BoardTopology;
+  if (isCastleKey(key)) {
+    const { land, crossings } = parseCastleKey(key);
+    topo = buildTopology(land, crossings);
+  } else if (isShapeKey(key)) {
+    topo = buildTopology(parseShapeKey(key), 'auto');
+  } else {
+    topo = buildTopology(boardHexes(key), 'none');
+  }
   cache.set(key, topo);
   return topo;
 }
 
-function buildTopology(land: readonly AxialCoord[], withBridges: boolean): BoardTopology {
+/**
+ * `bridges`: `'none'` (esagono fisso, convesso), `'auto'` (rientranze: scopre
+ * tutti i ponti sui golfi) o una LISTA esplicita di spigoli-attraversamento del
+ * castello (porte/scale = spigoli di mare come i ponti; gallerie = id `T:` che
+ * collegano due vertici non adiacenti).
+ */
+function buildTopology(
+  land: readonly AxialCoord[],
+  bridgeSpec: 'none' | 'auto' | readonly string[]
+): BoardTopology {
   const hexKeys = land.map(hexKey);
   const landSet = new Set(hexKeys);
 
@@ -145,7 +207,11 @@ function buildTopology(land: readonly AxialCoord[], withBridges: boolean): Board
   // a `edgeSet` PRIMA di derivare vertici/adiacenze, così entrano da soli in
   // edgeVertices/vertexEdges/vertexNeighbors senza casi speciali.
   const bridgeSet = new Set<string>();
-  if (withBridges) {
+  // Spigoli-muro (porte/scale): spigoli di mare come i ponti, trattati qui con
+  // lo stesso meccanismo. Le GALLERIE (`T:`) collegano vertici NON adiacenti e
+  // non hanno due caselle d'acqua: si cablano a parte, dopo le derivazioni.
+  const tunnelEdges: string[] = [];
+  if (bridgeSpec === 'auto') {
     for (const c1 of land) {
       const n = hexNeighbors(c1);
       for (let i = 0; i < 6; i++) {
@@ -158,6 +224,11 @@ function buildTopology(land: readonly AxialCoord[], withBridges: boolean): Board
         bridgeSet.add(e);
         edgeSet.add(e);
       }
+    }
+  } else if (bridgeSpec !== 'none') {
+    for (const e of bridgeSpec) {
+      if (isTunnelId(e)) tunnelEdges.push(e);
+      else edgeSet.add(e); // porta/scala: spigolo di mare, derivato come un ponte
     }
   }
 
@@ -184,15 +255,23 @@ function buildTopology(land: readonly AxialCoord[], withBridges: boolean): Board
     const [c1, c2] = common as [AxialCoord, AxialCoord];
     edgeVertices[e] = [vertexId(a, b, c1), vertexId(a, b, c2)];
   }
+  // GALLERIE: estremità lette direttamente dall'id (vertici già esistenti).
+  for (const t of tunnelEdges) edgeVertices[t] = parseTunnelId(t);
 
   // vertice → spigoli incidenti: per il vertice {A,B,C} le coppie AB, BC, AC
-  // che esistono come spigoli validi (≥1 esagono di terra).
+  // che esistono come spigoli validi (≥1 esagono di terra), più le gallerie che
+  // vi arrivano.
   const vertexEdges: Record<string, string[]> = {};
   for (const v of vertices) {
     const [a, b, c] = parseVertexId(v);
     vertexEdges[v] = [edgeId(a, b), edgeId(b, c), edgeId(a, c)].filter((e) =>
       edgeSet.has(e)
     );
+  }
+  for (const t of tunnelEdges) {
+    const [v1, v2] = parseTunnelId(t);
+    if (vertexEdges[v1]) vertexEdges[v1].push(t);
+    if (vertexEdges[v2]) vertexEdges[v2].push(t);
   }
 
   // vertice → vertici adiacenti (l'altro estremo di ogni spigolo incidente)
@@ -249,7 +328,7 @@ function buildTopology(land: readonly AxialCoord[], withBridges: boolean): Board
   return {
     hexKeys,
     vertices,
-    edges,
+    edges: tunnelEdges.length > 0 ? [...edges, ...tunnelEdges].sort() : edges,
     bridges,
     hexVertices,
     hexEdges,

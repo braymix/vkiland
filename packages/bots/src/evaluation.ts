@@ -19,7 +19,7 @@ import {
 
 /** Chiave della topologia per una vista: gestisce anche le tavole «con rientranze». */
 export function viewTopoKey(view: PlayerView): TopoKey {
-  return boardTopoKey(view.boardRadius, view.boardShape, view.board.hexes);
+  return boardTopoKey(view.boardRadius, view.boardShape, view.board.hexes, view.board.castle);
 }
 
 export function hexById(view: PlayerView): Map<string, ViewHex> {

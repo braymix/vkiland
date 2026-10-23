@@ -212,6 +212,10 @@ export const es: Strings = {
   campoGigante: 'Campo gigante',
   campoGiganteSpiega: '37 casillas â recomendado para 7â8 jugadores.',
   campoRientranze: 'Con entrantes',
+  campoCastello: 'Castillo',
+  castelloAnelli: 'Anillos',
+  campoCastelloSpiega:
+    'Estructura hexagonal en anillos (torre del homenaje, murallas, patios, foso), todo aleatorio. Las murallas se cruzan solo por puertas (puentes levadizos sobre el foso), escaleras (necesitas un edificio tuyo al pie), pasadizos secretos y brechas. Sin puertos.',
   campoLibero: 'Tablero libre',
   campoLiberoSpiega:
     'Elige cuÃ¡ntas casillas tiene el tablero ({min}â{max}): una isla compacta de ese nÃºmero de casillas. Prevalece sobre el tamaÃ±o y la forma de arriba.',
