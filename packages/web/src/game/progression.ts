@@ -1,9 +1,13 @@
 /**
- * Progressione lato CLIENT (casse, frammenti, eroi sbloccati). Stessa doppia
- * anima dei cosmetici: SENZA account tutto vive sul DISPOSITIVO (localStorage);
- * CON una sessione online valida è invece legata all'account e segue il
- * giocatore su ogni dispositivo. La validazione è la stessa dell'engine
- * (`sanitizeProgression`), così client e server applicano regole identiche.
+ * Progressione lato CLIENT (casse, frammenti, eroi sbloccati, missioni),
+ * orchestrata PER MODALITÀ: Classico e Around the World hanno ciascuno il
+ * proprio mazzo (`PlayerProgression.classico` / `.aroundTheWorld`), separato
+ * fin dalle casse. Stessa doppia anima dei cosmetici: SENZA account tutto
+ * vive sul DISPOSITIVO (localStorage); CON una sessione online valida è
+ * invece legato all'account e segue il giocatore su ogni dispositivo. La
+ * validazione è la stessa dell'engine (`sanitizeProgression`), così client e
+ * server applicano regole identiche (e la stessa funzione MIGRA in automatico
+ * un vecchio blob pre-separazione dentro `classico`).
  */
 import {
   sanitizeProgression,
@@ -15,15 +19,22 @@ import {
   redeemUncommon as engineRedeemUncommon,
   ensureMissions as engineEnsureMissions,
   completeMission as engineCompleteMission,
+  ensureWorldMissions as engineEnsureWorldMissions,
+  completeWorldMission as engineCompleteWorldMission,
+  type GameMode,
   type HeroId,
   type PlayerProgression,
-  type ChestOpenResult,
-  type RedeemResult,
+  type ClassicoProgression,
+  type WorldProgression,
   type MissionCompleteResult,
+  type WorldMissionCompleteResult,
 } from '@vikiland/engine';
 import { apiGetProgression, apiSetProgression, type OnlineSession } from '../online/connection';
 
 const STORAGE_KEY = 'vikiland-progression-v1';
+
+/** Le 4 mappe standard tra cui sorteggiare le missioni del Mondo (niente «castello»). */
+export const WORLD_MISSION_MAP_IDS = ['mondo', 'europa', 'italia', 'milano'];
 
 /** Identificatore univoco per una cassa (con ripiego se `crypto` è assente). */
 export function makeChestId(): string {
@@ -91,98 +102,173 @@ export async function saveProgression(
   return setLocalProgression(prog);
 }
 
-/**
- * Assegna una cassa a fine partita (100%). Rilegge lo stato più aggiornato
- * (così non si perdono casse aperte altrove né il flag tester), aggiunge la
- * cassa se c'è spazio (max 3) e persiste. Ritorna la progressione risultante.
- */
-export async function awardChestForFinishedGame(
-  session: OnlineSession | null
-): Promise<PlayerProgression> {
-  const current = await loadProgression(session);
-  if (!canEarnChest(current)) return current; // già 3 casse in lavorazione
-  // La rarità della cassa è sorteggiata: quasi sempre comune, di rado rara,
-  // molto di rado leggendaria (così i rari/leggendari costano «molto di più»).
-  const next = addChest(current, Date.now(), makeChestId, undefined, rollChestRarity());
-  return saveProgression(session, next);
+/** Il mazzo di UNA modalità ({} se assente). */
+export function modeProgression(prog: PlayerProgression, mode: 'classico'): ClassicoProgression;
+export function modeProgression(prog: PlayerProgression, mode: 'aroundTheWorld'): WorldProgression;
+export function modeProgression(prog: PlayerProgression, mode: GameMode): ClassicoProgression | WorldProgression;
+export function modeProgression(prog: PlayerProgression, mode: GameMode): ClassicoProgression | WorldProgression {
+  return (mode === 'classico' ? prog.classico : prog.aroundTheWorld) ?? {};
+}
+
+/** Sostituisce il mazzo di UNA modalità, lasciando intatto il resto dell'account. */
+function withModeProgression(
+  prog: PlayerProgression,
+  mode: GameMode,
+  next: ClassicoProgression | WorldProgression
+): PlayerProgression {
+  return mode === 'classico'
+    ? { ...prog, classico: next as ClassicoProgression }
+    : { ...prog, aroundTheWorld: next as WorldProgression };
+}
+
+/** Esito di un'apertura di cassa (o assegnazione frammento) mostrabile in UI. */
+export interface ChestOpenOutcome {
+  heroId: HeroId;
+  fragments: number;
+  unlockedNow: boolean;
+  wasted: boolean;
+  progression: PlayerProgression;
 }
 
 /**
- * Apre una cassa pronta e persiste il risultato. Ritorna l'esito (con la
- * progressione aggiornata) oppure `null` se la cassa non era pronta/assente.
+ * Assegna una cassa a fine partita (100%) NELLA modalità `mode` (default
+ * Classico, l'unica che oggi assegna casse a fine partita). Rilegge lo stato
+ * più aggiornato (così non si perdono casse aperte altrove né il flag
+ * tester), aggiunge la cassa se c'è spazio (max 3) e persiste. La Classica dà
+ * sempre un eroe non comune; il Mondo (se/quando chiamato) sorteggia la
+ * rarità con `rollChestRarity` (può dare anche rari/leggendari).
+ */
+export async function awardChestForFinishedGame(
+  session: OnlineSession | null,
+  mode: GameMode = 'classico'
+): Promise<PlayerProgression> {
+  const current = await loadProgression(session);
+  const bucket = modeProgression(current, mode);
+  if (!canEarnChest(bucket)) return current; // già 3 casse in lavorazione
+  const rarity = mode === 'classico' ? 'nonComune' : rollChestRarity();
+  const next = addChest(bucket, Date.now(), makeChestId, undefined, rarity);
+  return saveProgression(session, withModeProgression(current, mode, next));
+}
+
+/**
+ * Apre una cassa pronta (nella modalità `mode`) e persiste il risultato.
+ * Ritorna `null` se la cassa non era pronta/assente.
  */
 export async function openChestAndSave(
   session: OnlineSession | null,
+  mode: GameMode,
   prog: PlayerProgression,
   chestId: string
-): Promise<ChestOpenResult | null> {
-  const result = engineOpenChest(prog, chestId, Date.now());
+): Promise<ChestOpenOutcome | null> {
+  const bucket = modeProgression(prog, mode);
+  const result = engineOpenChest(bucket, chestId, Date.now(), Math.random, prog.tester === true);
   if (!result) return null;
-  const saved = await saveProgression(session, result.progression);
-  return { ...result, progression: saved };
+  const saved = await saveProgression(session, withModeProgression(prog, mode, result.progression));
+  return { heroId: result.heroId, fragments: result.fragments, unlockedNow: result.unlockedNow, wasted: result.wasted, progression: saved };
 }
 
 /**
- * Riscuote la cassa gratuita del Negozio (una al giorno, apre all'istante).
- * Rilegge lo stato più aggiornato (per non perdere sblocchi fatti altrove né il
- * flag tester), la apre se disponibile OGGI e persiste. Ritorna l'esito con la
- * progressione salvata, oppure `null` se oggi è già stata riscossa.
+ * Riscuote la cassa gratuita del Negozio di QUESTA modalità (una al giorno,
+ * apre all'istante). Rilegge lo stato più aggiornato, la apre se disponibile
+ * OGGI e persiste. Ritorna `null` se oggi è già stata riscossa (in questa
+ * modalità). La Classica dà sempre un eroe non comune; il Mondo sorteggia la
+ * rarità (può dare anche rari/leggendari).
  */
 export async function claimFreeChestAndSave(
-  session: OnlineSession | null
-): Promise<ChestOpenResult | null> {
+  session: OnlineSession | null,
+  mode: GameMode
+): Promise<ChestOpenOutcome | null> {
   const current = await loadProgression(session);
-  const result = engineClaimFreeChest(current, localDayKey());
+  const bucket = modeProgression(current, mode);
+  const rarity = mode === 'classico' ? 'nonComune' : rollChestRarity();
+  const result = engineClaimFreeChest(bucket, localDayKey(), Math.random, rarity, current.tester === true);
   if (!result) return null;
-  const saved = await saveProgression(session, result.progression);
-  return { ...result, progression: saved };
+  const saved = await saveProgression(session, withModeProgression(current, mode, result.progression));
+  return { heroId: result.heroId, fragments: result.fragments, unlockedNow: result.unlockedNow, wasted: result.wasted, progression: saved };
+}
+
+/** Esito del riscatto una-tantum (di UNA modalità), con la progressione salvata. */
+export interface RedeemOutcome {
+  heroId: HeroId;
+  progression: PlayerProgression;
 }
 
 /**
- * Riscatta (una volta per account) l'eroe NON comune `heroId` a scelta e
- * persiste. Rilegge lo stato più aggiornato (per non perdere sblocchi fatti
- * altrove né consumare il riscatto due volte), lo sblocca se disponibile e
- * salva. Ritorna l'esito con la progressione salvata, oppure `null` se il
- * riscatto è già stato usato o l'eroe non è valido.
+ * Riscatta (una volta per MODALITÀ) l'eroe NON comune `heroId` a scelta e
+ * persiste. Ritorna `null` se il riscatto di questa modalità è già stato
+ * usato o l'eroe non è valido.
  */
 export async function redeemUncommonAndSave(
   session: OnlineSession | null,
+  mode: GameMode,
   heroId: HeroId
-): Promise<RedeemResult | null> {
+): Promise<RedeemOutcome | null> {
   const current = await loadProgression(session);
-  const result = engineRedeemUncommon(current, heroId);
+  const bucket = modeProgression(current, mode);
+  const result = engineRedeemUncommon(bucket, heroId);
   if (!result) return null;
-  const saved = await saveProgression(session, result.progression);
-  return { ...result, progression: saved };
+  const saved = await saveProgression(session, withModeProgression(current, mode, result.progression));
+  return { heroId: result.heroId, progression: saved };
 }
 
 /**
- * Carica la progressione e assicura una bacheca di missioni valida: se assente
- * o scaduta la (ri)genera e la persiste. Ritorna la progressione risultante
- * (con la bacheca aggiornata), pronta per essere mostrata dalla schermata.
+ * Carica la progressione e assicura una bacheca di missioni CLASSICHE valida:
+ * se assente o scaduta la (ri)genera e la persiste. Ritorna il mazzo
+ * CLASSICO (non l'intero account), pronto per la schermata Missioni.
  */
-export async function loadMissionsAndSave(
-  session: OnlineSession | null
-): Promise<PlayerProgression> {
+export async function loadMissionsAndSave(session: OnlineSession | null): Promise<ClassicoProgression> {
   const current = await loadProgression(session);
-  const { progression, changed } = engineEnsureMissions(current, Date.now(), makeChestId);
-  if (!changed) return progression;
-  return saveProgression(session, progression);
+  const bucket = current.classico ?? {};
+  const { progression, changed } = engineEnsureMissions(bucket, Date.now(), makeChestId);
+  if (!changed) return bucket;
+  await saveProgression(session, withModeProgression(current, 'classico', progression));
+  return progression;
 }
 
 /**
- * Completa una missione VINTA: rilegge lo stato più aggiornato (per non perdere
- * progressi fatti altrove), la segna completata, apre subito le casse-ricompensa
- * (1 facile / 2 normale) e persiste. Ritorna l'esito con la progressione
- * salvata, oppure `null` se la missione non c'è più o era già completata.
+ * Completa una missione CLASSICA vinta: segna completata e apre subito le
+ * casse-ricompensa (eroi sempre non comuni), poi persiste. `progression` nel
+ * risultato è il mazzo CLASSICO aggiornato (non l'intero account).
  */
 export async function completeMissionAndSave(
   session: OnlineSession | null,
   missionId: string
 ): Promise<MissionCompleteResult | null> {
   const current = await loadProgression(session);
-  const result = engineCompleteMission(current, missionId);
+  const bucket = current.classico ?? {};
+  const result = engineCompleteMission(bucket, missionId);
   if (!result) return null;
-  const saved = await saveProgression(session, result.progression);
-  return { ...result, progression: saved };
+  await saveProgression(session, withModeProgression(current, 'classico', result.progression));
+  return result;
+}
+
+/**
+ * Carica la progressione e assicura una bacheca di missioni del MONDO valida:
+ * se assente o scaduta la (ri)genera (tra le 4 mappe standard) e la persiste.
+ * Ritorna il mazzo del MONDO (non l'intero account).
+ */
+export async function loadWorldMissionsAndSave(session: OnlineSession | null): Promise<WorldProgression> {
+  const current = await loadProgression(session);
+  const bucket = current.aroundTheWorld ?? {};
+  const { progression, changed } = engineEnsureWorldMissions(bucket, Date.now(), makeChestId, WORLD_MISSION_MAP_IDS);
+  if (!changed) return bucket;
+  await saveProgression(session, withModeProgression(current, 'aroundTheWorld', progression));
+  return progression;
+}
+
+/**
+ * Completa una missione del MONDO vinta: segna completata e apre subito le
+ * casse-ricompensa (possono dare anche eroi rari/leggendari), poi persiste.
+ * `progression` nel risultato è il mazzo del MONDO aggiornato.
+ */
+export async function completeWorldMissionAndSave(
+  session: OnlineSession | null,
+  missionId: string
+): Promise<WorldMissionCompleteResult | null> {
+  const current = await loadProgression(session);
+  const bucket = current.aroundTheWorld ?? {};
+  const result = engineCompleteWorldMission(bucket, missionId);
+  if (!result) return null;
+  await saveProgression(session, withModeProgression(current, 'aroundTheWorld', result.progression));
+  return result;
 }

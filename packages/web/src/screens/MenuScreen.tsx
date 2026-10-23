@@ -1,15 +1,15 @@
-/** Schermata iniziale (dopo l'entrata): l'hub da cui si raggiunge tutto. */
+/**
+ * Schermata iniziale (dopo l'entrata): l'HUB da cui si raggiunge tutto. Solo
+ * 4 voci: le due MODALITÀ (Classica / Around the World, ciascuna con le sue
+ * missioni/libro/inventario/casse) e le due voci COMUNI (Gestione account,
+ * Negozio — che regala una cassa gratuita al giorno PER MODALITÀ).
+ */
 import { wt } from '../i18n/world';
 import { useEffect, useState } from 'react';
-import {
-  readyChestCount,
-  pendingMissionCount,
-  pendingShopCount,
-  type PlayerProgression,
-} from '@vikiland/engine';
+import { readyChestCount, pendingMissionCount, pendingShopCount, type PlayerProgression } from '@vikiland/engine';
 import { it } from '../i18n';
 import { inv } from '../i18n/inventory';
-import { localDayKey } from '../game/progression';
+import { localDayKey, modeProgression } from '../game/progression';
 import { Dialog } from '../components/dialogs/Dialog';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
@@ -35,11 +35,8 @@ export function MenuScreen({
   hasAccount,
   isTester,
   progression,
-  onNewGame,
-  onNewWorld,
-  onLibro,
-  onInventory,
-  onMissions,
+  onClassico,
+  onMondo,
   onShop,
   onAccount,
   onDemo,
@@ -49,19 +46,17 @@ export function MenuScreen({
   isTester: boolean;
   /** Progressione corrente: alimenta i pallini rossi «da fare» sui pulsanti. */
   progression: PlayerProgression;
-  onNewGame: () => void;
-  /** Modalità nuova: «Vikings Around the World». */
-  onNewWorld: () => void;
-  onLibro: () => void;
-  onInventory: () => void;
-  onMissions: () => void;
+  /** Entra nel sottomenu della Classica (nuova partita, missioni, libro, inventario SUOI). */
+  onClassico: () => void;
+  /** Entra nel sottomenu del Mondo (nuova partita, missioni, libro, inventario SUOI). */
+  onMondo: () => void;
   onShop: () => void;
   onAccount: () => void;
   onDemo: () => void;
 }) {
   const [creditsOpen, setCreditsOpen] = useState(false);
-  // Orologio per i badge «da fare»: le casse diventano pronte e la bacheca
-  // scade col passare del tempo. Basta un colpo ogni 30s (durate nell'ordine
+  // Orologio per i badge «da fare»: le casse diventano pronte e le bacheche
+  // scadono col passare del tempo. Basta un colpo ogni 30s (durate nell'ordine
   // delle ore), così un pallino compare anche restando fermi sul menu.
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -69,11 +64,15 @@ export function MenuScreen({
     return () => clearInterval(id);
   }, []);
 
-  // Azioni in sospeso per menu (i tester hanno tutto sbloccato, ma i riscatti/
-  // casse/missioni restano azioni compibili: il conteggio vale comunque).
-  const missionsPending = pendingMissionCount(progression, now);
-  const chestsPending = readyChestCount(progression, now);
-  const shopPending = pendingShopCount(progression, localDayKey(now));
+  // Azioni in sospeso per modalità (i tester hanno tutto sbloccato, ma i
+  // riscatti/casse/missioni restano azioni compibili: il conteggio vale
+  // comunque). Il Negozio somma le due modalità (una cassa gratuita A TESTA).
+  const classico = modeProgression(progression, 'classico');
+  const mondo = modeProgression(progression, 'aroundTheWorld');
+  const classicoPending = pendingMissionCount(classico, now) + readyChestCount(classico, now);
+  const mondoPending = pendingMissionCount(mondo, now) + readyChestCount(mondo, now);
+  const today = localDayKey(now);
+  const shopPending = pendingShopCount(classico, today) + pendingShopCount(mondo, today);
   // Popup di ringraziamento: appare aprendo i riconoscimenti se sei un tester.
   const [testerOpen, setTesterOpen] = useState(false);
   const openCredits = () => {
@@ -89,32 +88,16 @@ export function MenuScreen({
       <h1 className="menu-title">{it.titolo}</h1>
       <div className="menu-sub">{it.sottotitolo}</div>
       <div className="menu-buttons">
-        {/* Nuova partita: da qui la «partita classica» (offline vs bot) e,
-            con un account, anche l'online. Niente più popup scherzoso. */}
-        {/* Due modalità: la Classica (esagoni) e la nuova, a mappa reale. */}
-        <button className="pxbtn menu-mode" onClick={onNewGame}>
-          ⚔️ {it.nuovaPartita}
-          <small>{wt.classica}</small>
+        {/* Le due modalità: ciascuna ha il proprio sottomenu con missioni,
+            libro delle saghe e inventario (casse comprese) tutti suoi. */}
+        <button className="pxbtn menu-mode" onClick={onClassico}>
+          ⚔️ {wt.classica}
+          <ActionBadge count={classicoPending} />
         </button>
-        <button className="pxbtn menu-mode menu-mode--world" onClick={onNewWorld}>
+        <button className="pxbtn menu-mode menu-mode--world" onClick={onMondo}>
           🌍 {wt.mondo}
           <small>{wt.sottotitolo}</small>
-        </button>
-        {/* Missioni: partite casuali da vincere per casse gratis (facile/normale).
-            Funziona anche senza account (progressione sul dispositivo). */}
-        <button className="pxbtn pxbtn--ghost" onClick={onMissions}>
-          🗺️ {inv.missioniTitolo}
-          <ActionBadge count={missionsPending} />
-        </button>
-        {/* «Come si gioca» rinominato: è il Libro delle Saghe (tutorial). */}
-        <button className="pxbtn pxbtn--ghost" onClick={onLibro}>
-          {it.libroSaghe}
-        </button>
-        {/* Inventario: skin del Drago e delle roccaforti. Funziona anche senza
-            account (salvate sul dispositivo) — utilizzabile da subito in locale. */}
-        <button className="pxbtn pxbtn--ghost" onClick={onInventory}>
-          🎒 {it.inventario}
-          <ActionBadge count={chestsPending} />
+          <ActionBadge count={mondoPending} />
         </button>
         {/* Gestione account: se non hai un account porta all'entrata (accedi). */}
         <button className="pxbtn pxbtn--ghost" onClick={onAccount}>
@@ -123,9 +106,8 @@ export function MenuScreen({
             <span style={{ color: 'var(--ink-dim)', fontSize: 8 }}> · {it.accedi}</span>
           )}
         </button>
-        {/* Negozio: per ora una cassa gratuita al giorno (si apre all'istante).
-            Punto di crescita futuro (altre casse, temi, cosmetici — mai
-            pay-to-win). Funziona anche senza account (progressione locale). */}
+        {/* Negozio: una cassa gratuita al giorno PER MODALITÀ (si apre
+            all'istante). Funziona anche senza account (progressione locale). */}
         <button className="pxbtn pxbtn--ghost" onClick={onShop}>
           🛒 {it.negozio}
           <ActionBadge count={shopPending} />

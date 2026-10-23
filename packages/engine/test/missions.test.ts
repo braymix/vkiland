@@ -22,7 +22,7 @@ import {
   CHEST_DURATION_DISCOUNT_MS,
   CHEST_DURATION_BASE_MS,
   UNCOMMON_HERO_IDS,
-  type PlayerProgression,
+  type ClassicoProgression,
   type Mission,
 } from '../src/index';
 
@@ -117,7 +117,7 @@ describe('ensureMissions', () => {
 
   it('rigenera una bacheca scaduta', () => {
     const board = generateMissionBoard(0, makeId, seqRand([0, 0]));
-    const prog: PlayerProgression = { missions: board };
+    const prog: ClassicoProgression = { missions: board };
     const after = board.generatedAt + board.refreshMs + 1;
     const { progression, changed } = ensureMissions(prog, after, makeId);
     expect(changed).toBe(true);
@@ -136,7 +136,7 @@ describe('completamento e ricompense', () => {
   });
 
   it('facile → 1 cassa (1 frammento), la missione resta segnata completata', () => {
-    const prog: PlayerProgression = {
+    const prog: ClassicoProgression = {
       missions: { missions: [mission()], generatedAt: 0, refreshMs: 1000 },
     };
     const res = completeMission(prog, 'm1', () => 0);
@@ -148,7 +148,7 @@ describe('completamento e ricompense', () => {
   });
 
   it('normale → 2 casse (2 frammenti)', () => {
-    const prog: PlayerProgression = {
+    const prog: ClassicoProgression = {
       missions: {
         missions: [mission({ rarity: 'normale', botLevel: 'esperto', botCount: 3 })],
         generatedAt: 0,
@@ -161,14 +161,14 @@ describe('completamento e ricompense', () => {
   });
 
   it('una missione già completata non dà una seconda ricompensa', () => {
-    const prog: PlayerProgression = {
+    const prog: ClassicoProgression = {
       missions: { missions: [mission({ completed: true })], generatedAt: 0, refreshMs: 1000 },
     };
     expect(completeMission(prog, 'm1', () => 0)).toBeNull();
   });
 
   it('una missione inesistente → null', () => {
-    const prog: PlayerProgression = {
+    const prog: ClassicoProgression = {
       missions: { missions: [mission()], generatedAt: 0, refreshMs: 1000 },
     };
     expect(completeMission(prog, 'assente', () => 0)).toBeNull();
@@ -178,7 +178,7 @@ describe('completamento e ricompense', () => {
   it('5 completamenti dello stesso eroe lo sbloccano (frammenti che si accumulano)', () => {
     const hero = UNCOMMON_HERO_IDS[0]!;
     // rand fisso su 0 → pickChestReward sceglie sempre il primo non comune.
-    let prog: PlayerProgression = {};
+    let prog: ClassicoProgression = {};
     for (let i = 0; i < 5; i++) {
       prog = {
         ...prog,
@@ -191,11 +191,11 @@ describe('completamento e ricompense', () => {
   });
 });
 
-describe('validazione difensiva (sanitizeProgression)', () => {
+describe('validazione difensiva (sanitizeProgression) — blob vecchio → classico', () => {
   it('accetta una bacheca ben formata', () => {
     const board = generateMissionBoard(1000, makeId);
     const clean = sanitizeProgression({ missions: board });
-    expect(clean.missions?.missions).toHaveLength(MISSIONS_COUNT);
+    expect(clean.classico?.missions?.missions).toHaveLength(MISSIONS_COUNT);
   });
 
   it('scarta missioni malformate e bacheche senza missioni valide', () => {
@@ -211,13 +211,13 @@ describe('validazione difensiva (sanitizeProgression)', () => {
         ],
       },
     });
-    expect(clean.missions?.missions).toHaveLength(1);
-    expect(clean.missions?.missions[0]!.id).toBe('ok');
+    expect(clean.classico?.missions?.missions).toHaveLength(1);
+    expect(clean.classico?.missions?.missions[0]!.id).toBe('ok');
   });
 
   it('scarta una bacheca con generatedAt/refreshMs non validi', () => {
-    expect(sanitizeProgression({ missions: { generatedAt: 'x', refreshMs: 5000, missions: [] } }).missions).toBeUndefined();
-    expect(sanitizeProgression({ missions: { generatedAt: 0, refreshMs: -1, missions: [] } }).missions).toBeUndefined();
-    expect(sanitizeProgression({ missions: 42 }).missions).toBeUndefined();
+    expect(sanitizeProgression({ missions: { generatedAt: 'x', refreshMs: 5000, missions: [] } }).classico?.missions).toBeUndefined();
+    expect(sanitizeProgression({ missions: { generatedAt: 0, refreshMs: -1, missions: [] } }).classico?.missions).toBeUndefined();
+    expect(sanitizeProgression({ missions: 42 }).classico?.missions).toBeUndefined();
   });
 });

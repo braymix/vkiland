@@ -42,6 +42,7 @@ import { isApiError } from '@vikiland/server/protocol';
 import { it, t } from '../i18n';
 import type { GameSetup } from '../game/LocalGameController';
 import { getLocalCosmetics } from '../game/localCosmetics';
+import { modeProgression } from '../game/progression';
 import { teamLabelShort } from '../game/teamLabel';
 import { useCensor } from '../game/censor';
 import { apiGetCosmetics, connectSocket, type OnlineSession, type ServerSocket } from '../online/connection';
@@ -209,9 +210,10 @@ export function NewGameScreen({
   // posti vuoti nei contesti senza progressione).
   // Nella Classica gli eroi `worldOnly` (rari/leggendari) NON sono giocabili:
   // esistono solo in «Vikings Around the World».
+  const classicoProgression = modeProgression(progression, 'classico');
   const heroPool = (): HeroId[] => {
     const classic = (ids: HeroId[]): HeroId[] => ids.filter((id) => !HERO_REGISTRY[id].worldOnly);
-    const unlocked = classic(unlockedHeroIds(progression));
+    const unlocked = classic(unlockedHeroIds(classicoProgression, progression.tester === true));
     return unlocked.length ? unlocked : classic(ALL_HEROES.map((h) => h.id));
   };
   /** `n` eroi casuali DISTINTI presi dal pool disponibile. */
@@ -1444,7 +1446,8 @@ export function NewGameScreen({
             if (isOnline) socketRef.current?.emit('lobby:setHeroes', heroPickerSeat, next);
             else setSeatHeroList(heroPickerSeat, next);
           }}
-          progression={progression}
+          progression={classicoProgression}
+          tester={progression.tester === true}
           onClose={() => setHeroPickerSeat(null)}
         />
       )}

@@ -18,7 +18,7 @@ import {
   type BotLevel,
   type HeroId,
   type Mission,
-  type PlayerProgression,
+  type ClassicoProgression,
 } from '@vikiland/engine';
 import { it } from '../i18n';
 import { inv } from '../i18n/inventory';
@@ -112,7 +112,7 @@ export function MissionsScreen({
   /** Missione appena giocata da risolvere all'apertura (vinta → apre le casse). */
   pending?: PendingMission | null;
 }) {
-  const [prog, setProg] = useState<PlayerProgression | null>(null);
+  const [prog, setProg] = useState<ClassicoProgression | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const [outcome, setOutcome] = useState<MissionOutcome | null>(null);
   // Evita di rigenerare la bacheca più volte allo stesso scadere del timer.

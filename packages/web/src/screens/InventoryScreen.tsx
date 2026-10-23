@@ -23,14 +23,16 @@ import {
   isHeroUnlocked,
   type PlayerCosmetics,
   type PlayerProgression,
+  type GameMode,
+  type HeroProgression,
   type ChestSlot,
-  type ChestOpenResult,
   type HeroRarity,
 } from '@vikiland/engine';
 import { it } from '../i18n';
 import { inv } from '../i18n/inventory';
+import { wt } from '../i18n/world';
 import { getLocalCosmetics, setLocalCosmetics } from '../game/localCosmetics';
-import { getLocalProgression, openChestAndSave } from '../game/progression';
+import { getLocalProgression, openChestAndSave, modeProgression, type ChestOpenOutcome } from '../game/progression';
 import {
   apiGetCosmetics,
   apiGetProgression,
@@ -120,8 +122,13 @@ function ChestSlotCard({
   );
 }
 
-/** Collezione eroi: per rarità, sbloccati/bloccati col progresso dei frammenti. */
-function HeroCollection({ prog }: { prog: PlayerProgression }) {
+/**
+ * Collezione eroi: per rarità, sbloccati/bloccati col progresso dei
+ * frammenti. Nella Classica si vedono solo comuni/non comuni (rari e
+ * leggendari sono `worldOnly`, farmabili solo nel Mondo); nel Mondo si vede
+ * tutta la collezione.
+ */
+function HeroCollection({ prog, mode, tester }: { prog: HeroProgression; mode: GameMode; tester: boolean }) {
   const rarityLabel = (r: HeroRarity): string =>
     r === 'comune'
       ? it.eroi.rarita.comune
@@ -133,6 +140,7 @@ function HeroCollection({ prog }: { prog: PlayerProgression }) {
   return (
     <>
       {ALL_RARITY_ORDER.map((rarity) => {
+        if (mode === 'classico' && (rarity === 'rara' || rarity === 'leggendaria')) return null;
         const heroes = ALL_HEROES.filter((h) => h.rarity === rarity);
         if (heroes.length === 0) return null;
         return (
@@ -142,7 +150,7 @@ function HeroCollection({ prog }: { prog: PlayerProgression }) {
             </div>
             <div className="hero-collection-grid">
               {heroes.map((h) => {
-                const unlocked = isHeroUnlocked(prog, h.id);
+                const unlocked = isHeroUnlocked(prog, h.id, tester);
                 const frags = fragmentsOf(prog, h.id);
                 const need = fragmentsNeeded(h.id);
                 return (
@@ -240,7 +248,7 @@ function ColorField({
   );
 }
 
-export function InventoryScreen({ onBack }: { onBack: () => void }) {
+export function InventoryScreen({ mode, onBack }: { mode: GameMode; onBack: () => void }) {
   const [cosmetics, setCosmetics] = useState<PlayerCosmetics | null>(null);
   // Sessione online rilevata automaticamente (se assente o non più valida,
   // l'inventario resta comunque pienamente usabile in locale).
@@ -260,8 +268,10 @@ export function InventoryScreen({ onBack }: { onBack: () => void }) {
   const progSessionRef = useRef<OnlineSession | null>(null);
   progSessionRef.current = progSession;
   const [now, setNow] = useState(() => Date.now());
-  const [openResult, setOpenResult] = useState<ChestOpenResult | null>(null);
+  const [openResult, setOpenResult] = useState<ChestOpenOutcome | null>(null);
   const [opening, setOpening] = useState(false);
+  const bucket = prog ? modeProgression(prog, mode) : null;
+  const tester = prog?.tester === true;
 
   // Carica la progressione: dall'account se raggiungibile, altrimenti locale.
   useEffect(() => {
@@ -289,7 +299,7 @@ export function InventoryScreen({ onBack }: { onBack: () => void }) {
     if (!prog || opening) return;
     setOpening(true);
     try {
-      const result = await openChestAndSave(progSessionRef.current, prog, chestId);
+      const result = await openChestAndSave(progSessionRef.current, mode, prog, chestId);
       if (result) {
         setProg(result.progression);
         setOpenResult(result);
@@ -386,7 +396,9 @@ export function InventoryScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <div className="screen" style={{ justifyContent: 'center' }}>
-      <h2 style={{ color: 'var(--accent)', fontSize: 14 }}>{it.inventario}</h2>
+      <h2 style={{ color: 'var(--accent)', fontSize: 14 }}>
+        {mode === 'classico' ? wt.classica : wt.mondo} · {it.inventario}
+      </h2>
       <div className="menu-sub" style={{ fontSize: 9 }}>
         {it.invSottotitolo}
       </div>
@@ -395,15 +407,15 @@ export function InventoryScreen({ onBack }: { onBack: () => void }) {
       )}
 
       {/* Casse ed eroi: si guadagna una cassa a fine partita; i frammenti
-          sbloccano gli eroi non comuni. */}
-      {prog && (
+          sbloccano gli eroi (di QUESTA modalità: le casse non si mescolano). */}
+      {bucket && (
         <div className="setup-grid pixel-frame" style={{ maxWidth: 460 }}>
           <div className="inv-section">📦 {inv.casseTitolo}</div>
           <div className="inv-info">{inv.casseInfo}</div>
           <div className="inv-info">{inv.casseComeSi}</div>
           {CHEST_DISCOUNT_ACTIVE && <div className="inv-discount">{inv.scontoAttivo}</div>}
           <div className="chest-grid">
-            {(prog.chests ?? []).map((c) => (
+            {(bucket.chests ?? []).map((c) => (
               <ChestSlotCard
                 key={c.id}
                 chest={c}
@@ -412,7 +424,7 @@ export function InventoryScreen({ onBack }: { onBack: () => void }) {
                 onOpen={() => void handleOpenChest(c.id)}
               />
             ))}
-            {Array.from({ length: Math.max(0, MAX_CHESTS - (prog.chests?.length ?? 0)) }).map(
+            {Array.from({ length: Math.max(0, MAX_CHESTS - (bucket.chests?.length ?? 0)) }).map(
               (_, i) => (
                 <div key={`empty-${i}`} className="chest-card chest-card--empty" aria-hidden="true">
                   📭
@@ -420,14 +432,14 @@ export function InventoryScreen({ onBack }: { onBack: () => void }) {
               )
             )}
           </div>
-          {(prog.chests?.length ?? 0) === 0 && <div className="inv-info">{inv.casseVuote}</div>}
-          {(prog.chests?.length ?? 0) >= MAX_CHESTS && (
+          {(bucket.chests?.length ?? 0) === 0 && <div className="inv-info">{inv.casseVuote}</div>}
+          {(bucket.chests?.length ?? 0) >= MAX_CHESTS && (
             <div className="inv-warn">{inv.casseMax}</div>
           )}
 
           <div className="inv-section">🦸 {inv.eroiTitolo}</div>
           <div className="inv-info">{inv.eroiInfo}</div>
-          <HeroCollection prog={prog} />
+          <HeroCollection prog={bucket} mode={mode} tester={tester} />
         </div>
       )}
 

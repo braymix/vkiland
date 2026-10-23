@@ -1,7 +1,8 @@
 /**
  * Progressione: casse, frammenti ed eroi sbloccati. Logica PURA condivisa da
  * client e server, quindi va tenuta ben coperta (sblocco, spreco, cap casse,
- * validazione difensiva dell'input esterno).
+ * validazione difensiva dell'input esterno, migrazione dal vecchio shape
+ * «flat» al nuovo shape diviso Classico/Mondo).
  */
 import { describe, expect, it } from 'vitest';
 import {
@@ -31,7 +32,8 @@ import {
   MAX_CHESTS,
   FRAGMENTS_PER_HERO,
   currentChestDurationMs,
-  type PlayerProgression,
+  type ClassicoProgression,
+  type HeroProgression,
   type ChestSlot,
 } from '../src/index';
 
@@ -75,7 +77,7 @@ describe('casse a tier (rarità) e frammenti per rarità', () => {
     expect(first.unlockedNow).toBe(false);
     expect(first.fragments).toBe(1);
     // Con i frammenti pieni meno uno, l'ultimo sblocca.
-    const quasi: PlayerProgression = { fragments: { [hero]: FRAGMENTS_BY_RARITY.rara - 1 } };
+    const quasi: ClassicoProgression = { fragments: { [hero]: FRAGMENTS_BY_RARITY.rara - 1 } };
     const last = applyFragment(quasi, hero);
     expect(last.fragments).toBe(FRAGMENTS_BY_RARITY.rara);
     expect(last.unlockedNow).toBe(true);
@@ -84,7 +86,7 @@ describe('casse a tier (rarità) e frammenti per rarità', () => {
 
   it('openChest di una cassa leggendaria dà un frammento leggendario', () => {
     const now = 1000;
-    const prog: PlayerProgression = {
+    const prog: ClassicoProgression = {
       chests: [{ id: 'leg', rarity: 'leggendaria', startedAt: 0, durationMs: 500 }],
     };
     const res = openChest(prog, 'leg', now, () => 0);
@@ -95,16 +97,16 @@ describe('casse a tier (rarità) e frammenti per rarità', () => {
 
 describe('isHeroUnlocked / unlockedHeroIds', () => {
   it('i comuni sono sempre sbloccati, i non comuni no (senza frammenti)', () => {
-    const prog: PlayerProgression = {};
+    const prog: ClassicoProgression = {};
     for (const id of COMMON_HERO_IDS) expect(isHeroUnlocked(prog, id)).toBe(true);
     for (const id of UNCOMMON_HERO_IDS) expect(isHeroUnlocked(prog, id)).toBe(false);
     expect(unlockedHeroIds(prog).sort()).toEqual([...COMMON_HERO_IDS].sort());
   });
 
-  it('il tester ha ogni eroe disponibile', () => {
-    const prog: PlayerProgression = { tester: true };
-    for (const id of FARMABLE_HERO_IDS) expect(isHeroUnlocked(prog, id)).toBe(true);
-    expect(unlockedHeroIds(prog).length).toBe(COMMON_HERO_IDS.length + FARMABLE_HERO_IDS.length);
+  it('il tester (flag di account, passato esplicitamente) ha ogni eroe disponibile', () => {
+    const prog: ClassicoProgression = {};
+    for (const id of FARMABLE_HERO_IDS) expect(isHeroUnlocked(prog, id, true)).toBe(true);
+    expect(unlockedHeroIds(prog, true).length).toBe(COMMON_HERO_IDS.length + FARMABLE_HERO_IDS.length);
   });
 
   it('un non comune sbloccato è disponibile', () => {
@@ -115,7 +117,7 @@ describe('isHeroUnlocked / unlockedHeroIds', () => {
 
 describe('casse: aggiunta e cap', () => {
   it('addChest rispetta il massimo di casse in lavorazione', () => {
-    let prog: PlayerProgression = {};
+    let prog: ClassicoProgression = {};
     let n = 0;
     for (let i = 0; i < MAX_CHESTS + 2; i++) {
       prog = addChest(prog, 1000 + i, () => `c${n++}`);
@@ -125,7 +127,7 @@ describe('casse: aggiunta e cap', () => {
   });
 
   it('la durata assegnata è quella corrente (sconto)', () => {
-    const prog = addChest({}, 1000, () => 'c0');
+    const prog = addChest<HeroProgression>({}, 1000, () => 'c0');
     expect(prog.chests?.[0]?.durationMs).toBe(currentChestDurationMs());
   });
 });
@@ -141,13 +143,13 @@ describe('chestReady', () => {
 
 describe('apertura casse e frammenti', () => {
   it('openChest ritorna null se la cassa non è pronta o non esiste', () => {
-    const prog: PlayerProgression = { chests: [chestAt('c', 1000, 1000)] };
+    const prog: ClassicoProgression = { chests: [chestAt('c', 1000, 1000)] };
     expect(openChest(prog, 'c', 1500)).toBeNull(); // non ancora pronta
     expect(openChest(prog, 'ignota', 5000)).toBeNull(); // id sconosciuto
   });
 
   it('aprire una cassa la rimuove e assegna un frammento non comune', () => {
-    const prog: PlayerProgression = { chests: [chestAt('c', 0, 1000)] };
+    const prog: ClassicoProgression = { chests: [chestAt('c', 0, 1000)] };
     // rand fisso → primo eroe non comune del pool.
     const result = openChest(prog, 'c', 2000, () => 0)!;
     expect(result).not.toBeNull();
@@ -159,7 +161,7 @@ describe('apertura casse e frammenti', () => {
 
   it('al quinto frammento l’eroe si sblocca', () => {
     const hero = UNCOMMON_HERO_IDS[0]!;
-    const prog: PlayerProgression = { fragments: { [hero]: FRAGMENTS_PER_HERO - 1 } };
+    const prog: ClassicoProgression = { fragments: { [hero]: FRAGMENTS_PER_HERO - 1 } };
     const res = applyFragment(prog, hero);
     expect(res.fragments).toBe(FRAGMENTS_PER_HERO);
     expect(res.unlockedNow).toBe(true);
@@ -168,11 +170,17 @@ describe('apertura casse e frammenti', () => {
 
   it('un frammento di un eroe già sbloccato è sprecato', () => {
     const hero = UNCOMMON_HERO_IDS[0]!;
-    const prog: PlayerProgression = { unlocked: [hero] };
+    const prog: ClassicoProgression = { unlocked: [hero] };
     const res = applyFragment(prog, hero);
     expect(res.wasted).toBe(true);
     expect(res.unlockedNow).toBe(false);
     expect(res.progression).toEqual(prog); // invariata
+  });
+
+  it('un frammento è sempre sprecato per un account tester', () => {
+    const hero = UNCOMMON_HERO_IDS[0]!;
+    const res = applyFragment({}, hero, true);
+    expect(res.wasted).toBe(true);
   });
 
   it('pickChestReward resta nel pool dei non comuni agli estremi di rand', () => {
@@ -189,7 +197,7 @@ describe('cassa gratuita giornaliera (negozio)', () => {
   });
 
   it('riscuoterla apre istantaneamente, dà un frammento e segna il giorno', () => {
-    const res = claimFreeChest({}, '2026-8-21', () => 0)!;
+    const res = claimFreeChest<HeroProgression>({}, '2026-8-21', () => 0)!;
     expect(res).not.toBeNull();
     expect(UNCOMMON_HERO_IDS).toContain(res.heroId);
     expect(fragmentsOf(res.progression, res.heroId)).toBe(1);
@@ -199,24 +207,23 @@ describe('cassa gratuita giornaliera (negozio)', () => {
   });
 
   it('non si può riscuotere due volte nello stesso giorno', () => {
-    const res = claimFreeChest({}, '2026-8-21', () => 0)!;
+    const res = claimFreeChest<HeroProgression>({}, '2026-8-21', () => 0)!;
     expect(claimFreeChest(res.progression, '2026-8-21')).toBeNull();
   });
 
   it('un nuovo giorno la rende di nuovo disponibile', () => {
-    const res = claimFreeChest({}, '2026-8-21', () => 0)!;
+    const res = claimFreeChest<HeroProgression>({}, '2026-8-21', () => 0)!;
     expect(claimFreeChest(res.progression, '2026-8-22', () => 0)).not.toBeNull();
   });
 
-  it('sanitizeProgression conserva un freeChestDay valido e scarta il resto', () => {
-    expect(sanitizeProgression({ freeChestDay: '2026-8-21' }).freeChestDay).toBe('2026-8-21');
-    expect(sanitizeProgression({ freeChestDay: 123 }).freeChestDay).toBeUndefined();
-    expect(sanitizeProgression({ freeChestDay: '' }).freeChestDay).toBeUndefined();
+  it('con rarity "rara"/"leggendaria" (Mondo) può dare anche quegli eroi', () => {
+    const res = claimFreeChest({}, '2026-8-21', () => 0, 'leggendaria')!;
+    expect(LEGENDARY_HERO_IDS).toContain(res.heroId);
   });
 });
 
-describe('sanitizeProgression (validazione input esterno)', () => {
-  it('scarta strutture non valide e mantiene solo il buono', () => {
+describe('sanitizeProgression (validazione input esterno + migrazione)', () => {
+  it('scarta strutture non valide e mantiene solo il buono (blob vecchio → classico)', () => {
     const clean = sanitizeProgression({
       tester: 'sì', // non è true → scartato
       chests: [
@@ -228,18 +235,30 @@ describe('sanitizeProgression (validazione input esterno)', () => {
       unlocked: [UNCOMMON_HERO_IDS[1]!, COMMON_HERO_IDS[0]!, 'boh'],
     });
     expect(clean.tester).toBeUndefined();
-    expect(clean.chests).toHaveLength(1);
-    expect(clean.chests?.[0]?.id).toBe('ok');
+    expect(clean.classico?.chests).toHaveLength(1);
+    expect(clean.classico?.chests?.[0]?.id).toBe('ok');
     // Solo il frammento di un non comune resta; comuni/ignoti scartati.
-    expect(clean.fragments).toEqual({ [UNCOMMON_HERO_IDS[0]!]: 2 });
+    expect(clean.classico?.fragments).toEqual({ [UNCOMMON_HERO_IDS[0]!]: 2 });
     // Solo il non comune valido resta tra gli sbloccati.
-    expect(clean.unlocked).toEqual([UNCOMMON_HERO_IDS[1]!]);
+    expect(clean.classico?.unlocked).toEqual([UNCOMMON_HERO_IDS[1]!]);
+    // Il Mondo non esisteva nel blob vecchio: parte vuoto.
+    expect(clean.aroundTheWorld).toEqual({});
+  });
+
+  it('un blob già nel nuovo shape si legge dalle sue due chiavi, senza migrazione', () => {
+    const hero = UNCOMMON_HERO_IDS[0]!;
+    const clean = sanitizeProgression({
+      classico: { freeChestDay: '2026-8-21' },
+      aroundTheWorld: { redeemedUncommon: hero },
+    });
+    expect(clean.classico?.freeChestDay).toBe('2026-8-21');
+    expect(clean.aroundTheWorld?.redeemedUncommon).toBe(hero);
   });
 
   it('un frammento pieno implica lo sblocco', () => {
     const hero = UNCOMMON_HERO_IDS[0]!;
     const clean = sanitizeProgression({ fragments: { [hero]: FRAGMENTS_PER_HERO } });
-    expect(clean.unlocked).toContain(hero);
+    expect(clean.classico?.unlocked).toContain(hero);
   });
 
   it('clampa il numero di casse al massimo', () => {
@@ -249,22 +268,22 @@ describe('sanitizeProgression (validazione input esterno)', () => {
       startedAt: i,
       durationMs: 10,
     }));
-    expect(sanitizeProgression({ chests }).chests).toHaveLength(MAX_CHESTS);
+    expect(sanitizeProgression({ chests }).classico?.chests).toHaveLength(MAX_CHESTS);
   });
 
-  it('conserva il flag tester quando è true', () => {
+  it('conserva il flag tester quando è true (vale per entrambe le modalità)', () => {
     expect(sanitizeProgression({ tester: true }).tester).toBe(true);
   });
 
   it('conserva il riscatto una-tantum solo se è un eroe non comune valido', () => {
     const hero = UNCOMMON_HERO_IDS[0]!;
     const clean = sanitizeProgression({ redeemedUncommon: hero });
-    expect(clean.redeemedUncommon).toBe(hero);
+    expect(clean.classico?.redeemedUncommon).toBe(hero);
     // L'eroe riscattato è per coerenza anche sbloccato.
-    expect(clean.unlocked).toContain(hero);
+    expect(clean.classico?.unlocked).toContain(hero);
     // Un id comune o inesistente viene scartato.
-    expect(sanitizeProgression({ redeemedUncommon: COMMON_HERO_IDS[0] }).redeemedUncommon).toBeUndefined();
-    expect(sanitizeProgression({ redeemedUncommon: 'inesistente' }).redeemedUncommon).toBeUndefined();
+    expect(sanitizeProgression({ redeemedUncommon: COMMON_HERO_IDS[0] }).classico?.redeemedUncommon).toBeUndefined();
+    expect(sanitizeProgression({ redeemedUncommon: 'inesistente' }).classico?.redeemedUncommon).toBeUndefined();
   });
 });
 
@@ -272,7 +291,7 @@ describe('negozio — riscatto una-tantum di un eroe non comune a scelta', () =>
   it('sblocca l’eroe scelto e segna il riscatto come usato', () => {
     const hero = UNCOMMON_HERO_IDS[0]!;
     expect(canRedeemUncommon({})).toBe(true);
-    const res = redeemUncommon({}, hero);
+    const res = redeemUncommon<HeroProgression>({}, hero);
     expect(res).not.toBeNull();
     expect(res!.heroId).toBe(hero);
     expect(res!.progression.redeemedUncommon).toBe(hero);

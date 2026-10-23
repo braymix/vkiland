@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { ApiError, WorldBotLevel, WorldLobbyConfig, WorldLobbyState, WorldPublicSummary } from '@vikiland/server/protocol';
 import { DEFAULT_TARGET_POINTS, MAX_TARGET_POINTS, MIN_TARGET_POINTS, type WorldHeroId } from '@vikiland/engine-world';
 import { ALL_RARITY_ORDER, type HeroId, type PlayerProgression } from '@vikiland/engine';
+import { modeProgression } from '../../game/progression';
 import { connectSocket, type OnlineSession, type ServerSocket } from '../../online/connection';
 import { RemoteWorldController } from '../../game/world/RemoteWorldController';
 import { fmt, wt } from '../../i18n/world';
@@ -25,6 +26,9 @@ const isError = (x: unknown): x is ApiError => typeof x === 'object' && x !== nu
 const LEVELS: WorldBotLevel[] = ['facile', 'normale', 'difficile', 'esperto'];
 
 export function WorldOnlineScreen({ session, onBack, onInvalidSession, progression }: Props) {
+  // Progressione DEL MONDO (casse/eroi separati dalla Classica).
+  const worldProgression = progression ? modeProgression(progression, 'aroundTheWorld') : null;
+  const tester = progression?.tester === true;
   const [heroSeat, setHeroSeat] = useState<number | null>(null);
   const socketRef = useRef<ServerSocket | null>(null);
   const [connected, setConnected] = useState(false);
@@ -253,7 +257,7 @@ export function WorldOnlineScreen({ session, onBack, onInvalidSession, progressi
           rarityOrder={ALL_RARITY_ORDER}
           describe={worldHeroDescribe}
           // I bot possono usare anche eroi non ancora sbloccati dall'account.
-          {...(lobby.seats[heroSeat]!.isYou && progression ? { progression } : {})}
+          {...(lobby.seats[heroSeat]!.isYou && worldProgression ? { progression: worldProgression, tester } : {})}
           onChange={(next) => {
             const h = next[next.length - 1] as WorldHeroId | undefined;
             if (h) socket?.emit('world:setHero', heroSeat, h);

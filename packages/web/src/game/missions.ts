@@ -14,8 +14,8 @@ import {
 import type { GameSetup } from './LocalGameController';
 import { FREE_PALETTE } from '../render/sprites/palettes';
 
-/** Nomi dei bot avversari nelle missioni (come nella Nuova partita). */
-const MISSION_BOT_NAMES = ['Astrid', 'Leif', 'Sigrid', 'Ragnhild', 'Olaf', 'Freya'];
+/** Nomi dei bot avversari nelle missioni (come nella Nuova partita; riusati anche dal Mondo). */
+export const MISSION_BOT_NAMES = ['Astrid', 'Leif', 'Sigrid', 'Ragnhild', 'Olaf', 'Freya'];
 
 /**
  * Costruisce il `GameSetup` di una missione: posto 0 umano (con nome e cosmetici

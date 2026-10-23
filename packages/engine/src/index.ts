@@ -20,7 +20,6 @@ export { sanitizeCosmetics } from './cosmetics';
 // da server (persistenza) e client (localStorage + UI).
 export {
   sanitizeProgression,
-  emptyProgression,
   fragmentsOf,
   isHeroUnlocked,
   unlockedHeroIds,
@@ -51,7 +50,7 @@ export {
   RARE_HERO_IDS,
   LEGENDARY_HERO_IDS,
   FARMABLE_HERO_IDS,
-  // Missioni (partite casuali da vincere; ricompensa in casse istantanee).
+  // Missioni Classiche (partite casuali da vincere; ricompensa in casse istantanee).
   generateMission,
   generateMissionBoard,
   ensureMissions,
@@ -59,7 +58,13 @@ export {
   missionsRefreshRemainingMs,
   currentMissionRefreshMs,
   completeMission,
-  // Azioni in sospeso (badge «da fare» sui pulsanti del menu).
+  // Missioni del Mondo (stessa logica, ricompensa che può dare anche rari/leggendari).
+  generateWorldMission,
+  generateWorldMissionBoard,
+  ensureWorldMissions,
+  completeWorldMission,
+  WORLD_MISSION_TARGET_POINTS,
+  // Azioni in sospeso (badge «da fare» sui pulsanti del menu), per modalità.
   readyChestCount,
   pendingMissionCount,
   pendingShopCount,
@@ -68,7 +73,11 @@ export {
   MISSION_FACILE_PROB,
   MISSION_MODE_PROB,
   MISSION_REWARD_CHESTS,
+  type GameMode,
   type PlayerProgression,
+  type HeroProgression,
+  type ClassicoProgression,
+  type WorldProgression,
   type ChestSlot,
   type ChestRarity,
   type ChestOpenResult,
@@ -76,7 +85,11 @@ export {
   type Mission,
   type MissionRarity,
   type MissionBoard,
+  type MissionBoardOf,
   type MissionCompleteResult,
+  type WorldMission,
+  type WorldMissionBoard,
+  type WorldMissionCompleteResult,
   type PendingActions,
 } from './progression';
 

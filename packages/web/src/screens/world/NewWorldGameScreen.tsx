@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { MAPS, MAX_TARGET_POINTS, MIN_TARGET_POINTS, DEFAULT_TARGET_POINTS, ALL_WORLD_HERO_IDS, WORLD_HERO_EFFECTS, type BotLevel, type WorldHeroId } from '@vikiland/engine-world';
 import { ALL_RARITY_ORDER, unlockedHeroIds, type HeroId, type PlayerProgression } from '@vikiland/engine';
+import { modeProgression } from '../../game/progression';
 import { MapSelect } from '../../components/world/MapSelect';
 import { CASTLE_MAP_ID, DEFAULT_JOURNEY_MAP, WorldModeSwitch, modeOfMap, type WorldMode } from '../../components/world/WorldModeSwitch';
 import { HeroPicker } from '../../components/HeroPicker';
@@ -42,8 +43,11 @@ const COMMON_HEROES = ALL_WORLD_HERO_IDS.filter((id) => WORLD_HERO_EFFECTS[id].d
 const pick = <T,>(arr: readonly T[]): T => arr[Math.floor(Math.random() * arr.length)]!;
 
 export function NewWorldGameScreen({ onBack, onStart, onOnline, onTutorial, session, defaultName, progression }: Props) {
+  // Progressione DEL MONDO (casse/eroi separati dalla Classica).
+  const worldProgression = progression ? modeProgression(progression, 'aroundTheWorld') : null;
+  const tester = progression?.tester === true;
   // Eroe di default: un comune (sempre sbloccato) per gli umani, uno qualsiasi per i bot.
-  const unlocked = progression ? unlockedHeroIds(progression) : null;
+  const unlocked = worldProgression ? unlockedHeroIds(worldProgression, tester) : null;
   const humanPool = (): WorldHeroId[] => {
     const u = (unlocked ?? []).filter((id) => (ALL_WORLD_HERO_IDS as string[]).includes(id)) as WorldHeroId[];
     return u.length ? u : [...COMMON_HEROES];
@@ -222,7 +226,7 @@ export function NewWorldGameScreen({ onBack, onStart, onOnline, onTutorial, sess
           rarityOrder={ALL_RARITY_ORDER}
           describe={worldHeroDescribe}
           // I bot possono usare anche eroi non ancora sbloccati dall'account.
-          {...(seats[heroSeat]!.kind === 'umano' && progression ? { progression } : {})}
+          {...(seats[heroSeat]!.kind === 'umano' && worldProgression ? { progression: worldProgression, tester } : {})}
           onChange={(next) => {
             const h = (next[next.length - 1] as WorldHeroId) ?? seats[heroSeat]!.hero;
             update(heroSeat, { hero: h });

@@ -14,7 +14,7 @@ import {
   type HeroDef,
   type HeroId,
   type HeroRarity,
-  type PlayerProgression,
+  type HeroProgression,
 } from '@vikiland/engine';
 import { it, t } from '../i18n';
 import { inv } from '../i18n/inventory';
@@ -46,11 +46,14 @@ interface Props {
   onChange: (next: HeroId[]) => void;
   onClose: () => void;
   /**
-   * Progressione del giocatore: gli eroi non ancora sbloccati appaiono bloccati
-   * (non selezionabili) col progresso dei frammenti. Se assente, tutti gli eroi
-   * sono selezionabili (contesti che non gestiscono lo sblocco).
+   * Progressione (del mazzo di QUESTA modalità) del giocatore: gli eroi non
+   * ancora sbloccati appaiono bloccati (non selezionabili) col progresso dei
+   * frammenti. Se assente, tutti gli eroi sono selezionabili (contesti che
+   * non gestiscono lo sblocco).
    */
-  progression?: PlayerProgression;
+  progression?: HeroProgression;
+  /** Account «tester»: ogni eroe appare già sbloccato. */
+  tester?: boolean;
   /**
    * Descrizione alternativa dell'abilità (es. in «Vikings Around the World»
    * alcuni effetti sono adattati). Se assente si usa quella del registro.
@@ -71,6 +74,7 @@ export function HeroPicker({
   onChange,
   onClose,
   progression,
+  tester = false,
   describe,
   rarityOrder = RARITY_ORDER,
 }: Props) {
@@ -157,7 +161,7 @@ export function HeroPicker({
                 const active = selected.includes(h.id);
                 // Senza progressione tutto è selezionabile; altrimenti gli eroi
                 // non sbloccati restano bloccati col progresso dei frammenti.
-                const locked = progression ? !isHeroUnlocked(progression, h.id) : false;
+                const locked = progression ? !isHeroUnlocked(progression, h.id, tester) : false;
                 const frags = progression ? fragmentsOf(progression, h.id) : 0;
                 // Con la lista piena, i non selezionati non si possono aggiungere
                 // (tranne in scelta singola, dove un clic sostituisce).

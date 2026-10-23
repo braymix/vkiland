@@ -30,6 +30,12 @@ interface Props {
   makeController: () => WorldController;
   onExit: () => void;
   onRematch: (() => void) | null;
+  /**
+   * Chiamata UNA volta quando la partita finisce (si raggiunge un vincitore):
+   * serve alle missioni del Mondo per sapere se l'umano (`viewpoint`) ha
+   * VINTO. Assente = nessuna missione in corso (partita normale).
+   */
+  onGameComplete?: (view: WorldPlayerView, viewpoint: PlayerId) => void;
 }
 
 type Dlg = null | 'costi' | 'scambi' | { toll: { to: string; payee: string; rest: number } };
@@ -37,13 +43,24 @@ type Dlg = null | 'costi' | 'scambi' | { toll: { to: string; payee: string; rest
 type BuildKind = 'villaggio' | 'citta' | 'sala' | 'porto' | 'mercato';
 const BUILD_ORDER: BuildKind[] = ['villaggio', 'citta', 'sala', 'porto', 'mercato'];
 
-export function WorldGameScreen({ makeController, onExit, onRematch }: Props) {
+export function WorldGameScreen({ makeController, onExit, onRematch, onGameComplete }: Props) {
   const ctlRef = useRef<WorldController | null>(null);
   if (!ctlRef.current) ctlRef.current = makeController();
   const ctl = ctlRef.current;
   useEffect(() => () => ctl.dispose(), [ctl]);
   const snap = useSyncExternalStore(ctl.subscribe.bind(ctl), ctl.getSnapshot.bind(ctl));
   const { view, legal, viewpoint: me } = snap;
+
+  // Fine partita (missioni del Mondo): avvisa UNA volta sola quando la fase
+  // diventa «fine», come fa `GameScreen` per la Classica.
+  const gameCompleteFired = useRef(false);
+  useEffect(() => {
+    if (gameCompleteFired.current) return;
+    if (view.phase.type === 'fine') {
+      gameCompleteFired.current = true;
+      onGameComplete?.(view, me);
+    }
+  }, [view, me, onGameComplete]);
 
   const boardRef = useRef<WorldBoardHandle>(null);
   const [selected, setSelected] = useState<string | null>(null);

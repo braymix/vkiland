@@ -14,7 +14,7 @@ import {
   MISSIONS_COUNT,
   CHEST_DURATION_BASE_MS,
   UNCOMMON_HERO_IDS,
-  type PlayerProgression,
+  type ClassicoProgression,
   type ChestSlot,
 } from '../src/index';
 
@@ -32,7 +32,7 @@ const chest = (startedAt: number): ChestSlot => ({
 describe('readyChestCount', () => {
   it('conta solo le casse col caricamento terminato', () => {
     const now = 10 * CHEST_DURATION_BASE_MS;
-    const prog: PlayerProgression = {
+    const prog: ClassicoProgression = {
       // pronta (iniziata molto prima), pronta al limite, ancora in caricamento
       chests: [chest(0), chest(now - CHEST_DURATION_BASE_MS), chest(now - 1)],
     };
@@ -52,7 +52,7 @@ describe('pendingMissionCount', () => {
   it('conta solo le missioni non completate su una bacheca valida', () => {
     const board = generateMissionBoard(1000, makeId);
     board.missions[0]!.completed = true;
-    const prog: PlayerProgression = { missions: board };
+    const prog: ClassicoProgression = { missions: board };
     // now dentro la finestra di refresh: la bacheca è ancora valida
     const now = 1000 + board.refreshMs - 1;
     expect(pendingMissionCount(prog, now)).toBe(MISSIONS_COUNT - 1);
@@ -61,7 +61,7 @@ describe('pendingMissionCount', () => {
   it('vale MISSIONS_COUNT se la bacheca è scaduta (si rigenera tutta da giocare)', () => {
     const board = generateMissionBoard(1000, makeId);
     board.missions.forEach((m) => (m.completed = true));
-    const prog: PlayerProgression = { missions: board };
+    const prog: ClassicoProgression = { missions: board };
     const now = 1000 + board.refreshMs; // scaduta
     expect(pendingMissionCount(prog, now)).toBe(MISSIONS_COUNT);
   });
@@ -99,7 +99,7 @@ describe('pendingActions', () => {
     const now = 10 * CHEST_DURATION_BASE_MS;
     const board = generateMissionBoard(now, makeId);
     board.missions[0]!.completed = true;
-    const prog: PlayerProgression = {
+    const prog: ClassicoProgression = {
       chests: [chest(0), chest(now - 1)], // 1 pronta, 1 in caricamento
       missions: board,
       freeChestDay: today, // cassa del giorno già presa → resta solo il riscatto

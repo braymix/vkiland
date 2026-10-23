@@ -1,14 +1,17 @@
-/** Router a stati dell'app: entrata → menu → partita locale, oppure online. */
+/** Router a stati dell'app: entrata → HUB → sottomenu di modalità → partita locale, oppure online. */
 import { useEffect, useRef, useState } from 'react';
-import type { GameState, Mission, PlayerId, PlayerProgression } from '@vikiland/engine';
+import type { GameState, Mission, PlayerId, PlayerProgression, WorldMission } from '@vikiland/engine';
+import type { WorldPlayerView } from '@vikiland/engine-world';
 import { useLang } from './i18n';
 import { LocalGameController, type GameSetup } from './game/LocalGameController';
 import { buildMissionSetup } from './game/missions';
+import { buildWorldMissionSetup } from './game/worldMissions';
 import { loadSession, saveSession, type OnlineSession } from './online/connection';
 import {
   getLocalProgression,
   loadProgression,
   awardChestForFinishedGame,
+  modeProgression,
 } from './game/progression';
 import { TUTORIAL_ONLINE_CHAPTER } from './i18n/tutorial';
 import { AccountScreen } from './screens/AccountScreen';
@@ -17,32 +20,41 @@ import { EntryScreen } from './screens/EntryScreen';
 import { GameScreen } from './screens/GameScreen';
 import { InventoryScreen } from './screens/InventoryScreen';
 import { MenuScreen } from './screens/MenuScreen';
+import { ClassicoMenuScreen } from './screens/ClassicoMenuScreen';
 import { MissionsScreen, type PendingMission } from './screens/MissionsScreen';
 import { NewGameScreen } from './screens/NewGameScreen';
 import { ShopScreen } from './screens/ShopScreen';
 import { TutorialScreen } from './screens/TutorialScreen';
 import { NewWorldGameScreen } from './screens/world/NewWorldGameScreen';
 import { WorldGameScreen } from './screens/world/WorldGameScreen';
+import { WorldMenuScreen } from './screens/world/WorldMenuScreen';
+import { WorldMissionsScreen, type WorldPendingMission } from './screens/world/WorldMissionsScreen';
 import { WorldTutorialScreen } from './screens/world/WorldTutorialScreen';
 import { WorldOnlineScreen } from './screens/world/WorldOnlineScreen';
 import { AdminMapsScreen } from './screens/world/AdminMapsScreen';
 import { LocalWorldController, type WorldSetup } from './game/world/LocalWorldController';
 
+/** Da dove si è aperto il Libro delle Saghe Classico: decide dove torna «Indietro». */
+type TutorialFrom = 'menu' | 'classicoMenu';
+
 type Route =
   | { screen: 'entry' }
   | { screen: 'menu' }
+  | { screen: 'classicoMenu' }
+  | { screen: 'worldMenu' }
   | { screen: 'newGame'; mode: 'locale' | 'online' }
   | { screen: 'newWorld' }
   | { screen: 'worldOnline' }
   | { screen: 'worldTutorial' }
   | { screen: 'adminMaps' }
-  | { screen: 'world'; setup: WorldSetup; gameKey: number }
+  | { screen: 'world'; setup: WorldSetup; gameKey: number; mission?: WorldMission }
   | { screen: 'game'; setup: GameSetup; gameKey: number; mission?: Mission }
   | { screen: 'account' }
-  | { screen: 'tutorial'; chapter?: number }
+  | { screen: 'tutorial'; chapter?: number; from?: TutorialFrom }
   | { screen: 'demo' }
-  | { screen: 'inventory' }
+  | { screen: 'inventory'; mode: 'classico' | 'aroundTheWorld' }
   | { screen: 'missions'; pending?: PendingMission | null }
+  | { screen: 'worldMissions'; pending?: WorldPendingMission | null }
   | { screen: 'shop' };
 
 export function App() {
@@ -59,10 +71,11 @@ export function App() {
 
   const hasAccount = session !== null;
 
-  // Progressione (casse, frammenti, eroi sbloccati, flag tester). Vive qui in
-  // alto perché serve al menu (popup tester), alla scelta eroe (cosa è
-  // sbloccato) e all'assegnazione della cassa a fine partita. Parte dal
-  // dispositivo e, se c'è una sessione, si allinea all'account.
+  // Progressione (casse, frammenti, eroi sbloccati, flag tester), divisa per
+  // modalità (`.classico` / `.aroundTheWorld`). Vive qui in alto perché serve
+  // ai due sottomenu (badge «da fare»), alla scelta eroe e all'assegnazione
+  // della cassa a fine partita. Parte dal dispositivo e, se c'è una sessione,
+  // si allinea all'account.
   const [progression, setProgression] = useState<PlayerProgression>(() => getLocalProgression());
   useEffect(() => {
     let alive = true;
@@ -79,21 +92,29 @@ export function App() {
     void loadProgression(session).then(setProgression);
   };
 
-  /** Fine partita al 100%: assegna una cassa (se c'è spazio) e aggiorna lo stato. */
+  /** Fine partita Classica al 100%: assegna una cassa (se c'è spazio) e aggiorna lo stato. */
   const onGameComplete = () => {
-    void awardChestForFinishedGame(session).then(setProgression);
+    void awardChestForFinishedGame(session, 'classico').then(setProgression);
   };
 
-  // Esito della missione appena giocata: registrato a fine partita e consegnato
-  // alla schermata Missioni all'uscita (che completa la missione se VINTA).
+  // Esito della missione Classica appena giocata: registrato a fine partita e
+  // consegnato alla schermata Missioni all'uscita (che completa la missione
+  // se VINTA).
   const pendingMissionRef = useRef<PendingMission | null>(null);
-  /** Fine di una partita-MISSIONE: memorizza se l'umano ha vinto (posto = `viewpoint`). */
+  /** Fine di una partita-MISSIONE Classica: memorizza se l'umano ha vinto (posto = `viewpoint`). */
   const onMissionGameComplete = (mission: Mission, finalState: GameState, viewpoint: PlayerId) => {
     const won = finalState.phase.type === 'gameOver' && finalState.phase.winner === viewpoint;
     pendingMissionRef.current = { missionId: mission.id, won };
   };
 
-  /** Login/registrazione riuscita (dall'entrata): ricorda la sessione, va al menu. */
+  // Stesso meccanismo per le missioni del Mondo.
+  const pendingWorldMissionRef = useRef<WorldPendingMission | null>(null);
+  const onWorldMissionGameComplete = (mission: WorldMission, view: WorldPlayerView, viewpoint: PlayerId) => {
+    const won = view.phase.type === 'fine' && view.phase.winner === viewpoint;
+    pendingWorldMissionRef.current = { missionId: mission.id, won };
+  };
+
+  /** Login/registrazione riuscita (dall'entrata): ricorda la sessione, va all'HUB. */
   const onLoggedIn = (s: OnlineSession) => {
     saveSession(s);
     setSession(s);
@@ -113,7 +134,9 @@ export function App() {
         <EntryScreen
           onLoggedIn={onLoggedIn}
           onSkip={() => setRoute({ screen: 'menu' })}
-          onOpenTutorial={() => setRoute({ screen: 'tutorial', chapter: TUTORIAL_ONLINE_CHAPTER })}
+          onOpenTutorial={() =>
+            setRoute({ screen: 'tutorial', chapter: TUTORIAL_ONLINE_CHAPTER, from: 'menu' })
+          }
         />
       );
     case 'menu':
@@ -122,32 +145,52 @@ export function App() {
           hasAccount={hasAccount}
           isTester={progression.tester === true}
           progression={progression}
-          onNewGame={() => setRoute({ screen: 'newGame', mode: 'locale' })}
-          onNewWorld={() => setRoute({ screen: 'newWorld' })}
-          onLibro={() => setRoute({ screen: 'tutorial' })}
-          onInventory={() => setRoute({ screen: 'inventory' })}
-          onMissions={() => setRoute({ screen: 'missions' })}
+          onClassico={() => setRoute({ screen: 'classicoMenu' })}
+          onMondo={() => setRoute({ screen: 'worldMenu' })}
           onShop={() => setRoute({ screen: 'shop' })}
           // Senza account, «Gestione account» porta all'entrata per accedere.
           onAccount={() => setRoute({ screen: hasAccount ? 'account' : 'entry' })}
           onDemo={() => setRoute({ screen: 'demo' })}
         />
       );
+    case 'classicoMenu':
+      return (
+        <ClassicoMenuScreen
+          progression={modeProgression(progression, 'classico')}
+          onNewGame={() => setRoute({ screen: 'newGame', mode: 'locale' })}
+          onLibro={() => setRoute({ screen: 'tutorial', from: 'classicoMenu' })}
+          onInventory={() => setRoute({ screen: 'inventory', mode: 'classico' })}
+          onMissions={() => setRoute({ screen: 'missions' })}
+          onBack={() => setRoute({ screen: 'menu' })}
+        />
+      );
+    case 'worldMenu':
+      return (
+        <WorldMenuScreen
+          progression={modeProgression(progression, 'aroundTheWorld')}
+          onNewGame={() => setRoute({ screen: 'newWorld' })}
+          onLibro={() => setRoute({ screen: 'worldTutorial' })}
+          onInventory={() => setRoute({ screen: 'inventory', mode: 'aroundTheWorld' })}
+          onMissions={() => setRoute({ screen: 'worldMissions' })}
+          onBack={() => setRoute({ screen: 'menu' })}
+        />
+      );
     case 'tutorial':
       return (
         <TutorialScreen
           initialChapter={route.chapter ?? 0}
-          onClose={() => setRoute({ screen: 'menu' })}
+          onClose={() => setRoute({ screen: route.from ?? 'classicoMenu' })}
         />
       );
     case 'inventory':
       return (
         <InventoryScreen
+          mode={route.mode}
           onBack={() => {
-            // Tornando al menu rilegge la progressione: eventuali sblocchi fatti
-            // nell'inventario si riflettono subito nella scelta eroe e nel menu.
+            // Tornando al sottomenu rilegge la progressione: eventuali sblocchi
+            // fatti nell'inventario si riflettono subito nella scelta eroe.
             reloadProgression();
-            setRoute({ screen: 'menu' });
+            setRoute({ screen: route.mode === 'classico' ? 'classicoMenu' : 'worldMenu' });
           }}
         />
       );
@@ -163,10 +206,25 @@ export function App() {
             setRoute({ screen: 'game', setup, gameKey: Date.now(), mission });
           }}
           onBack={() => {
-            // Tornando al menu rilegge la progressione: le ricompense delle
-            // missioni si riflettono subito nella scelta eroe e nel menu.
+            // Tornando al sottomenu rilegge la progressione: le ricompense
+            // delle missioni si riflettono subito nella scelta eroe.
             reloadProgression();
-            setRoute({ screen: 'menu' });
+            setRoute({ screen: 'classicoMenu' });
+          }}
+        />
+      );
+    case 'worldMissions':
+      return (
+        <WorldMissionsScreen
+          pending={route.pending ?? null}
+          onStartMission={(mission) => {
+            const setup = buildWorldMissionSetup(mission, session?.username ?? 'Bjorn');
+            pendingWorldMissionRef.current = null;
+            setRoute({ screen: 'world', setup, gameKey: Date.now(), mission });
+          }}
+          onBack={() => {
+            reloadProgression();
+            setRoute({ screen: 'worldMenu' });
           }}
         />
       );
@@ -174,8 +232,8 @@ export function App() {
       return (
         <ShopScreen
           onBack={() => {
-            // Tornando al menu rilegge la progressione: la cassa gratuita
-            // riscossa qui si riflette subito nella scelta eroe e nel menu.
+            // Tornando all'HUB rilegge la progressione: le casse gratuite
+            // riscosse qui si riflettono subito nella scelta eroe e nei badge.
             reloadProgression();
             setRoute({ screen: 'menu' });
           }}
@@ -211,7 +269,7 @@ export function App() {
         <NewWorldGameScreen
           defaultName={session?.username}
           progression={progression}
-          onBack={() => setRoute({ screen: 'menu' })}
+          onBack={() => setRoute({ screen: 'worldMenu' })}
           session={session}
           onOnline={() => setRoute(hasAccount ? { screen: 'worldOnline' } : { screen: 'entry' })}
           onTutorial={() => setRoute({ screen: 'worldTutorial' })}
@@ -219,35 +277,48 @@ export function App() {
         />
       );
     case 'worldTutorial':
-      return <WorldTutorialScreen onClose={() => setRoute({ screen: 'newWorld' })} />;
+      return <WorldTutorialScreen onClose={() => setRoute({ screen: 'worldMenu' })} />;
     case 'worldOnline':
       if (!session) return null;
       return (
         <WorldOnlineScreen
           session={session}
           progression={progression}
-          onBack={() => setRoute({ screen: 'menu' })}
+          onBack={() => setRoute({ screen: 'worldMenu' })}
           onInvalidSession={onLogout}
         />
       );
     case 'adminMaps':
       if (!session) return null;
       return <AdminMapsScreen session={session} onBack={() => setRoute({ screen: 'account' })} />;
-    case 'world':
+    case 'world': {
+      const mission = route.mission;
+      // In una MISSIONE del Mondo l'uscita torna alla bacheca (che, se hai
+      // VINTO, apre le casse-ricompensa); niente rivincita (si rigioca dalla
+      // bacheca). Una partita normale torna al sottomenu del Mondo.
+      const exitToWorldMissions = () =>
+        setRoute({ screen: 'worldMissions', pending: pendingWorldMissionRef.current });
       return (
         <WorldGameScreen
           key={route.gameKey}
           makeController={() => new LocalWorldController(route.setup)}
-          onExit={() => setRoute({ screen: 'menu' })}
-          onRematch={() =>
-            setRoute({
-              screen: 'world',
-              gameKey: Date.now(),
-              setup: { ...route.setup, seed: `world-${Date.now()}-${Math.floor(Math.random() * 1e6)}` },
-            })
+          {...(mission
+            ? { onGameComplete: (view: WorldPlayerView, viewpoint: PlayerId) => onWorldMissionGameComplete(mission, view, viewpoint) }
+            : {})}
+          onExit={mission ? exitToWorldMissions : () => setRoute({ screen: 'worldMenu' })}
+          onRematch={
+            mission
+              ? null
+              : () =>
+                  setRoute({
+                    screen: 'world',
+                    gameKey: Date.now(),
+                    setup: { ...route.setup, seed: `world-${Date.now()}-${Math.floor(Math.random() * 1e6)}` },
+                  })
           }
         />
       );
+    }
     case 'newGame':
       return (
         <NewGameScreen
@@ -255,7 +326,7 @@ export function App() {
           progression={progression}
           onGameComplete={onGameComplete}
           initialMode={route.mode}
-          onBack={() => setRoute({ screen: 'menu' })}
+          onBack={() => setRoute({ screen: 'classicoMenu' })}
           onStartLocal={(setup) => setRoute({ screen: 'game', setup, gameKey: Date.now() })}
           onInvalidSession={onLogout}
           onNeedAccount={() => setRoute({ screen: 'entry' })}
@@ -265,7 +336,7 @@ export function App() {
       const mission = route.mission;
       // In una MISSIONE l'uscita torna alla bacheca (che, se hai VINTO, apre le
       // casse-ricompensa); niente rivincita (si rigioca dalla bacheca). Una
-      // partita normale assegna la cassa di fine partita e torna al menu.
+      // partita normale assegna la cassa di fine partita e torna al sottomenu.
       const exitToMissions = () => setRoute({ screen: 'missions', pending: pendingMissionRef.current });
       return (
         <GameScreen
@@ -276,7 +347,7 @@ export function App() {
               ? (finalState, viewpoint) => onMissionGameComplete(mission, finalState, viewpoint)
               : onGameComplete
           }
-          onExit={mission ? exitToMissions : () => setRoute({ screen: 'menu' })}
+          onExit={mission ? exitToMissions : () => setRoute({ screen: 'classicoMenu' })}
           onRematch={
             mission
               ? null
@@ -291,8 +362,8 @@ export function App() {
                     },
                   })
           }
-          // Gestione partita locale (☰): «esci» torna al menu (o alla bacheca
-          // missioni, senza ricompensa se abbandoni a metà).
+          // Gestione partita locale (☰): «esci» torna al sottomenu (o alla
+          // bacheca missioni, senza ricompensa se abbandoni a metà).
           manage={{
             online: false,
             code: null,
@@ -304,7 +375,7 @@ export function App() {
               connected: true,
               isHost: false,
             })),
-            onLeave: mission ? exitToMissions : () => setRoute({ screen: 'menu' }),
+            onLeave: mission ? exitToMissions : () => setRoute({ screen: 'classicoMenu' }),
             onTerminate: null,
           }}
         />
