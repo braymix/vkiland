@@ -207,23 +207,13 @@ export class WorldRenderer {
     ctx.scale(cam.scale, cam.scale);
     ctx.translate(-cam.cx, -cam.cy);
 
-    // Mappa CASTELLO: FOSSATO dietro i territori (anello d'acqua teal).
+    // Mappa CASTELLO: ombra morbida sotto il castello, per staccarlo dal mare.
     const castle = view.map.castle;
-    if (castle && castle.moat.length > 1) {
-      ctx.beginPath();
-      castle.moat.forEach(([lon, lat], i) => {
-        const [x, y] = toWorld(lon, lat);
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      });
-      ctx.closePath();
+    if (castle) {
       ctx.lineJoin = 'round';
-      ctx.lineWidth = 6 / cam.scale;
-      ctx.strokeStyle = '#0f4a52';
-      ctx.stroke();
-      ctx.lineWidth = 2 / cam.scale;
-      ctx.strokeStyle = '#2f8f9c';
-      ctx.stroke();
+      ctx.lineWidth = 12 / cam.scale;
+      ctx.strokeStyle = 'rgba(5,15,25,0.35)';
+      for (const t of view.map.territories) ctx.stroke(cache.paths.get(t.id)!);
     }
 
     // Territori
@@ -318,30 +308,92 @@ export class WorldRenderer {
       this.segment(ctx, a, b);
     }
 
-    // Mappa CASTELLO: MURA (segmenti di pietra) e VARCHI (porte/scale/passaggi).
+    // Mappa CASTELLO: FOSSATO, MURA, PONTI LEVATOI, TORRI, passaggi segreti.
     if (castle) {
-      // Muri pieni: barrette di pietra fra anelli senza varco.
+      const px = 1 / cam.scale;
+      const seg = (p: [[number, number], [number, number]]): void => {
+        this.segment(ctx, toWorld(p[0][0], p[0][1]), toWorld(p[1][0], p[1][1]));
+      };
       ctx.lineCap = 'round';
-      for (const [[x1, y1], [x2, y2]] of castle.walls) {
-        const a = toWorld(x1, y1);
-        const b = toWorld(x2, y2);
-        ctx.lineWidth = 7 / cam.scale;
-        ctx.strokeStyle = '#44474d';
-        this.segment(ctx, a, b);
-        ctx.lineWidth = 4 / cam.scale;
-        ctx.strokeStyle = '#8b8e95';
-        this.segment(ctx, a, b);
+      ctx.lineJoin = 'round';
+      // Il Mastio ha un contorno dorato.
+      for (const t of view.map.territories) {
+        if (t.continent !== 'Mastio') continue;
+        ctx.lineWidth = 3 * px;
+        ctx.strokeStyle = '#f2c94c';
+        ctx.stroke(cache.paths.get(t.id)!);
       }
-      // Scale (collegamenti `muro`): linea tratteggiata marrone con pioli.
-      ctx.setLineDash([3 / cam.scale, 3 / cam.scale]);
-      ctx.lineWidth = 3 / cam.scale;
-      ctx.strokeStyle = '#8a5a30';
-      for (const l of view.map.links) {
-        if (l.kind !== 'muro') continue;
-        this.segment(ctx, cache.centers.get(l.a)!, cache.centers.get(l.b)!);
+      // FOSSATO: acqua scura con riflessi, nei lati senza ponte.
+      for (const m of castle.moat) {
+        ctx.lineWidth = 13 * px;
+        ctx.strokeStyle = '#0b3a44';
+        seg(m);
+        ctx.lineWidth = 9 * px;
+        ctx.strokeStyle = '#1f7f8e';
+        seg(m);
       }
+      ctx.setLineDash([3 * px, 7 * px]);
+      ctx.lineWidth = 2 * px;
+      ctx.strokeStyle = '#8fd6df';
+      for (const m of castle.moat) seg(m);
       ctx.setLineDash([]);
-      // Porte (varchi di terra fra anelli): pilastri chiari agli estremi del varco.
+      // MURA: pietra con bordo scuro e merli chiari.
+      for (const wl of castle.walls) {
+        ctx.lineWidth = 11 * px;
+        ctx.strokeStyle = '#2b2e35';
+        seg(wl);
+        ctx.lineWidth = 8 * px;
+        ctx.strokeStyle = '#939aa6';
+        seg(wl);
+      }
+      ctx.lineCap = 'butt';
+      ctx.setLineDash([4 * px, 3 * px]);
+      ctx.lineWidth = 3 * px;
+      ctx.strokeStyle = '#d3d8e0';
+      for (const wl of castle.walls) seg(wl);
+      ctx.setLineDash([]);
+      ctx.lineCap = 'round';
+      // PONTI LEVATOI: assi di legno stese sul fossato lungo il collegamento.
+      for (const gid of castle.drawbridges) {
+        const l = idx.link.get(gid);
+        if (!l) continue;
+        const a = cache.centers.get(l.a)!;
+        const b = cache.centers.get(l.b)!;
+        const mx = (a[0] + b[0]) / 2;
+        const my = (a[1] + b[1]) / 2;
+        const dx = (b[0] - a[0]) * 0.3;
+        const dy = (b[1] - a[1]) * 0.3;
+        const from: [number, number] = [mx - dx, my - dy];
+        const to: [number, number] = [mx + dx, my + dy];
+        ctx.lineCap = 'butt';
+        ctx.lineWidth = 12 * px;
+        ctx.strokeStyle = '#2e1b0c';
+        this.segment(ctx, from, to);
+        ctx.lineWidth = 9 * px;
+        ctx.strokeStyle = '#b07a3f';
+        this.segment(ctx, from, to);
+        ctx.setLineDash([1.5 * px, 3 * px]);
+        ctx.lineWidth = 9 * px;
+        ctx.strokeStyle = '#6b4423';
+        this.segment(ctx, from, to);
+        ctx.setLineDash([]);
+      }
+      ctx.lineCap = 'round';
+      // TORRI ai lati di ogni porta.
+      const tower = (x: number, y: number): void => {
+        ctx.fillStyle = '#2b2e35';
+        ctx.beginPath();
+        ctx.arc(x, y, 7.5 * px, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#9aa1ad';
+        ctx.beginPath();
+        ctx.arc(x, y, 5.5 * px, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#d3d8e0';
+        ctx.beginPath();
+        ctx.arc(x, y, 2.5 * px, 0, Math.PI * 2);
+        ctx.fill();
+      };
       for (const gid of castle.gates) {
         const l = idx.link.get(gid);
         if (!l) continue;
@@ -349,15 +401,17 @@ export class WorldRenderer {
         const b = cache.centers.get(l.b)!;
         const mx = (a[0] + b[0]) / 2;
         const my = (a[1] + b[1]) / 2;
-        ctx.fillStyle = '#d8c49a';
-        ctx.beginPath();
-        ctx.arc(mx, my, 2.5 / cam.scale, 0, Math.PI * 2);
-        ctx.fill();
+        const len = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+        // metà lato dell'esagono = distanza fra i centri / (2·√3)·... = len·0.2887
+        const hx = (-(b[1] - a[1]) / len) * len * 0.2887;
+        const hy = ((b[0] - a[0]) / len) * len * 0.2887;
+        tower(mx + hx, my + hy);
+        tower(mx - hx, my - hy);
       }
-      // Passaggi segreti: tratteggio scuro.
-      ctx.setLineDash([2 / cam.scale, 4 / cam.scale]);
-      ctx.lineWidth = 2 / cam.scale;
-      ctx.strokeStyle = '#2b2d31';
+      // PASSAGGI SEGRETI: linea tratteggiata scura «sotterranea».
+      ctx.setLineDash([2 * px, 5 * px]);
+      ctx.lineWidth = 2.5 * px;
+      ctx.strokeStyle = '#1b1c20';
       for (const tid of castle.tunnels) {
         const l = idx.link.get(tid);
         if (!l) continue;
@@ -370,6 +424,96 @@ export class WorldRenderer {
     // --- Sovraimpressioni in pixel-schermo (restano leggibili a ogni zoom) ---
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
+    if (castle) {
+      const mid = (id: string): { x: number; y: number; ang: number; len: number } | null => {
+        const l = idx.link.get(id);
+        if (!l) return null;
+        const [ax, ay] = worldToScreen(cam, w, h, ...cache.centers.get(l.a)!);
+        const [bx, by] = worldToScreen(cam, w, h, ...cache.centers.get(l.b)!);
+        return { x: (ax + bx) / 2, y: (ay + by) / 2, ang: Math.atan2(by - ay, bx - ax), len: Math.hypot(bx - ax, by - ay) };
+      };
+      // PORTONI (porte nelle mura di pietra, non sul fossato): arco di legno.
+      for (const gid of castle.gates) {
+        if (castle.drawbridges.includes(gid)) continue;
+        const m = mid(gid);
+        if (!m) continue;
+        ctx.save();
+        ctx.translate(m.x, m.y);
+        ctx.beginPath();
+        ctx.moveTo(-6, 7);
+        ctx.lineTo(-6, -2);
+        ctx.arc(0, -2, 6, Math.PI, 0);
+        ctx.lineTo(6, 7);
+        ctx.closePath();
+        ctx.fillStyle = '#9a6a35';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#2e1b0c';
+        ctx.stroke();
+        ctx.fillStyle = '#f2c94c';
+        ctx.fillRect(2, 1, 2, 2);
+        ctx.restore();
+      }
+      // SCALE (collegamenti `muro`): due montanti e i pioli, lungo il collegamento.
+      for (const l of view.map.links) {
+        if (l.kind !== 'muro') continue;
+        const m = mid(l.id);
+        if (!m) continue;
+        const half = Math.min(15, m.len * 0.22);
+        ctx.save();
+        ctx.translate(m.x, m.y);
+        ctx.rotate(m.ang);
+        ctx.lineCap = 'butt';
+        ctx.strokeStyle = '#2e1b0c';
+        ctx.lineWidth = 6;
+        for (const sy of [-4, 4]) {
+          ctx.beginPath();
+          ctx.moveTo(-half, sy);
+          ctx.lineTo(half, sy);
+          ctx.stroke();
+        }
+        ctx.strokeStyle = '#c28a46';
+        ctx.lineWidth = 3;
+        for (const sy of [-4, 4]) {
+          ctx.beginPath();
+          ctx.moveTo(-half, sy);
+          ctx.lineTo(half, sy);
+          ctx.stroke();
+        }
+        ctx.lineWidth = 2;
+        for (let x = -half + 3; x <= half - 2; x += 5) {
+          ctx.beginPath();
+          ctx.moveTo(x, -4);
+          ctx.lineTo(x, 4);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+      // PASSAGGI SEGRETI: un tombino a ciascuna estremità.
+      for (const tid of castle.tunnels) {
+        const l = idx.link.get(tid);
+        if (!l) continue;
+        const [ax, ay] = worldToScreen(cam, w, h, ...cache.centers.get(l.a)!);
+        const [bx, by] = worldToScreen(cam, w, h, ...cache.centers.get(l.b)!);
+        for (const f of [0.24, 0.76]) {
+          const x = ax + (bx - ax) * f;
+          const y = ay + (by - ay) * f;
+          ctx.beginPath();
+          ctx.arc(x, y, 6, 0, Math.PI * 2);
+          ctx.fillStyle = '#1b1c20';
+          ctx.fill();
+          ctx.lineWidth = 1.5;
+          ctx.strokeStyle = '#8b8e95';
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(x - 3.5, y);
+          ctx.lineTo(x + 3.5, y);
+          ctx.moveTo(x, y - 3.5);
+          ctx.lineTo(x, y + 3.5);
+          ctx.stroke();
+        }
+      }
+    }
     for (const t of view.map.territories) {
       const [wx, wy] = cache.centers.get(t.id)!;
       const [sx, sy] = worldToScreen(cam, w, h, wx, wy);
@@ -395,6 +539,11 @@ export class WorldRenderer {
         ctx.font = `bold ${small ? 8 : 11}px monospace`;
         ctx.fillText(String(st.number), sx, sy + (small ? 0 : 3) + 0.5);
       }
+      // Mastio: piccola rocca sopra il numero.
+      if (castle && t.continent === 'Mastio' && !small) {
+        ctx.font = '16px sans-serif';
+        ctx.fillText('🏰', sx + 18, sy - 18);
+      }
       // edifici (fino a 2 clan, uno accanto all'altro)
       st.settlements.forEach((s, i) => {
         const dx = (small ? 9 : 15) + i * (small ? 8 : 13);
@@ -417,8 +566,9 @@ export class WorldRenderer {
         ctx.font = '9px sans-serif';
         ctx.fillText(hasPort ? '⚓' : '🪙', sx + 9, sy - 6);
       }
-      // nome: solo se ci sta nella forma (o se il territorio è selezionato)
-      if (cam.scale >= (roomy ? 1.4 : 4.6)) {
+      // nome: solo se ci sta nella forma (o se il territorio è selezionato).
+      // Nel castello i nomi (Cortile 2.3, Borgo 5…) affollano: solo se selezionato.
+      if (cam.scale >= (roomy ? 1.4 : 4.6) && (!castle || input.selected === t.id)) {
         ctx.font = '7px "Press Start 2P", monospace';
         const fits = ctx.measureText(t.name).width <= (cache.widths.get(t.id) ?? 0) * cam.scale * 1.2;
         if (fits || input.selected === t.id) {

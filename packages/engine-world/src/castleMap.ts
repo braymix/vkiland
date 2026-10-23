@@ -134,14 +134,19 @@ export function generateCastleMap(seed: string, rings: number): MapDefinition {
   const kindByCell = new Map<string, TerritoryKind>();
   cells.forEach((c, i) => kindByCell.set(KEY(c.q, c.r), bag[i]!));
 
-  let courtN = 0;
+  const perRing = new Map<number, number>();
   const territories: TerritoryDef[] = cells.map((c) => {
     const [lon, lat] = centerOf(c.q, c.r);
     const ring = cube(c.q, c.r);
+    const idxInRing = (perRing.get(ring) ?? 0) + 1;
+    perRing.set(ring, idxInRing);
+    // Mastio al centro, Borgo fuori dal fossato, cortili in mezzo.
+    const name = ring === 0 ? 'Mastio' : ring === n ? `Borgo ${idxInRing}` : `Cortile ${ring}.${idxInRing}`;
+    const continent = ring === 0 ? 'Mastio' : ring === n ? 'Borgo' : `Cortile ${ring}`;
     return {
       id: idOf(c.q, c.r),
-      name: ring === 0 ? 'Mastio' : `Cortile ${++courtN}`,
-      continent: ring === 0 ? 'Mastio' : `Anello ${ring}`,
+      name,
+      continent,
       kind: kindByCell.get(KEY(c.q, c.r))!,
       coastal: ring === n,
       center: [lon, lat],
@@ -188,7 +193,9 @@ export function generateCastleMap(seed: string, rings: number): MapDefinition {
   //     SCALE (muro). Distanziate. Garantita almeno una porta (connettività).
   const gates: string[] = [];
   const scale: string[] = [];
+  const drawbridges: string[] = [];
   const wallSegs: CastleMeta['walls'] = [];
+  const moatSegs: CastleMeta['moat'] = [];
   const territoryById = new Map(territories.map((t) => [t.id, t]));
   const centerById = (id: string): [number, number] => territoryById.get(id)!.center;
 
@@ -222,10 +229,12 @@ export function generateCastleMap(seed: string, rings: number): MapDefinition {
       }
     };
 
-    // Porte: 1..2. Scale: 0..1 (sul mastio↔anello1 niente scala: troppo vicino).
+    // L'ultimo confine (cortile esterno ↔ borgo) è il FOSSATO: i suoi varchi sono
+    // ponti levatoi e ce ne sono di più, così l'ingresso non è un collo di bottiglia.
+    const isMoat = lo === n - 1;
     const [gExtra, rg] = nextInt(rng, 2);
     rng = rg;
-    pick(gExtra + 1, 'gate');
+    pick(gExtra + 1 + (isMoat ? 1 : 0), 'gate');
     if (lo >= 1) {
       const [sExtra, rs] = nextInt(rng, 2);
       rng = rs;
@@ -252,11 +261,20 @@ export function generateCastleMap(seed: string, rings: number): MapDefinition {
       }
     }
 
-    // 3d) Segmenti di MURO: i confini di questo anello SENZA varco → grafica.
+    // Ponti levatoi: tutte le porte di questo confine, se è il fossato.
+    if (isMoat) {
+      for (const g of gates) {
+        if (cands.some((c) => linkId(c.a, c.b) === g) && !drawbridges.includes(g)) drawbridges.push(g);
+      }
+    }
+
+    // 3d) Segmenti di MURO (o di FOSSATO) dove NON c'è varco → grafica.
     for (const p of cands) {
       const k = [p.a, p.b].sort().join('|');
       if (opened.has(k)) continue;
-      wallSegs.push(perpBar(centerById(p.a), centerById(p.b)));
+      const seg = edgeBetween(centerById(p.a), centerById(p.b));
+      if (isMoat) moatSegs.push(seg);
+      else wallSegs.push(seg);
     }
   }
 
@@ -292,10 +310,7 @@ export function generateCastleMap(seed: string, rings: number): MapDefinition {
     }
   }
 
-  // 4) Fossato: contorno esagonale un filo più largo dell'anello esterno.
-  const moat = hexPolygon(0, 0, U * (2 * n + 1) * 0.92).map(([x, y]) => [x, y] as [number, number]);
-
-  const castle: CastleMeta = { rings: n, walls: wallSegs, moat, gates, scale, tunnels };
+  const castle: CastleMeta = { rings: n, walls: wallSegs, moat: moatSegs, gates, drawbridges, scale, tunnels };
 
   const productive = total - deserts;
   const map: MapDefinition = {
@@ -313,8 +328,11 @@ export function generateCastleMap(seed: string, rings: number): MapDefinition {
   return map;
 }
 
-/** Barretta perpendicolare al segmento fra due centri, al punto medio: un «muro». */
-function perpBar(
+/**
+ * Il LATO condiviso da due esagoni adiacenti: perpendicolare al segmento fra i
+ * centri, al punto medio, lungo esattamente un lato (= U, il raggio dell'esagono).
+ */
+function edgeBetween(
   a: [number, number],
   b: [number, number]
 ): [[number, number], [number, number]] {
@@ -323,9 +341,8 @@ function perpBar(
   const dx = b[0] - a[0];
   const dy = b[1] - a[1];
   const len = Math.hypot(dx, dy) || 1;
-  // perpendicolare, lunga ~ la larghezza di un esagono
-  const px = (-dy / len) * U * 0.9;
-  const py = (dx / len) * U * 0.9;
+  const px = (-dy / len) * (U / 2);
+  const py = (dx / len) * (U / 2);
   return [
     [round(mx + px), round(my + py)],
     [round(mx - px), round(my - py)],
