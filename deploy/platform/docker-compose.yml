@@ -9,7 +9,11 @@
 #
 services:
   traefik:
-    image: traefik:v3.3
+    # NB: Traefik 3.3 porta un client Docker che negozia una API troppo
+    # vecchia (1.24) per un Docker Engine recente (minimo 1.40): il
+    # provider Docker va in loop di errori e niente viene instradato.
+    # Serve una versione di Traefik con il client aggiornato.
+    image: traefik:v3.7
     container_name: traefik
     restart: unless-stopped
     command:
