@@ -40,6 +40,13 @@ pnpm build        # build di produzione del frontend
 
 ## Deploy
 
+**Server proprio, client + online insieme, autodeploy a ogni push** — la via
+principale: vedi [`deploy/README.md`](./deploy/README.md). Un solo dominio
+serve client, REST e WebSocket (niente CORS), il database Postgres è dedicato
+all'app e lo stesso server può ospitare altre app accanto a questa.
+
+### Alternative gestite
+
 **Client su Netlify** (gioco locale e hot-seat funzionano subito, senza server):
 il repo contiene già [`netlify.toml`](./netlify.toml) — basta collegare il repo a
 Netlify (build `pnpm build`, publish `packages/web/dist`, rilevati in automatico).

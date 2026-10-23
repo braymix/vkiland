@@ -1,0 +1,55 @@
+# MODELLO per una NUOVA app sullo stesso server.
+#
+#   1. sul server:  cp -r /srv/apps/_template /srv/apps/miaapp
+#   2. sostituisci "miaapp" qui dentro e compila .env
+#   3. punta il DNS di miaapp.tuodominio.it all'IP del server
+#   4. docker compose up -d      (Traefik prende il certificato da solo)
+#
+# Regole d'oro per non pestare i piedi alle altre app:
+#   - NESSUN `ports:` — l'unico che pubblica 80/443 è Traefik
+#   - nomi di router/service Traefik unici (prefissa col nome dell'app)
+#   - il database resta sulla rete `internal`, mai su `edge`
+#
+services:
+  app:
+    image: ghcr.io/braymix/MIAAPP:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://miaapp:${POSTGRES_PASSWORD}@db:5432/miaapp
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [edge, internal]
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: edge
+      traefik.http.routers.miaapp.rule: Host(`${APP_HOST}`)
+      traefik.http.routers.miaapp.entrypoints: websecure
+      traefik.http.routers.miaapp.tls.certresolver: le
+      traefik.http.services.miaapp.loadbalancer.server.port: '3000'
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: miaapp
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: miaapp
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks: [internal]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U miaapp -d miaapp']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+networks:
+  edge:
+    external: true
+  internal:
+    internal: true
+
+volumes:
+  db-data:

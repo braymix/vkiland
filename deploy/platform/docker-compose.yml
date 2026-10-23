@@ -1,0 +1,61 @@
+# PIATTAFORMA — il "portiere" del server, condiviso da TUTTE le app.
+#
+# Traefik ascolta su 80/443, ottiene e rinnova i certificati Let's Encrypt da
+# solo e instrada ogni dominio al container giusto leggendo le etichette
+# (labels) degli altri stack. Per aggiungere un'app NON si tocca questo file:
+# basta mettere le labels nel suo docker-compose e attaccarla alla rete `edge`.
+#
+#   cd /srv/platform && docker compose up -d
+#
+services:
+  traefik:
+    image: traefik:v3.3
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      # Scopre i container Docker, ma instrada SOLO quelli con
+      # traefik.enable=true (così i database restano invisibili da fuori).
+      - --providers.docker=true
+      - --providers.docker.exposedByDefault=false
+      - --providers.docker.network=edge
+      # HTTP -> redirect permanente a HTTPS.
+      - --entryPoints.web.address=:80
+      - --entryPoints.web.http.redirections.entryPoint.to=websecure
+      - --entryPoints.web.http.redirections.entryPoint.scheme=https
+      - --entryPoints.websecure.address=:443
+      # WebSocket di Socket.io: nessun timeout di lettura sulle connessioni
+      # lunghe (il default di Traefik va già bene, lo rendiamo esplicito).
+      - --entryPoints.websecure.transport.respondingTimeouts.idleTimeout=3600s
+      # Certificati automatici (challenge TLS-ALPN sulla 443).
+      - --certificatesresolvers.le.acme.email=${ACME_EMAIL}
+      - --certificatesresolvers.le.acme.storage=/letsencrypt/acme.json
+      - --certificatesresolvers.le.acme.tlschallenge=true
+      - --accesslog=true
+      - --log.level=INFO
+      - --ping=true
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      # Sola lettura: a Traefik serve solo LEGGERE la lista dei container.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
+    networks:
+      - edge
+    healthcheck:
+      test: ['CMD', 'traefik', 'healthcheck', '--ping']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+networks:
+  edge:
+    external: true
+
+volumes:
+  letsencrypt:

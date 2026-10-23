@@ -1,0 +1,150 @@
+# Autodeploy di Viking Island: ogni push sul branch di produzione viene
+# controllato, trasformato in due immagini Docker e messo online sul server.
+#
+#   push -> [controlli] -> [build immagini su GHCR] -> [deploy via SSH]
+#
+# Se i controlli falliscono non si deploya nulla. Se i container non diventano
+# sani entro 2 minuti, lo script sul server torna da solo alla versione
+# precedente (vedi deploy/platform/bin/deploy-app.sh).
+name: deploy
+
+on:
+  push:
+    branches: [claude/affectionate-wozniak-gqvfw0]
+    # Ritocchi alla sola documentazione non fanno ripartire il deploy.
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Tag da mettere online (vuoto = builda questo commit). Serve per il rollback: es. sha-1a2b3c4'
+        required: false
+        default: ''
+
+# Un deploy alla volta, in coda: due deploy in parallelo si pesterebbero.
+concurrency:
+  group: deploy-vikiland
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_WEB: ghcr.io/${{ github.repository_owner }}/vkiland-web
+  IMAGE_SERVER: ghcr.io/${{ github.repository_owner }}/vkiland-server
+
+jobs:
+  check:
+    name: controlli (lint, typecheck, test)
+    runs-on: ubuntu-latest
+    if: inputs.image_tag == ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm -r typecheck
+      - run: pnpm -r test
+
+  build:
+    name: immagini Docker
+    needs: check
+    if: inputs.image_tag == ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: controlla che APP_HOST sia configurato
+        run: |
+          if [ -z "${{ vars.APP_HOST }}" ]; then
+            echo "::error::manca la variabile APP_HOST (es. vikiland.tuodominio.it):"
+            echo "::error::Settings -> Secrets and variables -> Actions -> Variables"
+            exit 1
+          fi
+
+      - id: tag
+        run: echo "tag=sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Client: l'indirizzo pubblico finisce dentro il bundle, quindi è un
+      # build-arg. Stesso host del client: /api e /socket.io li gira Traefik.
+      - name: build & push web
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: packages/web/Dockerfile
+          push: true
+          build-args: |
+            VITE_SERVER_URL=https://${{ vars.APP_HOST }}
+          tags: |
+            ${{ env.IMAGE_WEB }}:${{ steps.tag.outputs.tag }}
+            ${{ env.IMAGE_WEB }}:latest
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,scope=web,mode=max
+
+      - name: build & push server
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: packages/server/Dockerfile
+          push: true
+          tags: |
+            ${{ env.IMAGE_SERVER }}:${{ steps.tag.outputs.tag }}
+            ${{ env.IMAGE_SERVER }}:latest
+          cache-from: type=gha,scope=server
+          cache-to: type=gha,scope=server,mode=max
+
+  deploy:
+    name: deploy sul server
+    needs: build
+    # Gira anche quando build/check sono saltati, cioè nel rollback manuale.
+    if: always() && (needs.build.result == 'success' || inputs.image_tag != '')
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: tag da mettere online
+        id: pick
+        run: |
+          TAG="${{ inputs.image_tag }}"
+          [ -z "$TAG" ] && TAG="${{ needs.build.outputs.tag }}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
+      - name: chiave SSH
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -p "${{ vars.DEPLOY_PORT || 22 }}" -H "${{ secrets.DEPLOY_HOST }}" \
+            >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: docker compose pull + up (con rollback automatico)
+        run: |
+          ssh -i ~/.ssh/id_ed25519 -o BatchMode=yes -p "${{ vars.DEPLOY_PORT || 22 }}" \
+            "${{ vars.DEPLOY_USER || 'deploy' }}@${{ secrets.DEPLOY_HOST }}" \
+            "/srv/platform/bin/deploy-app.sh vikiland '${{ steps.pick.outputs.tag }}'"
+
+      - name: verifica che il sito risponda
+        run: |
+          set -e
+          for i in $(seq 1 10); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "https://${{ vars.APP_HOST }}/api/health" || true)
+            [ "$code" = "200" ] && { echo "server OK"; break; }
+            echo "tentativo $i: /api/health -> $code"; sleep 6
+          done
+          [ "$code" = "200" ]
+          curl -fsS -o /dev/null "https://${{ vars.APP_HOST }}/"
+          echo "client OK — online su https://${{ vars.APP_HOST }}"

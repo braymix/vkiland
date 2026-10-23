@@ -1,0 +1,73 @@
+# APP: Viking Island (client + server di gioco + database dedicato).
+# Vive in /srv/apps/vikiland sul server. Convive con le altre app: l'unica
+# cosa che condivide è la rete `edge` dove Traefik smista i domini.
+#
+# Routing (un solo dominio, nessun CORS, WebSocket sulla stessa origine):
+#   https://APP_HOST/            -> web    (build statica Vite + PWA)
+#   https://APP_HOST/api/*       -> server (REST)
+#   https://APP_HOST/socket.io/* -> server (Socket.io)
+#
+services:
+  web:
+    image: ghcr.io/braymix/vkiland-web:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    networks: [edge]
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: edge
+      traefik.http.routers.vikiland-web.rule: Host(`${APP_HOST}`)
+      traefik.http.routers.vikiland-web.entrypoints: websecure
+      traefik.http.routers.vikiland-web.tls.certresolver: le
+      traefik.http.routers.vikiland-web.priority: '1'
+      traefik.http.services.vikiland-web.loadbalancer.server.port: '80'
+
+  server:
+    image: ghcr.io/braymix/vkiland-server:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    environment:
+      PORT: '8787'
+      HOST: 0.0.0.0
+      DATA_DIR: /tmp/vikiland-data
+      # Database dedicato a questa app, raggiungibile solo dalla rete interna.
+      DATABASE_URL: postgresql://vikiland:${POSTGRES_PASSWORD}@db:5432/vikiland
+      DATABASE_SSL: ''
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [edge, internal]
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: edge
+      # Più specifica della regola del client: priorità più alta.
+      traefik.http.routers.vikiland-api.rule: Host(`${APP_HOST}`) && (PathPrefix(`/api`) || PathPrefix(`/socket.io`))
+      traefik.http.routers.vikiland-api.entrypoints: websecure
+      traefik.http.routers.vikiland-api.tls.certresolver: le
+      traefik.http.routers.vikiland-api.priority: '10'
+      traefik.http.services.vikiland-api.loadbalancer.server.port: '8787'
+
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vikiland
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: vikiland
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    # Nessuna porta pubblicata: il database NON è raggiungibile da internet.
+    networks: [internal]
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U vikiland -d vikiland']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+networks:
+  edge:
+    external: true
+  internal:
+    internal: true
+
+volumes:
+  db-data:

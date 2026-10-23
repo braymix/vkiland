@@ -4,6 +4,8 @@ coverage/
 *.local
 .env
 .env.*
+# ...tranne i template di esempio: nessun segreto dentro, vanno committati.
+!.env.example
 .DS_Store
 *.log
 
