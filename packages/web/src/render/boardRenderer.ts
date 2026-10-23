@@ -8,13 +8,9 @@
  * evidenziazioni) viene ricomposto a ogni cambiamento di stato.
  */
 import {
-  allBoardHexes,
   boardTopoKey,
   getTopology,
-  hexKey,
-  isTunnelId,
   pipWeight,
-  type CastleLayout,
   type EdgeId,
   type HexId,
   type PlayerColor,
@@ -35,7 +31,7 @@ import {
 
 /** Chiave della topologia della vista (gestisce anche le tavole «con rientranze»). */
 function topoKeyOf(view: PlayerView) {
-  return boardTopoKey(view.boardRadius, view.boardShape, view.board.hexes, view.board.castle);
+  return boardTopoKey(view.boardRadius, view.boardShape, view.board.hexes);
 }
 import { bakeSprite, drawDigits, drawSpriteCentered, digitsWidth } from './sprites/bake';
 import {
@@ -159,13 +155,7 @@ function boardSignature(view: PlayerView): string {
       .map((h) => `${h.id}:${h.terrain}${h.token ?? ''}${h.tokenCovered ? 'C' : ''}`)
       .join('|') +
     '#' +
-    view.board.ports.map((p) => `${p.edge}${p.kind}`).join('|') +
-    // Castello: mura/fossato + attraversamenti + brecce/piazze cambiano il disegno.
-    (view.board.castle
-      ? `#C${view.board.castle.walls.map((w) => `${w.radius}${w.kind[0]}`).join(',')}` +
-        `/${[...view.board.castle.gates, ...view.board.castle.ladders, ...view.board.castle.tunnels].join('·')}` +
-        `/${view.board.castle.plazas.join('·')}`
-      : '')
+    view.board.ports.map((p) => `${p.edge}${p.kind}`).join('|')
   );
 }
 
@@ -351,190 +341,6 @@ function drawBridgeDeck(ctx: CanvasRenderingContext2D, from: Point, to: Point): 
   }
 }
 
-/** Colori fissi (indipendenti dal tema) della mappa Castello. */
-const CASTLE_COLORS = {
-  wallFill: '#7c7f86',
-  wallBorder: '#44474d',
-  wallTooth: '#b9bcc2', // merli chiari in cima al muro
-  moatFill: '#0f4a52', // teal scuro, ben diverso dal blu del mare
-  moatBorder: '#07333a',
-  moatRipple: '#2f8f9c',
-  plazaFill: '#9a9183',
-  plazaBorder: '#6d655a',
-  tower: '#5d6066',
-  towerTop: '#c3c6cc',
-  stone: '#aeb1b6',
-  dark: '#2b2d31',
-};
-
-/** Le 6 caselle «angolo» di un anello di raggio `k` (le punte dell'esagono). */
-function ringCorners(k: number): { q: number; r: number }[] {
-  return [
-    { q: k, r: 0 },
-    { q: 0, r: k },
-    { q: -k, r: k },
-    { q: -k, r: 0 },
-    { q: 0, r: -k },
-    { q: k, r: -k },
-  ];
-}
-
-/**
- * Mappa CASTELLO: disegna sullo strato statico le MURA (pietra), il FOSSATO
- * (acqua scura), le PIAZZE d'armi (ciottolato), le TORRI sugli angoli e gli
- * ATTRAVERSAMENTI — porte (archi; sul fossato ponti levatoi), scale (montanti e
- * pioli) e passaggi segreti (linea tratteggiata sotterranea con tombini).
- */
-function drawCastle(
-  ctx: CanvasRenderingContext2D,
-  castle: CastleLayout,
-  radius: number,
-  landKeys: ReadonlySet<string>
-): void {
-  const cubeDist = (q: number, r: number): number =>
-    Math.max(Math.abs(q), Math.abs(r), Math.abs(q + r));
-  const wallRadii = new Set(castle.walls.filter((w) => w.kind === 'mura').map((w) => w.radius));
-  const moatRadius = castle.walls.find((w) => w.kind === 'fossato')?.radius ?? -1;
-  const plazaSet = new Set(castle.plazas);
-
-  // 1) Caselle non-terra: mura, fossato, piazze.
-  for (const c of allBoardHexes(radius)) {
-    const id = hexKey(c);
-    if (landKeys.has(id)) continue; // la terra è già disegnata
-    const { x, y } = hexCenterById(id, radius);
-    const d = cubeDist(c.q, c.r);
-    if (wallRadii.has(d)) {
-      fillHex(ctx, x, y, CASTLE_COLORS.wallFill, CASTLE_COLORS.wallBorder);
-      // Corsi di pietra (righe orizzontali) + merli chiari in cima: così il muro
-      // si distingue a colpo d'occhio da una casella di pietra (che ha un numero).
-      ctx.fillStyle = CASTLE_COLORS.wallBorder;
-      for (let dy = -6; dy <= 8; dy += 5) {
-        const hw = hexHalfWidthAt(dy);
-        if (hw > 2) ctx.fillRect(x - hw + 2, y + dy, hw * 2 - 4, 1);
-      }
-      ctx.fillStyle = CASTLE_COLORS.wallTooth;
-      for (let bx = -9; bx <= 9; bx += 6) ctx.fillRect(x + bx, y - 10, 3, 3);
-    } else if (d === moatRadius) {
-      fillHex(ctx, x, y, CASTLE_COLORS.moatFill, CASTLE_COLORS.moatBorder);
-      // Increspature dell'acqua del fossato (ben diverse dal mare aperto).
-      ctx.fillStyle = CASTLE_COLORS.moatRipple;
-      for (let dy = -6; dy <= 8; dy += 4) {
-        const hw = hexHalfWidthAt(dy);
-        if (hw > 4) ctx.fillRect(x - hw + 3, y + dy, Math.min(6, hw), 1);
-      }
-    } else if (plazaSet.has(id)) {
-      fillHex(ctx, x, y, CASTLE_COLORS.plazaFill, CASTLE_COLORS.plazaBorder);
-    }
-  }
-
-  // 2) Torri sugli angoli di ogni muro (non sul fossato), se la casella è muro.
-  for (const w of castle.walls) {
-    if (w.kind !== 'mura') continue;
-    for (const corner of ringCorners(w.radius)) {
-      const id = hexKey(corner);
-      if (landKeys.has(id)) continue; // breccia: niente torre
-      const { x, y } = hexCenterById(id, radius);
-      ctx.fillStyle = CASTLE_COLORS.tower;
-      ctx.fillRect(x - 5, y - 5, 10, 10);
-      ctx.fillStyle = CASTLE_COLORS.towerTop;
-      ctx.fillRect(x - 5, y - 7, 10, 3);
-      // merlatura
-      ctx.fillStyle = CASTLE_COLORS.dark;
-      ctx.fillRect(x - 4, y - 7, 2, 2);
-      ctx.fillRect(x + 2, y - 7, 2, 2);
-    }
-  }
-
-  // 3) Attraversamenti. Porte/ponti levatoi/scale sono spigoli di muro; i
-  //    passaggi segreti sono gallerie (id `T:`).
-  for (const gate of castle.gates) {
-    const [p1, p2] = edgeEndpoints(gate, radius);
-    const onMoat = isGateOnMoat(gate, moatRadius);
-    if (onMoat) drawBridgeDeck(ctx, p1, p2);
-    else drawGateArch(ctx, p1, p2);
-  }
-  for (const ladder of castle.ladders) {
-    const [p1, p2] = edgeEndpoints(ladder, radius);
-    drawLadder(ctx, p1, p2);
-  }
-  for (const tunnel of castle.tunnels) {
-    if (!isTunnelId(tunnel)) continue;
-    const [p1, p2] = edgeEndpoints(tunnel, radius);
-    drawTunnel(ctx, p1, p2);
-  }
-}
-
-/** Una porta è sul fossato se i suoi due esagoni (acqua) stanno sul raggio del fossato. */
-function isGateOnMoat(gate: EdgeId, moatRadius: number): boolean {
-  const parts = gate.split(';');
-  const cube = (s: string): number => {
-    const [q, r] = s.split(',').map(Number) as [number, number];
-    return Math.max(Math.abs(q), Math.abs(r), Math.abs(q + r));
-  };
-  return parts.some((p) => cube(p) === moatRadius);
-}
-
-/** PORTA nelle mura: un portone scuro ad arco sullo spigolo del muro. */
-function drawGateArch(ctx: CanvasRenderingContext2D, from: Point, to: Point): void {
-  const cx = (from.x + to.x) / 2;
-  const cy = (from.y + to.y) / 2;
-  ctx.fillStyle = CASTLE_COLORS.dark;
-  ctx.fillRect(Math.round(cx - 4), Math.round(cy - 5), 8, 10);
-  ctx.fillStyle = '#5a3a1e'; // battenti di legno
-  ctx.fillRect(Math.round(cx - 3), Math.round(cy - 4), 3, 8);
-  ctx.fillRect(Math.round(cx + 1), Math.round(cy - 4), 3, 8);
-}
-
-/** SCALA (il «porto» del castello): due montanti e qualche piolo trasversale. */
-function drawLadder(ctx: CanvasRenderingContext2D, from: Point, to: Point): void {
-  const dx = to.x - from.x;
-  const dy = to.y - from.y;
-  const len = Math.hypot(dx, dy) || 1;
-  const ux = dx / len;
-  const uy = dy / len;
-  // perpendicolare
-  const px = -uy;
-  const py = ux;
-  ctx.fillStyle = '#6a4a28';
-  for (let s = -2; s <= 2; s += 4) {
-    for (let t = 6; t <= len - 6; t++) {
-      const x = Math.round(from.x + ux * t + px * s);
-      const y = Math.round(from.y + uy * t + py * s);
-      ctx.fillRect(x, y, 1, 1);
-    }
-  }
-  ctx.fillStyle = '#8a5a30';
-  for (let t = 8; t <= len - 6; t += 4) {
-    for (let s = -2; s <= 2; s++) {
-      const x = Math.round(from.x + ux * t + px * s);
-      const y = Math.round(from.y + uy * t + py * s);
-      ctx.fillRect(x, y, 1, 1);
-    }
-  }
-}
-
-/** PASSAGGIO SEGRETO: linea tratteggiata scura «sotterranea» con un tombino agli estremi. */
-function drawTunnel(ctx: CanvasRenderingContext2D, from: Point, to: Point): void {
-  const dx = to.x - from.x;
-  const dy = to.y - from.y;
-  const len = Math.hypot(dx, dy) || 1;
-  const ux = dx / len;
-  const uy = dy / len;
-  ctx.fillStyle = CASTLE_COLORS.dark;
-  for (let t = 0; t <= len; t += 1) {
-    if (Math.floor(t / 3) % 2 === 1) continue; // tratteggio
-    const x = Math.round(from.x + ux * t);
-    const y = Math.round(from.y + uy * t);
-    ctx.fillRect(x, y, 2, 2);
-  }
-  for (const p of [from, to]) {
-    ctx.fillStyle = '#2a2a2a';
-    ctx.fillRect(Math.round(p.x - 2), Math.round(p.y - 2), 5, 5);
-    ctx.fillStyle = '#555';
-    ctx.fillRect(Math.round(p.x - 1), Math.round(p.y - 1), 3, 3);
-  }
-}
-
 function renderStatic(view: PlayerView): HTMLCanvasElement {
   const radius = view.boardRadius;
   const { w, h } = boardCanvasSize(radius);
@@ -566,15 +372,6 @@ function renderStatic(view: PlayerView): HTMLCanvasElement {
     else if (hex.token !== null) drawToken(ctx, x, y, hex.token);
   }
 
-  const landKeys = new Set(view.board.hexes.map((h) => h.id));
-
-  // Mappa CASTELLO: mura, fossato, piazze, torri e attraversamenti. Disegnata
-  // qui (strato statico, sotto le strade); sostituisce ponti/approdi (assenti).
-  if (view.board.castle) {
-    drawCastle(ctx, view.board.castle, radius, landKeys);
-    return canvas;
-  }
-
   // PONTI (tavola «con rientranze»): un impalcato di legno sul mare dove si può
   // costruire una strada per scavalcare un golfo largo «una strada». Disegnato
   // nello strato statico, sotto le eventuali strade.
@@ -586,6 +383,7 @@ function renderStatic(view: PlayerView): HTMLCanvasElement {
 
   // Approdi: pontili verso i vertici costieri + drakkar al largo + etichetta
   // del rapporto (+ icona risorsa).
+  const landKeys = new Set(view.board.hexes.map((h) => h.id));
   for (const port of view.board.ports) {
     const anchor = portAnchor(port.edge, radius, landKeys);
     // Pontili PRIMA dello scafo: convergono e si infilano sotto la chiglia.

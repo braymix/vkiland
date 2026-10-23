@@ -100,7 +100,6 @@ export function getPlayerView(state: GameState, viewer: Viewer): PlayerView {
       ports: state.board.ports,
       dragonHex: state.board.dragonHex,
       dragonMovedBy: state.board.dragonMovedBy,
-      ...(state.board.castle ? { castle: state.board.castle } : {}),
     },
     bank: { ...state.bank },
     sagaDeckCount: state.sagaDeck.length,

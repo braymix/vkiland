@@ -213,10 +213,6 @@ export const fr: Strings = {
   campoGigante: 'Plateau gÃ©ant',
   campoGiganteSpiega: '37 cases â recommandÃ© pour 7â8 joueurs.',
   campoRientranze: 'Avec Ã©chancrures',
-  campoCastello: 'Château',
-  castelloAnelli: 'Anneaux',
-  campoCastelloSpiega:
-    'Une structure hexagonale en anneaux (donjon, murs, cours, douves), entièrement aléatoire. Les murs ne se franchissent que par des portes (ponts-levis sur les douves), des échelles (il faut un de vos bâtiments au pied), des passages secrets et des brèches. Pas de ports.',
   campoLibero: 'Plateau libre',
   campoLiberoSpiega:
     'Choisis le nombre de cases du plateau ({min}â{max}) : une Ã®le compacte de ce nombre de cases. Prime sur la taille et la forme ci-dessus.',

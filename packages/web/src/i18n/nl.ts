@@ -212,10 +212,6 @@ export const nl: Strings = {
   campoGigante: 'Reuzenveld',
   campoGiganteSpiega: '37 vakken â aanbevolen voor 7â8 spelers.',
   campoRientranze: 'Met inhammen',
-  campoCastello: 'Kasteel',
-  castelloAnelli: 'Ringen',
-  campoCastelloSpiega:
-    'Een zeshoekige ringstructuur (donjon, muren, binnenplaatsen, slotgracht), volledig willekeurig. Muren worden alleen overgestoken via poorten (ophaalbruggen over de gracht), ladders (je hebt een eigen gebouw aan de voet nodig), geheime gangen en bressen. Geen havens.',
   campoLibero: 'Vrij speelveld',
   campoLiberoSpiega:
     'Kies hoeveel vakken het bord heeft ({min}â{max}): een compact eiland met dat aantal vakken. Gaat boven de grootte en vorm hierboven.',

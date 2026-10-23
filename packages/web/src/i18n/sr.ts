@@ -212,10 +212,6 @@ export const sr: Strings = {
   campoGigante: 'DÅ¾inovsko polje',
   campoGiganteSpiega: '37 polja â preporuÄeno za 7â8 igraÄa.',
   campoRientranze: 'Sa zalivima',
-  campoCastello: 'Замак',
-  castelloAnelli: 'Прстенови',
-  campoCastelloSpiega:
-    'Шестоугаона прстенаста структура (кула, зидине, дворишта, ров), све насумично. Зидине се прелазе само кроз капије (покретни мостови преко рова), мердевине (потребна је ваша грађевина у подножју), тајне пролазе и пробоје. Без лука.',
   campoLibero: 'Slobodno polje',
   campoLiberoSpiega:
     'Izaberi koliko polja ima tabla ({min}â{max}): kompaktno ostrvo od toliko polja. Ima prednost nad veliÄinom i oblikom iznad.',

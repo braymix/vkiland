@@ -212,10 +212,6 @@ export const en: Strings = {
   campoGigante: 'Giant board',
   campoGiganteSpiega: '37 tiles â recommended for 7â8 players.',
   campoRientranze: 'With inlets',
-  campoCastello: 'Castle',
-  castelloAnelli: 'Rings',
-  campoCastelloSpiega:
-    'A hexagonal ring structure (keep, walls, courtyards, moat), fully random. Walls are crossed only through gates (drawbridges over the moat), ladders (needs a building of yours at its foot), secret passages and breaches. No ports.',
   campoLibero: 'Custom board',
   campoLiberoSpiega:
     'Choose how many tiles the board has ({min}â{max}): a compact island of that many tiles. Overrides the size and shape above.',

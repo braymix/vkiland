@@ -17,10 +17,8 @@ import {
   hexKey,
   hexNeighbors,
   isHexOnBoardCode,
-  isTunnelId,
   parseEdgeId,
   parseHexKey,
-  parseTunnelId,
   parseVertexId,
   vertexId,
   type AxialCoord,
@@ -101,12 +99,6 @@ export function edgeVertexIds(edgeId: EdgeId): [VertexId, VertexId] {
 }
 
 export function edgeEndpoints(edgeId: EdgeId, radius: number = BOARD_RADIUS): [Point, Point] {
-  // PASSAGGIO SEGRETO (castello): l'id porta già i due vertici estremi (non è uno
-  // spigolo fra due caselle), quindi si leggono direttamente.
-  if (isTunnelId(edgeId)) {
-    const [v1, v2] = parseTunnelId(edgeId);
-    return [vertexPoint(v1, radius), vertexPoint(v2, radius)];
-  }
   const [v1, v2] = edgeVertexIds(edgeId);
   return [vertexPoint(v1, radius), vertexPoint(v2, radius)];
 }

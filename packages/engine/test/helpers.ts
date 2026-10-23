@@ -170,8 +170,7 @@ export function randomPlayout(
     maxActions?: number;
     calamities?: boolean;
     capitale?: boolean;
-    boardShape?: 'rientranze' | 'castello';
-    castleRings?: number;
+    boardShape?: 'rientranze';
     hexCount?: number;
     desertCount?: number;
   } = {}
@@ -190,7 +189,6 @@ export function randomPlayout(
     ...(opts.calamities ? { calamities: true } : {}),
     ...(opts.capitale ? { capitale: true } : {}),
     ...(opts.boardShape ? { boardShape: opts.boardShape } : {}),
-    ...(opts.castleRings != null ? { castleRings: opts.castleRings } : {}),
     ...(opts.hexCount != null ? { hexCount: opts.hexCount } : {}),
     ...(opts.desertCount != null ? { desertCount: opts.desertCount } : {}),
   });

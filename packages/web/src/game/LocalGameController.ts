@@ -59,10 +59,8 @@ export interface GameSetup {
   heroAssignments?: (readonly HeroId[])[];
   /** Tavola grande scelta esplicitamente; assente = consigliata dal numero di giocatori. */
   boardSize?: BoardSizeChoice;
-  /** Forma della tavola; 'rientranze' = isola casuale con golfi e ponti; 'castello' = struttura ad anelli. */
+  /** Forma della tavola; 'rientranze' = isola casuale con golfi e ponti. */
   boardShape?: BoardShapeChoice;
-  /** Mappa Castello: numero di mura/cortili (2..4). Solo con `boardShape === 'castello'`. */
-  castleRings?: number;
   /** «Campo libero»: numero di caselle scelto a mano (vince su taglia/forma preset). */
   hexCount?: number;
   /** Numero di deserti (tundra); assente = default della taglia. */

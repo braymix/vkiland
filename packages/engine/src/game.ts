@@ -1,17 +1,10 @@
 /** Creazione della partita e clonazione dello stato. */
 import { generateBoard } from './board/generate';
-import { generateCastle } from './board/castle';
 import {
   BATTLE_SAGA_EXTRA,
-  type BoardSpec,
-  buildTerrainPool,
-  buildTokenPool,
   CALAMITY_DECK_COMPOSITION,
   CALAMITY_SAGA_EXTRA,
-  customBankPerResource,
   DEFAULT_TARGET_GLORY,
-  defaultDesertCount,
-  maxDesertCount,
   MAX_PLAYERS,
   MIN_PLAYERS,
   resolveBoardSpecCustom,
@@ -65,10 +58,8 @@ export interface NewGameOptions {
   heroAssignments?: (HeroId | readonly HeroId[] | null | undefined)[];
   /** Scelta esplicita della tavola grande; assente = consigliata dal numero di giocatori. */
   boardSize?: BoardSizeChoice;
-  /** Forma della tavola; 'rientranze' = isola casuale con golfi e ponti; 'castello' = struttura ad anelli. Assente = esagono classico. */
+  /** Forma della tavola; 'rientranze' = isola casuale con golfi e ponti. Assente = esagono classico. */
   boardShape?: BoardShapeChoice;
-  /** Mappa Castello: numero di mura/cortili (2..4). Default 3. Usato solo con `boardShape === 'castello'`. */
-  castleRings?: number;
   /**
    * «Campo libero»: numero TOTALE di caselle scelto a mano (compreso fra
    * MIN_CUSTOM_HEXES e MAX_CUSTOM_HEXES). Se presente vince sulla taglia/forma
@@ -128,52 +119,11 @@ export function createGame(options: NewGameOptions): GameState {
   // consigliata dal numero di giocatori (2–4 piccola, 5–6 grande, 7–8 gigante).
   // Le personalizzazioni (numero di caselle / di deserti) possono sostituire i
   // sacchetti; un «campo libero» diventa la forma 'libera' (isola compatta).
-  // L'RNG si semina subito: la mappa «Castello» va generata PRIMA di comporre lo
-  // `spec`, perché la taglia della sua terra (e quindi i sacchetti) dipende dalla
-  // struttura generata. Le altre forme non consumano RNG qui, quindi restano
-  // identiche byte per byte a prima.
-  let rng = seedRng(seed);
-
-  let spec: BoardSpec;
-  let shape: BoardShapeChoice | undefined;
-  let boardRadius: number;
-  let castleRings: number | undefined;
-  let prebuiltCastle: { land: ReturnType<typeof generateCastle>[0]['land']; castle: ReturnType<typeof generateCastle>[0]['castle'] } | undefined;
-
-  if (options.boardShape === 'castello') {
-    castleRings = Math.max(2, Math.min(4, Math.round(options.castleRings ?? 3)));
-    const [result, rngAfterCastle] = generateCastle(rng, castleRings);
-    rng = rngAfterCastle;
-    shape = 'castello';
-    boardRadius = result.radius;
-    prebuiltCastle = { land: result.land, castle: result.castle };
-    // Sacchetti dimensionati sulla terra effettiva del castello (come il campo libero).
-    const total = result.land.length;
-    const deserts = Math.max(
-      1,
-      Math.min(maxDesertCount(total), Math.round(options.desertCount ?? defaultDesertCount(total)))
-    );
-    spec = {
-      code: result.radius,
-      terrainPool: buildTerrainPool(total, deserts),
-      tokenPool: buildTokenPool(total - deserts),
-      portRingIndices: [], // il castello non ha approdi
-      portKinds: [],
-      bankPerResource: customBankPerResource(total, deserts),
-    };
-  } else {
-    // Le personalizzazioni (numero di caselle / di deserti) possono sostituire i
-    // sacchetti; un «campo libero» diventa la forma 'libera' (isola compatta).
-    const resolved = resolveBoardSpecCustom(players.length, options.boardSize, {
-      ...(options.hexCount != null ? { hexCount: options.hexCount } : {}),
-      ...(options.desertCount != null ? { desertCount: options.desertCount } : {}),
-    });
-    spec = resolved.spec;
-    shape = resolved.freeForm ? 'libera' : options.boardShape;
-    // Con le rientranze la tavola è un'isola dentro un esagono più ampio: il
-    // raggio geometrico cresce di un anello, così il canvas la contiene tutta.
-    boardRadius = shape === 'rientranze' ? rientranzeRegionRadius(spec.code) : spec.code;
-  }
+  const { spec, freeForm } = resolveBoardSpecCustom(players.length, options.boardSize, {
+    ...(options.hexCount != null ? { hexCount: options.hexCount } : {}),
+    ...(options.desertCount != null ? { desertCount: options.desertCount } : {}),
+  });
+  const shape: BoardShapeChoice | undefined = freeForm ? 'libera' : options.boardShape;
 
   // Bersaglio Punti Gloria: in squadra è «giocatori-per-squadra × valore» (il
   // valore, di default 8, è impostabile); altrimenti il valore classico.
@@ -186,9 +136,10 @@ export function createGame(options: NewGameOptions): GameState {
     players: players.map((p) => ({ ...p })),
     avoidAdjacent68: options.avoidAdjacent68 ?? true,
     targetGloryPoints,
-    boardRadius,
+    // Con le rientranze la tavola è un'isola dentro un esagono più ampio: il
+    // raggio geometrico cresce di un anello, così il canvas la contiene tutta.
+    boardRadius: shape === 'rientranze' ? rientranzeRegionRadius(spec.code) : spec.code,
     ...(shape ? { boardShape: shape } : {}),
-    ...(castleRings != null ? { castleRings } : {}),
     calamities: options.calamities ?? false,
     battle: options.battle ?? false,
     capitale: options.capitale ?? false,
@@ -214,13 +165,8 @@ export function createGame(options: NewGameOptions): GameState {
       : {}),
   };
 
-  const [board, rngAfterBoard] = generateBoard(
-    rng,
-    config.avoidAdjacent68,
-    spec,
-    shape,
-    prebuiltCastle
-  );
+  let rng = seedRng(seed);
+  const [board, rngAfterBoard] = generateBoard(rng, config.avoidAdjacent68, spec, shape);
   rng = rngAfterBoard;
   // Battaglia e Calamità aggiungono le proprie carte extra al mazzo Saga; le
   // partite standard restano identiche (stessa composizione, stesso consumo di

@@ -4,24 +4,6 @@
 
 ## Stato attuale
 
-**MAPPA CASTELLO** ✅ — nuova forma di tavola per la Classica: una struttura esagonale ad
-ANELLI concentrici generata a caso. Dal centro: **mastio** · [**muro** · **cortile**] × N ·
-**fossato**. Il giocatore sceglie il numero di anelli/mura **2–4** (`castleRings`). Mura e
-fossato sono anelli di caselle NON di terra che separano i cortili; si attraversano solo da
-elementi casuali: **porte** (sul fossato diventano **ponti levatoi**), **scale** (i «porti» di
-questa mappa: si costruiscono solo con un proprio edificio ai piedi del muro — regola
-`scalaSenzaPiede`), **passaggi segreti** (gallerie `T:` fra cortili non adiacenti, solo con ≥3
-anelli) e **brecce** (una casella di muro crollata, ora terra). **Torri** sugli angoli dei muri
-(solo grafica). Niente approdi. Motore: `engine/src/board/castle.ts` (generazione
-deterministica), firma topologica `C:` con gli attraversamenti espliciti
-(`topology.ts`), `boardTopoKey` esteso con `board.castle`. Sacchetti terreni/segnalini
-dimensionati sulla terra effettiva (come il campo libero). Renderer Canvas: mura ardesia
-merlate, fossato teal con increspature, archi/ponti levatoi, scale, gallerie tratteggiate.
-Scelta nella nuova partita (locale e online) con selettore anelli. Stringhe nelle 8 lingue.
-Test: generazione deterministica, le mura separano davvero i cortili (grafo spezzato senza
-attraversamenti, connesso con), regola delle scale, partite complete casuali-legali; +1
-simulazione bot; +1 test lobby server.
-
 **VIKINGS AROUND THE WORLD — EROI DI RARITÀ SUPERIORE (solo Mondo)** ✅ — 7 nuovi
 eroi `worldOnly`, più forti e pensati per le regole del Mondo: 5 **rari** —
 Leif `navigatore` (Jarl 6 punti movimento), Freydis `salvacondotto` (non paga

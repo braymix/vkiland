@@ -30,25 +30,13 @@ import { friendsOf, isTeamMode, tradeResponders } from './teams';
 import type { EdgeId, GameState, PlayerId, PortKind, Resource } from './types';
 
 export function getLegalActions(state: GameState, player: PlayerId): LegalMove[] {
-  const radius = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes, state.board.castle);
+  const radius = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes);
   const topo = getTopology(radius);
   const moves: LegalMove[] = [];
   if (player < 0 || player >= state.players.length) return moves;
   const me = state.players[player]!;
   // Modalità squadra: rete in comune coi compagni (fuori dalla modalità è {player}).
   const friends = friendsOf(state.config.teams, player);
-
-  // Mappa CASTELLO — una SCALA si posa solo con un proprio edificio ai piedi
-  // (vedi `validate.ts`). Fuori dal castello (o su spigoli normali) è sempre ok.
-  const ladderOk = (e: EdgeId): boolean => {
-    const ladders = state.board.castle?.ladders;
-    if (!ladders || !ladders.includes(e)) return true;
-    const vs = topo.edgeVertices[e];
-    if (!vs) return false;
-    return vs.some(
-      (v) => me.villages.includes(v) || me.strongholds.includes(v) || me.capitals.includes(v)
-    );
-  };
 
   switch (state.phase.type) {
     case 'gameOver':
@@ -78,7 +66,7 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
         }
         for (const e of candidate) {
           const occupied = state.players.some((p) => p.roads.includes(e));
-          if (!occupied && ladderOk(e)) moves.push({ type: 'piazzaSentieroIniziale', player, edge: e });
+          if (!occupied) moves.push({ type: 'piazzaSentieroIniziale', player, edge: e });
         }
       }
       return moves;
@@ -121,7 +109,6 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
     case 'calamityRoads': {
       if (player !== state.phase.queue[0]) return moves;
       for (const e of legalRoadEdges(state, player, radius, friends)) {
-        if (!ladderOk(e)) continue;
         moves.push({ type: 'piazzaSentieroGratis', player, edge: e });
       }
       return moves;
@@ -156,7 +143,6 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
     case 'freeRoads': {
       if (player !== state.currentPlayer) return moves;
       for (const e of legalRoadEdges(state, player, radius, friends)) {
-        if (!ladderOk(e)) continue;
         moves.push({ type: 'piazzaSentieroGratis', player, edge: e });
       }
       return moves;
@@ -199,7 +185,6 @@ export function getLegalActions(state: GameState, player: PlayerId): LegalMove[]
         me.roads.length < effectivePieceLimit(state, player, 'sentiero')
       ) {
         for (const e of legalRoadEdges(state, player, radius, friends)) {
-        if (!ladderOk(e)) continue;
           moves.push({ type: 'costruisciSentiero', player, edge: e });
         }
       }

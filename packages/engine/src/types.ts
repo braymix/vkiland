@@ -4,9 +4,6 @@
  */
 import type { RngState } from './rng';
 import type { HeroId } from './heroes';
-import type { CastleLayout } from './board/castle';
-
-export type { CastleLayout };
 
 export type Resource = 'legname' | 'pietra' | 'lana' | 'orzo' | 'ferro';
 export type TerrainType = Resource | 'tundra';
@@ -138,12 +135,6 @@ export interface Board {
   dragonHex: HexId;
   /** Chi ha spostato il Drago per ultimo (per colorarlo); null all'inizio. */
   dragonMovedBy: PlayerId | null;
-  /**
-   * Mappa «Castello»: descrittore degli anelli e degli attraversamenti (porte,
-   * scale, gallerie, brecce, piazze). Presente SOLO con `boardShape === 'castello'`;
-   * è l'unica fonte di verità per ricostruirne la topologia e disegnarla.
-   */
-  castle?: CastleLayout;
 }
 
 export type BotLevel = 'facile' | 'normale' | 'difficile' | 'esperto';
@@ -213,12 +204,8 @@ export type BoardSizeChoice = 'grande' | 'gigante';
  *    mano (vedi `NewGameOptions.hexCount`). La topologia si ricava dalle caselle
  *    come per 'rientranze', ma la crescita compatta evita i golfi (di norma
  *    nessun ponte). Valore DERIVATO: lo imposta il motore, non l'interfaccia.
- *  - 'castello' → struttura esagonale ad ANELLI concentrici (mastio, mura,
- *    cortili, fossato) con attraversamenti casuali: porte/ponti levatoi, scale,
- *    passaggi segreti e brecce (vedi `Board.castle`). Il numero di mura lo
- *    sceglie il giocatore (`NewGameOptions.castleRings`, 2..4).
  */
-export type BoardShapeChoice = 'rientranze' | 'libera' | 'castello';
+export type BoardShapeChoice = 'rientranze' | 'libera';
 
 export interface GameConfig {
   seed: string;
@@ -240,8 +227,6 @@ export interface GameConfig {
    * caselle (`board.hexes`), che restano l'unica fonte di verità della forma.
    */
   boardShape?: BoardShapeChoice;
-  /** Mappa Castello: numero di mura (2..4) scelto dal giocatore. Solo con `boardShape === 'castello'`. */
-  castleRings?: number;
   /** Modalità Calamità: una carta per giro. false = partita standard. */
   calamities: boolean;
   /**

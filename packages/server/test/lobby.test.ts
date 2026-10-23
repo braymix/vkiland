@@ -468,27 +468,4 @@ describe('LobbyManager', () => {
     // Gli id sono progressivi e crescenti.
     expect(fromSpec!.message.id).toBeGreaterThan(fromBjorn!.message.id);
   });
-
-  it('mappa Castello: la lobby accetta la forma e clampa gli anelli; avvia la partita', () => {
-    const { manager } = makeManager();
-    const created = manager.create(bjorn, CFG);
-    if (isApiError(created)) throw new Error('create fallita');
-    manager.join(created.code, astrid);
-
-    // Anelli fuori scala vengono clampati a [2,4] (qui 9 → 4).
-    const on = manager.updateConfig(bjorn.id, {
-      ...CFG,
-      boardShape: 'castello',
-      castleRings: 9,
-    });
-    if (isApiError(on)) throw new Error('updateConfig fallita');
-    expect(on.config.boardShape).toBe('castello');
-    expect(on.config.castleRings).toBe(4);
-
-    // Una forma non valida ricade sull'esagono classico (nessuna forma).
-    const bad = manager.updateConfig(bjorn.id, { ...CFG, boardShape: 'pentagono' as never });
-    if (isApiError(bad)) throw new Error('updateConfig fallita');
-    expect(bad.config.boardShape).toBeUndefined();
-    expect(bad.config.castleRings).toBeUndefined();
-  });
 });

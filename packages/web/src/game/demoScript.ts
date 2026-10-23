@@ -109,7 +109,7 @@ function producingHexes(view: PlayerView, vertex: VertexId): HexId[] {
 
 /** Chiave della topologia per una vista (gestisce anche le tavole «con rientranze»). */
 function viewTopoKey(view: PlayerView) {
-  return boardTopoKey(view.boardRadius, view.boardShape, view.board.hexes, view.board.castle);
+  return boardTopoKey(view.boardRadius, view.boardShape, view.board.hexes);
 }
 
 /** Cosa afferra un incrocio: esagoni produttivi, risorse distinte e numeri. */

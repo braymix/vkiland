@@ -167,11 +167,8 @@ export function NewGameScreen({
   // volta che l'utente sceglie a mano.
   const [boardSize, setBoardSize] = useState<BoardSizeChoice | null>(null);
   const [boardSizeTouched, setBoardSizeTouched] = useState(false);
-  // Forma della tavola: null = esagono classico; 'rientranze' = isola con golfi;
-  // 'castello' = struttura ad anelli (mastio, mura, cortili, fossato).
+  // Forma della tavola: null = esagono classico; 'rientranze' = isola con golfi.
   const [boardShape, setBoardShape] = useState<BoardShapeChoice | null>(null);
-  // Mappa Castello: numero di mura/cortili (2..4). Usato solo col castello.
-  const [castleRings, setCastleRings] = useState(3);
   // Campo libero: numero di caselle scelto a mano (vince su taglia/forma preset).
   const [liberoOn, setLiberoOn] = useState(false);
   const [caselleRaw, setCaselleRaw] = useState('');
@@ -441,7 +438,6 @@ export function NewGameScreen({
     setBoardSize(lobby.config.boardSize ?? autoBoardSize(lobby.slots.length));
     setBoardSizeTouched(lobby.config.boardSize != null);
     setBoardShape(lobby.config.boardShape ?? null);
-    setCastleRings(lobby.config.castleRings ?? 3);
     // Campo libero e deserti: settaggi autorevoli dell'host.
     setLiberoOn(lobby.config.hexCount != null);
     setCaselleRaw(lobby.config.hexCount != null ? String(lobby.config.hexCount) : '');
@@ -485,8 +481,7 @@ export function NewGameScreen({
     boardSizeVal: BoardSizeChoice | null = boardSize,
     boardShapeVal: BoardShapeChoice | null = boardShape,
     hexCountV: number | undefined = hexCountVal,
-    desertCountV: number | undefined = desertCountSend,
-    ringsVal: number = castleRings
+    desertCountV: number | undefined = desertCountSend
   ) => {
     if (!lobby) return;
     const next: LobbyConfig = {
@@ -504,8 +499,7 @@ export function NewGameScreen({
         : {}),
       ...(boardSizeVal ? { boardSize: boardSizeVal } : {}),
       ...(boardShapeVal ? { boardShape: boardShapeVal } : {}),
-      ...(boardShapeVal === 'castello' ? { castleRings: ringsVal } : {}),
-      ...(hexCountV != null && boardShapeVal !== 'castello' ? { hexCount: hexCountV } : {}),
+      ...(hexCountV != null ? { hexCount: hexCountV } : {}),
       ...(desertCountV != null ? { desertCount: desertCountV } : {}),
       ...((change.seed ?? seed).trim() ? { seed: (change.seed ?? seed).trim() } : {}),
       ...teamConfigPart(change),
@@ -544,8 +538,7 @@ export function NewGameScreen({
     ...(heroesMode ? { heroes: true, heroesPerPlayer } : {}),
     ...(boardSize ? { boardSize } : {}),
     ...(boardShape ? { boardShape } : {}),
-    ...(boardShape === 'castello' ? { castleRings } : {}),
-    ...(hexCountVal != null && boardShape !== 'castello' ? { hexCount: hexCountVal } : {}),
+    ...(hexCountVal != null ? { hexCount: hexCountVal } : {}),
     ...(desertCountSend != null ? { desertCount: desertCountSend } : {}),
     ...(seed.trim() ? { seed: seed.trim() } : {}),
     ...teamConfigPart(),
@@ -616,26 +609,6 @@ export function NewGameScreen({
     const nextVal: BoardShapeChoice | null = boardShape === 'rientranze' ? null : 'rientranze';
     setBoardShape(nextVal);
     if (mode === 'online') patch({}, boardSize, nextVal);
-  };
-
-  /** Attiva/disattiva la mappa «Castello» (struttura ad anelli). Spegne il campo libero. */
-  const toggleCastle = () => {
-    const nextVal: BoardShapeChoice | null = boardShape === 'castello' ? null : 'castello';
-    if (nextVal === 'castello') setLiberoOn(false);
-    setBoardShape(nextVal);
-    if (mode === 'online') {
-      const nextHex = nextVal === 'castello' ? undefined : hexCountVal;
-      patch({}, boardSize, nextVal, nextHex);
-    }
-  };
-
-  /** Numero di mura del castello (2..4); in online lo propaga. */
-  const setRings = (n: number) => {
-    const v = Math.max(2, Math.min(4, n));
-    setCastleRings(v);
-    if (mode === 'online' && boardShape === 'castello') {
-      patch({}, boardSize, 'castello', undefined, desertCountSend, v);
-    }
   };
 
   /** Attiva/disattiva il «campo libero» (numero di caselle scelto a mano). */
@@ -808,8 +781,7 @@ export function NewGameScreen({
         : {}),
       ...(boardSize ? { boardSize } : {}),
       ...(boardShape ? { boardShape } : {}),
-      ...(boardShape === 'castello' ? { castleRings } : {}),
-      ...(hexCountVal != null && boardShape !== 'castello' ? { hexCount: hexCountVal } : {}),
+      ...(hexCountVal != null ? { hexCount: hexCountVal } : {}),
       ...(desertCountSend != null ? { desertCount: desertCountSend } : {}),
       ...(teamMode && teamsBalanced
         ? {
@@ -1098,9 +1070,6 @@ export function NewGameScreen({
             onPickBoard={pickBoardSize}
             boardShape={boardShape}
             onToggleShape={toggleBoardShape}
-            castleRings={castleRings}
-            onToggleCastle={toggleCastle}
-            onSetRings={setRings}
             liberoOn={liberoOn}
             onToggleLibero={toggleLibero}
             caselleRaw={caselleRaw}
@@ -1401,9 +1370,6 @@ export function NewGameScreen({
             onPickBoard={pickBoardSize}
             boardShape={boardShape}
             onToggleShape={toggleBoardShape}
-            castleRings={castleRings}
-            onToggleCastle={toggleCastle}
-            onSetRings={setRings}
             liberoOn={liberoOn}
             onToggleLibero={toggleLibero}
             caselleRaw={caselleRaw}
@@ -1686,13 +1652,9 @@ interface RulesPresetProps {
   /** Tavola grande scelta (null = piccola/consigliata dal numero di giocatori). */
   boardSize: BoardSizeChoice | null;
   onPickBoard: (choice: BoardSizeChoice) => void;
-  /** Forma della tavola (null = esagono classico; 'rientranze' = isola con golfi; 'castello' = ad anelli). */
+  /** Forma della tavola (null = esagono classico; 'rientranze' = isola con golfi). */
   boardShape: BoardShapeChoice | null;
   onToggleShape: () => void;
-  /** Mappa Castello: numero di mura (2..4) e handler on/off e cambio anelli. */
-  castleRings: number;
-  onToggleCastle: () => void;
-  onSetRings: (n: number) => void;
   /** Campo libero: numero di caselle scelto a mano. */
   liberoOn: boolean;
   onToggleLibero: () => void;
@@ -1906,48 +1868,19 @@ function RulesPreset(p: RulesPresetProps) {
             <input
               type="checkbox"
               checked={p.boardShape === 'rientranze'}
-              disabled={!p.editable || p.liberoOn || p.boardShape === 'castello'}
+              disabled={!p.editable || p.liberoOn}
               onChange={p.onToggleShape}
             />
             {it.campoRientranze}
           </label>
           <div style={NOTE_STYLE}>{it.campoRientranzeSpiega}</div>
 
-          {/* Mappa Castello: struttura ad anelli (mastio, mura, cortili, fossato). */}
-          <label className="check">
-            <input
-              type="checkbox"
-              checked={p.boardShape === 'castello'}
-              disabled={!p.editable || p.liberoOn}
-              onChange={p.onToggleCastle}
-            />
-            {it.campoCastello}
-          </label>
-          {p.boardShape === 'castello' && (
-            <div className="stepper-row">
-              <span style={{ fontSize: 9 }}>{it.castelloAnelli}</span>
-              {[2, 3, 4].map((n) => (
-                <label className="check" key={n} style={{ marginRight: 8 }}>
-                  <input
-                    type="radio"
-                    name="castle-rings"
-                    checked={p.castleRings === n}
-                    disabled={!p.editable}
-                    onChange={() => p.onSetRings(n)}
-                  />
-                  {n}
-                </label>
-              ))}
-            </div>
-          )}
-          <div style={NOTE_STYLE}>{it.campoCastelloSpiega}</div>
-
           {/* Campo libero: numero di caselle scelto a mano (vince su taglia/forma). */}
           <label className="check">
             <input
               type="checkbox"
               checked={p.liberoOn}
-              disabled={!p.editable || p.boardShape === 'castello'}
+              disabled={!p.editable}
               onChange={p.onToggleLibero}
             />
             {it.campoLibero}

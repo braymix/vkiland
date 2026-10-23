@@ -738,15 +738,9 @@ function sanitizeConfig(c: LobbyConfig): LobbyConfig {
       : {}),
     // Solo 'grande' o 'gigante' sono valori validi; qualsiasi altro = consigliata.
     ...(c.boardSize === 'grande' || c.boardSize === 'gigante' ? { boardSize: c.boardSize } : {}),
-    // Forma tavola: 'rientranze' o 'castello' sono validi; altro = esagono classico
+    // Forma tavola: solo 'rientranze' è un valore valido; altro = esagono classico
     // ('libera' è derivato dal motore quando c'è hexCount, non lo sceglie il client).
-    ...(c.boardShape === 'rientranze' || c.boardShape === 'castello'
-      ? { boardShape: c.boardShape }
-      : {}),
-    // Mappa Castello: numero di mura (2..4); si applica solo col castello.
-    ...(c.boardShape === 'castello'
-      ? { castleRings: clampInt(c.castleRings, 2, 4, 3) }
-      : {}),
+    ...(c.boardShape === 'rientranze' ? { boardShape: c.boardShape } : {}),
     // Campo libero: numero di caselle scelto a mano (clampato ai limiti); assente = preset.
     ...(c.hexCount != null
       ? { hexCount: clampInt(c.hexCount, MIN_CUSTOM_HEXES, MAX_CUSTOM_HEXES, MIN_CUSTOM_HEXES) }

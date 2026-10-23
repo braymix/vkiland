@@ -60,7 +60,7 @@ function beginTurn(state: GameState, events: GameEvent[]): void {
 /** Avanza la fase `calamityRoads` dopo un sentiero gratis; a coda vuota si va al tiro. */
 function advanceCalamityRoads(state: GameState): void {
   if (state.phase.type !== 'calamityRoads') return;
-  const radius = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes, state.board.castle);
+  const radius = boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes);
   const canPlace = (pid: PlayerId): boolean =>
     state.players[pid]!.roads.length < effectivePieceLimit(state, pid, 'sentiero') &&
     legalRoadEdges(state, pid, radius, friendsOf(state.config.teams, pid)).length > 0;
@@ -199,7 +199,7 @@ function afterDragonPhase(state: GameState): void {
 
 /** Avversari derubabili sull'esagono del Drago: edificio adiacente e ≥1 carta. */
 function stealCandidates(state: GameState, mover: PlayerId): PlayerId[] {
-  const topo = getTopology(boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes, state.board.castle));
+  const topo = getTopology(boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes));
   const verts = new Set(topo.hexVertices[state.board.dragonHex]!);
   const out: PlayerId[] = [];
   for (const p of state.players) {
@@ -497,7 +497,7 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
 
     // ----------------------------------------------------------- scambi
     case 'scambioBanca': {
-      const ratio = effectiveBankRatio(state, me.id, action.give, boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes, state.board.castle));
+      const ratio = effectiveBankRatio(state, me.id, action.give, boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes));
       me.resources[action.give] -= ratio;
       state.bank[action.give] += ratio;
       state.bank[action.receive] -= 1;
@@ -608,7 +608,7 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       const remaining = Math.min(2, effectivePieceLimit(state, me.id, 'sentiero') - me.roads.length);
       state.phase = { type: 'freeRoads', remaining };
       // Se non c'è nessun piazzamento legale la carta si esaurisce subito.
-      if (legalRoadEdges(state, me.id, boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes, state.board.castle), friendsOf(state.config.teams, me.id)).length === 0) state.phase = { type: 'main' };
+      if (legalRoadEdges(state, me.id, boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes), friendsOf(state.config.teams, me.id)).length === 0) state.phase = { type: 'main' };
       break;
     }
     case 'piazzaSentieroGratis': {
@@ -623,7 +623,7 @@ export function applyAction(input: GameState, action: Action): ApplyResult {
       recomputeGrandeVia(state, events);
       if (state.phase.type === 'freeRoads') {
         const remaining = state.phase.remaining - 1;
-        if (remaining <= 0 || legalRoadEdges(state, me.id, boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes, state.board.castle), friendsOf(state.config.teams, me.id)).length === 0) {
+        if (remaining <= 0 || legalRoadEdges(state, me.id, boardTopoKey(state.config.boardRadius, state.config.boardShape, state.board.hexes), friendsOf(state.config.teams, me.id)).length === 0) {
           state.phase = { type: 'main' };
         } else {
           state.phase = { type: 'freeRoads', remaining };

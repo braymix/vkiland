@@ -226,17 +226,7 @@ export {
   getTopology,
   boardTopoKey,
   shapeSignature,
-  castleSignature,
   type BoardTopology,
   type TopoKey,
 } from './board/topology';
 export { generateBoard } from './board/generate';
-export {
-  generateCastle,
-  castleCrossingEdges,
-  isTunnelId,
-  tunnelId,
-  parseTunnelId,
-  type CastleLayout,
-  type CastleResult,
-} from './board/castle';
