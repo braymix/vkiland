@@ -25,6 +25,9 @@ export const fr: Strings = {
   creditiFattoDa: 'RÃ©alisÃ© par',
   creditiInvito: 'Un conseil ou un bug Ã  signaler ? NâhÃ©site pas Ã  mâÃ©crire : tout retour est le bienvenu !',
   creditiGrazie: 'Merci dâavoir jouÃ© Ã  Viking-Island !',
+  creditiDonazioneTitolo: 'Soutiens le projet',
+  creditiDonazioneTesto:
+    'Le serveur est payé de ma poche, pour qu\'il reste toujours rapide et en ligne. Si tu veux donner un coup de main, un don est le bienvenu mais totalement facultatif — merci du fond du cœur !',
 
   // Joke "monetization" popup (New game)
   memeTitolo: 'Un instant, Viking !',
@@ -697,7 +700,6 @@ export const fr: Strings = {
           'emplacements, sâÃ©tend avec mÃ©thode et vise les objectifs atteint 10 points le premier. Ã toi de jouer !',
       },
       onlineIntro: { titolo: 'Jouer en ligne avec les amis', testo: 'Depuis le menu Â« En ligne Â», tu joues avec de vraies personnes, chacune sur son propre appareil. Lâarbitre, câest le serveur : il valide chaque coup avec les mÃªmes rÃ¨gles, impossible de tricher.' },
-      serverFreddo: { titolo: 'Sois patient : le serveur se rÃ©veille', testo: 'Important : le serveur gratuit se met Â« en hibernation Â» quand personne ne joue. La PREMIÃRE connexion peut prendre de 30 Ã  60 secondes pour le rÃ©veiller â câest normal, il suffit dâattendre. Une coche verte te prÃ©vient quand il est prÃªt.' },
       account: { titolo: '1. CrÃ©e un compte', testo: 'Il suffit dâun nom dâutilisateur (ce sera aussi ton nom en jeu) et dâun mot de passe dâau moins 8 caractÃ¨res. Pas dâe-mail : il ne sert Ã  rien et nous ne le demandons pas.' },
       creaEntra: { titolo: '2. CrÃ©e une partie ou rejoins-en une', testo: 'Appuie sur Â« CrÃ©er une partie Â» pour obtenir un code de 6 caractÃ¨res Ã  envoyer Ã  tes amis, ou sur Â« Rejoindre Â» et saisis le code que tu as reÃ§u.' },
       lobby: { titolo: '3. Le salon', testo: 'Dans la salle dâattente, tu peux changer ta couleur et lâhÃ´te peut ajouter des bots pour remplir les places. Quand vous Ãªtes de 2 Ã  6, lâhÃ´te appuie sur Â« Larguez les amarres ! Â».' },

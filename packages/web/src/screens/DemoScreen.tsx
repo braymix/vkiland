@@ -1,9 +1,8 @@
 /**
  * «Demo guidata»: tour interattivo passo-passo, separato dal «Libro delle
  * Saghe». La prima metà mostra una PARTITA VERA che si svolge sulla tavola
- * (istantanee deterministiche da `demoScript`); la seconda spiega l'online —
- * compreso il fatto che il server gratuito va in letargo e al primo accesso ci
- * mette un po' a risvegliarsi. Tutti i testi sono tradotti (i18n).
+ * (istantanee deterministiche da `demoScript`); la seconda spiega l'online.
+ * Tutti i testi sono tradotti (i18n).
  */
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -26,7 +25,7 @@ type StepId =
   | 'intro' | 'isola' | 'setupVillaggio' | 'setupSentiero' | 'altri' | 'secondoVillaggio'
   | 'tiraDadi' | 'produzione' | 'costruire' | 'drago' | 'carteSaga' | 'scambi' | 'bonus' | 'vittoria'
   | 'esempioIntro' | 'valutare' | 'postoMigliore' | 'stradeEspansione' | 'secondoPosto' | 'obiettivi' | 'risultato'
-  | 'onlineIntro' | 'serverFreddo' | 'account' | 'creaEntra' | 'lobby' | 'onlinePartita' | 'fine';
+  | 'onlineIntro' | 'account' | 'creaEntra' | 'lobby' | 'onlinePartita' | 'fine';
 
 const GAME_STEPS: StepId[] = [
   'intro', 'isola', 'setupVillaggio', 'setupSentiero', 'altri', 'secondoVillaggio',
@@ -36,7 +35,7 @@ const ESEMPIO_STEPS: StepId[] = [
   'esempioIntro', 'valutare', 'postoMigliore', 'stradeEspansione', 'secondoPosto', 'obiettivi', 'risultato',
 ];
 const ONLINE_STEPS: StepId[] = [
-  'onlineIntro', 'serverFreddo', 'account', 'creaEntra', 'lobby', 'onlinePartita', 'fine',
+  'onlineIntro', 'account', 'creaEntra', 'lobby', 'onlinePartita', 'fine',
 ];
 const ALL_STEPS: StepId[] = [...GAME_STEPS, ...ESEMPIO_STEPS, ...ONLINE_STEPS];
 
@@ -250,15 +249,6 @@ function OnlineMock({ id }: { id: StepId }) {
           </div>
           <div className="demo-net-link">↕</div>
           <div className="demo-server">🖥️ <span>server</span></div>
-        </div>
-      );
-    case 'serverFreddo':
-      return (
-        <div className="demo-mock demo-mock-server">
-          <div className="demo-hourglass">⏳</div>
-          <div className="demo-status demo-status--wake">🟠 {it.serverVerifica}</div>
-          <div className="demo-status-arrow">→ (30–60s) →</div>
-          <div className="demo-status demo-status--ok">🟢 {it.serverOk}</div>
         </div>
       );
     case 'account':

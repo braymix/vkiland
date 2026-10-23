@@ -25,6 +25,9 @@ export const sr: Strings = {
   creditiFattoDa: 'Napravio',
   creditiInvito: 'ImaÅ¡ savet ili si naÅ¡ao greÅ¡ku? Slobodno mi piÅ¡i â svaki povratni utisak je dobrodoÅ¡ao!',
   creditiGrazie: 'Hvala Å¡to si igrao Viking-Island!',
+  creditiDonazioneTitolo: 'Podrži projekat',
+  creditiDonazioneTesto:
+    'Server plaćam iz svog džepa, da bi uvek bio brz i dostupan. Ako želiš da pomogneš, donacija je dobrodošla ali potpuno opciona — hvala od srca!',
 
   // Joke "monetization" popup (New game)
   memeTitolo: 'Samo trenutak, VikinÅ¾e!',
@@ -696,7 +699,6 @@ export const sr: Strings = {
           'cilja na ciljeve, prvi stiÅ¾e do 10 poena. Sada je red na tebe!',
       },
       onlineIntro: { titolo: 'Igranje onlajn sa prijateljima', testo: 'Iz menija âOnlajnâ igraÅ¡ sa stvarnim osobama, svako sa svog ureÄaja. Sudija je server: proverava svaki potez po istim pravilima, tako da je nemoguÄe varati.' },
-      serverFreddo: { titolo: 'Strpi se: server se budi', testo: 'VaÅ¾no: besplatni server pada âu zimski sanâ kada niko ne igra. PRVO povezivanje moÅ¾e da potraje od 30 do 60 sekundi da bi se probudio â to je normalno, samo saÄekaj. Zelena kvaÄica te obaveÅ¡tava kada je spreman.' },
       account: { titolo: '1. Napravi nalog', testo: 'Dovoljni su korisniÄko ime (biÄe ujedno i tvoje ime u igri) i lozinka od najmanje 8 znakova. Bez imejla: ne treba nam i ne traÅ¾imo ga.' },
       creaEntra: { titolo: '2. Napravi igru ili joj se pridruÅ¾i', testo: 'Pritisni âNapravi igruâ da dobijeÅ¡ kod od 6 znakova koji Å¡aljeÅ¡ prijateljima, ili âPridruÅ¾i seâ i unesi kod koji si dobio.' },
       lobby: { titolo: '3. Äekaonica', testo: 'U Äekaonici moÅ¾eÅ¡ da promeniÅ¡ svoju boju, a domaÄin moÅ¾e da doda botove da popuni mesta. Kada vas je od 2 do 6, domaÄin pritiska âIsplovi!â.' },

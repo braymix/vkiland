@@ -25,6 +25,9 @@ export const en: Strings = {
   creditiFattoDa: 'Made by',
   creditiInvito: 'Got advice or found a bug? Donât hesitate to write me â all feedback is welcome!',
   creditiGrazie: 'Thanks for playing Viking-Island!',
+  creditiDonazioneTitolo: 'Support the project',
+  creditiDonazioneTesto:
+    'The server is paid for out of my own pocket, so it stays fast and online. If you\'d like to help, a donation is welcome but entirely optional — thank you from the heart!',
 
   // Joke "monetization" popup (New game)
   memeTitolo: 'Hold on, Viking!',
@@ -785,13 +788,6 @@ export const en: Strings = {
           'From the Â«OnlineÂ» menu you play with real people, each on their own ' +
           'device. The referee is the server: it validates every move with the ' +
           'same rules, so cheating is impossible.',
-      },
-      serverFreddo: {
-        titolo: 'Be patient: the server wakes up',
-        testo:
-          'Important: the free server goes Â«to sleepÂ» when nobody is playing. ' +
-          'The FIRST connection can take 30 to 60 seconds to wake it up â itâs ' +
-          'normal, just wait. A green check lets you know when itâs ready.',
       },
       account: {
         titolo: '1. Create an account',

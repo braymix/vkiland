@@ -1413,24 +1413,6 @@ html[data-lang='ru'] select {
   font-size: 18px;
   color: var(--accent);
 }
-.demo-hourglass {
-  font-size: 38px;
-}
-.demo-status {
-  padding: 5px 8px;
-  border: 2px solid var(--bg-deep);
-  text-align: center;
-}
-.demo-status--wake {
-  color: #e8a33d;
-}
-.demo-status--ok {
-  color: #6fcf6f;
-}
-.demo-status-arrow {
-  font-size: 8px;
-  color: var(--ink-dim);
-}
 .demo-mock-form {
   align-items: stretch;
 }
@@ -1745,6 +1727,24 @@ html[data-lang='ru'] .welcome-title {
 .credits-thanks {
   font-size: 8px;
   color: var(--ink-dim);
+}
+.credits-donate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0 2px;
+  border-top: 2px solid var(--accent-dark);
+  width: 100%;
+}
+.credits-donate-title {
+  font-size: 10px;
+  color: var(--accent);
+}
+.credits-donate-qr {
+  width: 140px;
+  height: auto;
+  border: 2px solid var(--accent-dark);
 }
 
 /* «Annulla» l'ultimo piazzamento: un filo evidenziato per distinguerlo */

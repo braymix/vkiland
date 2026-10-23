@@ -169,6 +169,15 @@ export function MenuScreen({
             <a className="credits-mail" href={`mailto:${AUTHOR_EMAIL}`}>
               ✉ {AUTHOR_EMAIL}
             </a>
+            <div className="credits-donate">
+              <div className="credits-donate-title">{it.creditiDonazioneTitolo}</div>
+              <p className="credits-invite">{it.creditiDonazioneTesto}</p>
+              <img
+                className="credits-donate-qr"
+                src="/img/donate-paypal.jpg"
+                alt={it.creditiDonazioneTitolo}
+              />
+            </div>
             <div className="credits-thanks">{it.creditiGrazie}</div>
           </div>
           <div className="dialog-buttons">

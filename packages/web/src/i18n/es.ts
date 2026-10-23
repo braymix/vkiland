@@ -25,6 +25,9 @@ export const es: Strings = {
   creditiFattoDa: 'Hecho por',
   creditiInvito: 'Â¿Tienes un consejo o has encontrado un error? No dudes en escribirme: Â¡todo comentario es bienvenido!',
   creditiGrazie: 'Â¡Gracias por jugar a Viking-Island!',
+  creditiDonazioneTitolo: 'Apoya el proyecto',
+  creditiDonazioneTesto:
+    'El servidor se paga de mi propio bolsillo, así se mantiene siempre rápido y en línea. Si quieres echar una mano, una donación es bienvenida pero totalmente opcional — ¡gracias de corazón!',
 
   // Joke "monetization" popup (New game)
   memeTitolo: 'Â¡Un momento, vikingo!',
@@ -696,7 +699,6 @@ export const es: Strings = {
           'expande con criterio y apunta a los objetivos llega primero a 10 puntos. Â¡Ahora te toca a ti!',
       },
       onlineIntro: { titolo: 'Jugar en lÃ­nea con los amigos', testo: 'Desde el menÃº Â«En lÃ­neaÂ» juegas con personas reales, cada una desde su propio dispositivo. El Ã¡rbitro es el servidor: valida cada movimiento con las mismas reglas, asÃ­ es imposible hacer trampas.' },
-      serverFreddo: { titolo: 'Ten paciencia: el servidor se despierta', testo: 'Importante: el servidor gratuito entra Â«en letargoÂ» cuando nadie juega. La PRIMERA conexiÃ³n puede tardar de 30 a 60 segundos en despertarlo: es normal, basta con esperar. Una marca verde te avisa cuando estÃ¡ listo.' },
       account: { titolo: '1. Crea una cuenta', testo: 'Basta con un nombre de usuario (que serÃ¡ tambiÃ©n tu nombre en el juego) y una contraseÃ±a de al menos 8 caracteres. Sin correo electrÃ³nico: no hace falta y no lo pedimos.' },
       creaEntra: { titolo: '2. Crea una partida o Ãºnete', testo: 'Pulsa Â«Crear partidaÂ» para obtener un cÃ³digo de 6 caracteres que enviar a tus amigos, o Â«UnirseÂ» e introduce el cÃ³digo que has recibido.' },
       lobby: { titolo: '3. La sala', testo: 'En la sala de espera puedes cambiar tu color y el anfitriÃ³n puede aÃ±adir bots para llenar los puestos. Cuando seÃ¡is de 2 a 6, el anfitriÃ³n pulsa Â«Â¡Zarpar!Â».' },

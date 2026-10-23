@@ -25,6 +25,9 @@ export const de: Strings = {
   creditiFattoDa: 'Erstellt von',
   creditiInvito: 'Einen Tipp oder einen Bug gefunden? Schreib mir ruhig â jedes Feedback ist willkommen!',
   creditiGrazie: 'Danke, dass du Viking-Island gespielt hast!',
+  creditiDonazioneTitolo: 'Unterstütze das Projekt',
+  creditiDonazioneTesto:
+    'Der Server wird aus eigener Tasche bezahlt, damit er schnell und online bleibt. Wenn du helfen möchtest, ist eine Spende willkommen, aber völlig freiwillig — danke von Herzen!',
 
   // Joke "monetization" popup (New game)
   memeTitolo: 'Moment mal, Wikinger!',
@@ -697,7 +700,6 @@ export const de: Strings = {
           'gezielt ausbaut und die Ziele im Blick behÃ¤lt, erreicht als Erster 10 Punkte. Jetzt bist du dran!',
       },
       onlineIntro: { titolo: 'Online mit Freunden spielen', testo: 'Ãber das MenÃ¼ âOnlineâ spielst du mit echten Leuten, jeder auf seinem eigenen GerÃ¤t. Der Schiedsrichter ist der Server: Er prÃ¼ft jeden Zug mit denselben Regeln, sodass Schummeln unmÃ¶glich ist.' },
-      serverFreddo: { titolo: 'Hab Geduld: Der Server wacht auf', testo: 'Wichtig: Der kostenlose Server geht âin den Winterschlafâ, wenn niemand spielt. Die ERSTE Verbindung kann 30 bis 60 Sekunden dauern, um ihn aufzuwecken â das ist normal, du musst nur warten. Ein grÃ¼nes HÃ¤kchen sagt dir Bescheid, wenn er bereit ist.' },
       account: { titolo: '1. Erstelle ein Konto', testo: 'Du brauchst nur einen Benutzernamen (er ist zugleich dein Name im Spiel) und ein Passwort mit mindestens 8 Zeichen. Keine E-Mail: Sie ist nicht nÃ¶tig, und wir fragen nicht danach.' },
       creaEntra: { titolo: '2. Erstelle ein Spiel oder tritt einem bei', testo: 'DrÃ¼ck auf âSpiel erstellenâ, um einen 6-stelligen Code zu erhalten, den du deinen Freunden schickst, oder auf âBeitretenâ und gib den Code ein, den du bekommen hast.' },
       lobby: { titolo: '3. Die Lobby', testo: 'Im Warteraum kannst du deine Farbe Ã¤ndern, und der Host kann Bots hinzufÃ¼gen, um die PlÃ¤tze zu fÃ¼llen. Wenn ihr zu zweit bis zu sechst seid, drÃ¼ckt der Host auf âIn See stechen!â.' },

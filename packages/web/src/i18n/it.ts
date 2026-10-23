@@ -28,6 +28,10 @@ export const it = {
   creditiFattoDa: 'Fatto da',
   creditiInvito: 'Hai un consiglio o hai trovato un bug? Non esitare a scrivermi: ogni feedback è benvenuto!',
   creditiGrazie: 'Grazie per aver giocato a Viking-Island!',
+  creditiDonazioneTitolo: 'Sostieni il progetto',
+  creditiDonazioneTesto:
+    'Il server è a pagamento di tasca mia, così resta sempre veloce e online. Se ti va di dare una mano, ' +
+    'una donazione è gradita ma del tutto facoltativa — grazie di cuore!',
 
   // Popup "monetizzazione" scherzoso (Nuova partita)
   memeTitolo: 'Un attimo, vichingo!',
@@ -785,12 +789,6 @@ export const it = {
         testo:
           'Dal menu «Online» giochi con persone vere, ognuno dal proprio dispositivo. L’arbitro è il server: ' +
           'convalida ogni mossa con le stesse regole, così è impossibile barare.',
-      },
-      serverFreddo: {
-        titolo: 'Abbi pazienza: il server si sveglia',
-        testo:
-          'Importante: il server gratuito va «in letargo» quando nessuno gioca. La PRIMA connessione può ' +
-          'richiedere da 30 a 60 secondi per risvegliarlo — è normale, basta aspettare. Una spunta verde ti avvisa quando è pronto.',
       },
       account: {
         titolo: '1. Crea un account',

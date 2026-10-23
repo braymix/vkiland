@@ -25,6 +25,9 @@ export const nl: Strings = {
   creditiFattoDa: 'Gemaakt door',
   creditiInvito: 'Heb je een tip of een bug gevonden? Schrijf me gerust â alle feedback is welkom!',
   creditiGrazie: 'Bedankt dat je Viking-Island hebt gespeeld!',
+  creditiDonazioneTitolo: 'Steun het project',
+  creditiDonazioneTesto:
+    'De server wordt uit eigen zak betaald, zodat hij altijd snel en online blijft. Als je wilt helpen, is een donatie welkom maar volledig optioneel — hartelijk dank!',
 
   // Grappige "monetisatie"-pop-up (Nieuw spel)
   memeTitolo: 'Wacht even, Viking!',
@@ -774,12 +777,6 @@ export const nl: Strings = {
         testo:
           'Via het menu âOnlineâ speel je met echte mensen, elk op hun eigen apparaat. De ' +
           'scheidsrechter is de server: die controleert elke zet met dezelfde regels, dus valsspelen is onmogelijk.',
-      },
-      serverFreddo: {
-        titolo: 'Heb geduld: de server ontwaakt',
-        testo:
-          'Belangrijk: de gratis server gaat âin slaapâ als niemand speelt. De EERSTE verbinding ' +
-          'kan 30 tot 60 seconden duren om hem te wekken â dat is normaal, even wachten. Een groen vinkje laat zien wanneer hij klaar is.',
       },
       account: {
         titolo: '1. Maak een account',
