@@ -48,12 +48,14 @@ export interface LinkDef {
  */
 export interface CastleMeta {
   rings: number;
-  /** Segmenti di MURO (lon/lat): confini fra anelli SENZA varco. */
+  /** Segmenti di MURO (lon/lat): lati fra anelli interni SENZA varco. */
   walls: [[number, number], [number, number]][];
-  /** Contorno del FOSSATO (lon/lat), un anello esagonale attorno al castello. */
-  moat: [number, number][];
-  /** Link che sono PORTE (varco di terra fra anelli). Sul bordo esterno = ponti levatoi. */
+  /** Segmenti di FOSSATO (lon/lat): lati fra cortile esterno e borgo SENZA ponte. */
+  moat: [[number, number], [number, number]][];
+  /** Link che sono PORTE (varco di terra fra anelli); sul fossato sono ponti levatoi. */
   gates: string[];
+  /** Sottoinsieme di `gates` che attraversa il fossato (ponti levatoi). */
+  drawbridges: string[];
   /** Link che sono SCALE (collegamenti `muro` da scavalcare). */
   scale: string[];
   /** Link che sono PASSAGGI SEGRETI (terra fra anelli non adiacenti). */

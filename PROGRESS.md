@@ -4,6 +4,14 @@
 
 ## Stato attuale
 
+**VIKINGS AROUND THE WORLD — CASTELLO: RESA E GIOCABILITÀ** ✅ — rifatta la grafica:
+muri della lunghezza esatta del lato (prima sbordavano di 1,8×), l'ultimo confine è
+il **fossato** con **ponti levatoi** di legno (cortile esterno ↔ Borgo, 1 porta in più),
+portoni con torri ai lati, scale con montanti e pioli, tombini sui passaggi segreti,
+🏰 sul Mastio, ombra sotto il castello; nomi territorio nascosti (solo se selezionato)
+e più sensati (Mastio / Cortile k.n / Borgo n). `CastleMeta`: `moat` ora sono segmenti
+e c'è `drawbridges`.
+
 **VIKINGS AROUND THE WORLD — MAPPA CASTELLO** ✅ — nuova mappa del Mondo
 **generata proceduralmente**: un castello esagonale ad ANELLI concentrici. Il
 giocatore sceglie il numero di anelli/mura **2–4** (`castleRings`); la taglia è
