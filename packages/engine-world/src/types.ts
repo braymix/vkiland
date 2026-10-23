@@ -25,10 +25,39 @@ export interface TerritoryDef {
   polygons: [number, number][][];
 }
 
+/**
+ * Tipo di collegamento fra territori:
+ *  - `terra` → confine di terra: strada costruibile, movimento normale;
+ *  - `mare` → tratto di mare: serve un Porto per salpare;
+ *  - `muro` → muro del CASTELLO da «scavalcare»: niente strade, costo movimento
+ *    alto (vedi `MOVE_COST_MURO`). Le porte/brecce di un castello sono invece
+ *    collegamenti `terra` (varchi normali).
+ */
+export type LinkKind = 'terra' | 'mare' | 'muro';
+
 export interface LinkDef {
   a: string;
   b: string;
-  kind: 'terra' | 'mare';
+  kind: LinkKind;
+}
+
+/**
+ * Metadati della mappa CASTELLO: servono SOLO al renderer per disegnare mura,
+ * fossato e i varchi. La LOGICA sta tutta nei collegamenti (porte = `terra`,
+ * scale = `muro`); questo è grafica pre-calcolata dal generatore.
+ */
+export interface CastleMeta {
+  rings: number;
+  /** Segmenti di MURO (lon/lat): confini fra anelli SENZA varco. */
+  walls: [[number, number], [number, number]][];
+  /** Contorno del FOSSATO (lon/lat), un anello esagonale attorno al castello. */
+  moat: [number, number][];
+  /** Link che sono PORTE (varco di terra fra anelli). Sul bordo esterno = ponti levatoi. */
+  gates: string[];
+  /** Link che sono SCALE (collegamenti `muro` da scavalcare). */
+  scale: string[];
+  /** Link che sono PASSAGGI SEGRETI (terra fra anelli non adiacenti). */
+  tunnels: string[];
 }
 
 export interface MapDefinition {
@@ -43,6 +72,8 @@ export interface MapDefinition {
   maxPlayers: number;
   /** Attribuzione dei dati (es. OpenStreetMap, ISTAT). */
   credits?: string;
+  /** Presente solo per la mappa generata «Castello»: grafica di mura/fossato/varchi. */
+  castle?: CastleMeta;
 }
 
 /** Override dell'admin (rinomina / togli territori). */
@@ -66,6 +97,8 @@ export interface FrozenMap {
   territories: TerritoryDef[];
   links: FrozenLink[];
   credits?: string;
+  /** Grafica del castello (vedi `CastleMeta`), solo per la mappa generata. */
+  castle?: CastleMeta;
 }
 
 // ------------------------------------------------------------- giocatori
@@ -90,6 +123,11 @@ export interface WorldGameConfig {
   materialiCasuali: boolean;
   /** Evita 6 e 8 su territori collegati (default true). */
   avoidAdjacent68: boolean;
+  /**
+   * Mappa CASTELLO (`mapId === 'castello'`): numero di anelli/mura (2..4). La
+   * mappa è generata proceduralmente dal seed. Ignorato per le altre mappe.
+   */
+  castleRings?: number;
 }
 
 export type BuildingKind = 'villaggio' | 'citta' | 'sala';

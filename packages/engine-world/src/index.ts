@@ -21,6 +21,7 @@ export {
   type MapIndex,
   type OverrideResult,
 } from './map';
+export { generateCastleMap } from './castleMap';
 export {
   scoreBreakdown,
   gloryPoints,
@@ -51,6 +52,7 @@ export {
   WORLD_RESOURCES,
   HAND_LIMIT,
   MOVE_POINTS,
+  MOVE_COST_MURO,
   MERCANTE_RATIO,
   MAX_SETTLEMENTS,
   JARL_GATHER,

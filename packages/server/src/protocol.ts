@@ -58,8 +58,10 @@ export interface WorldLobbyConfig {
   isPublic: boolean;
   /** Mescola anche i materiali dei territori. */
   materialiCasuali: boolean;
-  /** Mappa giocata (oggi solo `mondo`). */
+  /** Mappa giocata (es. `mondo`, `europa`, …, oppure `castello` generata). */
   mapId: string;
+  /** Mappa Castello: numero di anelli (2..4). Solo con `mapId === 'castello'`. */
+  castleRings?: number;
 }
 
 export interface WorldSeatInfo {

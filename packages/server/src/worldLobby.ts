@@ -99,13 +99,21 @@ export const isErr = (x: unknown): x is ApiError => typeof x === 'object' && x !
 export function sanitizeWorldConfig(c: Partial<WorldLobbyConfig> | undefined): WorldLobbyConfig {
   const target = Math.round(Number(c?.targetPoints ?? DEFAULT_TARGET_POINTS));
   const timer = Math.round(Number(c?.turnTimerSec ?? 0));
-  const mapId = typeof c?.mapId === 'string' && getMapDefinition(c.mapId) ? c.mapId : 'mondo';
+  // 'castello' è una mappa generata (non in MAPS): è comunque un id valido.
+  const mapId =
+    c?.mapId === 'castello'
+      ? 'castello'
+      : typeof c?.mapId === 'string' && getMapDefinition(c.mapId)
+        ? c.mapId
+        : 'mondo';
+  const rings = Math.round(Number(c?.castleRings ?? 3));
   return {
     targetPoints: Number.isFinite(target) ? Math.max(MIN_TARGET_POINTS, Math.min(MAX_TARGET_POINTS, target)) : DEFAULT_TARGET_POINTS,
     turnTimerSec: Number.isFinite(timer) ? Math.max(0, Math.min(300, timer)) : 0,
     isPublic: Boolean(c?.isPublic),
     materialiCasuali: Boolean(c?.materialiCasuali),
     mapId,
+    ...(mapId === 'castello' ? { castleRings: Math.max(2, Math.min(4, Number.isFinite(rings) ? rings : 3)) } : {}),
   };
 }
 
@@ -320,15 +328,18 @@ export class WorldLobbyManager {
     if (room.hostId !== userId) return err('Solo l’host può avviare la partita.');
     if (room.started) return err('La partita è già iniziata.');
     if (room.seats.length < this.minPlayers(room)) return err(`Servono almeno ${this.minPlayers(room)} giocatori.`);
-    const def = getMapDefinition(room.config.mapId)!;
-    const override = this.hooks.getOverride(room.config.mapId);
-    const checked = applyMapOverride(def, override);
+    // La mappa CASTELLO è generata dal seed: niente override dell'admin.
+    const isCastle = room.config.mapId === 'castello';
+    const def = isCastle ? null : getMapDefinition(room.config.mapId)!;
+    const override = isCastle ? null : this.hooks.getOverride(room.config.mapId);
+    const checked = def ? applyMapOverride(def, override) : null;
     try {
       room.state = createGame(
         defaultConfig({
           seed: `world-${room.code}-${Date.now()}`,
           targetPoints: room.config.targetPoints,
           mapId: room.config.mapId,
+          ...(isCastle ? { castleRings: room.config.castleRings ?? 3 } : {}),
           materialiCasuali: room.config.materialiCasuali,
           players: room.seats.map((s, i) => ({
             name: s.name,
@@ -337,7 +348,7 @@ export class WorldLobbyManager {
             hero: s.hero,
           })),
         }),
-        { override: checked.ok ? override : null }
+        { override: checked?.ok ? override : null }
       );
     } catch (e) {
       return err(e instanceof Error ? e.message : 'Impossibile avviare la partita.');

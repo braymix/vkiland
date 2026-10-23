@@ -106,6 +106,25 @@ describe('lobby del mondo', () => {
     });
   });
 
+  it('config: mappa castello accettata, anelli clampati a 2..4', () => {
+    expect(sanitizeWorldConfig({ mapId: 'castello', castleRings: 9 })).toMatchObject({
+      mapId: 'castello',
+      castleRings: 4,
+    });
+    expect(sanitizeWorldConfig({ mapId: 'castello', castleRings: 0 }).castleRings).toBe(2);
+    // Le altre mappe non portano castleRings.
+    expect(sanitizeWorldConfig({ mapId: 'mondo' }).castleRings).toBeUndefined();
+  });
+
+  it('partita castello online: si avvia con la mappa generata', () => {
+    const { mgr } = setup();
+    const c = mgr.create(A, { mapId: 'castello', castleRings: 2 });
+    if (isErr(c)) throw new Error('create');
+    mgr.join(c.code, B);
+    const started = mgr.start('a');
+    expect(isErr(started)).toBe(false);
+  });
+
   it('terminate: solo l\'host chiude, tutti vengono avvisati', () => {
     const { mgr, closed } = setup();
     const c = mgr.create(A, {});

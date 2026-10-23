@@ -4,6 +4,7 @@ import {
   AWARD_POINTS,
   GRANDE_VIAGGIATORE_MIN,
   GRANDE_VIA_MIN,
+  MOVE_COST_MURO,
   MOVE_COST_OTHER,
   MOVE_COST_OWN_ROAD,
   TOLL_BASE,
@@ -170,7 +171,7 @@ export interface MovePlan {
   from: string;
   to: string;
   link: string;
-  kind: 'terra' | 'mare';
+  kind: 'terra' | 'mare' | 'muro';
   cost: number;
 }
 
@@ -197,6 +198,9 @@ export function planMove(state: MoveContext, pid: PlayerId, to: string): MovePla
   let cost: number;
   if (l.kind === 'terra') {
     cost = state.roads[l.id] === pid ? MOVE_COST_OWN_ROAD : MOVE_COST_OTHER;
+  } else if (l.kind === 'muro') {
+    // Mappa CASTELLO: scavalcare un muro costa caro e non sfrutta strade.
+    cost = MOVE_COST_MURO;
   } else {
     const here = state.territories[from]!;
     if (!settlementOf(here, pid)?.porto) {

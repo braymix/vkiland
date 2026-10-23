@@ -146,6 +146,7 @@ export function freezeMap(def: MapDefinition): FrozenMap {
     territories: def.territories.map((t) => ({ ...t })),
     links: def.links.map((l) => ({ ...l, id: linkId(l.a, l.b) })),
     ...(def.credits ? { credits: def.credits } : {}),
+    ...(def.castle ? { castle: def.castle } : {}),
   };
 }
 

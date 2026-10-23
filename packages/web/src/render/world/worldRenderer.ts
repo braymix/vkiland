@@ -207,6 +207,25 @@ export class WorldRenderer {
     ctx.scale(cam.scale, cam.scale);
     ctx.translate(-cam.cx, -cam.cy);
 
+    // Mappa CASTELLO: FOSSATO dietro i territori (anello d'acqua teal).
+    const castle = view.map.castle;
+    if (castle && castle.moat.length > 1) {
+      ctx.beginPath();
+      castle.moat.forEach(([lon, lat], i) => {
+        const [x, y] = toWorld(lon, lat);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.closePath();
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 6 / cam.scale;
+      ctx.strokeStyle = '#0f4a52';
+      ctx.stroke();
+      ctx.lineWidth = 2 / cam.scale;
+      ctx.strokeStyle = '#2f8f9c';
+      ctx.stroke();
+    }
+
     // Territori
     ctx.lineJoin = 'round';
     for (const t of view.map.territories) {
@@ -297,6 +316,54 @@ export class WorldRenderer {
       ctx.lineWidth = 3 / cam.scale;
       ctx.strokeStyle = colorOf(view, owner);
       this.segment(ctx, a, b);
+    }
+
+    // Mappa CASTELLO: MURA (segmenti di pietra) e VARCHI (porte/scale/passaggi).
+    if (castle) {
+      // Muri pieni: barrette di pietra fra anelli senza varco.
+      ctx.lineCap = 'round';
+      for (const [[x1, y1], [x2, y2]] of castle.walls) {
+        const a = toWorld(x1, y1);
+        const b = toWorld(x2, y2);
+        ctx.lineWidth = 7 / cam.scale;
+        ctx.strokeStyle = '#44474d';
+        this.segment(ctx, a, b);
+        ctx.lineWidth = 4 / cam.scale;
+        ctx.strokeStyle = '#8b8e95';
+        this.segment(ctx, a, b);
+      }
+      // Scale (collegamenti `muro`): linea tratteggiata marrone con pioli.
+      ctx.setLineDash([3 / cam.scale, 3 / cam.scale]);
+      ctx.lineWidth = 3 / cam.scale;
+      ctx.strokeStyle = '#8a5a30';
+      for (const l of view.map.links) {
+        if (l.kind !== 'muro') continue;
+        this.segment(ctx, cache.centers.get(l.a)!, cache.centers.get(l.b)!);
+      }
+      ctx.setLineDash([]);
+      // Porte (varchi di terra fra anelli): pilastri chiari agli estremi del varco.
+      for (const gid of castle.gates) {
+        const l = idx.link.get(gid);
+        if (!l) continue;
+        const a = cache.centers.get(l.a)!;
+        const b = cache.centers.get(l.b)!;
+        const mx = (a[0] + b[0]) / 2;
+        const my = (a[1] + b[1]) / 2;
+        ctx.fillStyle = '#d8c49a';
+        ctx.beginPath();
+        ctx.arc(mx, my, 2.5 / cam.scale, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // Passaggi segreti: tratteggio scuro.
+      ctx.setLineDash([2 / cam.scale, 4 / cam.scale]);
+      ctx.lineWidth = 2 / cam.scale;
+      ctx.strokeStyle = '#2b2d31';
+      for (const tid of castle.tunnels) {
+        const l = idx.link.get(tid);
+        if (!l) continue;
+        this.segment(ctx, cache.centers.get(l.a)!, cache.centers.get(l.b)!);
+      }
+      ctx.setLineDash([]);
     }
     ctx.restore();
 

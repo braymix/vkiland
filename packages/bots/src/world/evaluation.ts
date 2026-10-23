@@ -1,6 +1,7 @@
 /** Valutazioni del bot del mondo: valore dei territori, distanze del Jarl, bisogni di materiali. */
 import {
   BUILD_COSTS,
+  MOVE_COST_MURO,
   PRODUCED_RESOURCES,
   isForeign,
   settlementOf,
@@ -60,7 +61,7 @@ export function territoryValue(view: WorldPlayerView, me: PlayerId, id: string):
 
 export interface PathInfo {
   dist: Map<string, number>;
-  prev: Map<string, { from: string; link: string; kind: 'terra' | 'mare' }>;
+  prev: Map<string, { from: string; link: string; kind: 'terra' | 'mare' | 'muro' }>;
 }
 
 /**
@@ -85,6 +86,7 @@ export function jarlPaths(view: WorldPlayerView, me: PlayerId, tollWeight = 1.5)
       const to = otherEnd(l, cur);
       let cost: number;
       if (l.kind === 'terra') cost = view.roads[l.id] === me ? 1 : 2;
+      else if (l.kind === 'muro') cost = MOVE_COST_MURO; // castello: scavalcare
       else if (settlementOf(here, me)?.porto) cost = 2;
       else if (settlementOf(here, me)) cost = 2 + 5; // da costruire il Porto
       else continue;
@@ -105,9 +107,9 @@ export function firstStep(
   paths: PathInfo,
   start: string,
   target: string
-): { to: string; link: string; kind: 'terra' | 'mare' } | null {
+): { to: string; link: string; kind: 'terra' | 'mare' | 'muro' } | null {
   let cur = target;
-  let step: { to: string; link: string; kind: 'terra' | 'mare' } | null = null;
+  let step: { to: string; link: string; kind: 'terra' | 'mare' | 'muro' } | null = null;
   let guard = 0;
   while (cur !== start) {
     const p = paths.prev.get(cur);
@@ -127,7 +129,7 @@ export function firstUnroaded(
   target: string
 ): string | null {
   let cur = target;
-  const chain: { link: string; kind: 'terra' | 'mare' }[] = [];
+  const chain: { link: string; kind: 'terra' | 'mare' | 'muro' }[] = [];
   let guard = 0;
   while (cur !== start) {
     const p = paths.prev.get(cur);

@@ -38,6 +38,12 @@ export const HAND_LIMIT = 7;
 export const MOVE_POINTS = 4;
 export const MOVE_COST_OWN_ROAD = 1;
 export const MOVE_COST_OTHER = 2;
+/**
+ * Mappa CASTELLO: costo per «scavalcare» un muro (collegamento di tipo `muro`).
+ * Alto apposta — arrampicarsi sulle mura è lento: consuma quasi tutti i punti
+ * movimento di un turno. Mai scontato da una strada (sui muri non si costruisce).
+ */
+export const MOVE_COST_MURO = 3;
 export const TOLL_BASE = 1;
 export const TOLL_SALA = 2;
 
