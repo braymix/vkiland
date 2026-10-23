@@ -38,6 +38,11 @@ export function MapSelect({ value, onChange, only }: Props) {
           </optgroup>
         );
       })}
+      {(!only || only.includes('castello')) && (
+        <optgroup label={'🏰 ' + wt.scalaGenerata}>
+          <option value="castello">{wt.mappaCastello}</option>
+        </optgroup>
+      )}
     </select>
   );
 }

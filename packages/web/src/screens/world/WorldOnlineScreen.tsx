@@ -269,6 +269,20 @@ function ConfigForm({ config, onChange }: { config: WorldLobbyConfig; onChange: 
     <>
       <div className="w-lab">{wt.mappa}</div>
       <MapSelect value={config.mapId} onChange={(id) => onChange({ mapId: id })} />
+      {config.mapId === 'castello' && (
+        <>
+          <div className="w-lab">
+            {wt.castelloAnelli}: {config.castleRings ?? 3}
+          </div>
+          <input
+            type="range"
+            min={2}
+            max={4}
+            value={config.castleRings ?? 3}
+            onChange={(e) => onChange({ castleRings: Number(e.target.value) })}
+          />
+        </>
+      )}
       <div className="w-lab">
         {wt.puntiVittoria}: {config.targetPoints}
       </div>

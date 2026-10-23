@@ -57,16 +57,22 @@ export function NewWorldGameScreen({ onBack, onStart, onOnline, onTutorial, sess
   const [target, setTarget] = useState(DEFAULT_TARGET_POINTS);
   const [random, setRandom] = useState(false);
   const [mapId, setMapId] = useState('mondo');
+  const [castleRings, setCastleRings] = useState(3);
   const [heroSeat, setHeroSeat] = useState<number | null>(null);
 
   const update = (i: number, patch: Partial<Seat>) =>
     setSeats((s) => s.map((x, k) => (k === i ? { ...x, ...patch } : x)));
-  const map = MAPS[mapId]!;
+  const isCastle = mapId === 'castello';
+  // La mappa Castello è generata (2..6 giocatori), non è in MAPS.
+  const map = MAPS[mapId] ?? { maxPlayers: 6, minPlayers: 2, credits: undefined };
   const canAdd = seats.length < map.maxPlayers;
 
   const start = async () => {
-    // Con un server raggiungibile si applicano rinomine/rimozioni dell'admin.
-    const override = await apiGetMapOverride(session?.serverUrl ?? defaultServerUrl(), mapId);
+    // La mappa Castello è generata: niente override dell'admin. Per le altre si
+    // applicano rinomine/rimozioni dell'admin dal server, se raggiungibile.
+    const override = isCastle
+      ? null
+      : await apiGetMapOverride(session?.serverUrl ?? defaultServerUrl(), mapId);
     const players: WorldSeatSetup[] = seats.map((s, i) => ({
       name: s.name.trim() || `P${i + 1}`,
       color: PLAYER_COLORS[i % PLAYER_COLORS.length]!,
@@ -79,6 +85,7 @@ export function NewWorldGameScreen({ onBack, onStart, onOnline, onTutorial, sess
       targetPoints: target,
       materialiCasuali: random,
       mapId,
+      ...(isCastle ? { castleRings } : {}),
       override,
     });
   };
@@ -150,11 +157,26 @@ export function NewWorldGameScreen({ onBack, onStart, onOnline, onTutorial, sess
           value={mapId}
           onChange={(id) => {
             setMapId(id);
-            const max = MAPS[id]!.maxPlayers;
+            const max = id === 'castello' ? 6 : MAPS[id]!.maxPlayers;
             setSeats((x) => x.slice(0, max));
           }}
         />
         {map.credits && <div className="w-dim">{map.credits}</div>}
+        {isCastle && (
+          <>
+            <div className="w-lab">
+              {wt.castelloAnelli}: {castleRings}
+            </div>
+            <input
+              type="range"
+              min={2}
+              max={4}
+              value={castleRings}
+              onChange={(e) => setCastleRings(Number(e.target.value))}
+            />
+            <div className="w-dim">{wt.castelloSpiega}</div>
+          </>
+        )}
 
         <div className="w-lab">
           {wt.puntiVittoria}: {target}

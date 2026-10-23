@@ -117,6 +117,8 @@ territorio. Il Jarl non si può catturare né bloccare.
 - Muoversi lungo un collegamento `terra` **senza** tua strada: costa **2 punti**.
 - Muoversi lungo una rotta `mare`: costa **2 punti** e si può fare solo
   **partendo da un territorio dove hai un Porto**.
+- Muoversi lungo un `muro` (mappa **Castello**): **scavalcare** costa **3 punti**
+  e non è mai scontato da una strada (sui muri non si costruisce).
 
 Quindi: **fino a 4 territori sulle tue strade, 2 fuori**, combinabili (es. 2
 passi su strada + 1 passo fuori). I punti non usati si perdono a fine turno.

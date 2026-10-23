@@ -1,0 +1,333 @@
+/**
+ * Mappa «CASTELLO» per Vikings Around the World: una `MapDefinition` generata
+ * proceduralmente (deterministica dato il seed) a forma di castello esagonale ad
+ * ANELLI concentrici.
+ *
+ * Modello del Mondo = territori (poligoni) + collegamenti (grafo). Qui i
+ * territori sono un esagono PIENO di raggio N (N = numero di anelli/mura, 2..4):
+ * ogni «anello» è il guscio di territori a una data distanza dal mastio.
+ *
+ * Le MURA sono i confini fra anelli consecutivi DOVE MANCA un collegamento: il
+ * Jarl non può passare. I varchi sono collegamenti espliciti:
+ *   - PORTA   → collegamento `terra` fra due anelli (passaggio normale; sul
+ *     bordo esterno è disegnata come ponte levatoio sul fossato);
+ *   - SCALA   → collegamento `muro`: si «scavalca» a caro prezzo di movimento
+ *     (vedi `MOVE_COST_MURO`), senza bisogno di edifici;
+ *   - BRECCIA → una porta in più (muro crollato): collegamento `terra`;
+ *   - PASSAGGIO SEGRETO → collegamento `terra` fra anelli NON adiacenti.
+ *
+ * Tutto il resto dei confini fra anelli resta muro pieno (nessun collegamento).
+ * I metadati grafici (segmenti di muro, contorno del fossato, quali link sono
+ * porte/scale/passaggi) sono pre-calcolati in `castle` per il renderer.
+ */
+import { linkId } from './map';
+import { nextInt, seedRng, shuffle, type RngState } from './rng';
+import type { CastleMeta, LinkDef, MapDefinition, TerritoryDef, TerritoryKind } from './types';
+
+/** Direzioni assiali dei 6 vicini, in ordine ciclico. */
+const DIRS: [number, number][] = [
+  [1, 0],
+  [1, -1],
+  [0, -1],
+  [-1, 0],
+  [-1, 1],
+  [0, 1],
+];
+
+const U = 4; // dimensione esagono in «gradi» lon/lat (il renderer riadatta)
+
+function cube(q: number, r: number): number {
+  return Math.max(Math.abs(q), Math.abs(r), Math.abs(q + r));
+}
+
+/** Centro del territorio (lon/lat sintetici) per l'esagono assiale (q,r), pointy-top. */
+function centerOf(q: number, r: number): [number, number] {
+  const x = U * Math.sqrt(3) * (q + r / 2);
+  const y = U * 1.5 * r;
+  return [round(x), round(-y)];
+}
+
+/** I 6 vertici dell'esagono (pointy-top) attorno a un centro. */
+function hexPolygon(cx: number, cy: number, size = U): [number, number][] {
+  const pts: [number, number][] = [];
+  for (let k = 0; k < 6; k++) {
+    const ang = (Math.PI / 180) * (60 * k - 90); // vertice in alto
+    pts.push([round(cx + size * Math.cos(ang)), round(cy + size * Math.sin(ang))]);
+  }
+  return pts;
+}
+
+function round(n: number): number {
+  return Math.round(n * 1000) / 1000;
+}
+
+const KEY = (q: number, r: number): string => `${q},${r}`;
+const idOf = (q: number, r: number): string => `c_${q}_${r}`;
+
+/** Pesi delle 5 risorse produttive (come la Classica: 4/4/4/3/3). */
+const KINDS: [TerritoryKind, number][] = [
+  ['legname', 4],
+  ['orzo', 4],
+  ['lana', 4],
+  ['pietra', 3],
+  ['ferro', 3],
+];
+
+/** Sacchetto terreni: `deserts` deserti + le produttive distribuite coi pesi. */
+function terrainBag(total: number, deserts: number): TerritoryKind[] {
+  const productive = Math.max(0, total - deserts);
+  const sumW = KINDS.reduce((a, [, w]) => a + w, 0);
+  const counts = KINDS.map(([, w]) => Math.floor((productive * w) / sumW));
+  let rem = productive - counts.reduce((a, b) => a + b, 0);
+  for (let i = 0; rem > 0; i = (i + 1) % KINDS.length, rem--) counts[i]!++;
+  const bag: TerritoryKind[] = [];
+  KINDS.forEach(([k], i) => {
+    for (let j = 0; j < counts[i]!; j++) bag.push(k);
+  });
+  for (let j = 0; j < deserts; j++) bag.push('deserto');
+  return bag;
+}
+
+/** Mazzo di numeri «a campana» (2..12, mai 7) della taglia richiesta. */
+const NUM_VALUES = [2, 3, 4, 5, 6, 8, 9, 10, 11, 12];
+const NUM_WEIGHTS = [1, 2, 3, 4, 5, 5, 4, 3, 2, 1];
+function numberBag(count: number): number[] {
+  const sumW = NUM_WEIGHTS.reduce((a, b) => a + b, 0);
+  const counts = NUM_WEIGHTS.map((w) => Math.floor((count * w) / sumW));
+  let rem = count - counts.reduce((a, b) => a + b, 0);
+  for (let i = 0; rem > 0; i = (i + 1) % NUM_VALUES.length, rem--) counts[i]!++;
+  const bag: number[] = [];
+  NUM_VALUES.forEach((v, i) => {
+    for (let j = 0; j < counts[i]!; j++) bag.push(v);
+  });
+  return bag;
+}
+
+interface Pair {
+  a: string;
+  b: string;
+  /** anello minore della coppia (il confine è fra `lo` e `lo+1`). */
+  lo: number;
+  /** per i varchi sul bordo esterno (ponte levatoio). */
+  outer: boolean;
+}
+
+/** Genera la `MapDefinition` del castello con `rings` mura/anelli (2..4). */
+export function generateCastleMap(seed: string, rings: number): MapDefinition {
+  let rng: RngState = seedRng(`${seed}|castle`);
+  const n = Math.max(2, Math.min(4, Math.round(rings)));
+
+  // 1) Celle = esagono pieno di raggio n (anelli 0..n). Ordine deterministico.
+  const cells: { q: number; r: number }[] = [];
+  for (let r = -n; r <= n; r++) {
+    for (let q = -n; q <= n; q++) {
+      if (cube(q, r) <= n) cells.push({ q, r });
+    }
+  }
+  const cellSet = new Set(cells.map((c) => KEY(c.q, c.r)));
+  const total = cells.length; // 1 + 3n(n+1): 19 / 37 / 61
+
+  // 2) Terreni e numeri dimensionati sulla terra effettiva.
+  const deserts = Math.max(1, Math.round(total / 18));
+  const [bag, rngA] = shuffle(rng, terrainBag(total, deserts));
+  rng = rngA;
+  const kindByCell = new Map<string, TerritoryKind>();
+  cells.forEach((c, i) => kindByCell.set(KEY(c.q, c.r), bag[i]!));
+
+  let courtN = 0;
+  const territories: TerritoryDef[] = cells.map((c) => {
+    const [lon, lat] = centerOf(c.q, c.r);
+    const ring = cube(c.q, c.r);
+    return {
+      id: idOf(c.q, c.r),
+      name: ring === 0 ? 'Mastio' : `Cortile ${++courtN}`,
+      continent: ring === 0 ? 'Mastio' : `Anello ${ring}`,
+      kind: kindByCell.get(KEY(c.q, c.r))!,
+      coastal: ring === n,
+      center: [lon, lat],
+      polygons: [hexPolygon(lon, lat)],
+    };
+  });
+
+  // 3) Collegamenti.
+  const links: LinkDef[] = [];
+  const addLink = (a: string, b: string, kind: LinkDef['kind']): void => {
+    links.push({ a, b, kind });
+  };
+
+  // 3a) Dentro lo stesso anello: sempre `terra` (si gira per il cortile).
+  //     Fra anelli adiacenti: candidati-varco, scelti poi come porta/scala.
+  const sameRing: [string, string][] = [];
+  const crossByWall = new Map<number, Pair[]>(); // chiave = anello minore
+  const seen = new Set<string>();
+  for (const c of cells) {
+    const ring = cube(c.q, c.r);
+    for (const [dq, dr] of DIRS) {
+      const nq = c.q + dq;
+      const nr = c.r + dr;
+      if (!cellSet.has(KEY(nq, nr))) continue;
+      const a = idOf(c.q, c.r);
+      const b = idOf(nq, nr);
+      const key = [a, b].sort().join('|');
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const nring = cube(nq, nr);
+      if (nring === ring) {
+        sameRing.push([a, b]);
+      } else {
+        const lo = Math.min(ring, nring);
+        const list = crossByWall.get(lo) ?? [];
+        list.push({ a, b, lo, outer: Math.max(ring, nring) === n });
+        crossByWall.set(lo, list);
+      }
+    }
+  }
+  for (const [a, b] of sameRing) addLink(a, b, 'terra');
+
+  // 3b) Per ogni muro (confine fra anello lo e lo+1): 1..2 PORTE (terra) e 0..1
+  //     SCALE (muro). Distanziate. Garantita almeno una porta (connettività).
+  const gates: string[] = [];
+  const scale: string[] = [];
+  const wallSegs: CastleMeta['walls'] = [];
+  const territoryById = new Map(territories.map((t) => [t.id, t]));
+  const centerById = (id: string): [number, number] => territoryById.get(id)!.center;
+
+  for (let lo = 0; lo < n; lo++) {
+    const cands = crossByWall.get(lo) ?? [];
+    if (cands.length === 0) continue;
+    const [order, r1] = shuffle(rng, cands);
+    rng = r1;
+    const usedEnds = new Set<string>();
+    const opened = new Set<string>(); // chiavi a|b aperte (porta o scala)
+
+    const pick = (count: number, kind: 'gate' | 'scala'): void => {
+      let taken = 0;
+      for (const p of order) {
+        if (taken >= count) break;
+        const k = [p.a, p.b].sort().join('|');
+        if (opened.has(k)) continue;
+        // distanzia: niente due varchi che condividono un territorio
+        if (usedEnds.has(p.a) || usedEnds.has(p.b)) continue;
+        opened.add(k);
+        usedEnds.add(p.a);
+        usedEnds.add(p.b);
+        if (kind === 'gate') {
+          addLink(p.a, p.b, 'terra');
+          gates.push(linkId(p.a, p.b));
+        } else {
+          addLink(p.a, p.b, 'muro');
+          scale.push(linkId(p.a, p.b));
+        }
+        taken++;
+      }
+    };
+
+    // Porte: 1..2. Scale: 0..1 (sul mastio↔anello1 niente scala: troppo vicino).
+    const [gExtra, rg] = nextInt(rng, 2);
+    rng = rg;
+    pick(gExtra + 1, 'gate');
+    if (lo >= 1) {
+      const [sExtra, rs] = nextInt(rng, 2);
+      rng = rs;
+      pick(sExtra, 'scala');
+    }
+    // Sicurezza: se nessun varco aperto (candidati tutti scartati), apri il primo.
+    if (opened.size === 0 && order[0]) {
+      addLink(order[0].a, order[0].b, 'terra');
+      gates.push(linkId(order[0].a, order[0].b));
+      opened.add([order[0].a, order[0].b].sort().join('|'));
+    }
+
+    // 3c) BRECCIA: ~40% una porta in più (muro crollato).
+    const [br, rb] = nextInt(rng, 100);
+    rng = rb;
+    if (br < 40) {
+      for (const p of order) {
+        const k = [p.a, p.b].sort().join('|');
+        if (opened.has(k)) continue;
+        addLink(p.a, p.b, 'terra');
+        gates.push(linkId(p.a, p.b));
+        opened.add(k);
+        break;
+      }
+    }
+
+    // 3d) Segmenti di MURO: i confini di questo anello SENZA varco → grafica.
+    for (const p of cands) {
+      const k = [p.a, p.b].sort().join('|');
+      if (opened.has(k)) continue;
+      wallSegs.push(perpBar(centerById(p.a), centerById(p.b)));
+    }
+  }
+
+  // 3e) PASSAGGI SEGRETI (solo con ≥3 anelli): 0..2 `terra` fra anelli lontani.
+  const tunnels: string[] = [];
+  if (n >= 3) {
+    const [tc, rt] = nextInt(rng, 3);
+    rng = rt;
+    for (let t = 0; t < tc; t++) {
+      // collega un territorio dell'anello 1 a uno dell'anello 3 «allineato».
+      const inner = cells.filter((c) => cube(c.q, c.r) === 1);
+      const outer = cells.filter((c) => cube(c.q, c.r) === 3);
+      if (inner.length === 0 || outer.length === 0) break;
+      const [ai, ra] = nextInt(rng, inner.length);
+      rng = ra;
+      const A = inner[ai]!;
+      // il più vicino in direzione (minima distanza esagonale)
+      let B = outer[0]!;
+      let best = Infinity;
+      for (const c of outer) {
+        const d = cube(c.q - A.q, c.r - A.r);
+        if (d < best) {
+          best = d;
+          B = c;
+        }
+      }
+      const a = idOf(A.q, A.r);
+      const b = idOf(B.q, B.r);
+      const id = linkId(a, b);
+      if (tunnels.includes(id) || gates.includes(id) || scale.includes(id)) continue;
+      addLink(a, b, 'terra');
+      tunnels.push(id);
+    }
+  }
+
+  // 4) Fossato: contorno esagonale un filo più largo dell'anello esterno.
+  const moat = hexPolygon(0, 0, U * (2 * n + 1) * 0.92).map(([x, y]) => [x, y] as [number, number]);
+
+  const castle: CastleMeta = { rings: n, walls: wallSegs, moat, gates, scale, tunnels };
+
+  const productive = total - deserts;
+  const map: MapDefinition = {
+    id: 'castello',
+    name: `Castello · ${n} anelli`,
+    scale: 'regione',
+    projection: 'equirettangolare',
+    territories,
+    links,
+    numberPool: numberBag(productive),
+    minPlayers: 2,
+    maxPlayers: 6,
+    castle,
+  };
+  return map;
+}
+
+/** Barretta perpendicolare al segmento fra due centri, al punto medio: un «muro». */
+function perpBar(
+  a: [number, number],
+  b: [number, number]
+): [[number, number], [number, number]] {
+  const mx = (a[0] + b[0]) / 2;
+  const my = (a[1] + b[1]) / 2;
+  const dx = b[0] - a[0];
+  const dy = b[1] - a[1];
+  const len = Math.hypot(dx, dy) || 1;
+  // perpendicolare, lunga ~ la larghezza di un esagono
+  const px = (-dy / len) * U * 0.9;
+  const py = (dx / len) * U * 0.9;
+  return [
+    [round(mx + px), round(my + py)],
+    [round(mx - px), round(my - py)],
+  ];
+}

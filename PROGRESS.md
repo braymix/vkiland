@@ -4,6 +4,27 @@
 
 ## Stato attuale
 
+**VIKINGS AROUND THE WORLD — MAPPA CASTELLO** ✅ — nuova mappa del Mondo
+**generata proceduralmente**: un castello esagonale ad ANELLI concentrici. Il
+giocatore sceglie il numero di anelli/mura **2–4** (`castleRings`); la taglia è
+pulita (2→19, 3→37, 4→61 territori). I territori sono un esagono pieno di raggio
+N; ogni «anello» è un guscio di cortili, col **Mastio** al centro. Le **mura**
+sono i confini fra anelli DOVE MANCA un collegamento (il Jarl non passa); i
+varchi sono: **porte** (link `terra`, sul bordo = ponti levatoi sul fossato),
+**scale** (nuovo link **`muro`**: si «scavalca» a **3 punti movimento**, senza
+edifici — `MOVE_COST_MURO`), **brecce** (porta in più, muro crollato) e
+**passaggi segreti** (link `terra` fra anelli non adiacenti, solo con ≥3 anelli).
+Niente rotte di mare. Generatore `engine-world/src/castleMap.ts` (deterministico
+dal seed, con metadati grafici `castle` per il renderer: segmenti di muro,
+contorno del fossato, quali link sono porte/scale/passaggi); `createGame` genera
+la mappa quando `mapId === 'castello'`. Movimento: ramo `muro` in `planMove` e
+nel Dijkstra dei bot. Web: voce **Castello** nel selettore mappe (locale e
+online) con cursore anelli; renderer con fossato teal, mura di pietra, scale
+tratteggiate, porte e passaggi. i18n it/en. Test: generazione deterministica,
+taglie, mura che separano gli anelli (grafo spezzato senza varchi), partite
+complete; +1 test lobby server. **La versione erroneamente messa nella Classica
+è stata rimossa.**
+
 **VIKINGS AROUND THE WORLD — EROI DI RARITÀ SUPERIORE (solo Mondo)** ✅ — 7 nuovi
 eroi `worldOnly`, più forti e pensati per le regole del Mondo: 5 **rari** —
 Leif `navigatore` (Jarl 6 punti movimento), Freydis `salvacondotto` (non paga

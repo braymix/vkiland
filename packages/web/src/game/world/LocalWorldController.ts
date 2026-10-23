@@ -40,6 +40,8 @@ export interface WorldSetup {
   targetPoints: number;
   materialiCasuali: boolean;
   mapId: string;
+  /** Mappa Castello: numero di anelli (2..4). Usato solo con `mapId === 'castello'`. */
+  castleRings?: number;
   override?: MapOverride | null;
 }
 
@@ -104,6 +106,7 @@ export class LocalWorldController implements WorldController {
         seed: setup.seed,
         targetPoints: setup.targetPoints,
         mapId: setup.mapId,
+        ...(setup.castleRings != null ? { castleRings: setup.castleRings } : {}),
         materialiCasuali: setup.materialiCasuali,
         players: setup.players.map((p) => ({
           name: p.name,

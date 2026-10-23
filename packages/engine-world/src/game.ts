@@ -6,6 +6,7 @@ import {
 } from './constants';
 import { initialHeroUses, sanitizeWorldHero } from './heroes';
 import { applyMapOverride, assignNumbers, freezeMap, getMapDefinition, isProductive, validateMap } from './map';
+import { generateCastleMap } from './castleMap';
 import { seedRng, shuffle } from './rng';
 import { zeroResources } from './resources';
 import type {
@@ -33,11 +34,18 @@ export function defaultConfig(partial: Partial<WorldGameConfig> & Pick<WorldGame
     mapId: partial.mapId ?? 'mondo',
     materialiCasuali: partial.materialiCasuali ?? false,
     avoidAdjacent68: partial.avoidAdjacent68 ?? true,
+    ...(partial.castleRings != null ? { castleRings: partial.castleRings } : {}),
   };
 }
 
 export function createGame(config: WorldGameConfig, opts: NewWorldGameOptions = {}): WorldGameState {
-  const base = opts.map ?? getMapDefinition(config.mapId);
+  // Mappa CASTELLO: generata proceduralmente dal seed (anelli scelti). Una mappa
+  // esplicita in `opts.map` (test) ha comunque la precedenza.
+  const base =
+    opts.map ??
+    (config.mapId === 'castello'
+      ? generateCastleMap(config.seed, config.castleRings ?? 3)
+      : getMapDefinition(config.mapId));
   if (!base) throw new Error(`Mappa sconosciuta: ${config.mapId}`);
   const baseErrors = validateMap(base);
   if (baseErrors.length > 0) throw new Error(`Mappa non valida: ${baseErrors[0]}`);
