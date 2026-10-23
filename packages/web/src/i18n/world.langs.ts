@@ -7,6 +7,8 @@ import type { WorldStrings } from './world';
 type Dict = Partial<WorldStrings>;
 
 const es: Dict = {
+  regoleCastello:
+    'Asalto al castillo: desembarca en el Burgo (al inicio solo se funda allí) y avanza hacia la Torre del Homenaje, donde los números son mejores. Mueve el Jarl (4 puntos: 1 por tus caminos, 2 fuera): cuando sale el número de su territorio recoge 1 material. Funda pueblos donde llegue (máx. 2 clanes por territorio). Entrar en tierra ajena cuesta un peaje. Las murallas se cruzan por puertas y puentes levadizos, o se escalan (3 puntos); pasadizos secretos y brechas son atajos. Aquí no hay rutas de mar: el Puerto (solo en el Burgo) solo mejora el comercio con el banco. Gana quien llegue antes a los PG.',
   modalitaMondo: 'Modo de juego',
   assaltoCastello: 'Asalto al castillo',
   assaltoCastelloSub: 'Desembarca en el Burgo y toma la Torre',
@@ -165,6 +167,8 @@ const es: Dict = {
 };
 
 const fr: Dict = {
+  regoleCastello:
+    'Assaut du château : débarque dans le Bourg (au début on ne fonde que là) et remonte vers le Donjon, où les numéros sont meilleurs. Déplace le Jarl (4 points : 1 sur tes routes, 2 hors route) : quand sort le numéro de son territoire, il récolte 1 matériau. Fonde des villages où il arrive (2 clans max par territoire). Entrer en terre étrangère coûte un péage. Les murs se passent par les portes et les ponts-levis, ou s’escaladent avec les échelles (3 points) ; passages secrets et brèches sont des raccourcis. Ici pas de routes maritimes : le Port (Bourg seulement) améliore juste les échanges avec la banque. Le premier aux PV gagne.',
   modalitaMondo: 'Mode de jeu',
   assaltoCastello: 'Assaut du château',
   assaltoCastelloSub: 'Débarque dans le Bourg et prends le Donjon',
@@ -323,6 +327,8 @@ const fr: Dict = {
 };
 
 const de: Dict = {
+  regoleCastello:
+    'Sturm auf die Burg: Lande im Vorort (zu Beginn gründet man nur dort) und kämpfe dich zum Bergfried vor, wo die Zahlen besser sind. Bewege den Jarl (4 Punkte: 1 auf deinen Straßen, 2 abseits): fällt die Zahl seines Gebiets, sammelt er 1 Rohstoff. Gründe Dörfer, wo er ankommt (max. 2 Clans pro Gebiet). Fremdes Land kostet Zoll. Mauern überwindet man durch Tore und Zugbrücken oder mit Leitern (3 Punkte); Geheimgänge und Breschen sind Abkürzungen. Hier gibt es keine Seewege: der Hafen (nur im Vorort) verbessert nur den Handel mit der Bank. Wer zuerst die SP erreicht, gewinnt.',
   modalitaMondo: 'Spielmodus',
   assaltoCastello: 'Sturm auf die Burg',
   assaltoCastelloSub: 'Lande im Vorort und erobere den Bergfried',
@@ -481,6 +487,8 @@ const de: Dict = {
 };
 
 const nl: Dict = {
+  regoleCastello:
+    'Aanval op het kasteel: land in het Voorburcht (aan het begin sticht je alleen daar) en werk je naar de Donjon, waar de nummers beter zijn. Verplaats de Jarl (4 punten: 1 op je wegen, 2 erbuiten): valt het nummer van zijn gebied, dan verzamelt hij 1 grondstof. Sticht dorpen waar hij aankomt (max. 2 clans per gebied). Vreemd gebied kost tol. Muren passeer je via poorten en ophaalbruggen, of je beklimt ze met ladders (3 punten); geheime gangen en bressen zijn sluipwegen. Hier zijn geen zeeroutes: de Haven (alleen in de Voorburcht) verbetert alleen de ruil met de bank. Wie het eerst de WP haalt, wint.',
   modalitaMondo: 'Spelmodus',
   assaltoCastello: 'Aanval op het kasteel',
   assaltoCastelloSub: 'Land in het Dorp en verover de Donjon',
@@ -639,6 +647,8 @@ const nl: Dict = {
 };
 
 const ru: Dict = {
+  regoleCastello:
+    'Штурм замка: высадись в посаде (в начале основывать можно только там) и пробивайся к донжону, где числа лучше. Двигай ярла (4 очка: 1 по своим дорогам, 2 вне дорог): когда выпадает число его территории, он собирает 1 ресурс. Основывай деревни там, куда он пришёл (не больше 2 кланов на территории). Вход на чужую землю стоит пошлины. Стены проходят через ворота и подъёмные мосты или перелезают по лестницам (3 очка); тайные ходы и бреши — короткие пути. Морских путей здесь нет: порт (только в посаде) лишь улучшает обмен с банком. Кто первым наберёт ОС, тот победил.',
   modalitaMondo: 'Режим игры',
   assaltoCastello: 'Штурм замка',
   assaltoCastelloSub: 'Высадись в посаде и захвати донжон',
@@ -797,6 +807,8 @@ const ru: Dict = {
 };
 
 const sr: Dict = {
+  regoleCastello:
+    'Napad na zamak: iskrcaj se u podgrađe (na početku se osniva samo tamo) i probij se ka kuli, gde su brojevi bolji. Pomeraj jarla (4 poena: 1 po svojim putevima, 2 van puteva): kad padne broj njegove teritorije, sakuplja 1 resurs. Osnivaj sela gde stigne (najviše 2 klana po teritoriji). Ulazak na tuđu zemlju košta putarinu. Zidine se prelaze kroz kapije i pokretne mostove ili merdevinama (3 poena); tajni prolazi i pukotine su prečice. Ovde nema morskih puteva: luka (samo u podgrađu) samo poboljšava razmenu sa bankom. Ko prvi stigne do PS, pobeđuje.',
   modalitaMondo: 'Režim igre',
   assaltoCastello: 'Napad na zamak',
   assaltoCastelloSub: 'Iskrcaj se u podgrađu i osvoji kulu',

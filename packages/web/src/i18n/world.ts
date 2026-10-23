@@ -134,6 +134,8 @@ const itW = {
   regole: 'Regole in breve',
   regoleTesto:
     'Muovi il Jarl (4 punti: 1 sulle tue strade, 2 fuori): quando esce il numero del territorio dove si trova raccoglie 1 materiale. Fondi villaggi dove arriva (max 2 clan per territorio). Entrare in terra altrui costa un pedaggio. Mare solo da un tuo Porto. Vince chi arriva ai PG per primo.',
+  regoleCastello:
+    'Assalto al castello: sbarca nel Borgo (all’inizio si fonda solo lì) e risali verso il Mastio, dove i numeri sono migliori. Muovi il Jarl (4 punti: 1 sulle tue strade, 2 fuori): quando esce il numero del territorio dove si trova raccoglie 1 materiale. Fondi villaggi dove arriva (max 2 clan per territorio). Entrare in terra altrui costa un pedaggio. Le mura si passano da porte e ponti levatoi, oppure si scavalcano con le scale (3 punti); passaggi segreti e brecce fanno da scorciatoia. Qui non ci sono rotte di mare: il Porto (solo nel Borgo) serve solo a scambiare meglio con la banca. Vince chi arriva ai PG per primo.',
   grandeVia: 'La Grande Via',
   grandeViaggiatore: 'Il Grande Viaggiatore',
   edifici: 'Edifici',
@@ -210,7 +212,6 @@ const itW = {
   inViaggio: 'In viaggio',
   inViaggioSub: 'Conquista il mondo vero, mappa per mappa',
   castelloAnelli: 'Anelli del castello',
-  castelloSpiega: 'Castello esagonale ad anelli generato a caso. All’inizio si fonda solo nel Borgo, l’anello più esterno: più vai verso il Mastio più i numeri sono belli, verso fuori più brutti. Le mura si passano dalle porte e dai ponti levatoi, o si scavalcano con le scale (costa molto movimento); passaggi segreti e brecce fanno scorciatoia.',
   postoLibero: 'C’è posto per un altro clan',
   raccolta: 'Il Jarl raccoglie quando esce il numero del suo territorio',
   // eroi (sempre attivi nel Mondo)
@@ -369,6 +370,8 @@ const enW: WorldStrings = {
   regole: 'Quick rules',
   regoleTesto:
     'Move the Jarl (4 points: 1 on your roads, 2 elsewhere): when its territory\'s number is rolled it gathers 1 material. Found villages where it arrives (max 2 clans per territory). Entering foreign land costs a toll. Sea only from your own Harbor. First to reach the VP wins.',
+  regoleCastello:
+    'Castle siege: land in the Village (you can only found there at the start) and fight your way toward the Keep, where the numbers are better. Move the Jarl (4 points: 1 on your roads, 2 elsewhere): when its territory\'s number is rolled it gathers 1 material. Found villages where it arrives (max 2 clans per territory). Entering foreign land costs a toll. Walls are crossed through gates and drawbridges, or climbed with ladders (3 points); secret passages and breaches are shortcuts. There are no sea routes here: the Harbor (Village only) just improves bank trades. First to reach the VP wins.',
   grandeVia: 'The Great Road',
   grandeViaggiatore: 'The Great Traveler',
   edifici: 'Buildings',
@@ -441,7 +444,6 @@ const enW: WorldStrings = {
   inViaggio: 'Journey',
   inViaggioSub: 'Conquer the real world, map by map',
   castelloAnelli: 'Castle rings',
-  castelloSpiega: 'A randomly generated hexagonal ring castle. You start by founding only in the Village, the outermost ring: the closer to the Keep, the better the numbers; the further out, the worse. Walls are crossed through gates and drawbridges or climbed with ladders (costs a lot of movement); secret passages and breaches are shortcuts.',
   postoLibero: 'Room for one more clan',
   raccolta: "The Jarl gathers when its territory's number is rolled",
   eroe: 'Hero',
