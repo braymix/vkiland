@@ -31,6 +31,12 @@ services:
       # Database dedicato a questa app, raggiungibile solo dalla rete interna.
       DATABASE_URL: postgresql://vikiland:${POSTGRES_PASSWORD}@db:5432/vikiland
       DATABASE_SSL: ''
+      # Email "server tornato su" a ogni avvio (vuote = disattivata).
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      NOTIFY_EMAIL: ${NOTIFY_EMAIL:-michelepanarotto00@gmail.com}
     depends_on:
       db:
         condition: service_healthy

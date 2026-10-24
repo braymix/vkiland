@@ -18,6 +18,7 @@ import { getMapDefinition } from '@vikiland/engine-world';
 import { LobbyManager } from './lobby';
 import { WorldLobbyManager, isErr as isWorldErr } from './worldLobby';
 import { JsonFileStorage, type Storage } from './storage';
+import { notifyStartup } from './notify';
 import { isApiError, type ClientToServerEvents, type LoginRequest, type RegisterRequest, type ServerToClientEvents } from './protocol';
 
 const PORT = Number(process.env['PORT'] ?? 8787);
@@ -450,3 +451,4 @@ io.on('connection', (socket: AnySocket) => {
 
 await app.listen({ port: PORT, host: HOST });
 console.log(`Vikiland server in ascolto su http://${HOST}:${PORT} (dati: ${DATA_DIR})`);
+void notifyStartup();
