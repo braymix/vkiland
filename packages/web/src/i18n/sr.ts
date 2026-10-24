@@ -28,6 +28,7 @@ export const sr: Strings = {
   creditiDonazioneTitolo: 'Podrži projekat',
   creditiDonazioneTesto:
     'Server plaćam iz svog džepa, da bi uvek bio brz i dostupan. Ako želiš da pomogneš, donacija je dobrodošla ali potpuno opciona — hvala od srca!',
+  creditiDonazioneLink: 'Doniraj preko Satispay-a',
 
   // Joke "monetization" popup (New game)
   memeTitolo: 'Samo trenutak, VikinÅ¾e!',

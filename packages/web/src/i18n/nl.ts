@@ -28,6 +28,7 @@ export const nl: Strings = {
   creditiDonazioneTitolo: 'Steun het project',
   creditiDonazioneTesto:
     'De server wordt uit eigen zak betaald, zodat hij altijd snel en online blijft. Als je wilt helpen, is een donatie welkom maar volledig optioneel — hartelijk dank!',
+  creditiDonazioneLink: 'Doneer met Satispay',
 
   // Grappige "monetisatie"-pop-up (Nieuw spel)
   memeTitolo: 'Wacht even, Viking!',

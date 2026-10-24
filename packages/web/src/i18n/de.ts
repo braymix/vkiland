@@ -28,6 +28,7 @@ export const de: Strings = {
   creditiDonazioneTitolo: 'Unterstütze das Projekt',
   creditiDonazioneTesto:
     'Der Server wird aus eigener Tasche bezahlt, damit er schnell und online bleibt. Wenn du helfen möchtest, ist eine Spende willkommen, aber völlig freiwillig — danke von Herzen!',
+  creditiDonazioneLink: 'Mit Satispay spenden',
 
   // Joke "monetization" popup (New game)
   memeTitolo: 'Moment mal, Wikinger!',

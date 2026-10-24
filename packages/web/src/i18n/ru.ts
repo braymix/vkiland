@@ -28,6 +28,7 @@ export const ru: Strings = {
   creditiDonazioneTitolo: 'Поддержать проект',
   creditiDonazioneTesto:
     'Сервер оплачивается из моего кармана, чтобы он всегда оставался быстрым и доступным. Если хочешь помочь, пожертвование приветствуется, но совершенно необязательно — спасибо от всего сердца!',
+  creditiDonazioneLink: 'Пожертвовать через Satispay',
 
   // Joke "monetization" popup (New game)
   memeTitolo: 'ÐÐ¾Ð³Ð¾Ð´Ð¸, Ð²Ð¸ÐºÐ¸Ð½Ð³!',

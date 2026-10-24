@@ -32,6 +32,7 @@ export const it = {
   creditiDonazioneTesto:
     'Il server è a pagamento di tasca mia, così resta sempre veloce e online. Se ti va di dare una mano, ' +
     'una donazione è gradita ma del tutto facoltativa — grazie di cuore!',
+  creditiDonazioneLink: 'Dona con Satispay',
 
   // Popup "monetizzazione" scherzoso (Nuova partita)
   memeTitolo: 'Un attimo, vichingo!',

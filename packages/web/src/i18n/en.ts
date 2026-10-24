@@ -28,6 +28,7 @@ export const en: Strings = {
   creditiDonazioneTitolo: 'Support the project',
   creditiDonazioneTesto:
     'The server is paid for out of my own pocket, so it stays fast and online. If you\'d like to help, a donation is welcome but entirely optional — thank you from the heart!',
+  creditiDonazioneLink: 'Donate with Satispay',
 
   // Joke "monetization" popup (New game)
   memeTitolo: 'Hold on, Viking!',

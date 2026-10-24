@@ -16,6 +16,9 @@ import { LanguageSwitcher } from '../components/LanguageSwitcher';
 /** Autore del gioco (riconoscimenti). */
 const AUTHOR = 'Michele Panarotto';
 const AUTHOR_EMAIL = 'michelepanarotto00@gmail.com';
+/** Link di donazione (Satispay) mostrato nei riconoscimenti. */
+const DONATE_URL =
+  'https://web.satispay.com/download/qrcode/S6Y-SVN--5F9B7DF1-D02F-4617-A0A2-CBC86043AF47?locale=it';
 
 /**
  * Pallino rosso «da fare»: appare accanto a un pulsante del menu col NUMERO di
@@ -154,11 +157,14 @@ export function MenuScreen({
             <div className="credits-donate">
               <div className="credits-donate-title">{it.creditiDonazioneTitolo}</div>
               <p className="credits-invite">{it.creditiDonazioneTesto}</p>
-              <img
-                className="credits-donate-qr"
-                src="/img/donate-satispay.jpg"
-                alt={it.creditiDonazioneTitolo}
-              />
+              <a
+                className="credits-mail"
+                href={DONATE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                💳 {it.creditiDonazioneLink}
+              </a>
             </div>
             <div className="credits-thanks">{it.creditiGrazie}</div>
           </div>
