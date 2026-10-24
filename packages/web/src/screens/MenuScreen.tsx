@@ -156,7 +156,7 @@ export function MenuScreen({
               <p className="credits-invite">{it.creditiDonazioneTesto}</p>
               <img
                 className="credits-donate-qr"
-                src="/img/donate-paypal.jpg"
+                src="/img/donate-satispay.jpg"
                 alt={it.creditiDonazioneTitolo}
               />
             </div>
