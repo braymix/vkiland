@@ -146,4 +146,31 @@ describe('GameRoom', () => {
     expect('rngState' in (updates[0]!.view as object)).toBe(false);
     room.dispose();
   });
+
+  it('spettatori e tavoli ricevono lo storico COMPLETO dei tiri, anche entrando tardi', async () => {
+    const specUpdates: GameUpdate[] = [];
+    const room = new GameRoom(
+      'TEST09',
+      'seed-room-rolls',
+      [bot('A', 'rosso'), bot('B', 'blu')],
+      CFG,
+      {
+        sendUpdate: () => {},
+        sendRejected: () => {},
+        sendSpectatorUpdate: (_userId, u) => specUpdates.push(u),
+      },
+      { botDelayMs: [0, 0] }
+    );
+    await waitFor(() => room.isFinished, 30000);
+    // Lo spettatore entra a partita FINITA: lo storico c'è lo stesso, tutto.
+    room.addSpectator('table:abc');
+    const u = specUpdates.at(-1)!;
+    expect(u.spectator).toBe(true);
+    const history = u.rollHistory ?? [];
+    expect(history.length).toBeGreaterThan(0);
+    expect(history.every((n) => Number.isInteger(n) && n >= 2 && n <= 12)).toBe(true);
+    // Un tiro per turno giocato dopo il setup: lo storico non può superare i giri.
+    expect(history.length).toBeLessThanOrEqual(u.view.turnNumber + 1);
+    room.dispose();
+  }, 30000);
 });

@@ -6,6 +6,7 @@ import type { GameController } from '../game/controller';
 import { useGame } from '../game/useGame';
 import { ActionBar, type BuildMode } from '../components/ActionBar';
 import { SpectatorBar } from '../components/SpectatorBar';
+import { TableBar } from '../components/TableBar';
 import { Dialog } from '../components/dialogs/Dialog';
 import { BoardCanvas, type BoardTargets } from '../components/BoardCanvas';
 import { CalamityBanner } from '../components/CalamityBanner';
@@ -52,6 +53,11 @@ interface Props {
    * es. nelle missioni).
    */
   onGameComplete?: (finalState: GameState, viewpoint: PlayerId) => void;
+  /**
+   * Modalità TAVOLO: si guarda da spettatore su uno schermo condiviso; al posto
+   * della barra spettatore c'è quella coi numeri usciti.
+   */
+  table?: boolean;
 }
 
 export function GameScreen({
@@ -60,6 +66,7 @@ export function GameScreen({
   onRematch,
   manage = null,
   onGameComplete,
+  table = false,
 }: Props) {
   const controllerRef = useRef<GameController | null>(null);
   if (controllerRef.current === null) {
@@ -332,7 +339,9 @@ export function GameScreen({
           onPickEdge={pickEdge}
           onPickHex={pickHex}
         />
-        {isSpectator ? (
+        {isSpectator && table ? (
+          <TableBar view={view} rollHistory={snap.rollHistory ?? []} />
+        ) : isSpectator ? (
           <SpectatorBar view={view} pending={handPending} onRequestHand={requestHand} />
         ) : (
           <>

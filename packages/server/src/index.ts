@@ -6,6 +6,7 @@
  *
  * Avvio:  pnpm --filter @vikiland/server dev   (porta 8787, override: PORT)
  */
+import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import Fastify from 'fastify';
@@ -19,7 +20,7 @@ import { LobbyManager } from './lobby';
 import { WorldLobbyManager, isErr as isWorldErr } from './worldLobby';
 import { JsonFileStorage, type Storage } from './storage';
 import { notifyStartup } from './notify';
-import { isApiError, type ClientToServerEvents, type LoginRequest, type RegisterRequest, type ServerToClientEvents } from './protocol';
+import { isApiError, type ClientToServerEvents, type LoginRequest, type RegisterRequest, type ServerToClientEvents, type TableHandshake } from './protocol';
 
 const PORT = Number(process.env['PORT'] ?? 8787);
 const HOST = process.env['HOST'] ?? '0.0.0.0';
@@ -264,15 +265,76 @@ function bearerOf(header: string | undefined): string | null {
 // ---------------------------------------------------------------------------
 
 io.use((socket, next) => {
-  const token = (socket.handshake.auth as { token?: string }).token;
+  const hs = (socket.handshake.auth ?? {}) as Partial<TableHandshake> & { token?: string };
+  const token = typeof hs.token === 'string' ? hs.token : undefined;
   const user = token ? auth.authenticate(token) : null;
+  // Tavolo: connessione anonima in sola lettura. Ha un'identità PROPRIA
+  // (`table:<id>`), separata dall'eventuale account, così anche un giocatore
+  // seduto può aprire il tavolo su un altro dispositivo senza perdere il posto.
+  if (hs.table === true) {
+    const tableId = sanitizeTableId(hs.tableId);
+    socket.data = {
+      userId: `table:${tableId}`,
+      name: user ? `${TABLE_NAME} · ${user.username}` : TABLE_NAME,
+      table: true,
+    };
+    return next();
+  }
   if (!user) return next(new Error('Sessione non valida'));
   socket.data = { userId: user.id, name: user.username };
   next();
 });
 
+const TABLE_NAME = 'Tavolo';
+
+/** Id del dispositivo-tavolo: alfanumerico corto; altrimenti uno casuale. */
+function sanitizeTableId(raw: unknown): string {
+  const s = typeof raw === 'string' ? raw.trim() : '';
+  return /^[A-Za-z0-9_-]{6,40}$/.test(s) ? s : randomUUID();
+}
+
+/**
+ * Socket di un TAVOLO: può solo elencare le partite pubbliche in corso,
+ * guardarne una e chiederne l'ultimo stato. Nessuna lobby, azione o chat.
+ * Alla disconnessione smette di guardare (il client, riconnesso, ri-entra).
+ */
+function handleTableSocket(socket: AnySocket, userId: string, name: string): void {
+  socket.join(`user:${userId}`);
+
+  socket.on('lobby:listWatchable', (cb) => cb(lobbies.listWatchable()));
+
+  socket.on('lobby:watch', (code, cb) => {
+    const prev = lobbies.lobbyOfSpectator(userId);
+    if (prev) socket.leave(`lobby:${prev.code}`);
+    const res = lobbies.watch(String(code ?? ''), { id: userId, name }, { table: true });
+    if (!isApiError(res)) {
+      socket.join(`lobby:${res.code}`);
+      lobbies.refreshGame(userId);
+    }
+    cb(res);
+  });
+
+  socket.on('lobby:stopWatch', () => {
+    const lobby = lobbies.lobbyOfSpectator(userId);
+    if (lobby) socket.leave(`lobby:${lobby.code}`);
+    lobbies.stopWatch(userId);
+  });
+
+  socket.on('game:refresh', () => lobbies.refreshGame(userId));
+
+  socket.on('disconnect', () => {
+    // Stesso dispositivo aperto in due schede: smette solo quando chiude l'ultima.
+    const others = [...(io.sockets.adapter.rooms.get(`user:${userId}`) ?? [])];
+    if (others.length === 0) lobbies.stopWatch(userId);
+  });
+}
+
 io.on('connection', (socket: AnySocket) => {
-  const { userId, name } = socket.data as { userId: string; name: string };
+  const { userId, name, table } = socket.data as { userId: string; name: string; table?: boolean };
+  if (table) {
+    handleTableSocket(socket, userId, name);
+    return;
+  }
   socket.join(`user:${userId}`);
   let set = userSockets.get(userId);
   if (!set) userSockets.set(userId, (set = new Set()));

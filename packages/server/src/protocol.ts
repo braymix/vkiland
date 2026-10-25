@@ -193,8 +193,10 @@ export interface WatchableGameSummary {
   players: number;
   /** Giro corrente della partita (per far capire "a che punto è"). */
   turnNumber: number;
-  /** Quanti spettatori la stanno già guardando. */
+  /** Quanti spettatori la stanno già guardando (tavoli inclusi). */
   spectators: number;
+  /** Quanti di questi spettatori sono TAVOLI (tablet in mezzo al tavolo). */
+  tables?: number;
 }
 
 /** Esito dell'entrata come spettatore: la partita da guardare (o un errore). */
@@ -269,6 +271,12 @@ export interface GameUpdate {
   turnDeadline: number | null;
   /** Stato COMPLETO, presente solo a partita finita (per la schermata vittoria). */
   finalState: GameState | null;
+  /**
+   * Solo per gli SPETTATORI (e quindi per i tavoli): totali di TUTTI i tiri di
+   * dadi della partita, in ordine. Così chi entra a metà partita vede comunque
+   * lo storico completo dei numeri usciti.
+   */
+  rollHistory?: number[];
 }
 
 /** Rifiuto di un'azione (il client la mostra come errore non bloccante). */
@@ -303,6 +311,21 @@ export interface ChatMessage {
   text: string;
   /** Momento dell'invio (epoch ms). */
   ts: number;
+}
+
+// ---------------------------------------------------------------------------
+// Tavolo: un dispositivo (tipicamente un tablet in mezzo al tavolo) che guarda
+// una partita in corso SENZA account. Si collega con un handshake anonimo e
+// può soltanto elencare le partite pubbliche e guardarne una.
+// ---------------------------------------------------------------------------
+
+export interface TableHandshake {
+  /** Segna la connessione come TAVOLO (anonima, sola lettura). */
+  table: true;
+  /** Id stabile del dispositivo (ricordato dal client), per contare i tavoli. */
+  tableId: string;
+  /** Facoltativo: se il tavolo è aperto da un utente loggato, il suo token (solo per il nome). */
+  token?: string;
 }
 
 // ---------------------------------------------------------------------------

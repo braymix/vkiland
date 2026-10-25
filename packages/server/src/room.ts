@@ -96,6 +96,8 @@ export class GameRoom {
    * le mani dei soli giocatori presenti in questo insieme.
    */
   private readonly spectators = new Map<string, Set<PlayerId>>();
+  /** Totali di tutti i tiri di dadi, in ordine (per lo storico di spettatori e tavoli). */
+  private readonly rollHistory: number[] = [];
 
   constructor(
     code: string,
@@ -279,6 +281,7 @@ export class GameRoom {
   private commit(next: GameState, events: GameEvent[]): void {
     this.state = next;
     this.generation += 1;
+    for (const e of events) if (e.type === 'dadiTirati') this.rollHistory.push(e.total);
     this.armTurnTimer();
     for (let seat = 0; seat < this.seats.length; seat++) {
       if (!this.seats[seat]!.isBot) {
@@ -335,6 +338,7 @@ export class GameRoom {
       generation: this.generation,
       turnDeadline: this.turnDeadline,
       finalState: over ? this.state : null,
+      rollHistory: [...this.rollHistory],
     };
   }
 

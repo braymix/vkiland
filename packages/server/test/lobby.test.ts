@@ -468,4 +468,54 @@ describe('LobbyManager', () => {
     // Gli id sono progressivi e crescenti.
     expect(fromSpec!.message.id).toBeGreaterThan(fromBjorn!.message.id);
   });
+
+  it('il TAVOLO guarda una partita, è contato a parte e non può chiedere le mani', () => {
+    const { manager, rec } = makeManager();
+    const pub = manager.create(bjorn, { ...CFG, isPublic: true });
+    if (isApiError(pub)) throw new Error('create fallita');
+    manager.join(pub.code, astrid);
+    manager.start(bjorn.id);
+
+    const table = { id: 'table:tablet-1', name: 'Tavolo' };
+    const spec = { id: 'u-spec', name: 'Occhio' };
+    expect(isApiError(manager.watch(pub.code, table, { table: true }))).toBe(false);
+    expect(isApiError(manager.watch(pub.code, spec))).toBe(false);
+    expect(manager.isTable(table.id)).toBe(true);
+    expect(manager.isTable(spec.id)).toBe(false);
+
+    // In lista: 2 spettatori, di cui 1 tavolo.
+    const [row] = manager.listWatchable();
+    expect(row!.spectators).toBe(2);
+    expect(row!.tables).toBe(1);
+
+    // Il tavolo riceve la vista da spettatore, con lo storico dei tiri.
+    const u = rec.spectatorUpdates.get(table.id)!.at(-1)!;
+    expect(u.spectator).toBe(true);
+    expect(u.view.me).toBeNull();
+    expect(u.rollHistory).toEqual([]);
+
+    // Schermo condiviso: la richiesta di mano è ignorata.
+    manager.requestHand(table.id, 0);
+    expect(rec.handRequests).toHaveLength(0);
+
+    // Smette di guardare: non è più un tavolo né uno spettatore.
+    manager.stopWatch(table.id);
+    expect(manager.isTable(table.id)).toBe(false);
+    expect(manager.listWatchable()[0]!.tables).toBe(0);
+  });
+
+  it('un giocatore seduto può aprire il tavolo su un altro dispositivo senza perdere il posto', () => {
+    const { manager } = makeManager();
+    const pub = manager.create(bjorn, { ...CFG, isPublic: true });
+    if (isApiError(pub)) throw new Error('create fallita');
+    manager.join(pub.code, astrid);
+    manager.start(bjorn.id);
+
+    // Il tavolo ha un'identità propria (`table:…`), separata dall'account di Bjorn.
+    const res = manager.watch(pub.code, { id: 'table:bjorn-tablet', name: 'Tavolo · Bjorn' }, { table: true });
+    expect(isApiError(res)).toBe(false);
+    expect(manager.lobbyOfUser(bjorn.id)?.code).toBe(pub.code);
+    expect(manager.lobbyOfSpectator('table:bjorn-tablet')?.code).toBe(pub.code);
+  });
 });
+

@@ -24,6 +24,7 @@ import { ClassicoMenuScreen } from './screens/ClassicoMenuScreen';
 import { MissionsScreen, type PendingMission } from './screens/MissionsScreen';
 import { NewGameScreen } from './screens/NewGameScreen';
 import { ShopScreen } from './screens/ShopScreen';
+import { TableScreen } from './screens/TableScreen';
 import { TutorialScreen } from './screens/TutorialScreen';
 import { NewWorldGameScreen } from './screens/world/NewWorldGameScreen';
 import { WorldGameScreen } from './screens/world/WorldGameScreen';
@@ -55,7 +56,11 @@ type Route =
   | { screen: 'inventory'; mode: 'classico' | 'aroundTheWorld' }
   | { screen: 'missions'; pending?: PendingMission | null }
   | { screen: 'worldMissions'; pending?: WorldPendingMission | null }
-  | { screen: 'shop' };
+  | { screen: 'shop' }
+  | { screen: 'table'; from: 'entry' | 'classicoMenu' };
+
+/** Link diretto alla modalità Tavolo (es. segnalibro sul tablet): viking-island.it/#tavolo */
+const TABLE_HASH = '#tavolo';
 
 export function App() {
   // Sessione online (se presente): decide se «entri» già loggato e se i pulsanti
@@ -63,7 +68,11 @@ export function App() {
   // funziona identico anche senza (bot e hot-seat).
   const [session, setSession] = useState<OnlineSession | null>(() => loadSession());
   const [route, setRoute] = useState<Route>(() =>
-    session ? { screen: 'menu' } : { screen: 'entry' }
+    location.hash === TABLE_HASH
+      ? { screen: 'table', from: session ? 'classicoMenu' : 'entry' }
+      : session
+        ? { screen: 'menu' }
+        : { screen: 'entry' }
   );
   // Sottoscrive la lingua attiva: al cambio si ri-renderizza tutto l'albero,
   // così il proxy `it` rilegge i testi nella nuova lingua ovunque.
@@ -134,6 +143,7 @@ export function App() {
         <EntryScreen
           onLoggedIn={onLoggedIn}
           onSkip={() => setRoute({ screen: 'menu' })}
+          onTable={() => setRoute({ screen: 'table', from: 'entry' })}
           onOpenTutorial={() =>
             setRoute({ screen: 'tutorial', chapter: TUTORIAL_ONLINE_CHAPTER, from: 'menu' })
           }
@@ -161,6 +171,7 @@ export function App() {
           onLibro={() => setRoute({ screen: 'tutorial', from: 'classicoMenu' })}
           onInventory={() => setRoute({ screen: 'inventory', mode: 'classico' })}
           onMissions={() => setRoute({ screen: 'missions' })}
+          onTable={() => setRoute({ screen: 'table', from: 'classicoMenu' })}
           onBack={() => setRoute({ screen: 'menu' })}
         />
       );
@@ -173,6 +184,16 @@ export function App() {
           onInventory={() => setRoute({ screen: 'inventory', mode: 'aroundTheWorld' })}
           onMissions={() => setRoute({ screen: 'worldMissions' })}
           onBack={() => setRoute({ screen: 'menu' })}
+        />
+      );
+    case 'table':
+      return (
+        <TableScreen
+          session={session}
+          onBack={() => {
+            if (location.hash === TABLE_HASH) history.replaceState(null, '', location.pathname);
+            setRoute({ screen: route.from });
+          }}
         />
       );
     case 'tutorial':

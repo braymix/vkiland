@@ -57,6 +57,11 @@ export interface GameSnapshot {
    * il giocatore deve rispondere (permetti/nega). null/assente = nessuna.
    */
   handRequest?: { spectatorId: string; spectatorName: string } | null;
+  /**
+   * Spettatori/tavoli online: totali di TUTTI i tiri della partita, in ordine
+   * (dal server, completi anche entrando a metà). Assente altrove.
+   */
+  rollHistory?: number[];
 }
 
 export interface GameController {

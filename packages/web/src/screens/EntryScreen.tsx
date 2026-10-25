@@ -15,14 +15,18 @@ import {
   type OnlineSession,
 } from '../online/connection';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { tav } from '../i18n/table';
 
 export function EntryScreen({
   onLoggedIn,
   onSkip,
+  onTable,
   onOpenTutorial,
 }: {
   onLoggedIn: (session: OnlineSession) => void;
   onSkip: () => void;
+  /** Apre la modalità Tavolo (guardare una partita online senza account). */
+  onTable: () => void;
   onOpenTutorial: () => void;
 }) {
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -150,6 +154,9 @@ export function EntryScreen({
       {/* Sempre disponibile: si gioca subito in locale, senza registrarsi. */}
       <button className="pxbtn pxbtn--ghost" onClick={onSkip}>
         {it.continuaSenzaAccount}
+      </button>
+      <button className="pxbtn pxbtn--ghost" onClick={onTable}>
+        {tav.apri}
       </button>
       <button className="pxbtn pxbtn--ghost pxbtn--small" onClick={onOpenTutorial}>
         {it.comeFunzionaOnline}

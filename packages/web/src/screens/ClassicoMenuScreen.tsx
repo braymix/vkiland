@@ -4,6 +4,7 @@ import { readyChestCount, pendingMissionCount, type ClassicoProgression } from '
 import { wt } from '../i18n/world';
 import { it } from '../i18n';
 import { inv } from '../i18n/inventory';
+import { tav } from '../i18n/table';
 
 /** Pallino rosso «da fare», col numero di azioni in sospeso (0 → non mostrato). */
 function ActionBadge({ count }: { count: number }) {
@@ -21,6 +22,7 @@ export function ClassicoMenuScreen({
   onLibro,
   onInventory,
   onMissions,
+  onTable,
   onBack,
 }: {
   progression: ClassicoProgression;
@@ -28,6 +30,8 @@ export function ClassicoMenuScreen({
   onLibro: () => void;
   onInventory: () => void;
   onMissions: () => void;
+  /** Modalità Tavolo: questo dispositivo guarda una partita online da schermo condiviso. */
+  onTable: () => void;
   onBack: () => void;
 }) {
   const [now, setNow] = useState(() => Date.now());
@@ -56,6 +60,9 @@ export function ClassicoMenuScreen({
         <button className="pxbtn pxbtn--ghost" onClick={onInventory}>
           🎒 {it.inventario}
           <ActionBadge count={chestsPending} />
+        </button>
+        <button className="pxbtn pxbtn--ghost" onClick={onTable}>
+          {tav.apri}
         </button>
       </div>
       <button className="pxbtn pxbtn--ghost" onClick={onBack}>

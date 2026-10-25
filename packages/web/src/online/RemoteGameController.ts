@@ -145,6 +145,15 @@ export class RemoteGameController implements GameController {
       }
     }
     if (this.log.length > MAX_LOG) this.log = this.log.slice(-MAX_LOG);
+    // Spettatori: lo storico completo dei tiri arriva dal server, quindi le
+    // statistiche dei dadi restano giuste anche entrando a partita iniziata.
+    if (u.rollHistory) {
+      const counts = new Array<number>(13).fill(0);
+      for (const total of u.rollHistory) if (total >= 2 && total <= 12) counts[total]! += 1;
+      this.stats.diceCounts = counts;
+      this.stats.totalRolls = u.rollHistory.length;
+      this.stats.sevens = counts[7]!;
+    }
     // Resetta canUndoLast quando il turno cambia e NON è il turno del giocatore che guarda.
     // Permette l'undo all'ultimo giocatore quando torna il suo turno.
     if (this.lastCurrentPlayer !== null && this.lastCurrentPlayer !== u.view.currentPlayer && u.view.currentPlayer !== u.seat) {
@@ -167,6 +176,7 @@ export class RemoteGameController implements GameController {
       canUndo: this.canUndoLast && u.view.phase.type !== 'gameOver',
       spectator: this.spectator,
       handRequest: this.handRequest,
+      ...(u.rollHistory ? { rollHistory: u.rollHistory } : {}),
     };
     this.emit();
   }

@@ -4,6 +4,22 @@
 
 ## Stato attuale
 
+**MODALITÀ TAVOLO (Classica online)** ✅ — un dispositivo (tipicamente un tablet in mezzo
+al tavolo) guarda una partita **senza account**: «🎲 Modalità Tavolo» dall'entrata o dal
+menu Classica, oppure il link diretto `viking-island.it/#tavolo`. Elenca le partite
+**pubbliche in corso** (aggiornate ogni 5 s) o si collega a una privata col codice, poi
+mostra la mappa in tempo reale con una **barra dei numeri**: di chi è il turno, l'ultimo
+tiro in grande (7 in rosso), gli ultimi 12 numeri e l'istogramma 2–12. Schermo tenuto
+acceso (Wake Lock). **Server**: handshake socket anonimo `{ table: true, tableId }` →
+identità `table:<id>` separata dall'account (anche un giocatore seduto può aprire il
+tavolo su un altro dispositivo senza perdere il posto; con token il nome è «Tavolo ·
+utente»). Il socket-tavolo accetta solo `lobby:listWatchable`, `lobby:watch`,
+`lobby:stopWatch`, `game:refresh`; niente richieste di mano né chat. Alla disconnessione
+smette di guardare, il client ri-entra da solo. `GameRoom` tiene `rollHistory` (tutti i
+tiri) e lo manda agli spettatori, così chi entra a metà vede lo storico completo; la lista
+guardabili espone anche `tables`. Test: tavolo contato a parte, niente mani, giocatore +
+tavolo insieme, storico tiri entrando a partita finita.
+
 **VIKINGS AROUND THE WORLD — DUE MODALITÀ + CASTELLO PER ANELLI** ✅ — entrando nel Mondo
 (nuova partita locale e lobby online) si sceglie fra due pulsanti: **🏰 Assalto al castello**
 (la mappa Castello generata, con cursore anelli 2–4) e **🧭 In viaggio** (le mappe reali:

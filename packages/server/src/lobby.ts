@@ -160,6 +160,8 @@ export class LobbyManager {
   private readonly userSpectating = new Map<string, string>();
   /** Spettatore → nome (per il popup di richiesta mano al giocatore). */
   private readonly spectatorNames = new Map<string, string>();
+  /** Spettatori che sono TAVOLI (sola lettura, niente richieste di mano). */
+  private readonly tableSpectators = new Set<string>();
   /** Id progressivo dei messaggi di chat (chiave stabile lato client). */
   private chatCounter = 0;
 
@@ -506,6 +508,7 @@ export class LobbyManager {
         players: lobby.slots.length,
         turnNumber: lobby.room.turnNumber,
         spectators: this.spectatorsOf(lobby.code),
+        tables: this.tablesOf(lobby.code),
       });
     }
     return out;
@@ -515,7 +518,7 @@ export class LobbyManager {
    * Entra come spettatore in una partita IN CORSO. Pubblica o privata: chi passa
    * il codice ha il permesso di guardare. Non occupa un posto.
    */
-  watch(codeRaw: string, user: LobbyUser): WatchResult | ApiError {
+  watch(codeRaw: string, user: LobbyUser, opts: { table?: boolean } = {}): WatchResult | ApiError {
     const code = codeRaw.trim().toUpperCase();
     const lobby = this.lobbies.get(code);
     if (!lobby) return { error: 'Codice non trovato' };
@@ -529,6 +532,7 @@ export class LobbyManager {
     if (this.userSpectating.has(user.id)) this.stopWatch(user.id);
     this.userSpectating.set(user.id, code);
     this.spectatorNames.set(user.id, user.name);
+    if (opts.table) this.tableSpectators.add(user.id);
     lobby.room.addSpectator(user.id);
     return { code, state: this.toState(lobby) };
   }
@@ -538,6 +542,7 @@ export class LobbyManager {
     if (!code) return;
     this.userSpectating.delete(userId);
     this.spectatorNames.delete(userId);
+    this.tableSpectators.delete(userId);
     const lobby = this.lobbies.get(code);
     lobby?.room?.removeSpectator(userId);
     // Partita finita e rimasta senza pubblico né giocatori connessi → si libera.
@@ -548,6 +553,8 @@ export class LobbyManager {
   requestHand(spectatorUserId: string, seat: PlayerId): void {
     const lobby = this.lobbyOfSpectator(spectatorUserId);
     if (!lobby?.room || !lobby.room.hasSpectator(spectatorUserId)) return;
+    // Un tavolo è uno schermo condiviso: non può chiedere di vedere le mani.
+    if (this.tableSpectators.has(spectatorUserId)) return;
     const targetUserId = lobby.room.userIdOfSeat(seat);
     if (!targetUserId) return; // posto vuoto o bot: niente da chiedere
     this.callbacks.notifyHandRequest?.(targetUserId, {
@@ -616,6 +623,17 @@ export class LobbyManager {
     return n;
   }
 
+  private tablesOf(code: string): number {
+    let n = 0;
+    for (const [userId, c] of this.userSpectating) if (c === code && this.tableSpectators.has(userId)) n++;
+    return n;
+  }
+
+  /** true se l'utente sta guardando come TAVOLO. */
+  isTable(userId: string): boolean {
+    return this.tableSpectators.has(userId);
+  }
+
   // -- presenza ----------------------------------------------------------------
 
   /** Il socket layer notifica connessioni/disconnessioni dell'utente. */
@@ -677,6 +695,7 @@ export class LobbyManager {
       if (code === lobby.code) {
         this.userSpectating.delete(userId);
         this.spectatorNames.delete(userId);
+        this.tableSpectators.delete(userId);
       }
     }
     this.lobbies.delete(lobby.code);

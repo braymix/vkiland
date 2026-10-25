@@ -8,6 +8,7 @@ import type {
   AuthResponse,
   ClientToServerEvents,
   ServerToClientEvents,
+  TableHandshake,
 } from '@vikiland/server/protocol';
 
 export type ServerSocket = Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -214,6 +215,32 @@ export async function checkServerHealth(serverUrl: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+/**
+ * Id del dispositivo-TAVOLO, per scheda (sessionStorage): sopravvive al
+ * ricaricamento, ma due schede sullo stesso browser restano due tavoli distinti.
+ */
+function tableId(): string {
+  const KEY = 'vikiland-table-id';
+  try {
+    const saved = sessionStorage.getItem(KEY);
+    if (saved) return saved;
+    const fresh = crypto.randomUUID();
+    sessionStorage.setItem(KEY, fresh);
+    return fresh;
+  } catch {
+    return crypto.randomUUID();
+  }
+}
+
+/**
+ * Socket di un TAVOLO: anonimo e in sola lettura (elenca e guarda le partite
+ * pubbliche in corso). Il token, se c'è, serve solo a dare un nome al tavolo.
+ */
+export function connectTableSocket(serverUrl: string, token?: string): ServerSocket {
+  const auth: TableHandshake = { table: true, tableId: tableId(), ...(token ? { token } : {}) };
+  return io(serverUrl, { auth: { ...auth }, reconnection: true });
 }
 
 export function connectSocket(session: OnlineSession): ServerSocket {
